@@ -6,11 +6,14 @@ It is **not another model training notebook**.
 
 It is a **from-scratch reconstruction of a modern Lakehouse + MLOps system**, built with minimal cost, open tools, and maximum engineering depth — to truly understand how enterprise ML platforms work under the hood.
 
+## Architecture Overview
+
+SoloLakehouse follows a **Lakehouse-style ML lifecycle**:
 
 <img width="3840" height="1590" alt="Untitled-2026-01-03-2343" src="https://github.com/user-attachments/assets/55882569-6e29-492f-9b75-a3beffa2f8f4" />
 
 
----
+
 
 ## Why SoloLakehouse?
 
@@ -29,7 +32,8 @@ Enterprise platforms like :contentReference[oaicite:0]{index=0} solve these prob
 
 **SoloLakehouse is my way of learning and rebuilding those ideas from first principles — as an individual engineer.**
 
----
+
+
 
 ## Core Design Principles
 
@@ -48,9 +52,7 @@ Enterprise platforms like :contentReference[oaicite:0]{index=0} solve these prob
 - **Explicit over magic**  
   No hidden automation. Every step is visible, inspectable, and explainable.
 
----
 
-## Architecture Overview
 
-SoloLakehouse follows a **Lakehouse-style ML lifecycle**:
+
 
