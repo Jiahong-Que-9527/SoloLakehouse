@@ -6,6 +6,11 @@ It is **not another model training notebook**.
 
 It is a **from-scratch reconstruction of a modern Lakehouse + MLOps system**, built with minimal cost, open tools, and maximum engineering depth — to truly understand how enterprise ML platforms work under the hood.
 
+
+![Uploading Untitled-2026-01-03-2343.png…]()
+
+
+
 ---
 
 ## Why SoloLakehouse?
