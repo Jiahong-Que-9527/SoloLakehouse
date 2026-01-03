@@ -7,8 +7,7 @@ It is **not another model training notebook**.
 It is a **from-scratch reconstruction of a modern Lakehouse + MLOps system**, built with minimal cost, open tools, and maximum engineering depth — to truly understand how enterprise ML platforms work under the hood.
 
 
-![Uploading Untitled-2026-01-03-2343.png…]()
-
+<img width="3840" height="1590" alt="Untitled-2026-01-03-2343" src="https://github.com/user-attachments/assets/55882569-6e29-492f-9b75-a3beffa2f8f4" />
 
 
 ---
