@@ -4,6 +4,11 @@
 
 ---
 
+
+<img width="1024" height="1024" alt="Gemini_Generated_Image_vtrwr3vtrwr3vtrw" src="https://github.com/user-attachments/assets/0953b07b-2e4f-4d07-a1ec-4474af2451f6" />
+
+
+
 ## 1. Purpose of This Handbook
 
 SoloLakehouse is not a demo repository or a collection of notebooks. It is a **long‑living, production‑minded open‑source project** that reflects how modern ML / data / platform systems are built in real organizations.
@@ -25,6 +30,9 @@ This document is meant to be:
 ---
 
 ## 2. Core Principles
+
+<img width="1024" height="1024" alt="Gemini_Generated_Image_hdldphhdldphhdld" src="https://github.com/user-attachments/assets/ed275167-79ef-47c1-90ea-4e94812d0418" />
+
 
 Before the mechanics, a few non‑negotiable principles guide the workflow.
 
