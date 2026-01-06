@@ -31,9 +31,6 @@ This document is meant to be:
 
 ## 2. Core Principles
 
-<img width="1024" height="1024" alt="Gemini_Generated_Image_hdldphhdldphhdld" src="https://github.com/user-attachments/assets/ed275167-79ef-47c1-90ea-4e94812d0418" />
-
-
 Before the mechanics, a few non‑negotiable principles guide the workflow.
 
 ### 2.1 Issue‑Driven Development
