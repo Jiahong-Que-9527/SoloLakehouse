@@ -1,5 +1,7 @@
 # SoloLakehouse Directory Structure
 
+## Directory Structure
+
 sololakehouse/
 ├─ README.md
 ├─ LICENSE
