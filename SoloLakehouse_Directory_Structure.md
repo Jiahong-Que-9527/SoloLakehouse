@@ -1,0 +1,96 @@
+# SoloLakehouse Directory Structure
+
+sololakehouse/
+├─ README.md
+├─ LICENSE
+├─ CHANGELOG.md
+├─ ROADMAP.md
+├─ SECURITY.md
+├─ CONTRIBUTING.md
+├─ CODE_OF_CONDUCT.md
+├─ .gitignore
+├─ .github/
+│  ├─ workflows/
+│  │  ├─ ci.yml
+│  │  ├─ lint.yml
+│  │  └─ docs.yml
+│  ├─ ISSUE_TEMPLATE/
+│  └─ PULL_REQUEST_TEMPLATE.md
+│
+├─ docs/
+│  ├─ index.md                         # docs landing (what/why/how)
+│  ├─ architecture/
+│  │  ├─ overview.md
+│  │  ├─ sololakehouse-architecture.excalidraw
+│  │  └─ sololakehouse-architecture.png
+│  ├─ guides/
+│  │  ├─ getting-started.md
+│  │  ├─ local-dev.md
+│  │  ├─ databricks-free-setup.md
+│  │  ├─ mlflow-selfhost.md
+│  │  └─ minio-delta.md
+│  ├─ concepts/
+│  │  ├─ bronze-silver-gold.md
+│  │  ├─ offline-feature-store.md
+│  │  ├─ point-in-time-join.md
+│  │  └─ model-registry-lifecycle.md
+│  └─ blog-notes/
+│     └─ 2026-01-xx-building-sololakehouse.md
+│
+├─ infra/
+│  ├─ docker-compose.yml
+│  ├─ env.example
+│  ├─ mlflow/
+│  │  ├─ Dockerfile
+│  │  └─ README.md
+│  ├─ minio/
+│  │  └─ README.md
+│  └─ postgres/
+│     └─ init.sql
+│
+├─ data/
+│  ├─ README.md
+│  ├─ sample/                           # tiny public dataset
+│  └─ schemas/
+│
+├─ pipelines/
+│  ├─ ingest/
+│  ├─ bronze/
+│  ├─ silver/
+│  ├─ gold/
+│  ├─ features/
+│  ├─ training/
+│  ├─ inference/
+│  └─ monitoring/
+│
+├─ src/
+│  ├─ sololakehouse/
+│  │  ├─ __init__.py
+│  │  ├─ config/
+│  │  ├─ io/
+│  │  ├─ feature_store/
+│  │  ├─ training/
+│  │  ├─ evaluation/
+│  │  └─ utils/
+│  └─ cli.py                            # sololakehouse CLI
+│
+├─ notebooks/
+│  ├─ 00_quickstart.ipynb
+│  ├─ 01_bronze_to_gold.ipynb
+│  ├─ 02_feature_store.ipynb
+│  ├─ 03_training_mlflow.ipynb
+│  └─ 04_batch_inference.ipynb
+│
+├─ examples/
+│  ├─ quickstart/
+│  ├─ smartpouch-demo/                  # OPTIONAL later
+│  └─ adsb-demo/                        # OPTIONAL later
+│
+├─ tests/
+│  ├─ unit/
+│  └─ integration/
+│
+└─ scripts/
+   ├─ setup_local.sh
+   ├─ run_pipeline.sh
+   └─ export_diagram.sh
