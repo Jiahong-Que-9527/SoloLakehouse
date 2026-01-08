@@ -1,13 +1,6 @@
-
-
-
-
-<img width="481" height="412" alt="SoloLakehouse_icon" src="https://github.com/user-attachments/assets/f7499da8-f064-4dfc-91b9-c11a152eb24a" />
-
 <div align="center">
   <img width="300" alt="SoloLakehouse_icon" src="https://github.com/user-attachments/assets/f7499da8-f064-4dfc-91b9-c11a152eb24a" />
 </div>
-
 
 # SoloLakehouse
 
