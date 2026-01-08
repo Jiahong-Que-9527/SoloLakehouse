@@ -55,9 +55,6 @@ Enterprise platforms like :contentReference[oaicite:0]{index=0} solve these prob
 - **Explicit over magic**  
   No hidden automation. Every step is visible, inspectable, and explainable.
 
-
-## Project Structure
-
 ## Project Structure
 
 ```text
