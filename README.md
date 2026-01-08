@@ -56,8 +56,29 @@ Enterprise platforms like :contentReference[oaicite:0]{index=0} solve these prob
 - **Explicit over magic**  
   No hidden automation. Every step is visible, inspectable, and explainable.
 
+## Stack Comparison: Solo Lakehouse vs. Databricks
+This project aims to replicate an enterprise-grade Data Lakehouse experience locally using open-source components. The table below benchmarks this architecture against the industry-standard Databricks ecosystem to highlight the architectural parallels.
+
+
+## ⚖️ Architecture Comparison
+
+To understand how this local stack maps to a production environment, here is a direct comparison between **Solo Lakehouse** and the **Databricks** ecosystem.
+
+| Component Layer | 🏡 Solo Lakehouse (This Repo) | 🧱 Databricks Ecosystem | Key Differences |
+| :--- | :--- | :--- | :--- |
+| **Table Format** | 🧊 **Apache Iceberg** | **Delta Lake** | Iceberg offers strong vendor-independence; Delta Lake is optimized for Databricks runtime. Both support ACID. |
+| **Storage** | 🗄️ **MinIO** (S3 Compatible) | **DBFS / Cloud Storage** | MinIO mimics cloud object storage locally via Docker, eliminating cloud costs ($0). |
+| **Catalog** | 🐙 **Project Nessie** | **Unity Catalog** | Nessie focuses on "Git-for-Data" (Branching); Unity Catalog focuses on enterprise governance. |
+| **Compute** | ⚡ **Apache Spark** (OSS) | **Photon Engine** | Photon is a proprietary C++ engine; OSS Spark is the standard open-source distribution. |
+| **MLOps** | 🧪 **MLflow** (OSS Docker) | **Managed MLflow** | Core functionality is identical. This repo hosts MLflow in a local container. |
+| **Serving** | 🚀 **MLflow Serving** | **Model Serving** | This solution exposes models via local REST APIs; Databricks uses serverless auto-scaling. |
+| **OLAP Query** | 📊 **Trino** | **Databricks SQL** | Trino is a top-tier independent SQL engine; DB SQL is Databricks' integrated warehouse compute. |
+| **Cost** | 💰 **Free / Open Source** | 💸 **Pay-as-you-go** | Perfect for learning and POCs vs. Enterprise-scale production. |
+
+
 ## Project Structure
 
+```txt
 solo-lakehouse/
 ├── .github/                   # GitHub Actions (CI/CD automation workflows)
 ├── assets/                    # Static assets (architecture diagrams, screenshots, GIFs)
