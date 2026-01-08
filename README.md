@@ -1,7 +1,8 @@
+
+
+<img width="481" height="412" alt="SoloLakehouse_icon" src="https://github.com/user-attachments/assets/f7499da8-f064-4dfc-91b9-c11a152eb24a" />
+
 # SoloLakehouse
-
-<img width="1536" height="1024" alt="ChatGPT Image Jan 3, 2026, 07_23_47 PM white" src="https://github.com/user-attachments/assets/dc5376b8-4add-48d3-8d63-0919f4bea5bb" />
-
 
 **SoloLakehouse** is a personal, Databricks-inspired Lakehouse platform designed and implemented by a single machine learning engineer.
 
