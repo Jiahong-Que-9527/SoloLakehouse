@@ -58,36 +58,35 @@ Enterprise platforms like :contentReference[oaicite:0]{index=0} solve these prob
 
 ## Project Structure
 
-```text
 solo-lakehouse/
-├── .github/                   # GitHub Actions (CI/CD 自动化检查)
-├── assets/                    # 存放架构图、截图、演示 GIF
-├── config/                    # 各个组件的配置文件 (关键！)
+├── .github/                   # GitHub Actions (CI/CD automation workflows)
+├── assets/                    # Static assets (architecture diagrams, screenshots, GIFs)
+├── config/                    # Configuration files for services (Crucial!)
 │   ├── spark/
 │   │   └── spark-defaults.conf
 │   ├── trino/
 │   │   └── catalog/
 │   │       └── nessie.properties
-│   └── prometheus/            # (可选) 监控配置
-├── data/                      # 本地映射的数据目录 (在 .gitignore 中忽略)
-├── docker/                    # Docker 相关文件
-│   ├── Dockerfile.spark       # 如果有自定义构建
-│   ├── Dockerfile.serving     # 模型服务的镜像定义
-│   └── .env.example           # 环境变量模板
-├── notebooks/                 # Jupyter Notebooks (你的核心演示代码)
-│   ├── 01_ingestion.ipynb     # ETL 演示
-│   ├── 02_mlops_flow.ipynb    # MLflow 训练演示
-│   └── 03_nessie_git.ipynb    # 数据版本控制演示
-├── scripts/                   # 辅助脚本
-│   ├── init_buckets.sh        # 初始化 MinIO 桶
-│   └── start.sh               # 一键启动脚本
-├── apps/                      # 应用层代码
-│   └── streamlit_app.py       # 前端演示应用
-├── docker-compose.yml         # 核心编排文件
-├── Makefile                   # 快捷命令 (如 make up, make down)
+│   └── prometheus/            # (Optional) Prometheus monitoring config
+├── data/                      # Local data volume mappings (ignored in .gitignore)
+├── docker/                    # Docker-related resources and builds
+│   ├── Dockerfile.spark       # Custom Spark image build definition
+│   ├── Dockerfile.serving     # Image definition for model serving
+│   └── .env.example           # Environment variable template
+├── notebooks/                 # Jupyter Notebooks (Core demonstration code)
+│   ├── 01_ingestion.ipynb     # ETL process demonstration
+│   ├── 02_mlops_flow.ipynb    # MLflow training pipeline demo
+│   └── 03_nessie_git.ipynb    # Data versioning demo with Nessie
+├── scripts/                   # Helper/Utility scripts
+│   ├── init_buckets.sh        # MinIO bucket initialization script
+│   └── start.sh               # One-click startup script
+├── apps/                      # Application layer code
+│   └── streamlit_app.py       # Frontend demonstration app (Streamlit)
+├── docker-compose.yml         # Main Docker Compose orchestration file
+├── Makefile                   # Shortcut commands (e.g., make up, make down)
 ├── LICENSE                    # MIT or Apache 2.0
-├── README.md                  # 项目门面 (最重要的文件)
-└── requirements.txt           # Python 依赖
+├── README.md                  # Project documentation and entry point
+└── requirements.txt           # Python dependencies
 ```
 
 
