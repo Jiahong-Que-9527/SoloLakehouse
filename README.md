@@ -56,6 +56,39 @@ Enterprise platforms like :contentReference[oaicite:0]{index=0} solve these prob
   No hidden automation. Every step is visible, inspectable, and explainable.
 
 
+## Project Structure
+
+solo-lakehouse/
+├── .github/                 # GitHub Actions (CI/CD 自动化检查)
+├── assets/                  # 存放架构图、截图、演示 GIF
+├── config/                  # 各个组件的配置文件 (关键！)
+│   ├── spark/
+│   │   └── spark-defaults.conf
+│   ├── trino/
+│   │   └── catalog/
+│   │       └── nessie.properties
+│   └── prometheus/          # (可选) 监控配置
+├── data/                    # 本地映射的数据目录 (在 .gitignore 中忽略)
+├── docker/                  # Docker 相关文件
+│   ├── Dockerfile.spark     # 如果有自定义构建
+│   ├── Dockerfile.serving   # 模型服务的镜像定义
+│   └── .env.example         # 环境变量模版
+├── notebooks/               # Jupyter Notebooks (你的核心演示代码)
+│   ├── 01_ingestion.ipynb   # ETL 演示
+│   ├── 02_mlops_flow.ipynb  # MLflow 训练演示
+│   └── 03_nessie_git.ipynb  # 数据版本控制演示
+├── scripts/                 # 辅助脚本
+│   ├── init_buckets.sh      # 初始化 MinIO 桶
+│   └── start.sh             # 一键启动脚本
+├── apps/                    # 应用层代码
+│   └── streamlit_app.py     # 前端演示应用
+├── docker-compose.yml       # 核心编排文件
+├── Makefile                 # 快捷命令 (如 make up, make down)
+├── LICENSE                  # MIT or Apache 2.0
+├── README.md                # 项目门面 (最重要的文件)
+└── requirements.txt         # Python 依赖
+
+
 
 
 
