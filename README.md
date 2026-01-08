@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="300" alt="SoloLakehouse_icon2"  src="https://github.com/user-attachments/assets/de7c68f4-9c9a-4c9e-867e-bb8a20df302f" />
+  <img width="500" alt="SoloLakehouse_icon2"  src="https://github.com/user-attachments/assets/de7c68f4-9c9a-4c9e-867e-bb8a20df302f" />
 </div>
 
 # SoloLakehouse
