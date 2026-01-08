@@ -1,7 +1,5 @@
 <div align="center">
   <img width="300" alt="SoloLakehouse_icon2"  src="https://github.com/user-attachments/assets/de7c68f4-9c9a-4c9e-867e-bb8a20df302f" />
-
-  <img width="300" alt="SoloLakehouse_icon" src="https://github.com/user-attachments/assets/f7499da8-f064-4dfc-91b9-c11a152eb24a" />
 </div>
 
 # SoloLakehouse
