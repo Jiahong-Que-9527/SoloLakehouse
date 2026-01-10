@@ -16,7 +16,9 @@ SoloLakehouse follows a **Lakehouse-style ML lifecycle**:
 
 <img width="3840" height="1590" alt="Untitled-2026-01-03-2343" src="https://github.com/user-attachments/assets/55882569-6e29-492f-9b75-a3beffa2f8f4" />
 
+<img width="1536" height="1024" alt="ChatGPT Image Jan 10, 2026, 01_12_29 PM" src="https://github.com/user-attachments/assets/723dce85-7a26-4ebe-a6c2-1f7e12059947" />
 
+<img width="1536" height="1024" alt="ChatGPT Image Jan 10, 2026, 01_39_05 PM" src="https://github.com/user-attachments/assets/680ed146-343f-4812-bc87-ad8dba4c6daa" />
 
 
 ## Why SoloLakehouse?
