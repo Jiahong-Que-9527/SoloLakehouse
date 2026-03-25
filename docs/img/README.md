@@ -1,9 +1,13 @@
-# Diagram assets (optional)
+# Diagram assets
 
-Place architecture images here so markdown links resolve:
+Committed **SVG** diagrams (render in GitHub, IDEs, and browsers without extra binaries):
 
-- `slh-brand.png` — project banner (optional)
-- `SLH_arch_v0.1.png` — five-layer **core** diagram (filename legacy)
-- `SLH_arch_v1.0.png` — v1.0 target enterprise diagram
+| File | Purpose |
+|------|---------|
+| [`slh-brand.svg`](slh-brand.svg) | Project banner in root `README.md` |
+| [`SLH_arch_v0.1.svg`](SLH_arch_v0.1.svg) | Five-layer core stack |
+| [`SLH_arch_v1.0.svg`](SLH_arch_v1.0.svg) | v1.0 target (conceptual eight-layer view) |
 
-Referenced from the repository root `README.md` and from `docs/architecture.md` as `docs/img/…` or `img/…` depending on file location.
+Older docs referred to **`.png`** versions of the same names; those files were never in the repo, which caused broken images. Markdown now points at the SVGs above.
+
+Optional: add high-resolution **`slh-brand.png`**, **`SLH_arch_v0.1.png`**, **`SLH_arch_v1.0.png`** here and switch `README.md` / `architecture.md` links if you need pixel-perfect marketing assets.

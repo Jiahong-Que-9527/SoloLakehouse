@@ -8,9 +8,9 @@ The **five-layer core** (sources → ingestion → medallion storage → query �
 
 ## Diagram — five-layer core
 
-![Five-layer core architecture](img/SLH_arch_v0.1.png)
+![Five-layer core architecture](img/SLH_arch_v0.1.svg)
 
-*Optional asset: add `SLH_arch_v0.1.png` under `docs/img/` (see [img/README.md](img/README.md)). The filename is historical; the diagram shows the **core** layers.*
+*Vector source: `docs/img/SLH_arch_v0.1.svg`. You can replace with a PNG of the same basename if preferred.*
 
 ## Layers (core)
 
@@ -60,7 +60,7 @@ Details: **[medallion-model.md](medallion-model.md)**.
 
 ## Target state — v1.0
 
-![SoloLakehouse v1.0 Enterprise Architecture](img/SLH_arch_v1.0.png)
+![SoloLakehouse v1.0 Enterprise Architecture](img/SLH_arch_v1.0.svg)
 
 Eight-layer enterprise layout: multi-source ingestion, dedicated metadata layer, observability (Prometheus + Grafana), user access (e.g. CloudBeaver). Scope and phasing: [roadmap.md](roadmap.md).
 

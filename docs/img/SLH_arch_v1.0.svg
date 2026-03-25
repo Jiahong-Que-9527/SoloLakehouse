@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="560" viewBox="0 0 760 560">
+  <rect width="760" height="560" fill="#fafafa"/>
+  <text x="380" y="36" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#0f172a" text-anchor="middle">Target v1.0  eight-layer enterprise-style platform</text>
+  <g font-family="system-ui,sans-serif" font-size="11" fill="#1e293b">
+    <rect x="40" y="60" width="150" height="40" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.2"/>
+    <text x="115" y="85" text-anchor="middle" font-weight="600">Sources</text>
+    <rect x="210" y="60" width="150" height="40" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+    <text x="285" y="85" text-anchor="middle" font-weight="600">Ingestion</text>
+    <rect x="380" y="60" width="150" height="40" rx="6" fill="#fef9c3" stroke="#ca8a04"/>
+    <text x="455" y="85" text-anchor="middle" font-weight="600">Medallion</text>
+    <rect x="550" y="60" width="170" height="40" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="635" y="85" text-anchor="middle" font-weight="600">Metadata layer</text>
+    <rect x="120" y="140" width="160" height="40" rx="6" fill="#e0e7ff" stroke="#4f46e5"/>
+    <text x="200" y="165" text-anchor="middle" font-weight="600">Processing</text>
+    <rect x="300" y="140" width="160" height="40" rx="6" fill="#d1fae5" stroke="#059669"/>
+    <text x="380" y="165" text-anchor="middle" font-weight="600">Query (Trino)</text>
+    <rect x="480" y="140" width="160" height="40" rx="6" fill="#fce7f3" stroke="#db2777"/>
+    <text x="560" y="165" text-anchor="middle" font-weight="600">ML / MLflow</text>
+    <rect x="200" y="220" width="360" height="44" rx="6" fill="#ffedd5" stroke="#ea580c"/>
+    <text x="380" y="247" text-anchor="middle" font-weight="600">Observability  Prometheus · Grafana</text>
+    <rect x="200" y="290" width="360" height="44" rx="6" fill="#f3e8ff" stroke="#9333ea"/>
+    <text x="380" y="317" text-anchor="middle" font-weight="600">User access  e.g. CloudBeaver</text>
+    <rect x="240" y="370" width="280" height="44" rx="6" fill="#f1f5f9" stroke="#475569"/>
+    <text x="380" y="397" text-anchor="middle" font-weight="600">CI/CD · quality gates · runbooks</text>
+  </g>
+  <text x="380" y="480" font-family="system-ui,sans-serif" font-size="12" fill="#64748b" text-anchor="middle">Conceptual target  align with docs/roadmap.md</text>
+  <text x="380" y="505" font-family="system-ui,sans-serif" font-size="10" fill="#94a3b8" text-anchor="middle">docs/img/SLH_arch_v1.0.svg</text>
+</svg>
