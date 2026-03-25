@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="520" viewBox="0 0 720 520">
+  <rect width="720" height="520" fill="#fafafa"/>
+  <text x="360" y="36" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#0f172a" text-anchor="middle">Five-layer core (reference stack)</text>
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <g font-family="system-ui,sans-serif" font-size="13" fill="#1e293b">
+    <rect x="180" y="60" width="360" height="48" rx="6" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="360" y="90" text-anchor="middle" font-weight="600">1  Data sources (ECB API · DAX sample)</text>
+    <line x1="360" y1="108" x2="360" y2="128" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+    <rect x="180" y="128" width="360" height="48" rx="6" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+    <text x="360" y="158" text-anchor="middle" font-weight="600">2  Ingestion &amp; validation (Python · Pydantic)</text>
+    <line x1="360" y1="176" x2="360" y2="196" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+    <rect x="180" y="196" width="360" height="48" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="360" y="226" text-anchor="middle" font-weight="600">3  Storage  MinIO (Bronze · Silver · Gold)</text>
+    <line x1="360" y1="244" x2="360" y2="264" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+    <rect x="180" y="264" width="360" height="48" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+    <text x="360" y="294" text-anchor="middle" font-weight="600">4  Query  Trino · Hive Metastore · PostgreSQL</text>
+    <line x1="360" y1="312" x2="360" y2="332" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+    <rect x="180" y="332" width="360" height="48" rx="6" fill="#fce7f3" stroke="#db2777" stroke-width="1.5"/>
+    <text x="360" y="362" text-anchor="middle" font-weight="600">5  ML  MLflow</text>
+  </g>
+  <text x="360" y="420" font-family="system-ui,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">SoloLakehouse · docs/img/SLH_arch_v0.1.svg</text>
+</svg>

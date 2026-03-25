@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="160" viewBox="0 0 640 160">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="160" rx="12" fill="url(#bg)"/>
+  <text x="320" y="72" font-family="system-ui,Segoe UI,sans-serif" font-size="36" font-weight="700" fill="#f8fafc" text-anchor="middle">SoloLakehouse</text>
+  <text x="320" y="112" font-family="system-ui,Segoe UI,sans-serif" font-size="14" fill="#94a3b8" text-anchor="middle">Lakehouse reference · MinIO · Trino · MLflow</text>
+</svg>

@@ -12,4 +12,4 @@
 | [contributing.md](contributing.md) | How to contribute |
 | [decisions/](decisions/) | Architecture Decision Records (ADR-001 … ADR-005) |
 
-**Diagrams:** Optional PNGs (e.g. `SLH_arch_v0.1.png`) can be placed under [`img/`](img/README.md) so links in the root `README.md` and `architecture.md` render when assets are added.
+**Diagrams:** Committed SVGs live under [`img/`](img/README.md); root `README.md` and `architecture.md` reference them.

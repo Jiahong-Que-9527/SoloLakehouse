@@ -1,7 +1,7 @@
 # SoloLakehouse
 
 <p align="center">
-  <img src="docs/img/slh-brand.png" width="320" alt="SoloLakehouse">
+  <img src="docs/img/slh-brand.svg" width="320" alt="SoloLakehouse">
 </p>
 
 <p align="center">
@@ -19,7 +19,7 @@ SoloLakehouse is a **small but complete Lakehouse reference implementation** bui
 ## Five-layer core
 
 <p align="center">
-  <img src="docs/img/SLH_arch_v0.1.png" width="60%" alt="Five-layer core architecture">
+  <img src="docs/img/SLH_arch_v0.1.svg" width="60%" alt="Five-layer core architecture">
 </p>
 
 | Layer | Role |
@@ -34,7 +34,7 @@ SoloLakehouse is a **small but complete Lakehouse reference implementation** bui
 
 ### Target — v1.0
 
-![v1.0 target architecture](docs/img/SLH_arch_v1.0.png)
+![v1.0 target architecture](docs/img/SLH_arch_v1.0.svg)
 
 Eight-layer enterprise-style stack (metadata, observability, user access, etc.): **[docs/roadmap.md](docs/roadmap.md)**.
 
