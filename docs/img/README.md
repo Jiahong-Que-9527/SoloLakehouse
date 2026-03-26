@@ -1,13 +1,17 @@
 # Diagram assets
 
-Committed **SVG** diagrams (render in GitHub, IDEs, and browsers without extra binaries):
+Current docs are configured to use **PNG** assets:
 
 | File | Purpose |
 |------|---------|
-| [`slh-brand.svg`](slh-brand.svg) | Project banner in root `README.md` |
-| [`SLH_arch_v0.1.svg`](SLH_arch_v0.1.svg) | Five-layer core stack |
-| [`SLH_arch_v1.0.svg`](SLH_arch_v1.0.svg) | v1.0 target (conceptual eight-layer view) |
+| `slh-brand.png` | Project banner in root `README.md` |
+| `SLH_arch_v0.1.png` | Five-layer core stack |
+| `SLH_arch_v1.0.png` | v1.0 target (conceptual eight-layer view) |
 
-Older docs referred to **`.png`** versions of the same names; those files were never in the repo, which caused broken images. Markdown now points at the SVGs above.
+Fallback vector sources remain available as SVG:
 
-Optional: add high-resolution **`slh-brand.png`**, **`SLH_arch_v0.1.png`**, **`SLH_arch_v1.0.png`** here and switch `README.md` / `architecture.md` links if you need pixel-perfect marketing assets.
+| File | Purpose |
+|------|---------|
+| [`slh-brand.svg`](slh-brand.svg) | Brand vector source |
+| [`SLH_arch_v0.1.svg`](SLH_arch_v0.1.svg) | Core architecture vector source |
+| [`SLH_arch_v1.0.svg`](SLH_arch_v1.0.svg) | v1 target architecture vector source |
