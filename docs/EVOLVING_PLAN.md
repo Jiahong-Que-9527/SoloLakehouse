@@ -146,56 +146,56 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 
 ### 3.1 Dagster Project Setup
 
-- [ ] **Task 37**: Add Dagster dependencies to a new `requirements-dagster.txt` file (keep separate from core `requirements.txt` to avoid version conflicts): `dagster==1.7.*`, `dagster-webserver==1.7.*`, `dagster-aws==0.23.*` (for MinIO/S3), `dagster-docker==0.23.*`. Add a `make dagster-install` target.
+- [x] **Task 37**: Add Dagster dependencies to a new `requirements-dagster.txt` file (keep separate from core `requirements.txt` to avoid version conflicts): `dagster==1.7.*`, `dagster-webserver==1.7.*`, `dagster-aws==0.23.*` (for MinIO/S3), `dagster-docker==0.23.*`. Add a `make dagster-install` target.
 
-- [ ] **Task 38** [depends: Task 37]: Create a `dagster/` directory at the project root. Inside: `dagster/__init__.py`, `dagster/assets.py`, `dagster/resources.py`, `dagster/definitions.py`, `dagster/workspace.yaml`. This is the Dagster project scaffold. Do not implement asset logic yet.
+- [x] **Task 38** [depends: Task 37]: Create a `dagster/` directory at the project root. Inside: `dagster/__init__.py`, `dagster/assets.py`, `dagster/resources.py`, `dagster/definitions.py`, `dagster/workspace.yaml`. This is the Dagster project scaffold. Do not implement asset logic yet.
 
-- [ ] **Task 39** [depends: Task 38]: Define Dagster resources in `dagster/resources.py`:
+- [x] **Task 39** [depends: Task 38]: Define Dagster resources in `dagster/resources.py`:
   - `MinioResource`: wraps `minio.Minio` client; reads endpoint/credentials from env vars (same as current pattern)
   - `PipelineConfigResource`: wraps the config dict currently passed to collectors
   Both should use `@dagster.ConfigurableResource`.
 
 ### 3.2 Define Dagster Software-Defined Assets
 
-- [ ] **Task 40** [depends: Task 39]: Create the Bronze layer assets in `dagster/assets.py`:
+- [x] **Task 40** [depends: Task 39]: Create the Bronze layer assets in `dagster/assets.py`:
   - `ecb_bronze`: calls `ECBCollector.collect()`. Metadata: row count, partition date, rejection count.
   - `dax_bronze`: calls `DAXCollector.collect()`. Same metadata.
   Both are `@asset` with `group_name="bronze"`, `retry_policy=RetryPolicy(max_retries=3, delay=5)`.
 
-- [ ] **Task 41** [depends: Task 40]: Create the Silver layer assets in `dagster/assets.py`:
+- [x] **Task 41** [depends: Task 40]: Create the Silver layer assets in `dagster/assets.py`:
   - `ecb_silver`: calls `ecb_bronze_to_silver.run()`. Depends on `ecb_bronze`. Metadata: row count, silver path.
   - `dax_silver`: calls `dax_bronze_to_silver.run()`. Depends on `dax_bronze`. Same metadata.
   Both with `group_name="silver"`, no auto-retry (deterministic transforms).
 
-- [ ] **Task 42** [depends: Task 41]: Create the Gold layer asset and ML asset in `dagster/assets.py`:
+- [x] **Task 42** [depends: Task 41]: Create the Gold layer asset and ML asset in `dagster/assets.py`:
   - `gold_features`: calls `silver_to_gold_features.run()`. Depends on `ecb_silver` AND `dax_silver`. Metadata: event count.
   - `ml_experiment`: calls `ml/evaluate.py run_experiment_set()`. Depends on `gold_features`. Metadata: best model accuracy, experiment ID.
   Both with appropriate group names ("gold", "ml").
 
 ### 3.3 Dagster Job & Schedule
 
-- [ ] **Task 43** [depends: Task 42]: Define a `full_pipeline_job` in `dagster/definitions.py` that materializes all assets in dependency order: `ecb_bronze` → `dax_bronze` → `ecb_silver` → `dax_silver` → `gold_features` → `ml_experiment`. Wire in `MinioResource` and `PipelineConfigResource`.
+- [x] **Task 43** [depends: Task 42]: Define a `full_pipeline_job` in `dagster/definitions.py` that materializes all assets in dependency order: `ecb_bronze` → `dax_bronze` → `ecb_silver` → `dax_silver` → `gold_features` → `ml_experiment`. Wire in `MinioResource` and `PipelineConfigResource`.
 
-- [ ] **Task 44** [depends: Task 43]: Add a `@schedule` named `daily_pipeline_schedule` in `dagster/definitions.py` that runs `full_pipeline_job` at 06:00 UTC every weekday (cron: `"0 6 * * 1-5"`). Use `@schedule(cron_schedule=..., job=..., execution_timezone="UTC")`.
+- [x] **Task 44** [depends: Task 43]: Add a `@schedule` named `daily_pipeline_schedule` in `dagster/definitions.py` that runs `full_pipeline_job` at 06:00 UTC every weekday (cron: `"0 6 * * 1-5"`). Use `@schedule(cron_schedule=..., job=..., execution_timezone="UTC")`.
 
-- [ ] **Task 45** [depends: Task 44]: Register everything in `dagster/definitions.py` as a `Definitions` object: assets, jobs, schedules, resources. Create `dagster/workspace.yaml` pointing to this `Definitions` object. Test with `dagster asset list` (should list all 6 assets).
+- [x] **Task 45** [depends: Task 44]: Register everything in `dagster/definitions.py` as a `Definitions` object: assets, jobs, schedules, resources. Create `dagster/workspace.yaml` pointing to this `Definitions` object. Test with `dagster asset list` (should list all 6 assets).
 
 ### 3.4 Dagster in Docker Compose
 
-- [ ] **Task 46** [depends: Task 45]: Create `docker/dagster/Dockerfile` based on `python:3.11-slim`. Install both `requirements.txt` and `requirements-dagster.txt`. Copy the `dagster/` project directory and all source code (`ingestion/`, `transformations/`, `ml/`, `scripts/`). Set entrypoint to `dagster-webserver`.
+- [x] **Task 46** [depends: Task 45]: Create `docker/dagster/Dockerfile` based on `python:3.11-slim`. Install both `requirements.txt` and `requirements-dagster.txt`. Copy the `dagster/` project directory and all source code (`ingestion/`, `transformations/`, `ml/`, `scripts/`). Set entrypoint to `dagster-webserver`.
 
-- [ ] **Task 47** [depends: Task 46]: Add two new services to `docker/docker-compose.yml`:
+- [x] **Task 47** [depends: Task 46]: Add two new services to `docker/docker-compose.yml`:
   - `dagster-webserver`: runs `dagster-webserver -h 0.0.0.0 -p 3000`, port 3000, depends on minio and postgres being healthy.
   - `dagster-daemon`: runs `dagster-daemon run` (required for schedules and sensors), same image, same depends_on.
   Add `dagster-storage` volume for Dagster's run history SQLite DB (or point to the existing postgres with a `dagster` database).
 
-- [ ] **Task 48** [depends: Task 47]: Add PostgreSQL database for Dagster run storage. Update `config/postgres/init.sql` to also `CREATE DATABASE dagster_storage;`. Update `dagster/workspace.yaml` to use PostgreSQL as the run storage and event log storage (not SQLite). This enables persistent run history across container restarts.
+- [x] **Task 48** [depends: Task 47]: Add PostgreSQL database for Dagster run storage. Update `config/postgres/init.sql` to also `CREATE DATABASE dagster_storage;`. Update `dagster/workspace.yaml` to use PostgreSQL as the run storage and event log storage (not SQLite). This enables persistent run history across container restarts.
 
 ### 3.5 Migrate from run-pipeline.py to Dagster
 
-- [ ] **Task 49** [depends: Task 45]: Keep `scripts/run-pipeline.py` working but add a deprecation warning: "This script is deprecated in v2.0. Use `dagster job execute -j full_pipeline_job` or the Dagster UI instead." Do NOT remove the script — it's useful for quick local runs without the Dagster daemon.
+- [x] **Task 49** [depends: Task 45]: Keep `scripts/run-pipeline.py` working but add a deprecation warning: "This script is deprecated in v2.0. Use `dagster job execute -j full_pipeline_job` or the Dagster UI instead." Do NOT remove the script — it's useful for quick local runs without the Dagster daemon.
 
-- [ ] **Task 50** [depends: Task 47]: Update `Makefile`:
+- [x] **Task 50** [depends: Task 47]: Update `Makefile`:
   - `make pipeline`: now runs `dagster job execute -j full_pipeline_job` (requires Dagster services up)
   - `make pipeline-legacy`: runs the old `scripts/run-pipeline.py` directly
   - `make dagster-ui`: opens browser to `http://localhost:3000`
@@ -203,19 +203,19 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 
 ### 3.6 Sensors & Alerting
 
-- [ ] **Task 51** [depends: Task 45]: Add a `@sensor` named `ecb_data_freshness_sensor` in `dagster/assets.py`. It checks if the latest `bronze/ecb_rates/` partition in MinIO is older than 48 hours. If so, it emits a `RunRequest` to trigger `ecb_bronze` re-materialization. Tick interval: every 30 minutes.
+- [x] **Task 51** [depends: Task 45]: Add a `@sensor` named `ecb_data_freshness_sensor` in `dagster/assets.py`. It checks if the latest `bronze/ecb_rates/` partition in MinIO is older than 48 hours. If so, it emits a `RunRequest` to trigger `ecb_bronze` re-materialization. Tick interval: every 30 minutes.
 
-- [ ] **Task 52** [depends: Task 45]: Add a `@asset_check` for `gold_features` in `dagster/assets.py`. The check verifies that `gold_features` has at least 10 rows (event-study requires minimum data). If it fails, the check status is `FAILED` with a descriptive message. This replaces the silent "< 3 pre-event days" log.
+- [x] **Task 52** [depends: Task 45]: Add a `@asset_check` for `gold_features` in `dagster/assets.py`. The check verifies that `gold_features` has at least 10 rows (event-study requires minimum data). If it fails, the check status is `FAILED` with a descriptive message. This replaces the silent "< 3 pre-event days" log.
 
 ### 3.7 Observability (Basic)
 
-- [ ] **Task 53**: Add `StatsD`-compatible metric emission to `scripts/run-pipeline.py` (and the Dagster assets). After each step, emit timing metrics using Python's `time.perf_counter()`. Write metrics to a structured log line: `{"metric": "pipeline.step.duration_ms", "step": "ecb_bronze", "value": 1234}`. No Prometheus setup yet — just emit to structlog so they're queryable from logs.
+- [x] **Task 53**: Add `StatsD`-compatible metric emission to `scripts/run-pipeline.py` (and the Dagster assets). After each step, emit timing metrics using Python's `time.perf_counter()`. Write metrics to a structured log line: `{"metric": "pipeline.step.duration_ms", "step": "ecb_bronze", "value": 1234}`. No Prometheus setup yet — just emit to structlog so they're queryable from logs.
 
-- [ ] **Task 54**: Add a `dagster/io_managers.py` with a custom `ParquetIOManager` that extends Dagster's `UPathIOManager`. It should handle reading/writing Parquet files to MinIO automatically based on asset key (so assets can yield DataFrames directly without calling `bronze_writer.py` manually). This decouples I/O from business logic. Mark this as OPTIONAL — implement only if the asset pattern needs cleaner I/O abstraction.
+- [x] **Task 54**: Add a `dagster/io_managers.py` with a custom `ParquetIOManager` that extends Dagster's `UPathIOManager`. It should handle reading/writing Parquet files to MinIO automatically based on asset key (so assets can yield DataFrames directly without calling `bronze_writer.py` manually). This decouples I/O from business logic. Mark this as OPTIONAL — implement only if the asset pattern needs cleaner I/O abstraction.
 
 ### 3.8 Documentation Updates for v2.0
 
-- [ ] **Task 55** [depends: Task 50]: Add `docs/DAGSTER_GUIDE.md` explaining:
+- [x] **Task 55** [depends: Task 50]: Add `docs/DAGSTER_GUIDE.md` explaining:
   - How to access the Dagster UI (`http://localhost:3000`)
   - How to manually trigger a pipeline run from the UI
   - How to view asset lineage (the dependency graph)
@@ -223,11 +223,11 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
   - How to re-run a failed step without re-running the whole pipeline
   - Difference between `make pipeline` (Dagster) and `make pipeline-legacy` (script)
 
-- [ ] **Task 56** [depends: Task 44]: Update `docs/architecture.md` to add a "Orchestration Layer" section describing the Dagster DAG, asset dependencies, and schedule. Include the asset dependency graph in text/ASCII form.
+- [x] **Task 56** [depends: Task 44]: Update `docs/architecture.md` to add a "Orchestration Layer" section describing the Dagster DAG, asset dependencies, and schedule. Include the asset dependency graph in text/ASCII form.
 
-- [ ] **Task 57** [depends: Task 36, Task 56]: Update `CLAUDE.md` Roadmap table to mark v2.0 as "current". Update the Tech Stack table to include Dagster. Update the Commands section with new `make` targets. Tag git commit as `v2.0.0`.
+- [x] **Task 57** [depends: Task 36, Task 56]: Update `CLAUDE.md` Roadmap table to mark v2.0 as "current". Update the Tech Stack table to include Dagster. Update the Commands section with new `make` targets. Tag git commit as `v2.0.0`.
 
-- [ ] **Task 58** [depends: Task 57]: Update history records in `docs/history/` for v2.0:
+- [x] **Task 58** [depends: Task 57]: Update history records in `docs/history/` for v2.0:
   - add v2.0 milestone outcome and next gate in `docs/history/timeline.md`
   - record v2.0 architecture decisions/trade-offs in `docs/history/architecture-evolution.md`
   - create/update `docs/history/v2-planning.md` from `docs/history/planning-template.md` with final decision notes and carry-forward items

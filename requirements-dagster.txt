@@ -1,0 +1,11 @@
+dagster==1.7.14; python_version < "3.13"
+dagster-webserver==1.7.14; python_version < "3.13"
+dagster-aws==0.23.14; python_version < "3.13"
+dagster-docker==0.23.14; python_version < "3.13"
+dagster-postgres==0.23.14; python_version < "3.13"
+
+dagster==1.12.21; python_version >= "3.13"
+dagster-webserver==1.12.21; python_version >= "3.13"
+dagster-aws==0.28.21; python_version >= "3.13"
+dagster-docker==0.28.21; python_version >= "3.13"
+dagster-postgres==0.28.21; python_version >= "3.13"

@@ -2,7 +2,7 @@
 
 This file records project evolution in release order.
 
-## v1.0.0 (2026-03-26) - Current
+## v1.0.0 (2026-03-26) - Delivered
 
 **Theme**
 - Full v1 platform baseline with reliable deployment and validation workflow.
@@ -26,18 +26,29 @@ This file records project evolution in release order.
 
 ---
 
-## v2.0.0 - Planned
+## v2.0.0 (2026-03-26) - Current
 
 **Theme**
 - Orchestrated platform with Dagster assets, schedules, and operational UX.
 
-**Expected outcomes**
-- Replace linear orchestration path for default runs.
-- Add scheduling/retry semantics per asset.
-- Improve rerun ergonomics and lineage visibility.
+**What landed**
+- Dagster project scaffold with six software-defined assets: `ecb_bronze`, `dax_bronze`, `ecb_silver`, `dax_silver`, `gold_features`, `ml_experiment`.
+- `full_pipeline_job` and weekday schedule (`daily_pipeline_schedule`, 06:00 UTC) wired through `Definitions`.
+- Compose integration adds `dagster-webserver` and `dagster-daemon` with persistent Dagster storage configuration.
+- Default execution path switched to Dagster (`make pipeline`), with `make pipeline-legacy` retained as migration fallback.
+- Operational docs added (`docs/DAGSTER_GUIDE.md`) and architecture docs updated with orchestration layer and dependency graph.
+- Data freshness sensor (`ecb_data_freshness_sensor`) and gold data quality gate (`gold_features` asset check, min rows) added.
 
 **Primary decision gate**
 - Keep script fallback vs full orchestrator-only mode.
+
+**Carry-forward risks**
+- Dual execution paths increase operational surface during transition period.
+- Full release closure still requires release artifacts (tag/release notes/checklist sign-off).
+- Optional I/O abstraction (`dagster/io_managers.py`) remains deferred.
+
+**Decision gate to v3**
+- Decide whether to remove legacy script path and standardize on orchestrator-only execution before infrastructure migration.
 
 ---
 

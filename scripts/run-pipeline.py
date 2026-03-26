@@ -30,6 +30,10 @@ from transformations import (  # noqa: E402
 logger = structlog.get_logger()
 
 
+def emit_step_metric(step: str, duration_ms: int) -> None:
+    logger.info("pipeline_metric", metric="pipeline.step.duration_ms", step=step, value=duration_ms)
+
+
 def load_dotenv_if_present() -> None:
     env_path = REPO_ROOT / ".env"
     if not env_path.exists():
@@ -210,6 +214,14 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     load_dotenv_if_present()
+    logger.warning(
+        "pipeline_legacy_deprecated",
+        message=(
+            "This script is deprecated in v2.0. Use "
+            "'dagster job execute -f dagster/definitions.py -j full_pipeline_job' "
+            "or the Dagster UI instead."
+        ),
+    )
     os.environ.setdefault(
         "AWS_ACCESS_KEY_ID",
         os.environ.get("S3_ACCESS_KEY", os.environ.get("MINIO_ROOT_USER", "sololakehouse")),
@@ -287,6 +299,7 @@ def main() -> int:
     try:
         for step_number, step_name, fn, with_retry in steps:
             logger.info("pipeline_step_started", step_number=step_number, step_name=step_name)
+            started = time.perf_counter()
             if with_retry:
                 def _run_with_context(
                     sn: int = step_number,
@@ -304,10 +317,13 @@ def main() -> int:
                 result = run_step(step_number, step_name, fn)
 
             statuses.append({"step_number": step_number, "step_name": step_name, "status": "ok"})
+            duration_ms = int((time.perf_counter() - started) * 1000)
+            emit_step_metric(step=step_name.lower().replace(" ", "_").replace("->", "_"), duration_ms=duration_ms)
             logger.info(
                 "pipeline_step_complete",
                 step_number=step_number,
                 step_name=step_name,
+                duration_ms=duration_ms,
                 result=result,
             )
     except StepError as exc:

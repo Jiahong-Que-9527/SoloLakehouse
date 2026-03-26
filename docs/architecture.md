@@ -30,6 +30,45 @@ Layer 4 — Compute & Query: Trino ↔ Hive Metastore ↔ PostgreSQL
 Layer 5 — ML: MLflow (tracking + artifacts on MinIO + PostgreSQL)
 ```
 
+## Orchestration Layer (v2)
+
+v2 introduces Dagster as the default orchestrator for asset-aware execution, retries, scheduling, and lineage.
+
+### Dagster assets
+
+- `ecb_bronze`
+- `dax_bronze`
+- `ecb_silver`
+- `dax_silver`
+- `gold_features`
+- `ml_experiment`
+
+### Asset dependency graph (ASCII)
+
+```text
+ecb_bronze      dax_bronze
+    |               |
+ecb_silver      dax_silver
+      \           /
+       \         /
+        gold_features
+              |
+         ml_experiment
+```
+
+### Scheduling and automation
+
+- Job: `full_pipeline_job`
+- Schedule: `daily_pipeline_schedule`
+- Cron: `0 6 * * 1-5` (06:00 UTC, weekdays)
+- Sensor: `ecb_data_freshness_sensor` checks ECB freshness every 30 minutes and can trigger `ecb_bronze` when stale.
+
+### Runtime model
+
+- `dagster-webserver` provides UI and job execution entrypoint on port `3000`.
+- `dagster-daemon` evaluates schedules/sensors and launches runs.
+- Dagster instance storage uses PostgreSQL database `dagster_storage` for persisted run and event history.
+
 ## Components
 
 | Component | Role | Port |

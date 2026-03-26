@@ -1,4 +1,4 @@
-.PHONY: up down clean pipeline verify test test-cov test-cov-html test-integration lint typecheck setup wait
+.PHONY: up down clean pipeline pipeline-legacy pipeline-dagster verify test test-cov test-cov-html test-integration lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
 PYTHON := python3
@@ -19,7 +19,13 @@ clean:
 	docker compose -f $(COMPOSE_FILE) down -v
 
 pipeline:
+	docker compose -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j full_pipeline_job
+
+pipeline-legacy:
 	$(PYTHON) scripts/run-pipeline.py
+
+pipeline-dagster:
+	docker compose -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j full_pipeline_job
 
 verify:
 	$(PYTHON) scripts/verify-setup.py
@@ -41,6 +47,12 @@ lint:
 
 typecheck:
 	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/
+
+dagster-install:
+	$(PYTHON) -m pip install -r requirements-dagster.txt
+
+dagster-ui:
+	$(PYTHON) -m webbrowser http://localhost:3000
 
 setup:
 	@echo "[1/4] Checking Docker daemon..."
