@@ -234,3 +234,14 @@ Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Detailed task list: 
 | **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
 
 Ingestion-hardening and related tasks: **`docs/EVOLVING_PLAN.md`** Phase 1 (historical label “v0.2”).
+
+## History maintenance (required)
+
+To preserve long-term evolution context across v2/v3/v4, every major milestone update must also update `docs/history/`.
+
+Required actions per version:
+
+1. Update `docs/history/timeline.md` with milestone status, delivered scope, and next decision gate.
+2. Update `docs/history/architecture-evolution.md` with architecture choices made, alternatives rejected, and rationale.
+3. Create or update a version planning note using `docs/history/planning-template.md` (for example `docs/history/v2-planning.md`) before implementation starts.
+4. Cross-link version artifacts: release tag, release notes, checklist, and key ADRs.

@@ -4,6 +4,8 @@
 
 > This is an agent-executable task list. Each item is a self-contained unit of work.
 > Work through items in order within each phase. Items marked with `[depends: N]` must come after item N.
+>
+> **History tracking is mandatory for every major version**: when a version phase is completed, update `docs/history/timeline.md` and `docs/history/architecture-evolution.md`, and create/update a version planning file from `docs/history/planning-template.md`.
 
 ---
 
@@ -224,6 +226,11 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 - [ ] **Task 56** [depends: Task 44]: Update `docs/architecture.md` to add a "Orchestration Layer" section describing the Dagster DAG, asset dependencies, and schedule. Include the asset dependency graph in text/ASCII form.
 
 - [ ] **Task 57** [depends: Task 36, Task 56]: Update `CLAUDE.md` Roadmap table to mark v2.0 as "current". Update the Tech Stack table to include Dagster. Update the Commands section with new `make` targets. Tag git commit as `v2.0.0`.
+
+- [ ] **Task 58** [depends: Task 57]: Update history records in `docs/history/` for v2.0:
+  - add v2.0 milestone outcome and next gate in `docs/history/timeline.md`
+  - record v2.0 architecture decisions/trade-offs in `docs/history/architecture-evolution.md`
+  - create/update `docs/history/v2-planning.md` from `docs/history/planning-template.md` with final decision notes and carry-forward items
 
 ---
 
