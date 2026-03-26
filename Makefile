@@ -1,7 +1,10 @@
-.PHONY: up down clean pipeline pipeline-legacy pipeline-dagster verify test test-cov test-cov-html test-integration lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up down clean pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify test test-cov test-cov-html test-integration lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
 PYTHON := python3
+PIPELINE_MODE ?= v2
+ARGS ?=
+DAGSTER_JOB ?= full_pipeline_job
 
 up:
 	docker compose -f $(COMPOSE_FILE) up -d
@@ -19,13 +22,22 @@ clean:
 	docker compose -f $(COMPOSE_FILE) down -v
 
 pipeline:
-	docker compose -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j full_pipeline_job
+	@if [ "$(PIPELINE_MODE)" = "v1" ] || [ "$(PIPELINE_MODE)" = "legacy" ]; then \
+		echo "Running legacy v1-style pipeline..."; \
+		$(PYTHON) scripts/run-pipeline.py $(ARGS); \
+	else \
+		echo "Running v2 Dagster pipeline..."; \
+		docker compose -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j $(DAGSTER_JOB); \
+	fi
 
 pipeline-legacy:
 	$(PYTHON) scripts/run-pipeline.py
 
+pipeline-v1:
+	$(MAKE) pipeline PIPELINE_MODE=v1 ARGS="$(ARGS)"
+
 pipeline-dagster:
-	docker compose -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j full_pipeline_job
+	$(MAKE) pipeline PIPELINE_MODE=v2 DAGSTER_JOB="$(DAGSTER_JOB)"
 
 verify:
 	$(PYTHON) scripts/verify-setup.py

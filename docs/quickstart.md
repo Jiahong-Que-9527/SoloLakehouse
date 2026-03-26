@@ -39,7 +39,17 @@ Checks MinIO (and buckets), PostgreSQL, Hive Metastore (9083), Trino `/v1/info`,
 make pipeline
 ```
 
-Runs `scripts/run-pipeline.py` (six steps):
+By default in v2, this runs Dagster job orchestration (`full_pipeline_job`).
+
+For v1-compatible legacy script behavior, use:
+
+```bash
+make pipeline PIPELINE_MODE=v1
+# or
+make pipeline-v1
+```
+
+Legacy script mode executes `scripts/run-pipeline.py` (six steps):
 
 | Step | What happens |
 |------|----------------|

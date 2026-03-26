@@ -35,6 +35,14 @@ make pipeline
 
 `make pipeline` executes `full_pipeline_job` through the Dagster webserver container.
 
+If you need v1-compatible behavior (legacy script path), run:
+
+```bash
+make pipeline PIPELINE_MODE=v1
+# or
+make pipeline-v1
+```
+
 ## View asset lineage
 
 In the Dagster UI:
@@ -69,5 +77,6 @@ This avoids rerunning the full pipeline when only one stage failed.
 
 ## `make pipeline` vs `make pipeline-legacy`
 
-- `make pipeline`: Dagster-native execution (`full_pipeline_job`) and orchestration path for v2.
+- `make pipeline`: Dagster-native execution (`full_pipeline_job`) by default; can switch to legacy mode with `PIPELINE_MODE=v1`.
 - `make pipeline-legacy`: legacy script path using `scripts/run-pipeline.py` (kept for migration fallback).
+- `make pipeline-v1`: convenience alias for v1-compatible execution.

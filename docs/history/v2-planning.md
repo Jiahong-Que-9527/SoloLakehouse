@@ -90,5 +90,5 @@ Evidence:
 ## 7. Carry-forward notes
 
 - Technical debt accepted in this version: temporary dual orchestration path.
-- Items deferred to next version: optional custom Dagster IO manager and broader observability rollout.
+- Items deferred to next version: broader observability rollout and infrastructure productionization.
 - Revisit triggers: stable Dagster adoption across repeated runs; no critical regressions in local setup.

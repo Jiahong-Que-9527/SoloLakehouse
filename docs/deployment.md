@@ -1,6 +1,6 @@
 # Deployment guide
 
-Deploy SoloLakehouse on your machine: MinIO, PostgreSQL, Hive Metastore, Trino, MLflow. For a short command sequence after prerequisites are met, see **[quickstart.md](quickstart.md)**.
+Deploy SoloLakehouse on your machine: MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, Dagster. For a short command sequence after prerequisites are met, see **[quickstart.md](quickstart.md)**.
 
 ---
 
@@ -13,7 +13,7 @@ Deploy SoloLakehouse on your machine: MinIO, PostgreSQL, Hive Metastore, Trino, 
 | Disk | 5 GB | 10+ GB |
 | Network | Yes (images + ECB API for pipeline) | — |
 
-About five containers; idle RAM often ~2–3 GB on an 8 GB host.
+About seven containers in v2 mode; idle RAM is typically higher than v1 and depends on host limits.
 
 ---
 
@@ -94,6 +94,15 @@ make verify
 
 Run the demo and open MinIO / Trino / MLflow: **[quickstart.md](quickstart.md)** (pipeline step table, SQL examples, `make down` / `make clean`).
 
+For v2, default execution is Dagster (`make pipeline`).  
+For v1-compatible behavior, use:
+
+```bash
+make pipeline PIPELINE_MODE=v1
+# or
+make pipeline-v1
+```
+
 ---
 
 ## 4. Ports
@@ -106,6 +115,7 @@ Run the demo and open MinIO / Trino / MLflow: **[quickstart.md](quickstart.md)**
 | Hive Metastore | 9083 | Thrift |
 | Trino | 8080 | HTTP + UI |
 | MLflow | 5000 | HTTP |
+| Dagster Webserver | 3000 | UI + orchestration endpoint |
 
 Override host ports in `.env` if needed (e.g. `PG_PORT`, `MINIO_API_PORT`). `verify-setup.py` and pipeline scripts should read the same variables.
 
@@ -154,7 +164,7 @@ Fix:
 make verify
 ```
 
-### 3. ECB API timeout during `make pipeline`
+### 3. ECB API timeout during pipeline run
 
 Root cause: ECB API can be rate-limited or temporarily slow.
 
@@ -162,7 +172,11 @@ Fix:
 ```bash
 make pipeline
 ```
-Retrying is usually sufficient.
+Retrying is usually sufficient. If needed, test legacy compatibility path:
+
+```bash
+make pipeline PIPELINE_MODE=v1
+```
 
 ### 4. MinIO "bucket already exists" error
 

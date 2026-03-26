@@ -1,6 +1,6 @@
 # Roadmap
 
-Development has reached **[v1.0](#v10)** as the first complete milestone: an **eight-layer** enterprise-style lakehouse (see [architecture.md](architecture.md)), plus a smooth first-run experience (health checks, docs, troubleshooting). **v2.0** broadens **self-serve** use and, in the implementation plan, adds **Dagster**-style orchestration — see the note at the end.
+Development has delivered **v1.0** and is now in **v2.0 (current)**: an orchestration-first platform upgrade with Dagster while preserving local reliability and migration fallback.
 
 Earlier docs listed **v0.1–v0.7** as incremental releases; **this project does not ship those as separate versions**. Work is organised **toward v1.0** directly (see [EVOLVING_PLAN.md](EVOLVING_PLAN.md)).
 
@@ -10,14 +10,14 @@ Earlier docs listed **v0.1–v0.7** as incremental releases; **this project does
 
 | Version | Status | Layers | Theme |
 |---------|--------|--------|--------|
-| **v1.0** | **Current** | 1–8 | Full platform: metadata, observability, user access; **effortless deployment** (prerequisites, health checks, CI, integration tests, troubleshooting — [EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 2) |
-| **v2.0** | Planned | — | Self-serve usability (docs-first onboarding, repeatable verification, clearer failure modes); optional UI/observability; Dagster DAG ([EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 3) |
+| **v1.0** | Delivered | 1–8 | Full platform baseline: metadata, observability target, user access path, and effortless deployment flow |
+| **v2.0** | **Current** | + Orchestration | Dagster asset orchestration, schedule/sensor/check governance, default pipeline migration with legacy fallback ([EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 3) |
 | **v3.0** | Planned | — | Production infrastructure: Kubernetes/Helm, Terraform, cloud provisioning ([CLAUDE.md](../CLAUDE.md)) |
 | **v4.0** | Planned | — | Self-serve maturity (documentation, verification, failure clarity); overlaps in theme with v2.0 in some older tables — reconcile when versioning stabilises |
 
 ---
 
-## v1.0
+## v1.0 (delivered)
 
 Combines:
 
@@ -26,9 +26,22 @@ Combines:
 
 ---
 
+## v1 -> v2 transition
+
+v2 keeps the v1 data/ML modules and upgrades orchestration semantics:
+
+- default path: `make pipeline` (Dagster job)
+- migration fallback: `make pipeline-legacy` (script)
+- added runtime services: `dagster-webserver`, `dagster-daemon`
+- added governance: schedule, sensor, asset check, run/event persistence
+
+See [v1-to-v2-transition.md](v1-to-v2-transition.md) for a complete migration narrative.
+
+---
+
 ## v2.0 and later
 
-**v2.0** in product terms emphasises **self-serve** adoption. The **implementation plan** adds **Dagster** (assets, schedules, UI). Treat these as one major release with two facets: *usability* and *orchestration*.
+**v2.0** in product terms emphasises **self-serve + orchestration**. The current implementation uses Dagster assets, schedules, sensor/check governance, and UI-driven operations.
 
 **v3.0 / v4.0** extend infrastructure and self-serve maturity — see [CLAUDE.md](../CLAUDE.md).
 

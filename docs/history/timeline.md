@@ -44,8 +44,8 @@ This file records project evolution in release order.
 
 **Carry-forward risks**
 - Dual execution paths increase operational surface during transition period.
-- Full release closure still requires release artifacts (tag/release notes/checklist sign-off).
-- Optional I/O abstraction (`dagster/io_managers.py`) remains deferred.
+- Legacy script removal decision still pending; keeping both paths has maintenance overhead.
+- Full production hardening (multi-environment infra, secret lifecycle, alerting) is deferred to later versions.
 
 **Decision gate to v3**
 - Decide whether to remove legacy script path and standardize on orchestrator-only execution before infrastructure migration.
