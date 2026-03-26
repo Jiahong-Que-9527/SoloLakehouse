@@ -1,6 +1,6 @@
 # Roadmap
 
-Development **targets [v1.0](#v10)** as the first complete milestone: an **eight-layer** enterprise-style lakehouse (see [architecture.md](architecture.md)), plus a smooth first-run experience (health checks, docs, troubleshooting). **v2.0** broadens **self-serve** use and, in the implementation plan, adds **Dagster**-style orchestration — see the note at the end.
+Development has reached **[v1.0](#v10)** as the first complete milestone: an **eight-layer** enterprise-style lakehouse (see [architecture.md](architecture.md)), plus a smooth first-run experience (health checks, docs, troubleshooting). **v2.0** broadens **self-serve** use and, in the implementation plan, adds **Dagster**-style orchestration — see the note at the end.
 
 Earlier docs listed **v0.1–v0.7** as incremental releases; **this project does not ship those as separate versions**. Work is organised **toward v1.0** directly (see [EVOLVING_PLAN.md](EVOLVING_PLAN.md)).
 
@@ -10,7 +10,7 @@ Earlier docs listed **v0.1–v0.7** as incremental releases; **this project does
 
 | Version | Status | Layers | Theme |
 |---------|--------|--------|--------|
-| **v1.0** | **Target** | 1–8 | Full platform: metadata, observability, user access; **effortless deployment** (prerequisites, health checks, CI, integration tests, troubleshooting — [EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 2) |
+| **v1.0** | **Current** | 1–8 | Full platform: metadata, observability, user access; **effortless deployment** (prerequisites, health checks, CI, integration tests, troubleshooting — [EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 2) |
 | **v2.0** | Planned | — | Self-serve usability (docs-first onboarding, repeatable verification, clearer failure modes); optional UI/observability; Dagster DAG ([EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 3) |
 | **v3.0** | Planned | — | Production infrastructure: Kubernetes/Helm, Terraform, cloud provisioning ([CLAUDE.md](../CLAUDE.md)) |
 | **v4.0** | Planned | — | Self-serve maturity (documentation, verification, failure clarity); overlaps in theme with v2.0 in some older tables — reconcile when versioning stabilises |

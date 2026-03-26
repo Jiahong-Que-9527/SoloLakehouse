@@ -74,7 +74,15 @@ pip install -r requirements.txt
 make up
 ```
 
-Pulls/builds images (first run may take several minutes), starts services, runs `minio-init` for buckets `sololakehouse` and `mlflow-artifacts`.
+`make up` starts services and waits until health checks pass (up to 5 minutes). It also runs `minio-init` for buckets `sololakehouse` and `mlflow-artifacts`.
+
+For first-time setup, you can use one command:
+
+```bash
+make setup
+```
+
+This checks Docker, ensures `.env` exists, pulls images, starts services, and waits for readiness.
 
 ### 3.5 Verify
 
