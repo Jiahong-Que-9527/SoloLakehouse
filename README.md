@@ -5,14 +5,21 @@
 </p>
 
 <p align="center">
-  <i>Minimal internal-style data platform: ingestion, analytics, and ML on the lakehouse.</i>
+  <i>A production-minded lakehouse platform reference: from runnable core pipelines to orchestrated, governance-ready data and ML operations.</i>
 </p>
 
 ## What is this?
 
 SoloLakehouse is a **small but complete Lakehouse reference implementation** built from open-source components. It shows how platforms like Databricks or Snowflake are typically layered — object storage, medallion transforms, SQL, ML tracking.
 
-**This is not a framework.** It is a repo you can read, run, and change. **Current release: [v1.0](docs/roadmap.md)** — an eight-layer enterprise-style lakehouse with reliable local deployment. The repo implements a **five-layer core** (ingestion → medallion storage → query → ML) as the foundation for that release.
+**This is not a framework.** It is a repo you can read, run, and change.
+
+**Current status: [v2.0 (current)](docs/roadmap.md)** — orchestration-first platform upgrade with Dagster assets/schedules/checks, while preserving a v1-compatible execution path.
+
+The project now represents:
+- **v1 delivered baseline**: five-service lakehouse core (MinIO/PostgreSQL/Hive Metastore/Trino/MLflow)
+- **v2 current platform**: Dagster orchestration layer (`dagster-webserver`, `dagster-daemon`) and governance-oriented runtime controls
+- **v3 planned scope**: production infrastructure + governance hardening (Kubernetes/Helm/Terraform, secrets/access controls, SLO/alerting)
 
 **Third-party components** (MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, etc.) keep their own licenses; this repo’s license applies to code and docs here.
 
@@ -32,11 +39,17 @@ SoloLakehouse is a **small but complete Lakehouse reference implementation** bui
 
 **Details:** [docs/architecture.md](docs/architecture.md) · **Medallion:** [docs/medallion-model.md](docs/medallion-model.md)
 
-### Target — v1.0
+### Target — v1.0 (delivered)
 
 ![v1.0 target architecture](docs/img/SLH_arch_v1.0.png)
 
 Eight-layer enterprise-style stack (metadata, observability, user access, etc.): **[docs/roadmap.md](docs/roadmap.md)**.
+
+### Current runtime — v2 orchestration
+
+- Default pipeline path: **Dagster** (`make pipeline`)
+- Compatibility path: **legacy script** (`make pipeline-v1` or `make pipeline PIPELINE_MODE=v1`)
+- Orchestration UI: `http://localhost:3000`
 
 ## Quick start
 
@@ -53,12 +66,21 @@ make setup
 - MinIO Console: http://localhost:9001  
 - Trino: http://localhost:8080  
 - MLflow: http://localhost:5000  
+- Dagster: http://localhost:3000
 
 `make up` now waits for all services to become healthy before returning.
 
 ```bash
 make verify
 make pipeline
+```
+
+Compatibility run (v1-style):
+
+```bash
+make pipeline-v1
+# or
+make pipeline PIPELINE_MODE=v1
 ```
 
 Full walkthrough: **[docs/quickstart.md](docs/quickstart.md)** · Deploy prerequisites and troubleshooting: **[docs/deployment.md](docs/deployment.md)** · Release steps: **[docs/release.md](docs/release.md)**
@@ -95,7 +117,9 @@ See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deploy
 | [ADR-002](docs/decisions/ADR-002-trino-vs-duckdb.md) | Trino vs DuckDB |
 | [ADR-003](docs/decisions/ADR-003-parquet-vs-delta.md) | Parquet vs Delta Lake |
 | [ADR-004](docs/decisions/ADR-004-financial-dataset.md) | ECB + DAX data |
-| [ADR-005](docs/decisions/ADR-005-v1-scope.md) | Observability / SQL UI deferred until after the five-service core (see ADR) |
+| [ADR-005](docs/decisions/ADR-005-v1-scope.md) | Observability / SQL UI deferred until after the five-service core |
+| [ADR-006](docs/decisions/ADR-006-v2-dagster-orchestration.md) | v2 Dagster orchestration with legacy fallback |
+| [ADR index](docs/decisions/README.md) | Full ADR set including v3 governance decisions |
 
 ## Documentation index
 
@@ -103,7 +127,10 @@ See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deploy
 |-----|---------|
 | [docs/README.md](docs/README.md) | All docs |
 | [docs/roadmap.md](docs/roadmap.md) | v1.0 target and later versions |
+| [docs/v1-to-v2-transition.md](docs/v1-to-v2-transition.md) | v1 delivered baseline, v2 current scope, migration narrative |
 | [docs/EVOLVING_PLAN.md](docs/EVOLVING_PLAN.md) | Detailed implementation tasks |
+| [docs/governance-v3-matrix.md](docs/governance-v3-matrix.md) | v3 governance capability matrix |
+| [docs/v3-governance-navigation.md](docs/v3-governance-navigation.md) | One-page navigation for v3 governance docs |
 | [TASKS.md](TASKS.md) | Backlog and ideas |
 
 ## Repository layout
