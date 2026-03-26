@@ -15,45 +15,45 @@ Goal: Make the pipeline resilient to real-world failures. No orchestration chang
 
 ### 1.1 Pipeline-Level Error Handling & Retry
 
-- [ ] **Task 1**: Add a `StepError` exception class to `scripts/run-pipeline.py`. Wrap each of the 6 pipeline steps in a try/except block. On failure: log the step name + error with structlog, raise `StepError` with step metadata (step number, name, original exception). Ensure the pipeline exits with code 1 and prints a clear "PIPELINE FAILED at step X" message.
+- [x] **Task 1**: Add a `StepError` exception class to `scripts/run-pipeline.py`. Wrap each of the 6 pipeline steps in a try/except block. On failure: log the step name + error with structlog, raise `StepError` with step metadata (step number, name, original exception). Ensure the pipeline exits with code 1 and prints a clear "PIPELINE FAILED at step X" message.
 
-- [ ] **Task 2**: Add pipeline-level retry to `scripts/run-pipeline.py`. Steps 1 (ECB collection) and 2 (DAX collection) should retry up to 3 times with 5-second delays on `StepError`. Steps 3–6 (transformations, ML) should NOT retry automatically. Use a `retry_step(fn, max_attempts, delay)` helper function.
+- [x] **Task 2**: Add pipeline-level retry to `scripts/run-pipeline.py`. Steps 1 (ECB collection) and 2 (DAX collection) should retry up to 3 times with 5-second delays on `StepError`. Steps 3–6 (transformations, ML) should NOT retry automatically. Use a `retry_step(fn, max_attempts, delay)` helper function.
 
-- [ ] **Task 3**: Add a circuit breaker flag to `ingestion/collectors/ecb_collector.py`. If all 3 HTTP retries are exhausted, raise a `CollectorUnavailableError` (new custom exception in `ingestion/exceptions.py`). The `run-pipeline.py` orchestrator should catch this and log a distinct "upstream API unavailable" message (different from a data validation failure).
+- [x] **Task 3**: Add a circuit breaker flag to `ingestion/collectors/ecb_collector.py`. If all 3 HTTP retries are exhausted, raise a `CollectorUnavailableError` (new custom exception in `ingestion/exceptions.py`). The `run-pipeline.py` orchestrator should catch this and log a distinct "upstream API unavailable" message (different from a data validation failure).
 
 ### 1.2 Incremental Ingestion
 
-- [ ] **Task 4**: Add a `last_ingested_date` check to `ingestion/collectors/ecb_collector.py`. Before writing, list existing objects in `bronze/ecb_rates/` from MinIO and find the latest `ingestion_date=YYYY-MM-DD` partition. If today's date partition already exists, skip the write and log `ecb_already_ingested_today`. Return early with `{"status": "skipped", "reason": "already_ingested_today"}`.
+- [x] **Task 4**: Add a `last_ingested_date` check to `ingestion/collectors/ecb_collector.py`. Before writing, list existing objects in `bronze/ecb_rates/` from MinIO and find the latest `ingestion_date=YYYY-MM-DD` partition. If today's date partition already exists, skip the write and log `ecb_already_ingested_today`. Return early with `{"status": "skipped", "reason": "already_ingested_today"}`.
 
-- [ ] **Task 5**: Same incremental check for `ingestion/collectors/dax_collector.py`. Check for existing `bronze/dax_daily/ingestion_date=YYYY-MM-DD/` partition. If found, skip and log `dax_already_ingested_today`.
+- [x] **Task 5**: Same incremental check for `ingestion/collectors/dax_collector.py`. Check for existing `bronze/dax_daily/ingestion_date=YYYY-MM-DD/` partition. If found, skip and log `dax_already_ingested_today`.
 
-- [ ] **Task 6**: Add an `--force` flag to `scripts/run-pipeline.py` (argparse). When `--force` is passed, bypass the incremental skip logic in both collectors and re-ingest even if data for today already exists. Document in Makefile: `make pipeline ARGS="--force"`.
+- [x] **Task 6**: Add an `--force` flag to `scripts/run-pipeline.py` (argparse). When `--force` is passed, bypass the incremental skip logic in both collectors and re-ingest even if data for today already exists. Document in Makefile: `make pipeline ARGS="--force"`.
 
 ### 1.3 Richer Quality Checks
 
-- [ ] **Task 7**: Add `check_no_future_dates(df, date_col)` to `ingestion/quality/bronze_checks.py`. Raises `ValueError` if any date in `date_col` is later than today (`datetime.date.today()`). Add to both `run_ecb_bronze_checks()` and `run_dax_bronze_checks()`.
+- [x] **Task 7**: Add `check_no_future_dates(df, date_col)` to `ingestion/quality/bronze_checks.py`. Raises `ValueError` if any date in `date_col` is later than today (`datetime.date.today()`). Add to both `run_ecb_bronze_checks()` and `run_dax_bronze_checks()`.
 
-- [ ] **Task 8**: Add `check_date_continuity(df, date_col, max_gap_days)` to `ingestion/quality/bronze_checks.py`. Raises `ValueError` if any gap between consecutive dates exceeds `max_gap_days`. For ECB: `max_gap_days=180` (policy meetings are ~6 weeks apart). For DAX: `max_gap_days=5` (weekends + holidays). Wire into `run_ecb_bronze_checks()` and `run_dax_bronze_checks()`.
+- [x] **Task 8**: Add `check_date_continuity(df, date_col, max_gap_days)` to `ingestion/quality/bronze_checks.py`. Raises `ValueError` if any gap between consecutive dates exceeds `max_gap_days`. For ECB: `max_gap_days=180` (policy meetings are ~6 weeks apart). For DAX: `max_gap_days=5` (weekends + holidays). Wire into `run_ecb_bronze_checks()` and `run_dax_bronze_checks()`.
 
-- [ ] **Task 9**: Add `check_schema_version(df, expected_columns)` to `ingestion/quality/bronze_checks.py`. Raises `ValueError` if `df.columns` is missing any column from `expected_columns`. Wire into both bronze check runners to verify all expected columns are present after ingestion.
+- [x] **Task 9**: Add `check_schema_version(df, expected_columns)` to `ingestion/quality/bronze_checks.py`. Raises `ValueError` if `df.columns` is missing any column from `expected_columns`. Wire into both bronze check runners to verify all expected columns are present after ingestion.
 
-- [ ] **Task 10**: Add a Silver-layer quality report function `run_silver_quality_report(df, layer_name) -> dict` to a new file `transformations/quality_report.py`. It should return a dict with: `row_count`, `null_counts_per_column`, `date_range`, `duplicate_count`. Call this function at the end of each `run()` function in the three transformation files and log the result with structlog. Do NOT raise on warnings — just log.
+- [x] **Task 10**: Add a Silver-layer quality report function `run_silver_quality_report(df, layer_name) -> dict` to a new file `transformations/quality_report.py`. It should return a dict with: `row_count`, `null_counts_per_column`, `date_range`, `duplicate_count`. Call this function at the end of each `run()` function in the three transformation files and log the result with structlog. Do NOT raise on warnings — just log.
 
 ### 1.4 Dead-Letter Queue for Rejected Records
 
-- [ ] **Task 11**: Modify `ingestion/bronze_writer.py` to accept a `rejected_records: list[dict]` parameter in its `write()` method (or a new `write_rejected()` method). Write rejected records to `bronze/rejected/source=ECB/ingestion_date=YYYY-MM-DD/rejected.parquet` (or DAX). Each rejected record should include: original data + `rejection_reason` column (the Pydantic validation error message). Use the same MinIO/PyArrow pattern.
+- [x] **Task 11**: Modify `ingestion/bronze_writer.py` to accept a `rejected_records: list[dict]` parameter in its `write()` method (or a new `write_rejected()` method). Write rejected records to `bronze/rejected/source=ECB/ingestion_date=YYYY-MM-DD/rejected.parquet` (or DAX). Each rejected record should include: original data + `rejection_reason` column (the Pydantic validation error message). Use the same MinIO/PyArrow pattern.
 
-- [ ] **Task 12** [depends: Task 11]: Update `ingestion/collectors/ecb_collector.py` and `dax_collector.py` to pass rejected records to `bronze_writer.write_rejected()`. Log counts: `ecb_ingestion_complete`, with fields `valid_count`, `rejected_count`, `rejected_path` (or `null` if no rejections).
+- [x] **Task 12** [depends: Task 11]: Update `ingestion/collectors/ecb_collector.py` and `dax_collector.py` to pass rejected records to `bronze_writer.write_rejected()`. Log counts: `ecb_ingestion_complete`, with fields `valid_count`, `rejected_count`, `rejected_path` (or `null` if no rejections).
 
 ### 1.5 Test Coverage Improvements
 
-- [ ] **Task 13**: Add tests for the new `check_no_future_dates` and `check_date_continuity` quality check functions in `tests/test_quality_checks.py`. At least 2 test cases each: one passing, one failing with the expected `ValueError`.
+- [x] **Task 13**: Add tests for the new `check_no_future_dates` and `check_date_continuity` quality check functions in `tests/test_quality_checks.py`. At least 2 test cases each: one passing, one failing with the expected `ValueError`.
 
-- [ ] **Task 14**: Add tests for `check_schema_version` in `tests/test_quality_checks.py`. Test: correct columns pass, missing column fails with descriptive error.
+- [x] **Task 14**: Add tests for `check_schema_version` in `tests/test_quality_checks.py`. Test: correct columns pass, missing column fails with descriptive error.
 
-- [ ] **Task 15**: Add tests for the `write_rejected()` method in `tests/test_bronze_writer.py`. Test: rejected records written with correct path and `rejection_reason` column present.
+- [x] **Task 15**: Add tests for the `write_rejected()` method in `tests/test_bronze_writer.py`. Test: rejected records written with correct path and `rejection_reason` column present.
 
-- [ ] **Task 16**: Add a test class `TestPipelineRetry` in a new file `tests/test_pipeline.py`. Mock the collector and verify: (a) pipeline retries failed steps up to 3 times; (b) pipeline raises `StepError` after max retries exceeded; (c) `--force` flag bypasses incremental skip. Use `unittest.mock.patch`.
+- [x] **Task 16**: Add a test class `TestPipelineRetry` in a new file `tests/test_pipeline.py`. Mock the collector and verify: (a) pipeline retries failed steps up to 3 times; (b) pipeline raises `StepError` after max retries exceeded; (c) `--force` flag bypasses incremental skip. Use `unittest.mock.patch`.
 
 ---
 
@@ -65,63 +65,63 @@ Goal: Anyone can clone the repo and run `make up && make verify && make pipeline
 
 ### 2.1 Reliable Health Checks for All Services
 
-- [ ] **Task 17**: Add Docker health checks to `docker/docker-compose.yml` for the three services that currently lack them:
+- [x] **Task 17**: Add Docker health checks to `docker/docker-compose.yml` for the three services that currently lack them:
   - **hive-metastore**: `test: ["CMD", "bash", "-c", "echo 'status' | nc -w 2 localhost 9083 || exit 1"]` (TCP probe on Thrift port 9083), interval 15s, retries 5, start_period 60s.
   - **trino**: `test: ["CMD", "curl", "-f", "http://localhost:8080/v1/info"]`, interval 15s, retries 10, start_period 90s.
   - **mlflow**: `test: ["CMD", "curl", "-f", "http://localhost:5000/health"]`, interval 15s, retries 5, start_period 30s.
 
-- [ ] **Task 18** [depends: Task 17]: Update `depends_on` conditions in `docker/docker-compose.yml` to use `condition: service_healthy` (not just `service_started`) for all service dependencies. Specifically: trino should wait for hive-metastore to be healthy; minio-init should already depend on minio being healthy (verify this is correct).
+- [x] **Task 18** [depends: Task 17]: Update `depends_on` conditions in `docker/docker-compose.yml` to use `condition: service_healthy` (not just `service_started`) for all service dependencies. Specifically: trino should wait for hive-metastore to be healthy; minio-init should already depend on minio being healthy (verify this is correct).
 
-- [ ] **Task 19** [depends: Task 18]: Update `scripts/verify-setup.py` to add health checks for hive-metastore and MLflow that were previously missing or weak. For each service add: timeout handling (5s per check), a distinct exit code per failing service (not just global exit 1), and a `PASS`/`FAIL`/`TIMEOUT` status prefix in output. Final output: a summary table of all 5 services with their status.
+- [x] **Task 19** [depends: Task 18]: Update `scripts/verify-setup.py` to add health checks for hive-metastore and MLflow that were previously missing or weak. For each service add: timeout handling (5s per check), a distinct exit code per failing service (not just global exit 1), and a `PASS`/`FAIL`/`TIMEOUT` status prefix in output. Final output: a summary table of all 5 services with their status.
 
 ### 2.2 One-Command Setup Reliability
 
-- [ ] **Task 20**: Add a `make setup` target to the `Makefile` that: (1) checks Docker is running (`docker info`), (2) checks `.env` file exists (copy from `.env.example` if missing), (3) runs `docker compose pull` to pre-pull images, (4) runs `make up`. Print a clear step-by-step status for each action. This is the recommended first-run command.
+- [x] **Task 20**: Add a `make setup` target to the `Makefile` that: (1) checks Docker is running (`docker info`), (2) checks `.env` file exists (copy from `.env.example` if missing), (3) runs `docker compose pull` to pre-pull images, (4) runs `make up`. Print a clear step-by-step status for each action. This is the recommended first-run command.
 
-- [ ] **Task 21**: Add a `.env.example` file to the repository root (if not already present with all variables) containing all required environment variables with safe default values. Add a validation step in `scripts/verify-setup.py` that checks all required env vars are set and prints which ones are missing if not.
+- [x] **Task 21**: Add a `.env.example` file to the repository root (if not already present with all variables) containing all required environment variables with safe default values. Add a validation step in `scripts/verify-setup.py` that checks all required env vars are set and prints which ones are missing if not.
 
-- [ ] **Task 22**: Add a `make wait` target to the `Makefile` that polls `scripts/verify-setup.py` every 10 seconds until all services are healthy, with a 5-minute timeout. Print progress dots during wait. Use this in `make up` after starting containers: `make up` = `docker compose up -d && make wait`.
+- [x] **Task 22**: Add a `make wait` target to the `Makefile` that polls `scripts/verify-setup.py` every 10 seconds until all services are healthy, with a 5-minute timeout. Print progress dots during wait. Use this in `make up` after starting containers: `make up` = `docker compose up -d && make wait`.
 
 ### 2.3 Linting and Type Checking in CI
 
-- [ ] **Task 23**: Add `ruff` to `requirements.txt` (pin to `ruff==0.4.4`). Create a `ruff.toml` (or `[tool.ruff]` section in `pyproject.toml`) at the project root with: `line-length = 100`, `select = ["E", "F", "I"]` (errors, pyflakes, isort). Run `ruff check .` locally and fix all existing violations.
+- [x] **Task 23**: Add `ruff` to `requirements.txt` (pin to `ruff==0.4.4`). Create a `ruff.toml` (or `[tool.ruff]` section in `pyproject.toml`) at the project root with: `line-length = 100`, `select = ["E", "F", "I"]` (errors, pyflakes, isort). Run `ruff check .` locally and fix all existing violations.
 
-- [ ] **Task 24** [depends: Task 23]: Add a `make lint` target to `Makefile` that runs `ruff check .`. Add a lint job to `.github/workflows/test.yml` that runs `make lint` as a separate step before tests. CI should fail if linting fails.
+- [x] **Task 24** [depends: Task 23]: Add a `make lint` target to `Makefile` that runs `ruff check .`. Add a lint job to `.github/workflows/test.yml` that runs `make lint` as a separate step before tests. CI should fail if linting fails.
 
-- [ ] **Task 25**: Add `mypy` to `requirements.txt` (pin to `mypy==1.10.0`). Create a `mypy.ini` at project root with: `python_version = 3.11`, `ignore_missing_imports = True`, `strict = False`, `check_untyped_defs = True`. Add type annotations to all public function signatures in `ingestion/`, `transformations/`, and `ml/` (parameters + return types). Run `mypy .` and fix all errors.
+- [x] **Task 25**: Add `mypy` to `requirements.txt` (pin to `mypy==1.10.0`). Create a `mypy.ini` at project root with: `python_version = 3.11`, `ignore_missing_imports = True`, `strict = False`, `check_untyped_defs = True`. Add type annotations to all public function signatures in `ingestion/`, `transformations/`, and `ml/` (parameters + return types). Run `mypy .` and fix all errors.
 
-- [ ] **Task 26** [depends: Task 25]: Add a `make typecheck` target to `Makefile` that runs `mypy .`. Add a typecheck job to `.github/workflows/test.yml` as a separate step.
+- [x] **Task 26** [depends: Task 25]: Add a `make typecheck` target to `Makefile` that runs `mypy .`. Add a typecheck job to `.github/workflows/test.yml` as a separate step.
 
 ### 2.4 Test Coverage Reporting
 
-- [ ] **Task 27**: Enable pytest-cov in CI. Update `.github/workflows/test.yml` test command to: `pytest tests/ -v --tb=short --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-fail-under=70`. The build should fail if coverage drops below 70%.
+- [x] **Task 27**: Enable pytest-cov in CI. Update `.github/workflows/test.yml` test command to: `pytest tests/ -v --tb=short --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-fail-under=70`. The build should fail if coverage drops below 70%.
 
-- [ ] **Task 28**: Add a `make test-cov` target to `Makefile` that runs pytest with coverage report. Add a `make test-cov-html` target that generates an HTML coverage report in `htmlcov/`. Add `htmlcov/` and `.coverage` to `.gitignore`.
+- [x] **Task 28**: Add a `make test-cov` target to `Makefile` that runs pytest with coverage report. Add a `make test-cov-html` target that generates an HTML coverage report in `htmlcov/`. Add `htmlcov/` and `.coverage` to `.gitignore`.
 
 ### 2.5 Integration Tests
 
-- [ ] **Task 29**: Create `tests/integration/` directory with a `conftest.py` that: (a) checks if Docker services are running (skip all integration tests if not), (b) provides a `minio_client` fixture connecting to real MinIO at `localhost:9000`, (c) provides a `test_bucket` fixture that creates/destroys a `sololakehouse-test` bucket per test session.
+- [x] **Task 29**: Create `tests/integration/` directory with a `conftest.py` that: (a) checks if Docker services are running (skip all integration tests if not), (b) provides a `minio_client` fixture connecting to real MinIO at `localhost:9000`, (c) provides a `test_bucket` fixture that creates/destroys a `sololakehouse-test` bucket per test session.
 
-- [ ] **Task 30** [depends: Task 29]: Add `tests/integration/test_bronze_writer_integration.py`. Tests: (a) write a small DataFrame to real MinIO and read it back; (b) idempotent write produces same object; (c) rejected records written to correct path. Mark with `@pytest.mark.integration`.
+- [x] **Task 30** [depends: Task 29]: Add `tests/integration/test_bronze_writer_integration.py`. Tests: (a) write a small DataFrame to real MinIO and read it back; (b) idempotent write produces same object; (c) rejected records written to correct path. Mark with `@pytest.mark.integration`.
 
-- [ ] **Task 31** [depends: Task 29]: Add `tests/integration/test_pipeline_smoke.py`. A single smoke test: run `run-pipeline.py` end-to-end against real services, verify Gold parquet exists in MinIO, verify row count > 0. Mark with `@pytest.mark.integration`. Add `make test-integration` target to Makefile.
+- [x] **Task 31** [depends: Task 29]: Add `tests/integration/test_pipeline_smoke.py`. A single smoke test: run `run-pipeline.py` end-to-end against real services, verify Gold parquet exists in MinIO, verify row count > 0. Mark with `@pytest.mark.integration`. Add `make test-integration` target to Makefile.
 
 ### 2.6 Clear Troubleshooting & Documentation
 
-- [ ] **Task 32**: Update `docs/deployment.md` with a "Troubleshooting" section that covers the top 5 failure modes observed in practice:
+- [x] **Task 32**: Update `docs/deployment.md` with a "Troubleshooting" section that covers the top 5 failure modes observed in practice:
   1. `hive-metastore` fails to start (PostgreSQL not ready) — solution: `make clean && make up`
   2. `trino` returns "catalog not available" — solution: wait 60s for hive-metastore, check `make verify`
   3. ECB API timeout during `make pipeline` — solution: retry with `make pipeline`; ECB API is rate-limited
   4. MinIO bucket already exists error — solution: safe to ignore; minio-init is idempotent
   5. `mlflow` UI shows no experiments — solution: run `make pipeline` first; experiments auto-created
 
-- [ ] **Task 33**: Update `README.md` to add a "Quick Validation" section after "Quick Start". Show expected output of `make verify` when all services are healthy (copy the actual output format from `verify-setup.py`). Add a "Common Issues" link pointing to `docs/deployment.md#troubleshooting`.
+- [x] **Task 33**: Update `README.md` to add a "Quick Validation" section after "Quick Start". Show expected output of `make verify` when all services are healthy (copy the actual output format from `verify-setup.py`). Add a "Common Issues" link pointing to `docs/deployment.md#troubleshooting`.
 
-- [ ] **Task 34**: Add a `CHANGELOG.md` at the project root. Create entries for v1.0 (initial complete release) and subsequent versions as needed. Use Keep a Changelog format: Added / Changed / Fixed sections per version.
+- [x] **Task 34**: Add a `CHANGELOG.md` at the project root. Create entries for v1.0 (initial complete release) and subsequent versions as needed. Use Keep a Changelog format: Added / Changed / Fixed sections per version.
 
 ### 2.7 v1.0 Release Validation
 
-- [ ] **Task 35**: Create a `docs/V1_RELEASE_CHECKLIST.md` with the following items to verify manually before tagging v1.0:
+- [x] **Task 35**: Create a `docs/V1_RELEASE_CHECKLIST.md` with the following items to verify manually before tagging v1.0:
   - [ ] `make clean && make up` completes without errors on a fresh machine
   - [ ] `make verify` shows all 5 services as PASS
   - [ ] `make pipeline` runs end-to-end without errors
@@ -132,7 +132,7 @@ Goal: Anyone can clone the repo and run `make up && make verify && make pipeline
   - [ ] Trino query `SELECT * FROM hive.default.ecb_rates_cleaned LIMIT 5` returns rows
   - [ ] `docker compose down && docker compose up -d` (restart) preserves all data
 
-- [ ] **Task 36** [depends: Task 35]: Once all items in `V1_RELEASE_CHECKLIST.md` are verified, update `README.md` version badge and `CLAUDE.md` Roadmap table to mark v1.0 as "current". Update the `docker/docker-compose.yml` image labels. Tag the git commit as `v1.0.0`.
+- [x] **Task 36** [depends: Task 35]: Once all items in `V1_RELEASE_CHECKLIST.md` are verified, update `README.md` version badge and `CLAUDE.md` Roadmap table to mark v1.0 as "current". Update the `docker/docker-compose.yml` image labels. Tag the git commit as `v1.0.0`.
 
 ---
 

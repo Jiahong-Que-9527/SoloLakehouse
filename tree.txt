@@ -1,0 +1,134 @@
+.
+├── CHANGELOG.md
+├── CLAUDE.md
+├── config
+│   ├── postgres
+│   │   └── init.sql
+│   └── trino
+│       ├── catalog
+│       └── config.properties
+├── CONTRIBUTING.md
+├── data
+│   └── sample
+│       └── dax_daily_sample.csv
+├── docker
+│   ├── docker-compose.yml
+│   ├── hive-metastore
+│   │   ├── Dockerfile
+│   │   ├── entrypoint.sh
+│   │   └── metastore-site.xml.template
+│   └── mlflow
+│       ├── Dockerfile
+│       └── entrypoint.sh
+├── docs
+│   ├── agent-prompts.md
+│   ├── architecture.md
+│   ├── contributing.md
+│   ├── decisions
+│   │   ├── ADR-001-docker-compose.md
+│   │   ├── ADR-002-trino-vs-duckdb.md
+│   │   ├── ADR-003-parquet-vs-delta.md
+│   │   ├── ADR-004-financial-dataset.md
+│   │   └── ADR-005-v1-scope.md
+│   ├── deployment.md
+│   ├── EVOLVING_PLAN.md
+│   ├── img
+│   │   ├── README.md
+│   │   ├── SLH_arch_v0.1.svg
+│   │   ├── SLH_arch_v1.0.svg
+│   │   └── slh-brand.svg
+│   ├── medallion-model.md
+│   ├── quickstart.md
+│   ├── README.md
+│   ├── release-readiness.md
+│   ├── roadmap.md
+│   └── V1_RELEASE_CHECKLIST.md
+├── ingestion
+│   ├── bronze_writer.py
+│   ├── collectors
+│   │   ├── dax_collector.py
+│   │   ├── ecb_collector.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   ├── exceptions.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── bronze_writer.cpython-313.pyc
+│   │   ├── exceptions.cpython-313.pyc
+│   │   └── __init__.cpython-313.pyc
+│   ├── quality
+│   │   ├── bronze_checks.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   └── schema
+│       ├── dax_schema.py
+│       ├── ecb_schema.py
+│       ├── __init__.py
+│       └── __pycache__
+├── Makefile
+├── ml
+│   ├── evaluate.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── evaluate.cpython-313.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   └── train_ecb_dax_model.cpython-313.pyc
+│   └── train_ecb_dax_model.py
+├── my-prompt.md
+├── mypy.ini
+├── README.md
+├── requirements.txt
+├── ruff.toml
+├── scripts
+│   ├── init-minio.sh
+│   ├── __pycache__
+│   │   ├── run-pipeline.cpython-313.pyc
+│   │   └── verify-setup.cpython-313.pyc
+│   ├── run-pipeline.py
+│   ├── trino-entrypoint.sh
+│   └── verify-setup.py
+├── TASKS.md
+├── tests
+│   ├── __init__.py
+│   ├── integration
+│   │   ├── conftest.py
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   ├── test_bronze_writer_integration.py
+│   │   └── test_pipeline_smoke.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── test_bronze_writer.cpython-313.pyc
+│   │   ├── test_bronze_writer.cpython-313-pytest-9.0.2.pyc
+│   │   ├── test_collectors_ml_and_reports.cpython-313-pytest-9.0.2.pyc
+│   │   ├── test_pipeline.cpython-313.pyc
+│   │   ├── test_pipeline.cpython-313-pytest-9.0.2.pyc
+│   │   ├── test_quality_checks.cpython-313.pyc
+│   │   ├── test_quality_checks.cpython-313-pytest-9.0.2.pyc
+│   │   ├── test_schemas.cpython-313.pyc
+│   │   ├── test_schemas.cpython-313-pytest-9.0.2.pyc
+│   │   ├── test_transformation_runs.cpython-313-pytest-9.0.2.pyc
+│   │   ├── test_transformations.cpython-313.pyc
+│   │   └── test_transformations.cpython-313-pytest-9.0.2.pyc
+│   ├── test_bronze_writer.py
+│   ├── test_collectors_ml_and_reports.py
+│   ├── test_pipeline.py
+│   ├── test_quality_checks.py
+│   ├── test_schemas.py
+│   ├── test_transformation_runs.py
+│   └── test_transformations.py
+├── transformations
+│   ├── dax_bronze_to_silver.py
+│   ├── ecb_bronze_to_silver.py
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── dax_bronze_to_silver.cpython-313.pyc
+│   │   ├── ecb_bronze_to_silver.cpython-313.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── quality_report.cpython-313.pyc
+│   │   └── silver_to_gold_features.cpython-313.pyc
+│   ├── quality_report.py
+│   └── silver_to_gold_features.py
+└── tree.txt
+
+31 directories, 101 files
