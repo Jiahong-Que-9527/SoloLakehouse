@@ -9,7 +9,7 @@ Use it as the long-term continuity layer between roadmap intent and implementati
 - [timeline.md](timeline.md): version-by-version evolution path from v1 onward
 - [architecture-evolution.md](architecture-evolution.md): major architecture decisions over time and their trade-offs
 - [planning-template.md](planning-template.md): reusable planning template for v2/v3/v4 milestones
-- [v2-planning.md](v2-planning.md): active v2 planning and migration notes
+- [v2-planning.md](v2-planning.md): delivered v2 planning and migration notes
 
 ## How to maintain
 
@@ -19,3 +19,5 @@ For each new milestone (for example `v2.0.0`):
 2. Update `architecture-evolution.md` with what changed and why.
 3. Copy `planning-template.md` into a versioned planning note (for example `v2-planning.md`) and fill it before implementation starts.
 4. Cross-link release artifacts (tag, PR, release notes, checklist).
+
+Cross-version narrative reference: [../v1-to-v2-transition.md](../v1-to-v2-transition.md).

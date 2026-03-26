@@ -1,6 +1,6 @@
-# Release Guide (v1.x)
+# Release Guide (v2.x)
 
-This runbook defines the minimum steps to produce a releasable `v1.x` build with easy deployment and verification.
+This runbook defines the minimum steps to produce a releasable `v2.x` build with orchestration compatibility (v2 default + v1 legacy path).
 
 ## 1) Local release validation
 
@@ -13,6 +13,7 @@ pip install -r requirements.txt
 make setup
 make verify
 make pipeline
+make pipeline PIPELINE_MODE=v1
 make lint
 make typecheck
 make test-cov
@@ -21,7 +22,8 @@ make test-cov
 Expected result:
 
 - `make verify` shows all five services as `PASS`
-- `make pipeline` completes without `PIPELINE FAILED`
+- `make pipeline` (Dagster default path) completes successfully
+- `make pipeline PIPELINE_MODE=v1` (legacy compatibility path) completes without `PIPELINE FAILED`
 - `make lint`, `make typecheck`, `make test-cov` all pass
 
 ## 2) Runtime checks
@@ -46,15 +48,15 @@ Data should remain available after restart.
 
 Before tagging:
 
-- `docs/roadmap.md` marks `v1.0` as `Current`
+- `docs/roadmap.md` marks `v2.0` as `Current`
 - `CHANGELOG.md` includes the release entry
-- `docs/V1_RELEASE_CHECKLIST.md` is fully checked
+- history/decision docs are aligned with release scope (`docs/history/*`, `docs/decisions/*`)
 
 ## 4) Tagging
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v2.0.0
+git push origin v2.0.0
 ```
 
 Only tag after all checks above are green.

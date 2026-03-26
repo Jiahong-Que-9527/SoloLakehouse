@@ -48,6 +48,7 @@ This document explains not only what architecture exists, but why certain option
 - **Selected direction:** Dagster orchestration with temporary legacy-script compatibility.
 - **Rationale:** enables lineage/scheduling and asset-native retries while preserving rollback and local reliability.
 - **Accepted trade-off:** short-term dual-path complexity in Makefile/ops workflow.
+- **ADR reference:** `docs/decisions/ADR-006-v2-dagster-orchestration.md`
 
 ## 3) v3 architecture decision frame (to fill during planning)
 
