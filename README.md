@@ -12,7 +12,7 @@
 
 SoloLakehouse is a **small but complete Lakehouse reference implementation** built from open-source components. It shows how platforms like Databricks or Snowflake are typically layered — object storage, medallion transforms, SQL, ML tracking.
 
-**This is not a framework.** It is a repo you can read, run, and change. **Development targets [v1.0](docs/roadmap.md):** an eight-layer enterprise-style lakehouse and reliable local deployment. The repo implements a **five-layer core** (ingestion → medallion storage → query → ML) as the foundation for that release.
+**This is not a framework.** It is a repo you can read, run, and change. **Current release: [v1.0](docs/roadmap.md)** — an eight-layer enterprise-style lakehouse with reliable local deployment. The repo implements a **five-layer core** (ingestion → medallion storage → query → ML) as the foundation for that release.
 
 **Third-party components** (MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, etc.) keep their own licenses; this repo’s license applies to code and docs here.
 
@@ -61,6 +61,30 @@ make pipeline
 ```
 
 Full walkthrough: **[docs/quickstart.md](docs/quickstart.md)** · Deploy prerequisites and troubleshooting: **[docs/deployment.md](docs/deployment.md)**
+
+## Quick Validation
+
+After `make up`, run:
+
+```bash
+make verify
+```
+
+Expected output format:
+
+```text
+Service          Status  Detail
+---------------- ------- ----------------------------
+MinIO            PASS    Buckets: sololakehouse, mlflow-artifacts
+PostgreSQL       PASS    Databases: hive_metastore, mlflow
+Hive Metastore   PASS    TCP port 9083 open
+Trino            PASS    Running, not starting
+MLflow           PASS    HTTP 200
+```
+
+## Common Issues
+
+See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deployment.md#troubleshooting).
 
 ## Design decisions (ADRs)
 

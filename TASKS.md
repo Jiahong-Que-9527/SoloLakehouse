@@ -116,7 +116,7 @@ Create empty `__init__.py` in:
 
 ## Block 1 — Docker Infrastructure
 
-### B1-1 `docker/docker-compose.yml`
+### [x] B1-1 `docker/docker-compose.yml`
 
 Create with 6 services. No top-level `version:` key (Compose V2).
 
@@ -240,14 +240,14 @@ healthcheck:
 
 **volumes:** `minio_data:`, `postgres_data:`
 
-### B1-2 `config/postgres/init.sql`
+### [x] B1-2 `config/postgres/init.sql`
 
 ```sql
 CREATE DATABASE hive_metastore;
 CREATE DATABASE mlflow;
 ```
 
-### B1-3 `docker/hive-metastore/Dockerfile`
+### [x] B1-3 `docker/hive-metastore/Dockerfile`
 
 Use `apache/hive:4.0.0` as base. Copy a custom `entrypoint.sh` that:
 1. Runs `envsubst` on `metastore-site.xml.template` → `metastore-site.xml`
@@ -256,7 +256,7 @@ Use `apache/hive:4.0.0` as base. Copy a custom `entrypoint.sh` that:
 
 The `metastore-site.xml.template` must include Postgres JDBC connection using `${DB_HOST}`, `${DB_USER}`, `${DB_PASS}` and S3/MinIO config using `${S3_ENDPOINT}`, `${S3_ACCESS_KEY}`, `${S3_SECRET_KEY}`.
 
-### B1-4 `docker/mlflow/Dockerfile`
+### [x] B1-4 `docker/mlflow/Dockerfile`
 
 ```dockerfile
 FROM python:3.11-slim
@@ -270,7 +270,7 @@ CMD ["mlflow", "server",
 
 Use a shell-form entrypoint script that reads env vars at runtime. The `--backend-store-uri` and `--default-artifact-root` must be built from env vars in the entrypoint, not hardcoded.
 
-### B1-5 `config/trino/config.properties`
+### [x] B1-5 `config/trino/config.properties`
 
 ```properties
 coordinator=true
@@ -281,7 +281,7 @@ query.max-memory=1GB
 query.max-memory-per-node=512MB
 ```
 
-### B1-6 `config/trino/catalog/hive.properties`
+### [x] B1-6 `config/trino/catalog/hive.properties`
 
 This is a template file — `${VAR}` placeholders are replaced by `envsubst` at container startup:
 
@@ -297,7 +297,7 @@ hive.non-managed-table-writes-enabled=true
 hive.storage-format=PARQUET
 ```
 
-### B1-7 `scripts/trino-entrypoint.sh`
+### [x] B1-7 `scripts/trino-entrypoint.sh`
 
 ```bash
 #!/bin/bash
@@ -309,7 +309,7 @@ cp /tmp/hive.properties /etc/trino/catalog/hive.properties
 exec /usr/lib/trino/bin/run-trino
 ```
 
-### B1-8 `scripts/init-minio.sh`
+### [x] B1-8 `scripts/init-minio.sh`
 
 ```bash
 #!/bin/sh
@@ -324,7 +324,7 @@ echo "MinIO buckets initialized."
 
 ## Block 2 — Ingestion Layer
 
-### B2-1 `ingestion/exceptions.py`
+### [x] B2-1 `ingestion/exceptions.py`
 
 Define two custom exception classes:
 
@@ -341,7 +341,7 @@ class StepError(Exception):
         super().__init__(f"Step {step_number} ({step_name}) failed: {original}")
 ```
 
-### B2-2 `ingestion/schema/ecb_schema.py`
+### [x] B2-2 `ingestion/schema/ecb_schema.py`
 
 Pydantic v2 model for a single ECB MRO rate observation.
 
@@ -356,7 +356,7 @@ Validators:
 - `rate_pct` must be in range -5.0 to 20.0
 - Use `model_dump()` (not `.dict()`) when serialising
 
-### B2-3 `ingestion/schema/dax_schema.py`
+### [x] B2-3 `ingestion/schema/dax_schema.py`
 
 Pydantic v2 model for a single DAX daily OHLCV record.
 
@@ -375,7 +375,7 @@ Validators:
 - `open_price > 0`, `close_price > 0`
 - `observation_date` must not be in the future
 
-### B2-4 `ingestion/quality/bronze_checks.py`
+### [x] B2-4 `ingestion/quality/bronze_checks.py`
 
 Implement these functions (all raise `ValueError` on failure):
 
@@ -414,7 +414,7 @@ def run_dax_bronze_checks(df: pd.DataFrame) -> None:
     """
 ```
 
-### B2-5 `ingestion/bronze_writer.py`
+### [x] B2-5 `ingestion/bronze_writer.py`
 
 `BronzeWriter` class with two methods:
 
@@ -445,7 +445,7 @@ buffer.seek(0)
 minio.put_object(bucket, path, buffer, length=buffer.getbuffer().nbytes)
 ```
 
-### B2-6 `ingestion/collectors/ecb_collector.py`
+### [x] B2-6 `ingestion/collectors/ecb_collector.py`
 
 `ECBCollector` following the Collector Pattern in `CLAUDE.md`.
 
@@ -460,7 +460,7 @@ Query params: `?format=jsondata&startPeriod=1999-01-01`
 - `collect()` orchestrates: fetch → validate → `run_ecb_bronze_checks()` → `bronze_writer.write()` → `bronze_writer.write_rejected()`. Returns summary dict: `{"status": "ok", "valid_count": N, "rejected_count": M, "path": "...", "rejected_path": "..." | None}`.
 - Log with structlog: `ecb_fetch_started`, `ecb_validation_complete`, `ecb_ingestion_complete`.
 
-### B2-7 `ingestion/collectors/dax_collector.py`
+### [x] B2-7 `ingestion/collectors/dax_collector.py`
 
 `DAXCollector` following the Collector Pattern in `CLAUDE.md`.
 
@@ -479,7 +479,7 @@ Expected CSV columns: `date,open,high,low,close,volume`
 
 ## Block 3 — Transformation Layer
 
-### B3-1 `transformations/quality_report.py`
+### [x] B3-1 `transformations/quality_report.py`
 
 ```python
 def run_silver_quality_report(df: pd.DataFrame, layer_name: str) -> dict:
@@ -498,7 +498,7 @@ def run_silver_quality_report(df: pd.DataFrame, layer_name: str) -> dict:
 
 The function detects the date column automatically (first column with `date` in its name). Log the full dict via `logger.info("silver_quality_report", **result)`.
 
-### B3-2 `transformations/ecb_bronze_to_silver.py`
+### [x] B3-2 `transformations/ecb_bronze_to_silver.py`
 
 **Pure transform function:**
 ```python
@@ -525,7 +525,7 @@ def run(minio_client, bucket: str = "sololakehouse") -> str:
     Returns silver path string."""
 ```
 
-### B3-3 `transformations/dax_bronze_to_silver.py`
+### [x] B3-3 `transformations/dax_bronze_to_silver.py`
 
 **Pure transform function:**
 ```python
@@ -545,7 +545,7 @@ def transform_dax_bronze_to_silver(df: pd.DataFrame) -> pd.DataFrame:
 
 **Orchestration function:** same pattern — read bronze, transform, write silver to `silver/dax_daily_cleaned/dax_daily_cleaned.parquet`, call quality report.
 
-### B3-4 `transformations/silver_to_gold_features.py`
+### [x] B3-4 `transformations/silver_to_gold_features.py`
 
 **Pure transform function:**
 ```python
@@ -577,7 +577,7 @@ def build_gold_features(ecb_df: pd.DataFrame, dax_df: pd.DataFrame) -> pd.DataFr
 
 ## Block 4 — ML Layer
 
-### B4-1 `ml/train_ecb_dax_model.py`
+### [x] B4-1 `ml/train_ecb_dax_model.py`
 
 ```python
 def train(df: pd.DataFrame, model_type: str = "xgboost",
@@ -597,7 +597,7 @@ def train(df: pd.DataFrame, model_type: str = "xgboost",
     """
 ```
 
-### B4-2 `ml/evaluate.py`
+### [x] B4-2 `ml/evaluate.py`
 
 ```python
 def run_experiment_set(minio_client, mlflow_tracking_uri: str,
@@ -624,7 +624,7 @@ def run_experiment_set(minio_client, mlflow_tracking_uri: str,
 
 ## Block 5 — Scripts
 
-### B5-1 `scripts/run-pipeline.py`
+### [x] B5-1 `scripts/run-pipeline.py`
 
 Linear 6-step orchestrator. Key requirements:
 
@@ -656,7 +656,7 @@ Rules:
 
 All credentials and endpoints from env vars (use `os.environ.get` with defaults matching `.env.example`).
 
-### B5-2 `scripts/verify-setup.py`
+### [x] B5-2 `scripts/verify-setup.py`
 
 Check all 5 services. Requirements:
 
@@ -696,7 +696,7 @@ Exit code: 0 if all PASS, 1 otherwise.
 
 ## Block 6 — Tests
 
-### B6-1 `tests/test_schemas.py`
+### [x] B6-1 `tests/test_schemas.py`
 
 Test `ECBRecord` and `DAXRecord` with at least:
 - Valid record parses without error
@@ -707,7 +707,7 @@ Test `ECBRecord` and `DAXRecord` with at least:
 
 Use a `make_ecb_record()` / `make_dax_record()` helper that returns valid base data.
 
-### B6-2 `tests/test_quality_checks.py`
+### [x] B6-2 `tests/test_quality_checks.py`
 
 Test each function in `ingestion/quality/bronze_checks.py`:
 - `check_no_future_dates`: pass (past date), fail (tomorrow's date)
@@ -716,7 +716,7 @@ Test each function in `ingestion/quality/bronze_checks.py`:
 - `check_no_nulls`: pass, fail with null
 - `run_ecb_bronze_checks` / `run_dax_bronze_checks`: integration of checks, smoke test both pass and fail paths
 
-### B6-3 `tests/test_bronze_writer.py`
+### [x] B6-3 `tests/test_bronze_writer.py`
 
 Mock `minio.Minio` with `unittest.mock.MagicMock`.
 
@@ -726,7 +726,7 @@ Tests:
 - `write_rejected()` writes to `bronze/rejected/source=.../` path with `rejection_reason` column
 - `write_rejected()` returns `None` on empty records list
 
-### B6-4 `tests/test_transformations.py`
+### [x] B6-4 `tests/test_transformations.py`
 
 Use small synthetic DataFrames (10–20 rows). Test pure functions only (no I/O).
 
@@ -736,7 +736,7 @@ Use small synthetic DataFrames (10–20 rows). Test pure functions only (no I/O)
 
 Each test class groups tests: `TestECBTransform`, `TestDAXTransform`, `TestGoldFeatures`.
 
-### B6-5 `tests/test_pipeline.py`
+### [x] B6-5 `tests/test_pipeline.py`
 
 Class `TestPipelineRetry`. Use `unittest.mock.patch`.
 
@@ -746,7 +746,7 @@ Tests:
 - `--force` argument passed through to collectors (mock collector receives `force=True`)
 - `CollectorUnavailableError` produces distinct log message vs generic step failure
 
-### B6-6 `tests/integration/` (3 files)
+### [x] B6-6 `tests/integration/` (3 files)
 
 **`conftest.py`:**
 - `minio_client` fixture: connects to real MinIO at env var endpoint, skips if unreachable
@@ -765,7 +765,7 @@ Tests:
 
 ## Block 7 — Code Quality & CI
 
-### B7-1 `ruff.toml`
+### [x] B7-1 `ruff.toml`
 
 ```toml
 line-length = 100
@@ -775,7 +775,7 @@ select = ["E", "F", "I"]
 
 After creating, run `ruff check .` and fix all violations before proceeding.
 
-### B7-2 `mypy.ini`
+### [x] B7-2 `mypy.ini`
 
 ```ini
 [mypy]
@@ -787,7 +787,7 @@ check_untyped_defs = True
 
 Add return type annotations and parameter type annotations to all public functions in `ingestion/`, `transformations/`, `ml/`. Run `mypy ingestion/ transformations/ ml/ scripts/` and fix all errors.
 
-### B7-3 `.github/workflows/test.yml`
+### [x] B7-3 `.github/workflows/test.yml`
 
 ```yaml
 name: CI
@@ -825,7 +825,7 @@ jobs:
                --cov-report=term-missing --cov-fail-under=70
 ```
 
-### B7-4 Update `.gitignore`
+### [x] B7-4 Update `.gitignore`
 
 Add: `htmlcov/`, `.coverage`, `.mypy_cache/`, `.ruff_cache/`
 
@@ -833,7 +833,7 @@ Add: `htmlcov/`, `.coverage`, `.mypy_cache/`, `.ruff_cache/`
 
 ## Block 8 — Sample Data
 
-### B8-1 `data/sample/dax_daily_sample.csv`
+### [x] B8-1 `data/sample/dax_daily_sample.csv`
 
 Create a CSV with at least 500 rows of simulated DAX OHLCV data from 2000-01-03 to ~2024-12-31 (trading days only, no weekends).
 
@@ -852,11 +852,11 @@ This can be generated with a Python script or committed as a static file. The fi
 
 ## Block 9 — v1.0 Release
 
-### B9-1 `CHANGELOG.md`
+### [x] B9-1 `CHANGELOG.md`
 
 Keep a Changelog format. Create `v1.0.0` entry with sections: `Added`, `Changed`, `Fixed`.
 
-### B9-2 Update `docs/deployment.md`
+### [x] B9-2 Update `docs/deployment.md`
 
 Add a `## Troubleshooting` section with the following 5 scenarios (if section already exists, expand it):
 
@@ -866,18 +866,18 @@ Add a `## Troubleshooting` section with the following 5 scenarios (if section al
 4. MinIO "bucket already exists" error → safe to ignore; `minio-init` is idempotent
 5. MLflow UI shows no experiments → run `make pipeline` first; experiments auto-created
 
-### B9-3 Update `README.md`
+### [x] B9-3 Update `README.md`
 
 Add a `## Quick Validation` section after `## Quick start`. Show expected `make verify` output (aligned PASS table). Add `## Common Issues` with a link to `docs/deployment.md#troubleshooting`.
 
-### B9-4 `docs/V1_RELEASE_CHECKLIST.md`
+### [x] B9-4 `docs/V1_RELEASE_CHECKLIST.md`
 
 Create manual validation checklist:
 
 ```markdown
 # v1.0 Release Checklist
 
-- [ ] `make clean && make up` completes without errors
+- [x] `make clean && make up` completes without errors
 - [ ] `make verify` shows all 5 services as PASS
 - [ ] `make pipeline` runs end-to-end without errors
 - [ ] `make test` passes with coverage >= 70%
@@ -889,7 +889,7 @@ Create manual validation checklist:
 - [ ] CI (GitHub Actions) passes on clean branch push
 ```
 
-### B9-5 Tag v1.0.0
+### [x] B9-5 Tag v1.0.0
 
 Once all checklist items in `docs/V1_RELEASE_CHECKLIST.md` are verified:
 1. Update `README.md` version badge (if present)
@@ -902,14 +902,14 @@ Once all checklist items in `docs/V1_RELEASE_CHECKLIST.md` are verified:
 
 | Block | Description | Tasks | Done |
 |-------|-------------|-------|------|
-| B0 | Project skeleton | B0-1 to B0-5 | 0/5 |
-| B1 | Docker infrastructure | B1-1 to B1-8 | 0/8 |
-| B2 | Ingestion layer | B2-1 to B2-7 | 0/7 |
-| B3 | Transformation layer | B3-1 to B3-4 | 0/4 |
-| B4 | ML layer | B4-1 to B4-2 | 0/2 |
-| B5 | Scripts | B5-1 to B5-2 | 0/2 |
-| B6 | Tests | B6-1 to B6-6 | 0/6 |
-| B7 | Code quality & CI | B7-1 to B7-4 | 0/4 |
-| B8 | Sample data | B8-1 | 0/1 |
-| B9 | v1.0 release | B9-1 to B9-5 | 0/5 |
-| **Total** | | **44** | **0/44** |
+| B0 | Project skeleton | B0-1 to B0-5 | 5/5 |
+| B1 | Docker infrastructure | B1-1 to B1-8 | 8/8 |
+| B2 | Ingestion layer | B2-1 to B2-7 | 7/7 |
+| B3 | Transformation layer | B3-1 to B3-4 | 4/4 |
+| B4 | ML layer | B4-1 to B4-2 | 2/2 |
+| B5 | Scripts | B5-1 to B5-2 | 2/2 |
+| B6 | Tests | B6-1 to B6-6 | 6/6 |
+| B7 | Code quality & CI | B7-1 to B7-4 | 4/4 |
+| B8 | Sample data | B8-1 | 1/1 |
+| B9 | v1.0 release | B9-1 to B9-5 | 5/5 |
+| **Total** | | **44** | **44/44** |

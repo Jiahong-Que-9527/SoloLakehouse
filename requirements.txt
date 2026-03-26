@@ -1,0 +1,16 @@
+minio==7.2.20
+pandas==2.2.3
+pyarrow==23.0.1
+pydantic==2.12.5
+structlog==25.5.0
+requests==2.33.0
+xgboost==3.2.0
+lightgbm==4.6.0
+mlflow==3.10.1
+boto3==1.38.27
+scikit-learn==1.8.0
+pytest==9.0.2
+pytest-cov==7.1.0
+ruff==0.15.7
+mypy==1.19.1
+psycopg2-binary==2.9.11

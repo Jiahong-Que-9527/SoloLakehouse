@@ -126,44 +126,51 @@ Unit tests use mocks; Docker is not required.
 
 Commands assume the **repository root** (contains `Makefile`, `docker/`, `scripts/`).
 
-### Containers fail to start
+### 1. `hive-metastore` fails to start
 
+Root cause: PostgreSQL is not ready yet.
+
+Fix:
 ```bash
-docker compose -f docker/docker-compose.yml logs
-docker compose -f docker/docker-compose.yml logs minio
-docker compose -f docker/docker-compose.yml logs trino
+make clean && make up
 ```
 
-### Port in use
+### 2. Trino reports "catalog not available"
 
+Root cause: Hive Metastore is still initializing.
+
+Fix:
+1. Wait about 60 seconds.
+2. Re-run:
 ```bash
-lsof -i :9000
+make verify
 ```
 
-Stop the conflicting process or change the port in `.env` and run `make up` again.
+### 3. ECB API timeout during `make pipeline`
 
-### MinIO init
+Root cause: ECB API can be rate-limited or temporarily slow.
 
+Fix:
 ```bash
-docker compose -f docker/docker-compose.yml logs minio-init
+make pipeline
 ```
+Retrying is usually sufficient.
 
-If needed: `make down && make up`.
+### 4. MinIO "bucket already exists" error
 
-### Hive Metastore vs PostgreSQL
+Root cause: bucket bootstrap re-runs.
 
-Often startup ordering; `make down && make up`, or wait and `make verify` again.
+Fix: safe to ignore. `minio-init` is idempotent.
 
-### Pipeline connection errors
+### 5. MLflow UI shows no experiments
 
-Run `make verify` first; allow extra time for Hive Metastore.
+Root cause: no experiment runs have been logged yet.
 
-### Python imports
-
+Fix:
 ```bash
-source .venv/bin/activate
-pip install -r requirements.txt
+make pipeline
 ```
+The `ecb_dax_impact` experiment is created automatically during the run.
 
 ---
 

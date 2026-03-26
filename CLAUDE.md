@@ -18,16 +18,16 @@ Compose node.
 
 | Layer | Technology | Version |
 |-------|-----------|---------|
-| Object Storage | MinIO (S3-compatible) | RELEASE.2024-06-13 |
-| Metadata DB | PostgreSQL | 15 |
+| Object Storage | MinIO (S3-compatible) | RELEASE.2025-09-07 |
+| Metadata DB | PostgreSQL | 17 |
 | Table Catalog | Apache Hive Metastore (standalone) | 4.0.0 |
-| Query Engine | Trino | 435 |
-| ML Tracking | MLflow | 2.13.0 |
+| Query Engine | Trino | 480 |
+| ML Tracking | MLflow | 3.10.1 |
 | Language | Python | 3.11+ |
-| Validation | Pydantic v2 | 2.7.4 |
-| Data Format | Parquet (snappy) via PyArrow | 15.0.2 |
-| Logging | structlog | 24.1.0 |
-| Testing | pytest | 8.2.0 |
+| Validation | Pydantic v2 | 2.12.5 |
+| Data Format | Parquet (snappy) via PyArrow | 23.0.1 |
+| Logging | structlog | 25.5.0 |
+| Testing | pytest | 9.0.2 |
 
 ## Commands
 
@@ -228,7 +228,7 @@ Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Detailed task list: 
 
 | Version | Theme | Status |
 |---------|-------|--------|
-| **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | **target** |
+| **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | **current** |
 | **v2.0** | Orchestrated Platform (Dagster DAG, retries/policies, scheduling, UI) + self-serve usability | planned |
 | **v3.0** | Production Infrastructure (Kubernetes/Helm, Terraform, cloud provisioning) | planned |
 | **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
