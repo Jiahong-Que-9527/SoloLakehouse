@@ -45,22 +45,23 @@ Eight-layer enterprise-style stack (metadata, observability, user access, etc.):
 ```bash
 git clone <repository-url>
 cd SoloLakehouse
-cp .env.example .env
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-make up
+make setup
 ```
 
 - MinIO Console: http://localhost:9001  
 - Trino: http://localhost:8080  
 - MLflow: http://localhost:5000  
 
+`make up` now waits for all services to become healthy before returning.
+
 ```bash
 make verify
 make pipeline
 ```
 
-Full walkthrough: **[docs/quickstart.md](docs/quickstart.md)** · Deploy prerequisites and troubleshooting: **[docs/deployment.md](docs/deployment.md)**
+Full walkthrough: **[docs/quickstart.md](docs/quickstart.md)** · Deploy prerequisites and troubleshooting: **[docs/deployment.md](docs/deployment.md)** · Release steps: **[docs/release.md](docs/release.md)**
 
 ## Quick Validation
 

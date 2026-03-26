@@ -8,6 +8,7 @@
 | [medallion-model.md](medallion-model.md) | Bronze / Silver / Gold paths, principles, Trino examples |
 | [roadmap.md](roadmap.md) | v1.0 target and later versions |
 | [EVOLVING_PLAN.md](EVOLVING_PLAN.md) | Detailed, ordered implementation tasks (agents / developers) |
+| [release.md](release.md) | Release runbook: validation, runtime checks, tagging |
 | [release-readiness.md](release-readiness.md) | Demo consistency check and pre-release self-check |
 | [contributing.md](contributing.md) | How to contribute |
 | [decisions/](decisions/) | Architecture Decision Records (ADR-001 … ADR-005) |

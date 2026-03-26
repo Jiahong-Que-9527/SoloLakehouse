@@ -1,9 +1,11 @@
 .PHONY: up down clean pipeline verify test test-cov test-cov-html test-integration lint typecheck setup wait
 
 COMPOSE_FILE := docker/docker-compose.yml
+PYTHON := python3
 
 up:
 	docker compose -f $(COMPOSE_FILE) up -d
+	$(MAKE) wait
 	@echo "MinIO API:      http://localhost:9000"
 	@echo "MinIO Console:  http://localhost:9001"
 	@echo "Trino UI:       http://localhost:8080"
@@ -17,40 +19,44 @@ clean:
 	docker compose -f $(COMPOSE_FILE) down -v
 
 pipeline:
-	python scripts/run-pipeline.py
+	$(PYTHON) scripts/run-pipeline.py
 
 verify:
-	python scripts/verify-setup.py
+	$(PYTHON) scripts/verify-setup.py
 
 test:
-	pytest tests/ -v --tb=short --ignore=tests/integration
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
 
 test-cov:
-	pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-fail-under=70
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-fail-under=70
 
 test-cov-html:
-	pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-report=html --cov-fail-under=70
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-report=html --cov-fail-under=70
 
 test-integration:
-	pytest tests/integration/ -v --tb=short -m integration
+	$(PYTHON) -m pytest tests/integration/ -v --tb=short -m integration
 
 lint:
-	ruff check .
+	$(PYTHON) -m ruff check .
 
 typecheck:
-	mypy ingestion/ transformations/ ml/ scripts/
+	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/
 
 setup:
+	@echo "[1/4] Checking Docker daemon..."
 	@docker info >/dev/null 2>&1 || (echo "Docker is not running. Please start Docker and retry." && exit 1)
+	@echo "[2/4] Ensuring .env exists..."
 	@test -f .env || cp .env.example .env
+	@echo "[3/4] Pulling container images..."
 	docker compose -f $(COMPOSE_FILE) pull
+	@echo "[4/4] Starting services and waiting for health checks..."
 	$(MAKE) up
 
 wait:
 	@echo "Waiting for services to become ready (timeout: 5 minutes)..."
 	@start=$$(date +%s); \
 	while true; do \
-		if python scripts/verify-setup.py >/dev/null 2>&1; then \
+		if $(PYTHON) scripts/verify-setup.py >/dev/null 2>&1; then \
 			echo ""; \
 			echo "All services are healthy."; \
 			exit 0; \
