@@ -25,16 +25,29 @@ This document explains not only what architecture exists, but why certain option
 - **Trade-off accepted:** no native ACID/time-travel layer in v1
 - **Reference:** `docs/decisions/ADR-003-parquet-vs-delta.md`
 
-## 2) v2 architecture decision frame (to fill during planning)
+## 2) v2 orchestration choices (implemented)
 
 ### Orchestration model
 - **Candidate options:** Dagster, Prefect, Airflow, script-plus-cron
 - **Primary criteria:** dependency modeling, retry semantics, local UX, operational overhead
-- **Current direction:** Dagster (see `docs/EVOLVING_PLAN.md` Phase 3)
+- **Selected:** Dagster (see `docs/EVOLVING_PLAN.md` Phase 3)
+- **Implemented scope:** software-defined assets, asset job, weekday schedule, freshness sensor, asset check, Docker Compose services (`dagster-webserver`, `dagster-daemon`)
 
 ### Runtime scope
 - **Candidate options:** keep script as fallback vs full orchestrator migration
 - **Primary criteria:** migration risk, onboarding speed, troubleshooting complexity
+- **Selected:** keep script fallback in v2 (`make pipeline-legacy`)
+
+### Storage choice
+- **Selected:** PostgreSQL-backed Dagster instance storage (`dagster_storage`)
+- **Alternatives considered:** default SQLite/volume-only storage
+- **Why selected:** run/event history durability across restarts and closer parity with other stateful services
+- **Trade-off accepted:** tighter dependency on PostgreSQL service health
+
+### Decision snapshot
+- **Selected direction:** Dagster orchestration with temporary legacy-script compatibility.
+- **Rationale:** enables lineage/scheduling and asset-native retries while preserving rollback and local reliability.
+- **Accepted trade-off:** short-term dual-path complexity in Makefile/ops workflow.
 
 ## 3) v3 architecture decision frame (to fill during planning)
 

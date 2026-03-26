@@ -9,6 +9,7 @@ Use it as the long-term continuity layer between roadmap intent and implementati
 - [timeline.md](timeline.md): version-by-version evolution path from v1 onward
 - [architecture-evolution.md](architecture-evolution.md): major architecture decisions over time and their trade-offs
 - [planning-template.md](planning-template.md): reusable planning template for v2/v3/v4 milestones
+- [v2-planning.md](v2-planning.md): active v2 planning and migration notes
 
 ## How to maintain
 

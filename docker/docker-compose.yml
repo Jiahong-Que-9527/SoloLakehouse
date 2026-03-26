@@ -123,6 +123,55 @@ services:
       retries: 5
       start_period: 30s
 
+  dagster-webserver:
+    build: ./dagster
+    container_name: slh-dagster-webserver
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ENDPOINT: minio:9000
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      BUCKET_NAME: sololakehouse
+      TRINO_URL: http://trino:8080
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DAGSTER_HOME: /app/dagster
+    command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "/app/dagster/workspace.yaml"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - dagster_storage:/app/dagster/storage
+
+  dagster-daemon:
+    build: ./dagster
+    container_name: slh-dagster-daemon
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      dagster-webserver:
+        condition: service_started
+    environment:
+      MINIO_ENDPOINT: minio:9000
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      BUCKET_NAME: sololakehouse
+      TRINO_URL: http://trino:8080
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DAGSTER_HOME: /app/dagster
+    command: ["dagster-daemon", "run", "-w", "/app/dagster/workspace.yaml"]
+    volumes:
+      - dagster_storage:/app/dagster/storage
+
 volumes:
   minio_data:
   postgres_data:
+  dagster_storage:

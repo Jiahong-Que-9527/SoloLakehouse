@@ -10,7 +10,7 @@ not a framework or library. It demonstrates how platforms like Databricks and
 Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
-**Development target: v1.0** — eight-layer enterprise-style platform built on a five-layer core (see `docs/roadmap.md`). Focus: effortless deployment and later self-serve usability (see Roadmap context below).
+**Development target: v2.0** — orchestrated platform on top of the v1 baseline, with Dagster assets/schedules/UI while preserving local reliability and a legacy fallback path (see `docs/roadmap.md` and `docs/EVOLVING_PLAN.md`).
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
 
@@ -23,6 +23,7 @@ Compose node.
 | Table Catalog | Apache Hive Metastore (standalone) | 4.0.0 |
 | Query Engine | Trino | 480 |
 | ML Tracking | MLflow | 3.10.1 |
+| Orchestration | Dagster | 1.7.x |
 | Language | Python | 3.11+ |
 | Validation | Pydantic v2 | 2.12.5 |
 | Data Format | Parquet (snappy) via PyArrow | 23.0.1 |
@@ -32,9 +33,11 @@ Compose node.
 ## Commands
 
 ```bash
-make up          # Start all Docker services + init MinIO buckets (no host deps)
+make up          # Start all Docker services + init MinIO buckets (includes Dagster services)
 make down        # Stop services (data preserved in volumes)
-make pipeline    # Run the full ingestion → transform → ML pipeline
+make pipeline    # Run Dagster full_pipeline_job (default v2 path)
+make pipeline-legacy # Run legacy linear script orchestration
+make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
 make clean       # Stop services + delete all data volumes
@@ -59,7 +62,7 @@ ml/
   evaluate.py               # MLflow experiment runner (multiple hyperparams)
 
 scripts/
-  run-pipeline.py           # End-to-end orchestrator (linear, not DAG)
+  run-pipeline.py           # Legacy end-to-end orchestrator (deprecated in v2)
   verify-setup.py           # Service health checks
   init-minio.sh             # Legacy bucket init (now handled by minio-init container)
   trino-entrypoint.sh       # envsubst for Trino catalog config
@@ -70,9 +73,17 @@ config/
   postgres/init.sql              # Creates hive_metastore + mlflow databases
 
 docker/
-  docker-compose.yml        # All 5 services
+  docker-compose.yml        # Platform services (core + Dagster)
+  dagster/                  # Dagster image build context
   hive-metastore/           # Custom Dockerfile + entrypoint (envsubst)
   mlflow/                   # Custom Dockerfile
+
+dagster/
+  assets.py                 # Software-defined assets, sensor, asset checks
+  resources.py              # MinIO/config resources
+  definitions.py            # Jobs/schedule/definitions registry
+  workspace.yaml            # Dagster code location workspace
+  dagster.yaml              # Dagster instance config (PostgreSQL storage)
 
 tests/                      # Unit tests (mocked I/O, no Docker needed)
 docs/                       # See docs/README.md — architecture, ADRs, roadmap, deployment
@@ -228,8 +239,8 @@ Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Detailed task list: 
 
 | Version | Theme | Status |
 |---------|-------|--------|
-| **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | **current** |
-| **v2.0** | Orchestrated Platform (Dagster DAG, retries/policies, scheduling, UI) + self-serve usability | planned |
+| **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | delivered |
+| **v2.0** | Orchestrated Platform (Dagster DAG, retries/policies, scheduling, UI) + self-serve usability | **current** |
 | **v3.0** | Production Infrastructure (Kubernetes/Helm, Terraform, cloud provisioning) | planned |
 | **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
 
