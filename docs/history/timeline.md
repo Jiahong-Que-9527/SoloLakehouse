@@ -39,6 +39,10 @@ This file records project evolution in release order.
 - Operational docs added (`docs/DAGSTER_GUIDE.md`) and architecture docs updated with orchestration layer and dependency graph.
 - Data freshness sensor (`ecb_data_freshness_sensor`) and gold data quality gate (`gold_features` asset check, min rows) added.
 
+**Operational suitability**
+- Suitable as an internal MVP platform for small teams (data ingestion, curation, feature/ML experimentation workflows).
+- Not yet positioned as enterprise production platform due to gaps in multi-environment HA, security governance depth, and full observability/on-call readiness.
+
 **Primary decision gate**
 - Keep script fallback vs full orchestrator-only mode.
 
@@ -60,6 +64,8 @@ This file records project evolution in release order.
 **Expected outcomes**
 - Environment reproducibility beyond single host.
 - Deployment model that supports team-scale operations.
+- Production-grade governance baseline (security, secrets, auditability, release gates).
+- Reliability model with SLO-aligned observability and incident response tooling.
 
 **Primary decision gate**
 - Portability-first minimal stack vs cloud-specific optimizations.

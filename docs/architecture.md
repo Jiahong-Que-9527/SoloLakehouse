@@ -2,7 +2,7 @@
 
 ## Overview
 
-SoloLakehouse is a **Lakehouse reference implementation** on a single Docker Compose host: **MinIO**, **PostgreSQL**, **Hive Metastore**, **Trino**, **MLflow**, with schema validation, structured logging, and **immutable** Bronze storage.
+SoloLakehouse is a **Lakehouse reference implementation** on a single Docker Compose host: **MinIO**, **PostgreSQL**, **Hive Metastore**, **Trino**, **MLflow**, and **Dagster** (v2 orchestration), with schema validation, structured logging, and **immutable** Bronze storage.
 
 The **five-layer core** (sources → ingestion → medallion storage → query → ML) is the **foundation** for **v1.0**, which targets a full **eight-layer** stack (metadata, observability, user access). See **[roadmap.md](roadmap.md)**.
 
@@ -78,15 +78,21 @@ ecb_silver      dax_silver
 | **Hive Metastore** | Table metadata (schema, partitions, locations) | 9083 |
 | **Trino** | SQL over the lakehouse via Hive connector | 8080 |
 | **MLflow** | Experiments and model artifacts | 5000 |
+| **Dagster Webserver** | Orchestration UI + run entrypoint | 3000 |
+| **Dagster Daemon** | Schedules/sensors evaluator and run launcher | N/A (internal) |
 
 ## Service dependencies
 
 ```
 postgres ──► hive-metastore ──► trino
 postgres ──► mlflow
+postgres ──► dagster-webserver
+postgres ──► dagster-daemon
 minio    ──► trino
 minio    ──► mlflow
 minio    ──► ingestion (Bronze writes)
+minio    ──► dagster assets runtime
+dagster-daemon ──► dagster-webserver (automation and run control)
 ```
 
 ## Medallion (summary)
@@ -112,3 +118,10 @@ Eight-layer enterprise layout: multi-source ingestion, dedicated metadata layer,
 | [ADR-003](decisions/ADR-003-parquet-vs-delta.md) | Parquet vs Delta Lake |
 | [ADR-004](decisions/ADR-004-financial-dataset.md) | ECB + DAX data |
 | [ADR-005](decisions/ADR-005-v1-scope.md) | Why Prometheus / Grafana / CloudBeaver ship after the five-service core (ADR-005) |
+| [ADR-006](decisions/ADR-006-v2-dagster-orchestration.md) | v2 Dagster orchestration and legacy fallback |
+| [ADR-007](decisions/ADR-007-v3-k8s-helm-terraform.md) | v3 Kubernetes + Helm + Terraform baseline |
+| [ADR-008](decisions/ADR-008-v3-environment-promotion.md) | v3 environment promotion gates |
+| [ADR-009](decisions/ADR-009-v3-secrets-and-access-governance.md) | v3 secrets and access governance |
+| [ADR-010](decisions/ADR-010-v3-observability-and-slo.md) | v3 SLO-driven observability |
+| [ADR-011](decisions/ADR-011-v3-ml-productization-boundary.md) | v3 ML productization boundary |
+| [ADR-012](decisions/ADR-012-v3-data-governance-catalog-strategy.md) | v3 data governance catalog strategy |

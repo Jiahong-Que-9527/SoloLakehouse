@@ -10,7 +10,8 @@ not a framework or library. It demonstrates how platforms like Databricks and
 Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
-**Development target: v2.0** — orchestrated platform on top of the v1 baseline, with Dagster assets/schedules/UI while preserving local reliability and a legacy fallback path (see `docs/roadmap.md` and `docs/EVOLVING_PLAN.md`).
+**Development target: v2.0** — orchestrated platform on top of the v1 baseline, with Dagster assets/schedules/UI while preserving local reliability and a legacy fallback path (see `docs/roadmap.md` and `docs/EVOLVING_PLAN.md`).  
+**Next target (v3.0):** production infrastructure and governance hardening (multi-environment deployment, secrets/access governance, SLO/alerting, release promotion controls).
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
 
@@ -224,6 +225,7 @@ MLflow bucket: `mlflow-artifacts`
 - **No Prometheus/Grafana until post-core** — meaningful metrics require custom instrumentation (ADR-005)
 - **TimeSeriesSplit** — no random CV on time-series data (look-ahead bias)
 - **Quality checks raise exceptions** — fail-fast, not silent degradation
+- **v3 governance-first productionization** — environment promotion, secrets/access governance, SLO-driven operations, and auditability are mandatory before claiming production readiness
 
 ## Things to Watch Out For
 
@@ -241,7 +243,7 @@ Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Detailed task list: 
 |---------|-------|--------|
 | **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | delivered |
 | **v2.0** | Orchestrated Platform (Dagster DAG, retries/policies, scheduling, UI) + self-serve usability | **current** |
-| **v3.0** | Production Infrastructure (Kubernetes/Helm, Terraform, cloud provisioning) | planned |
+| **v3.0** | Production Infrastructure + Governance (Kubernetes/Helm, Terraform, environment promotion, secrets/access controls, SLO/alerting) | planned |
 | **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
 
 Ingestion-hardening and related tasks: **`docs/EVOLVING_PLAN.md`** Phase 1 (historical label “v0.2”).

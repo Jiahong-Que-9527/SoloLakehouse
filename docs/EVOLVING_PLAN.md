@@ -1,4 +1,4 @@
-# SoloLakehouse Evolving Plan: v1.0 → v2.0
+# SoloLakehouse Evolving Plan: v1.0 → v3.0
 
 > **Navigation:** For the consolidated roadmap (tables and v1+ milestones), see [roadmap.md](roadmap.md). This file is a **step-by-step task list** for implementers and coding agents.
 
@@ -231,6 +231,52 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
   - add v2.0 milestone outcome and next gate in `docs/history/timeline.md`
   - record v2.0 architecture decisions/trade-offs in `docs/history/architecture-evolution.md`
   - create/update `docs/history/v2-planning.md` from `docs/history/planning-template.md` with final decision notes and carry-forward items
+
+---
+
+## Phase 4: v3.0 — Production Infrastructure (planned)
+
+Goal: Move from internal MVP platform suitability to production-capable platform suitability.
+
+---
+
+### 4.1 Multi-environment infrastructure baseline
+
+- [ ] **Task 59**: Introduce Kubernetes manifests or Helm chart skeletons for core services and Dagster services. Establish environment overlays for `dev` and `staging`.
+
+- [ ] **Task 60** [depends: Task 59]: Add Terraform baseline for infrastructure dependencies (network/storage/managed DB placeholders as applicable). Keep local-dev path intact during migration.
+
+### 4.2 Security and governance hardening
+
+- [ ] **Task 61**: Replace local-dev credential assumptions with a secrets lifecycle model (external secret provider integration plan + runtime injection pattern).
+
+- [ ] **Task 62** [depends: Task 61]: Define and document access-control baseline (service-level credentials, least privilege, audit logging requirements).
+
+- [ ] **Task 67** [depends: Task 62]: Define dataset governance contracts for Gold and critical Silver outputs: `data_owner`, `refresh_sla`, `quality_class`, and lineage responsibility.
+
+- [ ] **Task 68** [depends: Task 67]: Publish and enforce naming/ownership conventions across environments (`dev`/`staging`/`production`) for schemas, tables, and storage prefixes.
+
+### 4.3 Reliability and operations model
+
+- [ ] **Task 63**: Add production-focused observability baseline: metrics export plan, dashboards, and alert definitions for critical pipeline and orchestration failures.
+
+- [ ] **Task 64** [depends: Task 63]: Add incident runbooks and recovery drills for at least 3 scenarios (orchestrator unavailable, metadata DB degradation, storage access failure).
+
+- [ ] **Task 69** [depends: Task 63]: Define service and data-product SLOs (freshness, successful materialization rate, critical asset check pass rate) and map each SLO to alert policies.
+
+### 4.4 Release promotion and rollback standards
+
+- [ ] **Task 65**: Define environment promotion flow (`dev -> staging -> production`) with explicit validation gates and rollback criteria.
+
+- [ ] **Task 66** [depends: Task 65]: Create `docs/V3_RELEASE_CHECKLIST.md` with multi-environment reproducibility, security, observability, and rollback acceptance criteria.
+
+- [x] **Task 70** [depends: Task 66]: Create `docs/governance-v3-runbook.md` that operationalizes governance workflows: access changes, secrets rotation, SLO breach handling, and incident communications.
+
+### 4.5 Governance evidence and auditability
+
+- [ ] **Task 71** [depends: Task 67, Task 69]: Add `docs/governance-v3-matrix.md` evidence links for each governance domain (implemented artifact + validation evidence + owner).
+
+- [ ] **Task 72** [depends: Task 71]: Add quarterly governance review checklist (policy drift, stale owners, alert noise, incident learning carry-forward) and version it under `docs/history/`.
 
 ---
 

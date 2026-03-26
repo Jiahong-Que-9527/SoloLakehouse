@@ -10,6 +10,7 @@ Use it as the long-term continuity layer between roadmap intent and implementati
 - [architecture-evolution.md](architecture-evolution.md): major architecture decisions over time and their trade-offs
 - [planning-template.md](planning-template.md): reusable planning template for v2/v3/v4 milestones
 - [v2-planning.md](v2-planning.md): delivered v2 planning and migration notes
+- [v3-planning.md](v3-planning.md): draft plan for production infrastructure and governance
 
 ## How to maintain
 
