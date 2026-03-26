@@ -913,3 +913,18 @@ Once all checklist items in `docs/V1_RELEASE_CHECKLIST.md` are verified:
 | B8 | Sample data | B8-1 | 1/1 |
 | B9 | v1.0 release | B9-1 to B9-5 | 5/5 |
 | **Total** | | **44** | **44/44** |
+
+---
+
+## Post-v1 Governance Track (v3 planning reference)
+
+This file is the completed v1 implementation ledger.  
+For active v2/v3 execution backlog, use `docs/EVOLVING_PLAN.md`.
+
+v3 governance-focused scope (tracked in `docs/EVOLVING_PLAN.md` Phase 4 and `docs/governance-v3-matrix.md`):
+
+- multi-environment promotion governance (`dev -> staging -> production`)
+- secrets lifecycle and least-privilege access governance
+- data governance contracts (owner/SLA/quality class/lineage responsibility)
+- SLO-driven observability and alert governance
+- incident runbooks, drills, and governance evidence reviews

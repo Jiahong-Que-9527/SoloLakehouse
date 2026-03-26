@@ -14,6 +14,15 @@ This folder contains architecture decisions across versions.
 
 - [ADR-006-v2-dagster-orchestration.md](ADR-006-v2-dagster-orchestration.md): move default orchestration to Dagster with legacy fallback during migration
 
+## v3 decisions (planned)
+
+- [ADR-007-v3-k8s-helm-terraform.md](ADR-007-v3-k8s-helm-terraform.md): adopt Kubernetes + Helm + Terraform as v3 production infrastructure baseline
+- [ADR-008-v3-environment-promotion.md](ADR-008-v3-environment-promotion.md): enforce dev -> staging -> production promotion model with release gates
+- [ADR-009-v3-secrets-and-access-governance.md](ADR-009-v3-secrets-and-access-governance.md): managed secrets and least-privilege access governance
+- [ADR-010-v3-observability-and-slo.md](ADR-010-v3-observability-and-slo.md): SLO-driven observability and alerting baseline
+- [ADR-011-v3-ml-productization-boundary.md](ADR-011-v3-ml-productization-boundary.md): define ML productization boundary (experiment platform first)
+- [ADR-012-v3-data-governance-catalog-strategy.md](ADR-012-v3-data-governance-catalog-strategy.md): Hive-first governance baseline with upgrade-ready catalog strategy
+
 ## How to add new ADRs
 
 1. Create the next numbered `ADR-xxx-*.md` file.
