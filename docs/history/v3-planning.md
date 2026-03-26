@@ -1,4 +1,4 @@
-# v3 Planning (Production Infrastructure)
+# v3 Planning (Production-Capable Platform Hardening)
 
 ## Version
 
@@ -13,11 +13,15 @@
 
 - Upgrade v2 from internal MVP platform posture to production-capable platform posture.
 - Introduce multi-environment reproducibility, stronger governance, and production operations standards.
+- Keep the project focused on platform productionization rather than feature expansion.
 
 ### Non-goals
 
 - No attempt to match full Databricks feature breadth in v3.
 - No complete self-serve UX overhaul (reserved for v4 maturity focus).
+- No full online serving platform as a required v3 deliverable.
+- No forced migration to a heavier metadata/catalog stack in v3.
+- No expansion into Kafka, Flink, or other complex distributed systems without explicit scope change.
 
 ### Constraints
 
@@ -25,12 +29,23 @@
 - Team capacity: small team, favor maintainable patterns over maximal complexity
 - Compatibility requirements: preserve v2 execution semantics while infrastructure changes underneath
 
+### Priority order
+
+1. Multi-environment reproducibility
+2. Promotion and rollback controls
+3. Security and access governance
+4. Reliability and observability
+5. Data governance baseline
+6. ML experiment governance
+
 ## 2. Current-state pain points
 
 - Single-node Compose is not enough for production HA and environment parity.
 - Security model is local-dev oriented (env var centric, limited RBAC/audit depth).
 - Observability is still basic (structured logs but limited metrics/alert pipelines).
 - Release promotion and rollback process are not yet environment-tiered.
+- Governance metadata for key datasets is still limited and only partially standardized.
+- ML tracking exists, but experiment governance and artifact lineage are not yet formalized enough for production-minded operation.
 
 Evidence:
 
@@ -67,28 +82,64 @@ Evidence:
 - Why not the others: Compose hardening under-delivers on HA/parity; managed migration changes project character too early.
 - ADR link (if created): planned (`ADR-007-v3-production-infrastructure.md`).
 
+Additional scope decisions for v3:
+
+- Keep `dev -> staging -> production` as the required promotion chain.
+- Treat secrets, least-privilege access, and auditability as service-governance priorities.
+- Use SLO-driven observability as the operations baseline.
+- Keep a Hive-first governance baseline and defer heavier catalog replacement.
+- Keep ML scope centered on experiment platform productionization, not full serving productization.
+
 ## 5. Delivery plan
 
-### Milestones
+### Workstreams and milestones
 
-- M1: Base infra and deployment parity
-  - Kubernetes baseline manifests/Helm chart skeletons
-  - Terraform baseline for required resources
-  - dev/staging environment split
-- M2: Security and governance hardening
-  - Secret management flow
-  - access control baseline
-  - auditability improvements
-- M3: Reliability and operations model
-  - metrics + alerting + dashboard baseline
-  - release promotion gates and rollback runbooks
-  - incident response checklists
+#### M1: Infrastructure baseline
+
+- Kubernetes baseline manifests / Helm chart skeletons
+- Terraform baseline for required resources
+- `dev` and `staging` environment split
+- documented coexistence of local Compose path and v3 infra path
+
+#### M2: Promotion and release controls
+
+- formal `dev -> staging -> production` promotion flow
+- promotion verification checklist
+- rollback checklist and evidence model
+- staged release rehearsal
+
+#### M3: Security and access governance
+
+- managed secret flow and runtime injection pattern
+- service-level credential boundary definition
+- least-privilege access baseline
+- auditability requirements for access changes
+
+#### M4: Reliability and observability
+
+- minimal SLO set for critical services and pipelines
+- metrics for orchestration success, freshness, latency, and quality pass rate
+- alerting and dashboard baseline
+- incident runbooks and drills
+
+#### M5: Data governance baseline
+
+- governance contracts for Gold and critical Silver outputs
+- ownership, SLA, and quality metadata conventions
+- naming conventions across environments
+
+#### M6: ML experiment governance
+
+- reproducible training and evaluation contracts
+- stronger experiment metadata and artifact lineage
+- future serving integration points documented, but serving deferred
 
 ### Verification gates
 
 - Gate 1: Deploy same version to dev/staging from reproducible IaC pipeline.
-- Gate 2: Recovery test passes for at least one critical service failure scenario.
-- Gate 3: Production readiness checklist (security + observability + release controls) passes.
+- Gate 2: Promotion from `dev` to `staging` succeeds with documented checks and rollback readiness.
+- Gate 3: Recovery test passes for at least one critical service failure scenario.
+- Gate 4: Production readiness checklist (security + observability + release controls) passes.
 
 ## 6. Release readiness criteria
 
@@ -98,9 +149,24 @@ Evidence:
 - [ ] Upgrade notes from previous major version are documented.
 - [ ] Multi-environment promotion flow is tested end-to-end.
 - [ ] Baseline alerting coverage exists for critical pipeline failures.
+- [ ] Critical datasets have governance contracts (`data_owner`, `refresh_sla`, `quality_class`).
+- [ ] Secrets source and rotation / fallback process are documented.
+- [ ] ML experiment workflow produces auditable metadata and artifact lineage.
 
 ## 7. Carry-forward notes
 
 - Technical debt accepted in this version: temporary coexistence of Compose and K8s paths during migration.
-- Items deferred to next version: deep self-serve UX maturity and wider productization tooling.
+- Items deferred to next version: deep self-serve UX maturity, complete serving productization, and heavier catalog/platform replacements if later justified.
 - Revisit triggers: operational burden too high for team size, or production incidents reveal governance blind spots.
+
+## 8. Scope guardrails
+
+The following items are explicitly not required for v3 unless project scope changes:
+
+- full online inference serving platform
+- Superset / FastAPI as primary v3 delivery goals
+- Keycloak-class end-user identity platform
+- mandatory OpenMetadata / DataHub adoption
+- complex streaming-first architecture
+
+These may be considered later if they become scenario-driven rather than template-driven.

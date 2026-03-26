@@ -19,7 +19,7 @@ SoloLakehouse is a **small but complete Lakehouse reference implementation** bui
 The project now represents:
 - **v1 delivered baseline**: five-service lakehouse core (MinIO/PostgreSQL/Hive Metastore/Trino/MLflow)
 - **v2 current platform**: Dagster orchestration layer (`dagster-webserver`, `dagster-daemon`) and governance-oriented runtime controls
-- **v3 planned scope**: production infrastructure + governance hardening (Kubernetes/Helm/Terraform, secrets/access controls, SLO/alerting)
+- **v3 planned scope**: production-capable platform hardening (Kubernetes/Helm/Terraform, promotion/rollback controls, secrets/access governance, SLO-driven observability, Hive-first governance baseline, ML experiment governance)
 
 **Third-party components** (MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, etc.) keep their own licenses; this repo’s license applies to code and docs here.
 
