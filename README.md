@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <i>A production-minded lakehouse platform reference: from runnable core pipelines to orchestrated, governance-ready data and ML operations.</i>
+  <i>A production-minded lakehouse platform reference: from runnable core pipelines to orchestrated operations and production-capable platform hardening.</i>
 </p>
 
 ## What is this?
@@ -14,7 +14,7 @@ SoloLakehouse is a **small but complete Lakehouse reference implementation** bui
 
 **This is not a framework.** It is a repo you can read, run, and change.
 
-**Current status: [v2.0 (current)](docs/roadmap.md)** — orchestration-first platform upgrade with Dagster assets/schedules/checks, while preserving a v1-compatible execution path.
+**Current status: [v2.0 (current)](docs/roadmap.md)** — orchestration-first platform upgrade with Dagster assets, schedules, sensors, and checks, while preserving a v1-compatible execution path.
 
 The project now represents:
 - **v1 delivered baseline**: five-service lakehouse core (MinIO/PostgreSQL/Hive Metastore/Trino/MLflow)
@@ -50,6 +50,39 @@ Eight-layer enterprise-style stack (metadata, observability, user access, etc.):
 - Default pipeline path: **Dagster** (`make pipeline`)
 - Compatibility path: **legacy script** (`make pipeline-v1` or `make pipeline PIPELINE_MODE=v1`)
 - Orchestration UI: `http://localhost:3000`
+
+## Version Narrative
+
+- **v1** answers: can the lakehouse pipeline run end-to-end, be validated, and support a minimal data-to-ML loop?
+- **v2** answers: can that pipeline be operated as a platform with asset orchestration, scheduling, checks, and replay?
+- **v3** answers: can the platform be hardened with multi-environment deployment, governance, security, observability, and release controls?
+
+In short:
+
+> v1 proves the runnable baseline.  
+> v2 adds orchestration and platform runtime semantics.  
+> v3 hardens the platform for production-minded operations.
+
+## v3 Direction
+
+v3 is intentionally about **platform productionization**, not feature expansion.
+
+Planned priorities:
+
+- Multi-environment reproducibility with `dev -> staging -> production`
+- Promotion gates and rollback readiness
+- Managed secrets direction and least-privilege access governance
+- SLO-driven metrics, alerting, dashboards, and incident runbooks
+- Hive-first governance contracts for key Gold and critical Silver datasets
+- Stronger ML experiment lineage and reproducibility without requiring full serving
+
+Not default v3 goals:
+
+- Kafka / Flink-style platform expansion
+- Full online serving platform
+- Superset / FastAPI as primary v3 deliverables
+- Forced OpenMetadata / DataHub migration
+- Major self-serve UX overhaul
 
 ## Quick start
 
