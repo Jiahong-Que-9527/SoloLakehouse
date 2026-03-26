@@ -1,0 +1,224 @@
+# SoloLakehouse Narrative
+
+## 一句话 Narrative
+
+> SoloLakehouse 是一个从单机可运行的数据管道，逐步演进为具备编排、治理与生产化运维能力的数据平台参考实现。
+
+---
+
+## v1 / v2 / v3 Narrative
+
+## v1 - Pipeline Baseline
+
+### 目标
+
+构建一个可运行、可验证的端到端数据链路，证明数据能够从源头稳定流向分析与建模。
+
+### 核心能力
+
+- Source -> Ingestion -> Storage -> Query -> ML 全链路打通
+- ECB API + DAX CSV 示例数据
+- Python ingestion + Pydantic schema validation
+- Parquet + MinIO 作为对象存储
+- Hive Metastore + Trino 作为查询层
+- MLflow 作为实验跟踪组件
+- `scripts/run-pipeline.py` 作为线性执行主路径
+
+### v1 的本质
+
+> v1 解决的是数据是否能够被稳定采集、转换、存储、查询，并形成一个可验证的最小闭环。
+
+### v1 的限制
+
+- 仍以线性脚本为主
+- 无调度
+- 无资产编排语义
+- 无平台级运行治理
+- 无生产级多环境与运维能力
+
+---
+
+## v2 - Orchestrated Data Platform MVP
+
+### 目标
+
+把“能跑的 pipeline”升级为“可调度、可治理、可回放的平台运行形态”。
+
+### 核心能力升级
+
+#### 1. 编排升级
+
+- 引入 Dagster
+- pipeline 升级为 software-defined assets
+- 明确依赖关系与重跑边界
+
+资产关系可以概括为：
+
+```text
+bronze -> silver -> gold -> ml
+```
+
+#### 2. 调度与自动化治理
+
+- daily schedule
+- freshness sensor
+- asset check
+
+#### 3. 平台运行结构
+
+- Dagster daemon + web UI
+- PostgreSQL-backed metadata / run storage
+- asset run tracking and replay
+
+#### 4. 工程化能力
+
+- unit + integration tests
+- lint / typecheck
+- health checks
+- Makefile workflow
+
+#### 5. 文档与演进记录
+
+- ADRs
+- v1 -> v2 transition narrative
+- roadmap / evolving plan / history docs
+
+### v2 的本质
+
+> v2 解决的是数据处理不再依赖脚本顺序执行，而是以资产为中心，由平台统一调度、检查和管理。
+
+### v2 的限制
+
+- 仍以单机 Docker Compose 为主
+- 缺少 `dev -> staging -> production` 多环境晋升模型
+- 企业级 secrets / access governance 仍不完整
+- observability 还未达到 SLO / on-call 级别
+- 发布、回滚、审计链路仍不够成熟
+
+### v2 的平台定位
+
+> v2 适合小团队内部 MVP 或试运行阶段的数据平台场景，但还不应被描述为正式生产级平台。
+
+---
+
+## v3 - Production-Capable Platform Hardening
+
+### 关键提醒
+
+v3 的重点不是继续加更多业务功能，而是补齐平台责任。
+
+也就是说，v3 的核心不是 feature expansion，而是 platform productionization。
+
+### 总目标
+
+将 SoloLakehouse 提升为：
+
+> 一个具备多环境、治理、安全、可观测性与发布控制能力的 production-minded 数据平台参考实现。
+
+### v3 的六个重点
+
+#### 1. Multi-environment infrastructure
+
+- Kubernetes / Helm / Terraform 基线
+- `dev -> staging -> production` 环境分层
+- 可复现部署
+
+#### 2. Promotion and rollback controls
+
+- 明确 release gates
+- 明确 promotion checklist
+- 明确 rollback readiness
+- 形成 staged release 演练能力
+
+#### 3. Secrets and access governance
+
+- 从静态 `.env` 思维升级为受管理 secrets 模型
+- least-privilege service credentials
+- access change auditability
+
+#### 4. SLO-driven observability and reliability
+
+- orchestration success rate
+- pipeline freshness
+- ingestion / pipeline latency
+- quality pass rate
+- alerts, dashboards, runbooks, drills
+
+#### 5. Hive-first data governance baseline
+
+- 保持 Hive-first catalog strategy
+- 为 Gold 和关键 Silver 输出补齐：
+  - `data_owner`
+  - `refresh_sla`
+  - `quality_class`
+  - lineage responsibility
+- 建立跨环境 naming conventions
+
+#### 6. ML experiment governance
+
+- 强化训练 / 评估流程可复现性
+- 强化 experiment metadata 与 artifact lineage
+- 保持 MLflow 作为实验治理核心
+- 为 serving 留接口，但不把完整 serving platform 设为 v3 必选项
+
+### v3 的本质
+
+> v3 解决的是平台是否具备接近真实团队运行的部署、治理、观测、发布与审计能力，而不只是“能跑的编排系统”。
+
+### v3 的范围边界
+
+以下内容不应被默认写成 v3 必须完成项：
+
+- Kafka / Flink 等复杂分布式系统扩展
+- 完整在线 serving 平台
+- Superset / FastAPI 作为主线交付
+- Keycloak 级别的终端身份系统
+- OpenMetadata / DataHub 强制接入
+
+这些方向如果未来要做，应被描述为：
+
+- later phase
+- v4 候选项
+- 或场景驱动下的单独扩展
+
+---
+
+## 三个版本如何连起来讲
+
+### 最短版本
+
+> v1 解决的是能不能跑通；  
+> v2 解决的是能不能以平台方式编排和管理；  
+> v3 解决的是能不能以 production-minded 的方式部署、治理、观测、发布和运维。
+
+### 面试表达版
+
+> 我把 SoloLakehouse 分成三个阶段来推进。  
+> v1 先完成可运行、可验证的数据与 ML 最小闭环；  
+> v2 引入 Dagster，把线性脚本升级为资产编排平台；  
+> v3 则不再优先加功能，而是补齐多环境、治理、安全、可观测性、发布与回滚这些真正的平台责任。  
+> 所以它的演进逻辑不是“做更多 ETL”，而是“逐步把一个 demo 提升为 production-minded 的平台参考实现”。
+
+---
+
+## 给 Code Agent 的简版 Narrative
+
+You are working on SoloLakehouse.
+
+Version narrative:
+
+- v1: runnable and verifiable end-to-end lakehouse baseline
+- v2: Dagster-orchestrated internal MVP platform
+- v3: production-capable platform hardening
+
+Interpretation rules:
+
+- v1 is about end-to-end closure
+- v2 is about orchestration and platform runtime semantics
+- v3 is about multi-environment deployment, governance, security, observability, and release controls
+
+Important:
+
+- Do not treat v3 as feature expansion
+- Do not default to full serving, heavy catalog replacement, or complex streaming systems
+- Prefer maintainable, upgrade-ready, production-minded platform decisions

@@ -12,7 +12,7 @@ Earlier docs listed **v0.1–v0.7** as incremental releases; **this project does
 |---------|--------|--------|--------|
 | **v1.0** | Delivered | 1–8 | Full platform baseline: metadata, observability target, user access path, and effortless deployment flow |
 | **v2.0** | **Current** | + Orchestration | Dagster asset orchestration, schedule/sensor/check governance, default pipeline migration with legacy fallback ([EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 3) |
-| **v3.0** | Planned | — | Production infrastructure + governance: Kubernetes/Helm, Terraform, environment promotion controls, secrets/access governance, SLO/alerting ([CLAUDE.md](../CLAUDE.md)) |
+| **v3.0** | Planned | — | Production-capable platform hardening: Kubernetes/Helm/Terraform, environment promotion and rollback controls, secrets/access governance, SLO-driven observability, Hive-first governance baseline, ML experiment governance ([CLAUDE.md](../CLAUDE.md)) |
 | **v4.0** | Planned | — | Self-serve maturity (documentation, verification, failure clarity); overlaps in theme with v2.0 in some older tables — reconcile when versioning stabilises |
 
 ---
@@ -50,14 +50,23 @@ See [v1-to-v2-transition.md](v1-to-v2-transition.md) for a complete migration na
 
 ### v3.0 planning focus (productionization)
 
-v3 moves from “operable MVP platform” to “production-capable platform” with four pillars:
+v3 moves from “operable MVP platform” to “production-capable platform” with six priorities:
 
 1. **Infrastructure**: Kubernetes + Helm + Terraform for reproducible multi-environment deployment
-2. **Security/Governance**: secrets lifecycle, finer-grained access control, auditability
-3. **Reliability/Observability**: metrics, alerting, SLOs, incident runbooks
-4. **Operations Model**: environment promotion, rollback standards, and release gates
+2. **Operations Model**: environment promotion, rollback standards, and release gates
+3. **Security/Governance**: secrets lifecycle, least-privilege access, auditability
+4. **Reliability/Observability**: SLO-backed metrics, alerting, dashboards, and incident runbooks
+5. **Data Governance Baseline**: Hive-first governance contracts, ownership, SLA, and naming conventions
+6. **ML Boundary**: experiment platform productionization first, not full serving expansion
 
-**v3.0 / v4.0** extend infrastructure and self-serve maturity — see [CLAUDE.md](../CLAUDE.md).
+Scope guardrails for v3:
+
+- no Kafka/Flink-style expansion by default
+- no forced OpenMetadata/DataHub migration in v3
+- no full online serving platform as a required v3 deliverable
+- no self-serve UX overhaul as a v3 primary goal
+
+**v3.0 / v4.0** extend production posture and later self-serve maturity — see [CLAUDE.md](../CLAUDE.md).
 
 ---
 

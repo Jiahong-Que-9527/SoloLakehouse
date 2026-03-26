@@ -234,9 +234,11 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 
 ---
 
-## Phase 4: v3.0 — Production Infrastructure (planned)
+## Phase 4: v3.0 — Production-Capable Platform Hardening (planned)
 
 Goal: Move from internal MVP platform suitability to production-capable platform suitability.
+
+Principle: prioritize platform productionization over feature expansion.
 
 ---
 
@@ -245,6 +247,8 @@ Goal: Move from internal MVP platform suitability to production-capable platform
 - [ ] **Task 59**: Introduce Kubernetes manifests or Helm chart skeletons for core services and Dagster services. Establish environment overlays for `dev` and `staging`.
 
 - [ ] **Task 60** [depends: Task 59]: Add Terraform baseline for infrastructure dependencies (network/storage/managed DB placeholders as applicable). Keep local-dev path intact during migration.
+
+- [ ] **Task 73** [depends: Task 60]: Document how the local Compose path coexists with the v3 infrastructure path during migration, including when each path should be used and what parity is expected between them.
 
 ### 4.2 Security and governance hardening
 
@@ -255,6 +259,8 @@ Goal: Move from internal MVP platform suitability to production-capable platform
 - [ ] **Task 67** [depends: Task 62]: Define dataset governance contracts for Gold and critical Silver outputs: `data_owner`, `refresh_sla`, `quality_class`, and lineage responsibility.
 
 - [ ] **Task 68** [depends: Task 67]: Publish and enforce naming/ownership conventions across environments (`dev`/`staging`/`production`) for schemas, tables, and storage prefixes.
+
+- [ ] **Task 74** [depends: Task 61]: Add a secrets rotation and emergency fallback runbook that covers critical services and documents expected audit evidence.
 
 ### 4.3 Reliability and operations model
 
@@ -272,11 +278,23 @@ Goal: Move from internal MVP platform suitability to production-capable platform
 
 - [x] **Task 70** [depends: Task 66]: Create `docs/governance-v3-runbook.md` that operationalizes governance workflows: access changes, secrets rotation, SLO breach handling, and incident communications.
 
+- [ ] **Task 75** [depends: Task 65, Task 73]: Add a staged release rehearsal document that records one end-to-end `dev -> staging` promotion with validation evidence and rollback readiness confirmation.
+
 ### 4.5 Governance evidence and auditability
 
 - [ ] **Task 71** [depends: Task 67, Task 69]: Add `docs/governance-v3-matrix.md` evidence links for each governance domain (implemented artifact + validation evidence + owner).
 
 - [ ] **Task 72** [depends: Task 71]: Add quarterly governance review checklist (policy drift, stale owners, alert noise, incident learning carry-forward) and version it under `docs/history/`.
+
+### 4.6 ML experiment governance boundary
+
+- [ ] **Task 76**: Define v3 ML governance scope as experiment-platform-first in docs and release criteria, explicitly stating that full online serving is deferred unless separately approved.
+
+- [ ] **Task 77** [depends: Task 76]: Standardize ML experiment metadata, artifact path conventions, and evaluation contract requirements so experiment runs are reproducible and auditable across environments.
+
+### 4.7 Scope guardrails
+
+- [ ] **Task 78**: Add a v3 scope guardrails section to planning and release docs that explicitly marks the following as non-required for v3: full online serving platform, Superset/FastAPI as primary delivery goals, Keycloak-class end-user identity, mandatory OpenMetadata/DataHub adoption, and complex streaming architecture.
 
 ---
 
