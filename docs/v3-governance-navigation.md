@@ -85,9 +85,9 @@ Before claiming v3 governance readiness, confirm all:
 
 ---
 
-## 5) Interview/demo usage
+## 5) Demo / architecture review usage
 
-For interviews or architecture reviews, use this page as your anchor:
+For architecture reviews and walkthroughs, use this page as your anchor:
 
 1. Start with governance storyline (Section 1).
 2. Show decision rigor via ADR set (Section 2B).

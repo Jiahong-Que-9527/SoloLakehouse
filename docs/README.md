@@ -11,7 +11,6 @@ If you are starting with project positioning and version intent, read these firs
 | Document | Description |
 |----------|-------------|
 | [roadmap.md](roadmap.md) | Canonical version roadmap and current v2 / planned v3 positioning |
-| [chatgpt narrative](chatgpt%20narrative) | Compact v1 / v2 / v3 narrative for project explanation and interview framing |
 | [SoloLakehouse v3 Spec](SoloLakehouse%20v3%20Spec) | Consolidated v3 scope, priorities, workstreams, and implementation direction |
 | [history/v3-planning.md](history/v3-planning.md) | Formal v3 planning record: goals, constraints, milestones, release criteria |
 
@@ -37,7 +36,5 @@ Core docs:
 | [release-readiness.md](release-readiness.md) | Demo consistency check and pre-release self-check |
 | [contributing.md](contributing.md) | How to contribute |
 | [decisions/](decisions/README.md) | Architecture Decision Records (ADR-001 … ADR-014; see index for v1 / v2 / v2.5 / v3) |
-
-**Tutorials (中文, repo root):** [tutorial_v1/README.md](../tutorial_v1/README.md) (v1 baseline) · [tutorial_v2/README.md](../tutorial_v2/README.md) (v2 / Dagster, interview-oriented)
 
 **Diagrams:** Committed SVGs live under [`img/`](img/README.md); root `README.md` and `architecture.md` reference them.

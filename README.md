@@ -181,8 +181,6 @@ See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deploy
 | [docs/EVOLVING_PLAN.md](docs/EVOLVING_PLAN.md) | Detailed implementation tasks |
 | [docs/governance-v3-matrix.md](docs/governance-v3-matrix.md) | v3 governance capability matrix |
 | [docs/v3-governance-navigation.md](docs/v3-governance-navigation.md) | One-page navigation for v3 governance docs |
-| [tutorial_v1/README.md](tutorial_v1/README.md) | Chinese deep-dive tutorial for the v1 baseline |
-| [tutorial_v2/README.md](tutorial_v2/README.md) | Chinese v2 / Dagster interview-oriented tutorial |
 | [TASKS.md](TASKS.md) | Backlog and ideas |
 
 ## Repository layout

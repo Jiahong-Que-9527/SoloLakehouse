@@ -21,7 +21,7 @@ Adopt:
 2. **Helm** as application packaging/deployment abstraction
 3. **Terraform** as infrastructure provisioning baseline
 
-Keep Docker Compose for local development and interview/demo portability.
+Keep Docker Compose for local development and demo portability.
 
 ## Rationale
 
