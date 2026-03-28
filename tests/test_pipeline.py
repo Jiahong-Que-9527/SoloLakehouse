@@ -40,7 +40,12 @@ class TestPipelineRetry:
         monkeypatch.setattr(
             module,
             "build_clients",
-            lambda: {"minio_client": object(), "bucket": "sololakehouse", "mlflow_tracking_uri": "http://x"},
+            lambda: {
+                "minio_client": object(),
+                "bucket": "sololakehouse",
+                "mlflow_tracking_uri": "http://x",
+                "trino_url": "http://localhost:8080",
+            },
         )
 
         module.ECBCollector = MagicMock()
@@ -73,7 +78,12 @@ class TestPipelineRetry:
         monkeypatch.setattr(
             module,
             "build_clients",
-            lambda: {"minio_client": object(), "bucket": "sololakehouse", "mlflow_tracking_uri": "http://x"},
+            lambda: {
+                "minio_client": object(),
+                "bucket": "sololakehouse",
+                "mlflow_tracking_uri": "http://x",
+                "trino_url": "http://localhost:8080",
+            },
         )
 
         module.ECBCollector = MagicMock()

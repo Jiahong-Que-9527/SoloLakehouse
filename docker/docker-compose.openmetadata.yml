@@ -1,0 +1,95 @@
+# OpenMetadata 1.5.6 (Collate images). Optional profile: openmetadata
+# Usage:
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml \
+#     --profile openmetadata up -d
+# Env defaults: docker/openmetadata/openmetadata.env (generated from upstream compose; DB/ES hosts patched).
+
+volumes:
+  om_mysql_data:
+  om_es_data:
+
+services:
+  om-mysql:
+    profiles: ["openmetadata"]
+    container_name: slh-om-mysql
+    image: docker.getcollate.io/openmetadata/db:1.5.6
+    command: ["--sort_buffer_size=10M"]
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - om_mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysql",
+          "--user=root",
+          "--password=password",
+          "-e",
+          "use openmetadata_db",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  om-elasticsearch:
+    profiles: ["openmetadata"]
+    container_name: slh-om-elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms768m -Xmx768m"
+      xpack.security.enabled: "false"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - om_es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s http://localhost:9200/_cluster/health?pretty | grep status | grep -qE 'green|yellow' || exit 1",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  om-migrate:
+    profiles: ["openmetadata"]
+    container_name: slh-om-migrate
+    image: docker.getcollate.io/openmetadata/server:1.5.6
+    command: ["./bootstrap/openmetadata-ops.sh", "migrate"]
+    env_file:
+      - openmetadata/openmetadata.env
+    depends_on:
+      om-mysql:
+        condition: service_healthy
+      om-elasticsearch:
+        condition: service_healthy
+
+  openmetadata-server:
+    profiles: ["openmetadata"]
+    container_name: slh-openmetadata-server
+    image: docker.getcollate.io/openmetadata/server:1.5.6
+    restart: unless-stopped
+    env_file:
+      - openmetadata/openmetadata.env
+    ports:
+      - "8585:8585"
+      - "8586:8586"
+    depends_on:
+      om-mysql:
+        condition: service_healthy
+      om-elasticsearch:
+        condition: service_healthy
+      om-migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 120s

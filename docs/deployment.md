@@ -194,6 +194,20 @@ make pipeline
 ```
 The `ecb_dax_impact` experiment is created automatically during the run.
 
+### 6. Iceberg Gold DDL fails in Trino
+
+Root cause: staging Parquet is missing or Hive external table metadata is stale.
+
+Fix:
+1. Confirm `gold/rate_impact_features/ecb_dax_features.parquet` exists in MinIO after `make pipeline`.
+2. Re-run the Gold step so `ingestion.trino_sql.register_gold_tables_trino` can refresh `hive.gold` + `iceberg.gold`.
+
+### 7. OpenMetadata slow to start or OOM
+
+Root cause: Elasticsearch + OpenMetadata JVM need RAM.
+
+Fix: start only when needed (`make up-openmetadata`), increase Docker memory, or stop other stacks. First-time migration (`om-migrate`) can take several minutes.
+
 ---
 
 ## 8. What’s next

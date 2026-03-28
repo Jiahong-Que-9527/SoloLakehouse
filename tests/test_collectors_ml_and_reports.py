@@ -384,6 +384,7 @@ class TestEvaluate:
         monkeypatch.setattr(evaluate.mlflow, "log_param", lambda *args, **kwargs: None)
         monkeypatch.setattr(evaluate.mlflow, "log_metrics", lambda *args, **kwargs: None)
         monkeypatch.setattr(evaluate.mlflow, "log_artifact", lambda *args, **kwargs: None)
+        monkeypatch.delenv("TRINO_URL", raising=False)
 
         best_run_id = evaluate.run_experiment_set(minio, "http://localhost:5000")
 
