@@ -2,7 +2,7 @@ FROM apache/hive:4.0.0
 
 USER root
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends gettext-base netcat-openbsd curl \
+  && apt-get install -y --no-install-recommends gettext-base netcat-openbsd curl postgresql-client \
   && curl -fsSL -o /opt/hive/lib/postgresql-42.7.3.jar https://jdbc.postgresql.org/download/postgresql-42.7.3.jar \
   && rm -rf /var/lib/apt/lists/*
 

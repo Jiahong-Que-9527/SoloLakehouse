@@ -9,6 +9,7 @@ Whether the **bundled demo** runs end-to-end and whether a **tagged release** is
 | Entry | `make pipeline` runs Dagster default path; `make pipeline PIPELINE_MODE=v1` keeps legacy compatibility |
 | DAX sample | `data/sample/dax_daily_sample.csv` present; columns match `DAXDailyRecord` |
 | Paths | Bronze → Silver → Gold Parquet paths align in both Dagster and legacy execution paths |
+| Iceberg | Trino exposes `iceberg` catalog and `iceberg.gold.ecb_dax_features_iceberg` is queryable |
 | ML | `run_experiment_set` / evaluate flow matches training scripts |
 
 **External:** ECB SDW API (public, no key); **Docker** for services; **network** for images and ECB.
@@ -21,6 +22,7 @@ Whether the **bundled demo** runs end-to-end and whether a **tagged release** is
 - Docs: root `README`, [quickstart.md](quickstart.md), [deployment.md](deployment.md), [architecture.md](architecture.md), ADRs
 - `.env.example` and consistent port/env usage
 - `make up` → `make verify` → `make pipeline` (v2 default) → `make pipeline PIPELINE_MODE=v1` (compatibility) → `make test` documented and working in a clean environment
+- `.venv`-backed `make` commands remain aligned with the installed project dependencies
 
 ## 3. Pre-release self-check
 
@@ -32,6 +34,7 @@ python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 make up
 make verify
+make verify-openmetadata   # optional, when the OpenMetadata profile is enabled
 make pipeline
 make pipeline PIPELINE_MODE=v1
 make test

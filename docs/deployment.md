@@ -68,13 +68,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+`make` commands prefer `.venv/bin/python` automatically when that virtual environment exists.
+
 ### 3.4 Start services
 
 ```bash
 make up
 ```
 
-`make up` starts services and waits until health checks pass (up to 5 minutes). It also runs `minio-init` for buckets `sololakehouse` and `mlflow-artifacts`.
+`make up` starts services, ensures the required PostgreSQL databases exist (`hive_metastore`, `mlflow`, `dagster_storage`), and waits until health checks pass (up to 5 minutes). It also runs `minio-init` for buckets `sololakehouse` and `mlflow-artifacts`.
 
 For first-time setup, you can use one command:
 
@@ -88,6 +90,12 @@ This checks Docker, ensures `.env` exists, pulls images, starts services, and wa
 
 ```bash
 make verify
+```
+
+To include the optional OpenMetadata stack in validation:
+
+```bash
+make verify-openmetadata
 ```
 
 ### 3.6 Pipeline and UIs
@@ -138,6 +146,12 @@ make test
 
 Unit tests use mocks; Docker is not required.
 
+For a fuller local release-style check with Docker services running:
+
+```bash
+make release-check
+```
+
 ---
 
 ## Troubleshooting
@@ -152,6 +166,8 @@ Fix:
 ```bash
 make clean && make up
 ```
+
+If you intentionally kept volumes and only the expected databases are missing, `make up` now auto-creates them before readiness checks.
 
 ### 2. Trino reports "catalog not available"
 

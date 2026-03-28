@@ -9,6 +9,8 @@ MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT:-s3://mlflow-artifacts/}"
 
 BACKEND_STORE_URI="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/mlflow"
 
+mlflow db upgrade "${BACKEND_STORE_URI}"
+
 exec mlflow server \
   --host 0.0.0.0 \
   --port 5000 \

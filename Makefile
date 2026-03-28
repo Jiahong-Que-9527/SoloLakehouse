@@ -1,14 +1,15 @@
-.PHONY: up up-openmetadata down clean pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify test test-cov test-cov-html test-integration lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up up-openmetadata down clean bootstrap-db pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_OM := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml
-PYTHON := python3
+PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 PIPELINE_MODE ?= v2
 ARGS ?=
 DAGSTER_JOB ?= full_pipeline_job
 
 up:
 	docker compose -f $(COMPOSE_FILE) up -d
+	$(MAKE) bootstrap-db
 	$(MAKE) wait
 	@echo ""
 	@echo "SoloLakehouse is ready."
@@ -20,7 +21,11 @@ up:
 
 up-openmetadata:
 	docker compose $(COMPOSE_OM) --profile openmetadata up -d
+	$(MAKE) bootstrap-db
 	@echo "OpenMetadata UI: http://localhost:8585 (add Trino service in UI; host trino, port 8080)"
+
+bootstrap-db:
+	$(PYTHON) scripts/bootstrap-postgres.py
 
 down:
 	docker compose -f $(COMPOSE_FILE) down
@@ -49,6 +54,9 @@ pipeline-dagster:
 verify:
 	$(PYTHON) scripts/verify-setup.py
 
+verify-openmetadata:
+	OPENMETADATA_CHECK=1 $(PYTHON) scripts/verify-setup.py
+
 test:
 	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
 
@@ -60,6 +68,11 @@ test-cov-html:
 
 test-integration:
 	$(PYTHON) -m pytest tests/integration/ -v --tb=short -m integration
+
+release-check:
+	$(MAKE) verify
+	$(MAKE) test
+	$(MAKE) test-integration
 
 lint:
 	$(PYTHON) -m ruff check .
@@ -80,7 +93,7 @@ setup:
 	@test -f .env || cp .env.example .env
 	@echo "[3/4] Pulling container images..."
 	docker compose -f $(COMPOSE_FILE) pull
-	@echo "[4/4] Starting services and waiting for health checks..."
+	@echo "[4/4] Starting services, bootstrapping databases, and waiting for health checks..."
 	$(MAKE) up
 
 wait:

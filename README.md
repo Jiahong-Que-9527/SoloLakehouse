@@ -97,6 +97,8 @@ pip install -r requirements.txt
 make setup
 ```
 
+If `.venv/bin/python` exists, `make` commands automatically use it instead of the system `python3`.
+
 - MinIO Console: http://localhost:9001  
 - Trino: http://localhost:8080  
 - MLflow: http://localhost:5000  
@@ -108,6 +110,12 @@ make setup
 ```bash
 make verify
 make pipeline
+```
+
+Optional OpenMetadata health check:
+
+```bash
+make verify-openmetadata
 ```
 
 Compatibility run (v1-style):
@@ -134,12 +142,14 @@ Expected output format:
 Service          Status  Detail
 ---------------- ------- ----------------------------
 MinIO            PASS    Buckets: sololakehouse, mlflow-artifacts
-PostgreSQL       PASS    Databases: hive_metastore, mlflow
+PostgreSQL       PASS    Databases: hive_metastore, mlflow, dagster_storage
 Hive Metastore   PASS    TCP port 9083 open
 Trino            PASS    Running, not starting
 MLflow           PASS    HTTP 200
 Dagster          PASS    HTTP 200 /server_info
 ```
+
+If you started the optional metadata stack with `make up-openmetadata`, you can also validate it with `make verify-openmetadata`.
 
 ## Common Issues
 

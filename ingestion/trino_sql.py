@@ -106,5 +106,32 @@ def refresh_iceberg_gold_from_hive(trino_url: str, bucket: str) -> None:
 
 def register_gold_tables_trino(trino_url: str, bucket: str) -> None:
     """Ensure Hive staging + Iceberg Gold are aligned after Parquet write."""
-    register_hive_gold_staging_parquet(trino_url, bucket)
-    refresh_iceberg_gold_from_hive(trino_url, bucket)
+    attempts = 3
+    delay_s = 5.0
+    for attempt in range(1, attempts + 1):
+        try:
+            register_hive_gold_staging_parquet(trino_url, bucket)
+            refresh_iceberg_gold_from_hive(trino_url, bucket)
+            return
+        except (requests.RequestException, TimeoutError, ValueError) as exc:
+            if attempt >= attempts or not _is_retryable_trino_error(exc):
+                raise
+            logger.warning(
+                "trino_gold_registration_retry",
+                attempt=attempt,
+                max_attempts=attempts,
+                error=str(exc),
+            )
+            time.sleep(delay_s)
+
+
+def _is_retryable_trino_error(exc: Exception) -> bool:
+    message = str(exc).lower()
+    transient_markers = (
+        "sockettimeoutexception",
+        "read timed out",
+        "timeout",
+        "timed out",
+        "hive-metastore",
+    )
+    return any(marker in message for marker in transient_markers)
