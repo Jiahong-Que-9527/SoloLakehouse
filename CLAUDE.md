@@ -215,7 +215,7 @@ templates (see `config/trino/catalog/hive.properties`).
 ECB API / DAX CSV
     → Bronze (raw Parquet, partitioned by ingestion_date, immutable)
     → Silver (cleaned, typed, deduped, derived fields)
-    → Gold   (Parquet staging + Trino Iceberg table `iceberg.gold.ecb_dax_features`)
+    → Gold   (Parquet staging + Trino Iceberg table `iceberg.gold.ecb_dax_features_iceberg`)
     → MLflow (XGBoost/LightGBM experiments with TimeSeriesSplit CV)
 ```
 

@@ -100,7 +100,8 @@ def check_postgres() -> StatusTuple:
         message = str(exc)
         if "timeout" in message.lower():
             return ("PostgreSQL", "TIMEOUT", "Timed out after 5s")
-        return ("PostgreSQL", "FAIL", message.splitlines()[0])
+        first_line = message.splitlines()[0] if message.splitlines() else exc.__class__.__name__
+        return ("PostgreSQL", "FAIL", first_line)
     except Exception as exc:
         return ("PostgreSQL", "FAIL", str(exc))
     finally:

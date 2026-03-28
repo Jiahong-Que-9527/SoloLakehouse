@@ -63,7 +63,7 @@ This file records project evolution in release order.
 
 **What landed**
 - Trino Iceberg catalog (`config/trino/catalog/iceberg.properties`) and catalog template expansion in `scripts/trino-entrypoint.sh`.
-- Gold refresh: Hive external Parquet staging + `iceberg.gold.ecb_dax_features` via Trino CTAS (`ingestion/trino_sql.py`).
+- Gold refresh: Hive external Parquet staging + `iceberg.gold.ecb_dax_features_iceberg` via Trino CTAS (`ingestion/trino_sql.py`).
 - ML reads Gold through Trino when `TRINO_URL` is set (`trino` Python client).
 - Optional OpenMetadata stack: `docker/docker-compose.openmetadata.yml`, `docker/openmetadata/openmetadata.env`, `make up-openmetadata`.
 - ADR-013, ADR-014; docs and tutorial updates.

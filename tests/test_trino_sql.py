@@ -34,4 +34,4 @@ def test_register_gold_tables_trino_calls_sequence() -> None:
 
     assert len(calls) >= 4
     assert any("CREATE SCHEMA" in c for c in calls)
-    assert any("DROP TABLE IF EXISTS iceberg.gold.ecb_dax_features" in c for c in calls)
+    assert any("DROP TABLE IF EXISTS iceberg.gold.ecb_dax_features_iceberg" in c for c in calls)

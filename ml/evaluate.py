@@ -35,7 +35,7 @@ def _gold_dataframe_from_trino(trino_url: str) -> pd.DataFrame:
         http_scheme="http",
     )
     cur = conn.cursor()
-    cur.execute("SELECT * FROM ecb_dax_features")
+    cur.execute("SELECT * FROM ecb_dax_features_iceberg")
     rows = cur.fetchall()
     if cur.description is None:
         raise ValueError("Trino returned no column description for Gold Iceberg table")
