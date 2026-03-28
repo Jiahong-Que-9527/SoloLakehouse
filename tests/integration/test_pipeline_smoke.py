@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from io import BytesIO
 from pathlib import Path
 
@@ -17,7 +18,7 @@ def test_pipeline_smoke(minio_client) -> None:
 
     env = os.environ.copy()
     result = subprocess.run(
-        ["python3", "scripts/run-pipeline.py"],
+        [sys.executable, "scripts/run-pipeline.py"],
         check=False,
         capture_output=True,
         text=True,
