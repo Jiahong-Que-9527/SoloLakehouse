@@ -14,6 +14,11 @@ This folder contains architecture decisions across versions.
 
 - [ADR-006-v2-dagster-orchestration.md](ADR-006-v2-dagster-orchestration.md): move default orchestration to Dagster with legacy fallback during migration
 
+## v2.5 decisions (reference extension)
+
+- [ADR-013-iceberg-gold-trino.md](ADR-013-iceberg-gold-trino.md): Apache Iceberg for Gold via Trino (`iceberg` catalog)
+- [ADR-014-openmetadata-optional-profile.md](ADR-014-openmetadata-optional-profile.md): OpenMetadata as optional Docker Compose profile
+
 ## v3 decisions (planned)
 
 - [ADR-007-v3-k8s-helm-terraform.md](ADR-007-v3-k8s-helm-terraform.md): adopt Kubernetes + Helm + Terraform as v3 production infrastructure baseline

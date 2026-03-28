@@ -128,7 +128,10 @@ def _check_postgres_via_docker(user: str) -> StatusTuple | None:
                 "postgres",
                 "-At",
                 "-c",
-                "SELECT datname FROM pg_database WHERE datname IN ('hive_metastore', 'mlflow', 'dagster_storage')",
+                (
+                    "SELECT datname FROM pg_database WHERE datname IN "
+                    "('hive_metastore', 'mlflow', 'dagster_storage')"
+                ),
             ],
             check=True,
             capture_output=True,

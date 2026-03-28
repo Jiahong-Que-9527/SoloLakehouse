@@ -165,7 +165,9 @@ See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deploy
 | [ADR-004](docs/decisions/ADR-004-financial-dataset.md) | ECB + DAX data |
 | [ADR-005](docs/decisions/ADR-005-v1-scope.md) | Observability / SQL UI deferred until after the five-service core |
 | [ADR-006](docs/decisions/ADR-006-v2-dagster-orchestration.md) | v2 Dagster orchestration with legacy fallback |
-| [ADR index](docs/decisions/README.md) | Full ADR set including v3 governance decisions |
+| [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md) | Iceberg for Gold via Trino |
+| [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md) | OpenMetadata optional Compose profile |
+| [ADR index](docs/decisions/README.md) | Full ADR set (v1–v2.5 delivered; v3 planned) |
 
 ## Documentation index
 
@@ -179,6 +181,8 @@ See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deploy
 | [docs/EVOLVING_PLAN.md](docs/EVOLVING_PLAN.md) | Detailed implementation tasks |
 | [docs/governance-v3-matrix.md](docs/governance-v3-matrix.md) | v3 governance capability matrix |
 | [docs/v3-governance-navigation.md](docs/v3-governance-navigation.md) | One-page navigation for v3 governance docs |
+| [tutorial_v1/README.md](tutorial_v1/README.md) | Chinese deep-dive tutorial for the v1 baseline |
+| [tutorial_v2/README.md](tutorial_v2/README.md) | Chinese v2 / Dagster interview-oriented tutorial |
 | [TASKS.md](TASKS.md) | Backlog and ideas |
 
 ## Repository layout

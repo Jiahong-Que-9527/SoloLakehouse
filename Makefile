@@ -78,7 +78,7 @@ lint:
 	$(PYTHON) -m ruff check .
 
 typecheck:
-	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/
+	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/ dagster/
 
 dagster-install:
 	$(PYTHON) -m pip install -r requirements-dagster.txt

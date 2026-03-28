@@ -147,9 +147,38 @@ v2 解决了可编排、可治理、可回放的问题。
 
 ---
 
-## 7. 相关文档
+## 7. v2.5 可选参考扩展
+
+v2 稳定后可按需启用以下两项参考扩展，它们不影响核心流水线运行：
+
+### Apache Iceberg（Gold 层开放表格式）
+
+在 Trino 中将 Gold 特征表同时注册为 Iceberg 格式：
+
+```sql
+-- Trino iceberg 目录下查询（等价于 hive.gold.ecb_dax_features）
+SELECT * FROM iceberg.gold.ecb_dax_features_iceberg LIMIT 10;
+```
+
+无需额外 `make` 目标，Iceberg connector 随 Trino 启动时自动就绪。决策依据：[ADR-013](decisions/ADR-013-iceberg-gold-trino.md)。
+
+### OpenMetadata（可选数据目录 UI）
+
+```bash
+make up-openmetadata     # 启动 OpenMetadata + Elasticsearch + OM MySQL
+make verify-openmetadata # 验证服务健康
+# UI：http://localhost:8585（在 UI 中配置 Trino 连接：host=trino, port=8080）
+```
+
+OpenMetadata 以独立 compose profile 运行，不影响核心 8 个容器。决策依据：[ADR-014](decisions/ADR-014-openmetadata-optional-profile.md)。
+
+---
+
+## 8. 相关文档
 
 - 路线图：`docs/roadmap.md`
+- v2.5 Iceberg 决策：`docs/decisions/ADR-013-iceberg-gold-trino.md`
+- v2.5 OpenMetadata 决策：`docs/decisions/ADR-014-openmetadata-optional-profile.md`
 - 详细任务：`docs/EVOLVING_PLAN.md`
 - Dagster 使用：`docs/DAGSTER_GUIDE.md`
 - 历史时间线：`docs/history/timeline.md`

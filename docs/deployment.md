@@ -13,7 +13,7 @@ Deploy SoloLakehouse on your machine: MinIO, PostgreSQL, Hive Metastore, Trino, 
 | Disk | 5 GB | 10+ GB |
 | Network | Yes (images + ECB API for pipeline) | — |
 
-About seven containers in v2 mode; idle RAM is typically higher than v1 and depends on host limits.
+Eight containers in v2 mode (7 core services + minio-init helper); idle RAM is typically higher than v1 and depends on host limits.
 
 ---
 

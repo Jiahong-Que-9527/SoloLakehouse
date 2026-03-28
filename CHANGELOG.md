@@ -4,6 +4,31 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [v2.5.0] - 2026-03-28 (reference extension)
+
+### Added
+- Apache Iceberg Gold table via Trino (`iceberg.gold.ecb_dax_features_iceberg`) with Hive Metastore as the catalog backend (see [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md)).
+- Trino `iceberg` catalog configuration template (`config/trino/catalog/iceberg.properties`).
+- Optional OpenMetadata 1.5.x compose profile (`make up-openmetadata`) for data catalog, metadata lineage, and Trino connector discovery (see [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md)).
+- Integration test for Trino Iceberg table creation and query (`tests/integration/test_trino_iceberg.py`).
+- `make verify-openmetadata` target for optional service health-check.
+
+## [v2.0.0] - 2026-03-28
+
+### Added
+- Dagster orchestration layer: six software-defined assets (`ecb_bronze`, `dax_bronze`, `ecb_silver`, `dax_silver`, `gold_features`, `ml_experiment`).
+- `full_pipeline_job` Dagster job replacing the linear legacy script as the default execution path.
+- `daily_pipeline_schedule` (weekdays 06:00 UTC) and `ecb_data_freshness_sensor` (30-minute interval).
+- `gold_features_min_rows_check` asset check as a quality gate.
+- Dagster webserver and daemon services in Docker Compose; `dagster_storage` PostgreSQL database.
+- `dagster/io_managers.py` with `ParquetIOManager` for DataFrame-native asset experiments.
+- `make pipeline` defaults to v2 Dagster path; `make pipeline PIPELINE_MODE=v1` retains legacy compatibility.
+- Bootstrap script (`scripts/bootstrap-postgres.py`) with Docker-exec and TCP fallback modes.
+
+### Changed
+- `make pipeline` now invokes Dagster job by default (was legacy script in v1).
+- Harden integration test execution and local release bootstrap.
+
 ## [v1.0.0] - 2026-03-26
 
 ### Added
