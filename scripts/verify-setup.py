@@ -153,6 +153,18 @@ def check_mlflow() -> StatusTuple:
         return ("MLflow", "FAIL", str(exc))
 
 
+def check_dagster() -> StatusTuple:
+    try:
+        response = requests.get("http://localhost:3000/server_info", timeout=5)
+        if response.status_code == 200:
+            return ("Dagster", "PASS", "HTTP 200 /server_info")
+        return ("Dagster", "FAIL", f"HTTP {response.status_code}")
+    except requests.Timeout:
+        return ("Dagster", "TIMEOUT", "Timed out after 5s")
+    except Exception as exc:
+        return ("Dagster", "FAIL", str(exc))
+
+
 def validate_required_env_vars() -> list[str]:
     required = [
         "MINIO_ROOT_USER",
@@ -190,6 +202,7 @@ def main() -> int:
         check_hive_metastore,
         check_trino,
         check_mlflow,
+        check_dagster,
     ]
     results = [check() for check in checks]
     print_status_table(results)

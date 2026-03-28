@@ -9,7 +9,10 @@ from io import BytesIO
 from typing import Any
 
 import pandas as pd
+import requests
 import structlog
+from resources import MinioResource, PipelineConfigResource
+
 from dagster import (
     AssetCheckResult,
     AssetKey,
@@ -23,11 +26,41 @@ from dagster import (
 from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
 from ml.evaluate import run_experiment_set
-from resources import MinioResource, PipelineConfigResource
 from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
 
 logger = structlog.get_logger()
 PARTITION_RE = re.compile(r"ingestion_date=(\d{4}-\d{2}-\d{2})")
+
+
+def _register_gold_table(trino_url: str, bucket: str) -> None:
+    """Ensure hive.gold schema and ecb_dax_features table exist in Trino."""
+    base = trino_url.rstrip("/")
+    headers = {"X-Trino-User": "dagster", "Content-Type": "application/json"}
+
+    def _run(sql: str) -> None:
+        resp = requests.post(f"{base}/v1/statement", data=sql, headers=headers, timeout=30)
+        resp.raise_for_status()
+
+    _run(f"CREATE SCHEMA IF NOT EXISTS hive.gold WITH (location = 's3://{bucket}/gold/')")
+    _run(
+        f"""CREATE TABLE IF NOT EXISTS hive.gold.ecb_dax_features (
+            ecb_date VARCHAR,
+            rate_before DOUBLE,
+            rate_after DOUBLE,
+            rate_change_bps DOUBLE,
+            dax_t_minus_5 DOUBLE,
+            dax_t_minus_1 DOUBLE,
+            dax_t_0 DOUBLE,
+            dax_t_plus_1 DOUBLE,
+            dax_t_plus_5 DOUBLE,
+            dax_return_pre_5d DOUBLE,
+            dax_return_post_5d DOUBLE
+        ) WITH (
+            external_location = 's3://{bucket}/gold/ecb_dax_features/',
+            format = 'PARQUET'
+        )"""
+    )
+    logger.info("trino_gold_table_registered", bucket=bucket)
 
 
 def _emit_metric(step: str, started_at: float) -> None:
@@ -123,7 +156,9 @@ def ecb_silver(
         bucket=pipeline_config.bucket,
     )
     silver_df = _read_parquet_from_minio(minio_client, pipeline_config.bucket, silver_path)
-    context.add_output_metadata({"silver_path": silver_path, "row_count": int(len(silver_df.index))})
+    context.add_output_metadata(
+        {"silver_path": silver_path, "row_count": int(len(silver_df.index))}
+    )
     _emit_metric("ecb_silver", started)
     return silver_path
 
@@ -143,7 +178,9 @@ def dax_silver(
         bucket=pipeline_config.bucket,
     )
     silver_df = _read_parquet_from_minio(minio_client, pipeline_config.bucket, silver_path)
-    context.add_output_metadata({"silver_path": silver_path, "row_count": int(len(silver_df.index))})
+    context.add_output_metadata(
+        {"silver_path": silver_path, "row_count": int(len(silver_df.index))}
+    )
     _emit_metric("dax_silver", started)
     return silver_path
 
@@ -164,6 +201,7 @@ def gold_features(
         bucket=pipeline_config.bucket,
     )
     gold_df = _read_parquet_from_minio(minio_client, pipeline_config.bucket, gold_path)
+    _register_gold_table(trino_url=pipeline_config.trino_url, bucket=pipeline_config.bucket)
     context.add_output_metadata({"gold_path": gold_path, "event_count": int(len(gold_df.index))})
     _emit_metric("gold_features", started)
     return gold_path
@@ -207,7 +245,9 @@ def ecb_data_freshness_sensor(minio: MinioResource, pipeline_config: PipelineCon
             run_key=f"ecb-freshness-{latest.isoformat()}",
             asset_selection=[AssetKey("ecb_bronze")],
         )
-    return SkipReason(f"ECB data fresh enough: latest partition {latest.isoformat()} ({lag_hours}h lag)")
+    return SkipReason(
+        f"ECB data fresh enough: latest partition {latest.isoformat()} ({lag_hours}h lag)"
+    )
 
 
 @asset_check(asset=gold_features, description="gold_features should contain at least 10 rows")

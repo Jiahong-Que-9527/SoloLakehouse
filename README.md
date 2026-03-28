@@ -136,6 +136,7 @@ PostgreSQL       PASS    Databases: hive_metastore, mlflow
 Hive Metastore   PASS    TCP port 9083 open
 Trino            PASS    Running, not starting
 MLflow           PASS    HTTP 200
+Dagster          PASS    HTTP 200 /server_info
 ```
 
 ## Common Issues
@@ -158,6 +159,8 @@ See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deploy
 
 | Doc | Content |
 |-----|---------|
+| [docs/USER_GUIDE_EN.md](docs/USER_GUIDE_EN.md) | **Complete user guide (English)** — install, v1/v2 walkthrough, all UIs, v3 preview, troubleshooting |
+| [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | **完整用户指导书（中文）** — 安装、v1/v2 全流程、所有 UI、v3 规划、排障 |
 | [docs/README.md](docs/README.md) | All docs |
 | [docs/roadmap.md](docs/roadmap.md) | v1.0 target and later versions |
 | [docs/v1-to-v2-transition.md](docs/v1-to-v2-transition.md) | v1 delivered baseline, v2 current scope, migration narrative |

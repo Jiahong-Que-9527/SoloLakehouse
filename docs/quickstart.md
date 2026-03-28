@@ -14,15 +14,14 @@ pip install -r requirements.txt
 make up
 ```
 
-`make up` starts Docker services, waits for MinIO health, and runs `minio-init` to create buckets.
-
-Expected output ends with:
+`make up` starts all Docker services (including Dagster), waits until every health check passes, then prints:
 
 ```
-SoloLakehouse is ready!
-  MinIO Console: http://localhost:9001
-  Trino:         http://localhost:8080
-  MLflow:        http://localhost:5000
+SoloLakehouse is ready.
+  MinIO Console:  http://localhost:9001
+  Trino UI:       http://localhost:8080
+  MLflow UI:      http://localhost:5000
+  Dagster UI:     http://localhost:3000
 ```
 
 ## 2. Verify
@@ -31,7 +30,7 @@ SoloLakehouse is ready!
 make verify
 ```
 
-Checks MinIO (and buckets), PostgreSQL, Hive Metastore (9083), Trino `/v1/info`, MLflow API.
+Checks MinIO (and buckets), PostgreSQL, Hive Metastore (9083), Trino `/v1/info`, MLflow API, and Dagster webserver (`/server_info`).
 
 ## 3. Run the example pipeline
 
@@ -67,6 +66,7 @@ Legacy script mode executes `scripts/run-pipeline.py` (six steps):
 | MinIO Console | http://localhost:9001 | Default user/password from `.env` |
 | MLflow | http://localhost:5000 | Experiment `ecb_dax_impact` |
 | Trino | http://localhost:8080 | `docker exec -it slh-trino trino` |
+| Dagster UI | http://localhost:3000 | Asset graph, runs, schedules, sensors |
 
 ```sql
 SHOW CATALOGS;

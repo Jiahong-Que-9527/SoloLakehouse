@@ -318,7 +318,8 @@ def main() -> int:
 
             statuses.append({"step_number": step_number, "step_name": step_name, "status": "ok"})
             duration_ms = int((time.perf_counter() - started) * 1000)
-            emit_step_metric(step=step_name.lower().replace(" ", "_").replace("->", "_"), duration_ms=duration_ms)
+            step_key = step_name.lower().replace(" ", "_").replace("->", "_")
+            emit_step_metric(step=step_key, duration_ms=duration_ms)
             logger.info(
                 "pipeline_step_complete",
                 step_number=step_number,
