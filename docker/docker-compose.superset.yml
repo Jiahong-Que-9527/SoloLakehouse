@@ -1,0 +1,39 @@
+# Apache Superset 6.0.0. Optional profile: superset
+# Usage:
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.superset.yml \
+#     --profile superset up -d --build
+
+services:
+  superset:
+    profiles: ["superset"]
+    container_name: slh-superset
+    build: ./superset
+    depends_on:
+      postgres:
+        condition: service_healthy
+      trino:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      SUPERSET_DB_NAME: ${SUPERSET_DB_NAME:-superset_metadata}
+      SUPERSET_ADMIN_USERNAME: ${SUPERSET_ADMIN_USERNAME:-admin}
+      SUPERSET_ADMIN_PASSWORD: ${SUPERSET_ADMIN_PASSWORD:-admin}
+      SUPERSET_ADMIN_EMAIL: ${SUPERSET_ADMIN_EMAIL:-admin@sololakehouse.local}
+      SUPERSET_ADMIN_FIRSTNAME: ${SUPERSET_ADMIN_FIRSTNAME:-Solo}
+      SUPERSET_ADMIN_LASTNAME: ${SUPERSET_ADMIN_LASTNAME:-Lakehouse}
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-sololakehouse-superset-secret-key-change-me}
+      SUPERSET_TRINO_ICEBERG_DB_NAME: ${SUPERSET_TRINO_ICEBERG_DB_NAME:-trino_iceberg_gold}
+      SUPERSET_TRINO_ICEBERG_URI: ${SUPERSET_TRINO_ICEBERG_URI:-trino://sololakehouse@trino:8080/iceberg/gold}
+      SUPERSET_TRINO_HIVE_DB_NAME: ${SUPERSET_TRINO_HIVE_DB_NAME:-trino_hive_default}
+      SUPERSET_TRINO_HIVE_URI: ${SUPERSET_TRINO_HIVE_URI:-trino://sololakehouse@trino:8080/hive/default}
+    ports:
+      - "8088:8088"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
+      start_period: 120s

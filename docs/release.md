@@ -13,6 +13,7 @@ pip install -r requirements.txt
 make setup
 make verify
 make verify-openmetadata   # optional, when `make up-openmetadata` is enabled
+make verify-superset       # optional, when `make up-superset` is enabled
 make pipeline
 make pipeline PIPELINE_MODE=v1
 make lint
@@ -25,6 +26,7 @@ Expected result:
 
 - `make verify` shows the six default runtime checks as `PASS` (`MinIO`, `PostgreSQL`, `Hive Metastore`, `Trino`, `MLflow`, `Dagster`)
 - `make verify-openmetadata` also passes when the optional OpenMetadata profile is running
+- `make verify-superset` also passes when the optional Superset profile is running
 - `make pipeline` (Dagster default path) completes successfully
 - `make pipeline PIPELINE_MODE=v1` (legacy compatibility path) completes without `PIPELINE FAILED`
 - `make lint`, `make typecheck`, `make test-cov`, and `make release-check` all pass
@@ -43,6 +45,12 @@ SELECT * FROM iceberg.gold.ecb_dax_features_iceberg LIMIT 5;
 
 ```bash
 curl -fsS http://localhost:8585/api/v1/system/version
+```
+
+- Superset health endpoint responds when enabled:
+
+```bash
+curl -fsS http://localhost:8088/health
 ```
 
 - Restart safety:

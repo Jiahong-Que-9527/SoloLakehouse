@@ -198,6 +198,7 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 - [x] **Task 50** [depends: Task 47]: Update `Makefile`:
   - `make pipeline`: now runs `dagster job execute -j full_pipeline_job` (requires Dagster services up)
   - `make pipeline-legacy`: runs the old `scripts/run-pipeline.py` directly
+  - `make pipeline-v1` / `make pipeline PIPELINE_MODE=v1`: same script via the `pipeline` target
   - `make dagster-ui`: opens browser to `http://localhost:3000`
   - `make up`: now starts all 8 services including dagster-webserver and dagster-daemon
 
@@ -221,7 +222,7 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
   - How to view asset lineage (the dependency graph)
   - How to enable/disable the daily schedule
   - How to re-run a failed step without re-running the whole pipeline
-  - Difference between `make pipeline` (Dagster) and `make pipeline-legacy` (script)
+  - Difference between `make pipeline` (Dagster) and legacy script entrypoints (`make pipeline-v1`, `make pipeline-legacy`, `PIPELINE_MODE=v1`)
 
 - [x] **Task 56** [depends: Task 44]: Update `docs/architecture.md` to add a "Orchestration Layer" section describing the Dagster DAG, asset dependencies, and schedule. Include the asset dependency graph in text/ASCII form.
 
@@ -234,9 +235,9 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 
 ---
 
-## Phase 3b: v2.5 — Iceberg Gold + optional OpenMetadata (delivered)
+## Phase 3b: v2.5 — Iceberg Gold + optional OpenMetadata / Superset (delivered)
 
-Goal: Demonstrate open table format and data catalog integration without changing v3 scope guardrails.
+Goal: Demonstrate open table format, metadata discovery, and browser-based BI / SQL exploration without changing v3 scope guardrails.
 
 ---
 
@@ -255,6 +256,7 @@ Goal: Demonstrate open table format and data catalog integration without changin
 
 - [x] **Task OM-6**: Add unit tests for Trino SQL helpers; add integration test for Iceberg catalog visibility.
 - [x] **Task OM-7**: Update architecture, roadmap, ADR-013/014, USER_GUIDE, tutorial notes, and `docs/history/` for v2.5.
+- [x] **Task OM-8**: Add `docker/docker-compose.superset.yml`, local Superset image bootstrap, `make up-superset`, `make verify-superset`, and docs/tutorial updates for optional BI access over Trino.
 
 ---
 
@@ -348,7 +350,9 @@ Principle: prioritize platform productionization over feature expansion.
 | `config/trino/catalog/iceberg.properties` | v2.5 | Trino Iceberg catalog (Hive Metastore) |
 | `ingestion/trino_sql.py` | v2.5 | Trino REST helpers + Gold Iceberg refresh |
 | `docker/docker-compose.openmetadata.yml` | v2.5 | Optional OpenMetadata stack |
+| `docker/docker-compose.superset.yml` | v2.5 | Optional Superset stack |
 | `docker/openmetadata/openmetadata.env` | v2.5 | OpenMetadata server/migrate env |
+| `docker/superset/Dockerfile` | v2.5 | Superset image with Trino SQLAlchemy driver |
 | `docker/openmetadata/upstream-docker-compose-1.5.6.yml` | v2.5 | Upstream reference for env derivation |
 | `tests/test_trino_sql.py` | v2.5 | Unit tests for Trino helpers |
 | `tests/integration/test_trino_iceberg.py` | v2.5 | Integration checks for Iceberg catalog |
@@ -377,16 +381,16 @@ Principle: prioritize platform productionization over feature expansion.
 | `docs/deployment.md` | v1.0 | Troubleshooting section |
 | `docs/architecture.md` | v2.0 | Orchestration layer section |
 | `CLAUDE.md` | v2.0 | Updated roadmap, tech stack, commands |
-| `CLAUDE.md` | v2.5 | Iceberg + OpenMetadata rows, `up-openmetadata` |
+| `CLAUDE.md` | v2.5 | Iceberg + OpenMetadata + Superset rows, optional commands |
 | `scripts/trino-entrypoint.sh` | v2.5 | Expand all `*.properties` catalog templates |
 | `scripts/run-pipeline.py` | v2.5 | Use `register_gold_tables_trino`; pass `trino_url` to ML |
 | `dagster/assets.py` | v2.5 | Iceberg refresh + ML Trino URL |
 | `ml/evaluate.py` | v2.5 | Load Gold via Trino when `TRINO_URL` set |
-| `scripts/verify-setup.py` | v2.5 | Optional OpenMetadata check |
-| `Makefile` | v2.5 | `up-openmetadata`, compose merge vars |
+| `scripts/verify-setup.py` | v2.5 | Optional OpenMetadata + Superset checks |
+| `Makefile` | v2.5 | `up-openmetadata`, `up-superset`, compose merge vars |
 | `README.md` | v2.5 | v2.5 narrative + ports |
-| `docs/architecture.md` | v2.5 | Iceberg layer + ADR-013/014 |
+| `docs/architecture.md` | v2.5 | Iceberg layer + optional OpenMetadata / Superset |
 | `docs/roadmap.md` | v2.5 | v2.5 row + subsection |
-| `docs/USER_GUIDE.md` | v2.5 | v3 scope vs v2.5 reference |
+| `docs/USER_GUIDE.md` | v2.5 | v3 scope vs v2.5 reference + optional Superset |
 | `docs/USER_GUIDE_EN.md` | v2.5 | Same |
 | `docs/history/*` | v2.5 | Timeline, architecture-evolution, v2.5 planning |

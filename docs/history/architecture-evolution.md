@@ -36,7 +36,7 @@ This document explains not only what architecture exists, but why certain option
 ### Runtime scope
 - **Candidate options:** keep script as fallback vs full orchestrator migration
 - **Primary criteria:** migration risk, onboarding speed, troubleshooting complexity
-- **Selected:** keep script fallback in v2 (`make pipeline-legacy`)
+- **Selected:** keep script fallback in v2 (`make pipeline-v1` / `make pipeline-legacy` / `PIPELINE_MODE=v1`)
 
 ### Storage choice
 - **Selected:** PostgreSQL-backed Dagster instance storage (`dagster_storage`)
@@ -63,6 +63,12 @@ This document explains not only what architecture exists, but why certain option
 - **Alternatives considered:** mandatory catalog in default stack; documentation-only without runnable compose.
 - **Why selected:** keeps default footprint small while providing a realistic catalog UI for Trino metadata discovery.
 - **Reference:** `docs/decisions/ADR-014-openmetadata-optional-profile.md`
+
+### Superset as optional profile
+- **Selected:** Compose overlay profile `superset` with a local Superset image that preinstalls the Trino SQLAlchemy driver and bootstraps two Trino connections.
+- **Alternatives considered:** leave BI exploration to external desktop tools only; make Superset part of the default stack.
+- **Why selected:** gives a browser-based SQL / dashboard path without increasing the default stack footprint or changing the core query engine.
+- **Reference:** `docker/docker-compose.superset.yml`
 
 ## 4) v3 architecture decision frame (to fill during planning)
 

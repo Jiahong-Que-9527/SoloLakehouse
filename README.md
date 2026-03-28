@@ -19,7 +19,7 @@ SoloLakehouse is a **small but complete Lakehouse reference implementation** bui
 The project now represents:
 - **v1 delivered baseline**: five-service lakehouse core (MinIO/PostgreSQL/Hive Metastore/Trino/MLflow)
 - **v2 current platform**: Dagster orchestration layer (`dagster-webserver`, `dagster-daemon`) and governance-oriented runtime controls
-- **v2.5 reference extension**: Gold table as **Apache Iceberg** in Trino (`iceberg.gold.ecb_dax_features_iceberg`); optional **OpenMetadata** via `make up-openmetadata` ([docs/roadmap.md](docs/roadmap.md), [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md), [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md))
+- **v2.5 reference extension**: Gold table as **Apache Iceberg** in Trino (`iceberg.gold.ecb_dax_features_iceberg`); optional **OpenMetadata** via `make up-openmetadata`; optional **Apache Superset** via `make up-superset` for BI/SQL exploration over Trino ([docs/roadmap.md](docs/roadmap.md), [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md), [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md))
 - **v3 planned scope**: production-capable platform hardening (Kubernetes/Helm/Terraform, promotion/rollback controls, secrets/access governance, SLO-driven observability, Hive-first governance baseline, ML experiment governance)
 
 **Third-party components** (MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, etc.) keep their own licenses; this repo’s license applies to code and docs here.
@@ -104,6 +104,7 @@ If `.venv/bin/python` exists, `make` commands automatically use it instead of th
 - MLflow: http://localhost:5000  
 - Dagster: http://localhost:3000
 - OpenMetadata (optional): `make up-openmetadata` then http://localhost:8585
+- Superset (optional): `make up-superset` then http://localhost:8088
 
 `make up` now waits for all services to become healthy before returning.
 
@@ -117,6 +118,23 @@ Optional OpenMetadata health check:
 ```bash
 make verify-openmetadata
 ```
+
+Optional Superset health check:
+
+```bash
+make verify-superset
+```
+
+Superset Trino connection example:
+
+```text
+trino://sololakehouse@trino:8080/iceberg/gold
+```
+
+`make up-superset` now pre-creates two Superset database connections by default:
+
+- `trino_iceberg_gold` -> `trino://sololakehouse@trino:8080/iceberg/gold`
+- `trino_hive_default` -> `trino://sololakehouse@trino:8080/hive/default`
 
 Compatibility run (v1-style):
 

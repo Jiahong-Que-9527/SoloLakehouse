@@ -80,6 +80,7 @@ ecb_silver      dax_silver
 | **OpenMetadata** (optional) | Data catalog UI; Trino metadata ingestion | 8585 |
 | **Elasticsearch** (optional) | Search backend for OpenMetadata | 9200 |
 | **OpenMetadata MySQL** (optional) | Application database for OpenMetadata | 3307 (host) |
+| **Apache Superset** (optional) | BI / SQL UI over Trino; dashboards and chart exploration | 8088 |
 | **MLflow** | Experiments and model artifacts | 5000 |
 | **Dagster Webserver** | Orchestration UI + run entrypoint | 3000 |
 | **Dagster Daemon** | Schedules/sensors evaluator and run launcher | N/A (internal) |
@@ -91,10 +92,13 @@ postgres ──► hive-metastore ──► trino
 postgres ──► mlflow
 postgres ──► dagster-webserver
 postgres ──► dagster-daemon
+postgres ──► superset
 minio    ──► trino
 minio    ──► mlflow
 minio    ──► ingestion (Bronze writes)
 minio    ──► dagster assets runtime
+hive-metastore ──► trino
+trino    ──► superset
 dagster-daemon ──► dagster-webserver (automation and run control)
 ```
 

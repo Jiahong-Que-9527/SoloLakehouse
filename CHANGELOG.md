@@ -10,8 +10,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Apache Iceberg Gold table via Trino (`iceberg.gold.ecb_dax_features_iceberg`) with Hive Metastore as the catalog backend (see [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md)).
 - Trino `iceberg` catalog configuration template (`config/trino/catalog/iceberg.properties`).
 - Optional OpenMetadata 1.5.x compose profile (`make up-openmetadata`) for data catalog, metadata lineage, and Trino connector discovery (see [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md)).
+- Optional Apache Superset 6.0.0 compose profile (`make up-superset`) with Trino SQLAlchemy support for SQL and dashboard exploration.
+- Automatic Superset bootstrap for two Trino connections: `trino_iceberg_gold` and `trino_hive_default`.
 - Integration test for Trino Iceberg table creation and query (`tests/integration/test_trino_iceberg.py`).
 - `make verify-openmetadata` target for optional service health-check.
+- `make verify-superset` target for optional Superset health-check.
 
 ## [v2.0.0] - 2026-03-28
 

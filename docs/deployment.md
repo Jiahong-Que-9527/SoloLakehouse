@@ -78,6 +78,19 @@ make up
 
 `make up` starts services, ensures the required PostgreSQL databases exist (`hive_metastore`, `mlflow`, `dagster_storage`), and waits until health checks pass (up to 5 minutes). It also runs `minio-init` for buckets `sololakehouse` and `mlflow-artifacts`.
 
+To add the optional Superset UI on top of the core stack:
+
+```bash
+make up-superset
+```
+
+This starts the base services if needed, creates the `superset_metadata` PostgreSQL database, builds the local Superset image with the Trino SQLAlchemy driver, and exposes the UI at `http://localhost:8088`.
+
+It also pre-creates two Superset database connections for local exploration:
+
+- `trino_iceberg_gold`
+- `trino_hive_default`
+
 For first-time setup, you can use one command:
 
 ```bash
@@ -98,6 +111,12 @@ To include the optional OpenMetadata stack in validation:
 make verify-openmetadata
 ```
 
+To include the optional Superset UI in validation:
+
+```bash
+make verify-superset
+```
+
 ### 3.6 Pipeline and UIs
 
 Run the demo and open MinIO / Trino / MLflow: **[quickstart.md](quickstart.md)** (pipeline step table, SQL examples, `make down` / `make clean`).
@@ -109,6 +128,8 @@ For v1-compatible behavior, use:
 make pipeline PIPELINE_MODE=v1
 # or
 make pipeline-v1
+# or (direct script target)
+make pipeline-legacy
 ```
 
 ---
@@ -124,6 +145,7 @@ make pipeline-v1
 | Trino | 8080 | HTTP + UI |
 | MLflow | 5000 | HTTP |
 | Dagster Webserver | 3000 | UI + orchestration endpoint |
+| Superset (optional) | 8088 | BI / SQL UI over Trino |
 
 Override host ports in `.env` if needed (e.g. `PG_PORT`, `MINIO_API_PORT`). `verify-setup.py` and pipeline scripts should read the same variables.
 
@@ -224,9 +246,21 @@ Root cause: Elasticsearch + OpenMetadata JVM need RAM.
 
 Fix: start only when needed (`make up-openmetadata`), increase Docker memory, or stop other stacks. First-time migration (`om-migrate`) can take several minutes.
 
+### 8. Superset starts but cannot log in or connect to metadata DB
+
+Root cause: the optional Superset metadata database or secret key is missing/misaligned.
+
+Fix:
+```bash
+make up-superset
+make verify-superset
+```
+
+Confirm `.env` contains `SUPERSET_SECRET_KEY`, and if you changed `SUPERSET_DB_NAME`, use the same value when re-running `make up-superset`.
+
 ---
 
-## 8. What’s next
+## 9. What’s next
 
 - **Architecture & ADRs:** [architecture.md](architecture.md), [decisions/](decisions/)
 - **Roadmap:** [roadmap.md](roadmap.md)

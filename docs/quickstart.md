@@ -40,6 +40,12 @@ If you also started OpenMetadata with `make up-openmetadata`, run:
 make verify-openmetadata
 ```
 
+If you also started Superset with `make up-superset`, run:
+
+```bash
+make verify-superset
+```
+
 ## 3. Run the example pipeline
 
 ```bash
@@ -78,6 +84,18 @@ Legacy script mode executes `scripts/run-pipeline.py` (six steps):
 | Trino | http://localhost:8080 | `docker exec -it slh-trino trino` |
 | Dagster UI | http://localhost:3000 | Asset graph, runs, schedules, sensors |
 | OpenMetadata (optional) | http://localhost:8585 | Start with `make up-openmetadata` |
+| Superset (optional) | http://localhost:8088 | Start with `make up-superset`; login `admin` / `admin` |
+
+For Superset, add a Trino database with a SQLAlchemy URI such as:
+
+```text
+trino://sololakehouse@trino:8080/iceberg/gold
+```
+
+If you use `make up-superset`, these two connections are created for you automatically:
+
+- `trino_iceberg_gold`
+- `trino_hive_default`
 
 ```sql
 SHOW CATALOGS;
