@@ -1,8 +1,6 @@
-"""Integration: Trino exposes Iceberg catalog (requires Docker stack)."""
+"""Integration checks for Trino Iceberg and optional OpenMetadata services."""
 
 from __future__ import annotations
-
-import os
 
 import pytest
 import requests
@@ -14,6 +12,18 @@ def _trino_up() -> bool:
     try:
         r = requests.get("http://localhost:8080/v1/info", timeout=2)
         return r.status_code == 200 and not r.json().get("starting", True)
+    except OSError:
+        return False
+
+
+def _openmetadata_up() -> bool:
+    try:
+        health = requests.get("http://localhost:8586/healthcheck", timeout=2)
+        if health.status_code != 200:
+            return False
+        return bool(
+            health.json().get("OpenMetadataServerHealthCheck", {}).get("healthy", False)
+        )
     except OSError:
         return False
 
@@ -43,10 +53,7 @@ def test_trino_lists_iceberg_catalog() -> None:
     assert any("iceberg" in c.lower() for c in chunks)
 
 
-@pytest.mark.skipif(
-    os.environ.get("RUN_OM_INTEGRATION") != "1",
-    reason="Set RUN_OM_INTEGRATION=1 with OpenMetadata running",
-)
+@pytest.mark.skipif(not _openmetadata_up(), reason="OpenMetadata not reachable on localhost:8586")
 def test_openmetadata_version_endpoint() -> None:
     r = requests.get("http://localhost:8585/api/v1/system/version", timeout=5)
     assert r.status_code == 200
