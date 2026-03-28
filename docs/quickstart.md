@@ -54,6 +54,8 @@ For v1-compatible legacy script behavior, use:
 make pipeline PIPELINE_MODE=v1
 # or
 make pipeline-v1
+# or (same script, no PIPELINE_MODE)
+make pipeline-legacy
 ```
 
 Legacy script mode executes `scripts/run-pipeline.py` (six steps):

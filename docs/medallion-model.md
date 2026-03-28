@@ -44,6 +44,9 @@ Demo table: **`ecb_dax_features`** — one row per ECB rate-change event; event-
 sololakehouse/gold/rate_impact_features/ecb_dax_features.parquet
 ```
 
+**v2.5:** Gold is also registered as an **Apache Iceberg** table in Trino:
+`iceberg.gold.ecb_dax_features_iceberg`. The Parquet staging file remains the write target; Trino's Iceberg connector exposes it via the `iceberg` catalog. See [ADR-013](decisions/ADR-013-iceberg-gold-trino.md).
+
 | Column | Description |
 |--------|-------------|
 | `event_date` | ECB decision date |
@@ -71,6 +74,11 @@ ORDER BY observation_date;
 
 SELECT event_date, rate_change_bps, dax_return_1d, dax_return_5d
 FROM hive.gold.ecb_dax_features
+ORDER BY event_date;
+
+-- v2.5: same data via Iceberg catalog
+SELECT event_date, rate_change_bps, dax_return_1d, dax_return_5d
+FROM iceberg.gold.ecb_dax_features_iceberg
 ORDER BY event_date;
 ```
 

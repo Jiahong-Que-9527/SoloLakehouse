@@ -36,6 +36,8 @@ Core docs:
 | [V3_RELEASE_CHECKLIST.md](V3_RELEASE_CHECKLIST.md) | Productionization readiness checklist for v3.0 |
 | [release-readiness.md](release-readiness.md) | Demo consistency check and pre-release self-check |
 | [contributing.md](contributing.md) | How to contribute |
-| [decisions/](decisions/README.md) | Architecture Decision Records (ADR-001 … ADR-006) |
+| [decisions/](decisions/README.md) | Architecture Decision Records (ADR-001 … ADR-014; see index for v1 / v2 / v2.5 / v3) |
+
+**Tutorials (中文, repo root):** [tutorial_v1/README.md](../tutorial_v1/README.md) (v1 baseline) · [tutorial_v2/README.md](../tutorial_v2/README.md) (v2 / Dagster, interview-oriented)
 
 **Diagrams:** Committed SVGs live under [`img/`](img/README.md); root `README.md` and `architecture.md` reference them.

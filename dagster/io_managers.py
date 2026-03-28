@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from io import BytesIO
 from typing import Any
 
@@ -16,9 +17,14 @@ from dagster import ConfigurableIOManager, InputContext, OutputContext
 class ParquetIOManager(ConfigurableIOManager):
     """Read/write pandas DataFrames as Parquet files in MinIO."""
 
-    endpoint: str = "minio:9000"
-    access_key: str = "sololakehouse"
-    secret_key: str = "sololakehouse123"
+    endpoint: str = os.environ.get("MINIO_ENDPOINT", "minio:9000")
+    access_key: str = os.environ.get(
+        "S3_ACCESS_KEY", os.environ.get("MINIO_ROOT_USER", "sololakehouse")
+    )
+    secret_key: str = os.environ.get(
+        "S3_SECRET_KEY",
+        os.environ.get("MINIO_ROOT_PASSWORD", "sololakehouse123"),
+    )
     secure: bool = False
     bucket: str = "sololakehouse"
     base_prefix: str = "dagster/assets"
