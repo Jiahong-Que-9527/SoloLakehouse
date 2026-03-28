@@ -1,11 +1,14 @@
-.PHONY: up up-openmetadata down clean bootstrap-db pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up up-openmetadata up-superset down clean bootstrap-db pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata verify-superset test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_OM := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml
+COMPOSE_SUPERSET := -f docker/docker-compose.yml -f docker/docker-compose.superset.yml
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 PIPELINE_MODE ?= v2
 ARGS ?=
 DAGSTER_JOB ?= full_pipeline_job
+VERIFY_ENV ?=
+SUPERSET_DB_NAME ?= superset_metadata
 
 up:
 	docker compose -f $(COMPOSE_FILE) up -d
@@ -18,14 +21,22 @@ up:
 	@echo "  MLflow UI:      http://localhost:5000"
 	@echo "  Dagster UI:     http://localhost:3000"
 	@echo "  (Optional OpenMetadata: make up-openmetadata)"
+	@echo "  (Optional Superset:    make up-superset)"
 
 up-openmetadata:
 	docker compose $(COMPOSE_OM) --profile openmetadata up -d
 	$(MAKE) bootstrap-db
 	@echo "OpenMetadata UI: http://localhost:8585 (add Trino service in UI; host trino, port 8080)"
 
+up-superset:
+	docker compose -f $(COMPOSE_FILE) up -d postgres
+	$(MAKE) bootstrap-db EXTRA_POSTGRES_DATABASES=$(SUPERSET_DB_NAME)
+	docker compose $(COMPOSE_SUPERSET) --profile superset up -d --build
+	$(MAKE) wait VERIFY_ENV="SUPERSET_CHECK=1 SUPERSET_DB_NAME=$(SUPERSET_DB_NAME)"
+	@echo "Superset UI: http://localhost:8088 (login admin/admin; add Trino host trino, port 8080)"
+
 bootstrap-db:
-	$(PYTHON) scripts/bootstrap-postgres.py
+	EXTRA_POSTGRES_DATABASES="$(EXTRA_POSTGRES_DATABASES)" $(PYTHON) scripts/bootstrap-postgres.py
 
 down:
 	docker compose -f $(COMPOSE_FILE) down
@@ -56,6 +67,9 @@ verify:
 
 verify-openmetadata:
 	OPENMETADATA_CHECK=1 $(PYTHON) scripts/verify-setup.py
+
+verify-superset:
+	SUPERSET_CHECK=1 SUPERSET_DB_NAME="$(SUPERSET_DB_NAME)" $(PYTHON) scripts/verify-setup.py
 
 test:
 	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
@@ -100,7 +114,7 @@ wait:
 	@echo "Waiting for services to become ready (timeout: 5 minutes)..."
 	@start=$$(date +%s); \
 	while true; do \
-		if $(PYTHON) scripts/verify-setup.py >/dev/null 2>&1; then \
+		if $(VERIFY_ENV) $(PYTHON) scripts/verify-setup.py >/dev/null 2>&1; then \
 			echo ""; \
 			echo "All services are healthy."; \
 			exit 0; \

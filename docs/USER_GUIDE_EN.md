@@ -140,6 +140,8 @@ SoloLakehouse is ready.
   Trino UI:       http://localhost:8080
   MLflow UI:      http://localhost:5000
   Dagster UI:     http://localhost:3000
+  (Optional OpenMetadata: make up-openmetadata)
+  (Optional Superset:    make up-superset)
 ```
 
 > First-time image pull takes 5–10 minutes. Subsequent starts take 1–2 minutes.
@@ -158,7 +160,7 @@ When all services are healthy:
 Service          Status  Detail
 ---------------- ------- ----------------------------
 MinIO            PASS    Buckets: sololakehouse, mlflow-artifacts
-PostgreSQL       PASS    Databases: hive_metastore, mlflow
+PostgreSQL       PASS    Databases: dagster_storage, hive_metastore, mlflow
 Hive Metastore   PASS    TCP port 9083 open
 Trino            PASS    Running, not starting
 MLflow           PASS    HTTP 200
@@ -166,6 +168,13 @@ Dagster          PASS    HTTP 200 /server_info
 ```
 
 If any service shows `FAIL` or `TIMEOUT`, see [Section 10: Troubleshooting](#10-troubleshooting).
+
+If you enabled the optional add-ons, you can also run:
+
+```bash
+make verify-openmetadata
+make verify-superset
+```
 
 ---
 
@@ -445,6 +454,28 @@ Page reference:
 | Sensors | Deployments → Sensors | Manage the freshness sensor |
 | Asset Checks | Assets → Asset Checks | Review data quality check results |
 
+### 7.5 Superset UI (optional)
+
+**Start command:**
+
+```bash
+make up-superset
+```
+
+**URL:** http://localhost:8088  
+**Login:** default `admin / admin`
+
+After the first startup, Superset pre-creates two Trino connections:
+
+- `trino_iceberg_gold`
+- `trino_hive_default`
+
+Recommended demo entry points:
+
+- Use `trino_iceberg_gold` for `iceberg.gold.ecb_dax_features_iceberg`
+- Use `trino_hive_default` for `hive.gold.ecb_dax_features`
+- Use SQL Lab or Chart Builder to visualize Gold features quickly
+
 ---
 
 ## 8. Command Reference
@@ -455,6 +486,10 @@ Page reference:
 make setup          # First run: check Docker → ensure .env → pull images → start → wait
 make up             # Start all services (images already present)
 make verify         # Check health of all 6 services
+make up-openmetadata # Optional: start OpenMetadata
+make verify-openmetadata # Optional: validate OpenMetadata
+make up-superset    # Optional: start Superset
+make verify-superset # Optional: validate Superset
 make down           # Stop services (data volumes preserved)
 make clean          # Stop services and delete all volumes (destructive)
 ```
@@ -514,7 +549,7 @@ The following are intentionally **not** default v3 productionization goals (see 
 - Keycloak-class end-user identity system
 - Superset / FastAPI
 
-**v2.5 reference extension (implemented in this repo):** Gold is available as **Apache Iceberg** (Trino `iceberg` catalog). **OpenMetadata** is optional (`make up-openmetadata`, UI on port 8585). This does not contradict v3 guardrails: v2.5 is an educational/reference add-on; v3 still does not require OM adoption.
+**v2.5 reference extension (implemented in this repo):** Gold is available as **Apache Iceberg** (Trino `iceberg` catalog). **OpenMetadata** is optional (`make up-openmetadata`, UI on port 8585), and **Superset** is also optional (`make up-superset`, UI on port 8088) for SQL exploration and dashboard demos. This does not contradict v3 guardrails: v2.5 is an educational/reference add-on; v3 still does not require these optional UIs.
 
 These may be introduced in future versions when driven by a concrete use case — not added speculatively.
 

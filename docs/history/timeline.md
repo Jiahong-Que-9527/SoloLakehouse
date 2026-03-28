@@ -26,7 +26,7 @@ This file records project evolution in release order.
 
 ---
 
-## v2.0.0 (2026-03-26) - Current
+## v2.0.0 (2026-03-28) - Current
 
 **Theme**
 - Orchestrated platform with Dagster assets, schedules, and operational UX.
@@ -35,7 +35,7 @@ This file records project evolution in release order.
 - Dagster project scaffold with six software-defined assets: `ecb_bronze`, `dax_bronze`, `ecb_silver`, `dax_silver`, `gold_features`, `ml_experiment`.
 - `full_pipeline_job` and weekday schedule (`daily_pipeline_schedule`, 06:00 UTC) wired through `Definitions`.
 - Compose integration adds `dagster-webserver` and `dagster-daemon` with persistent Dagster storage configuration.
-- Default execution path switched to Dagster (`make pipeline`), with `make pipeline-legacy` retained as migration fallback.
+- Default execution path switched to Dagster (`make pipeline`), with legacy script retained as migration fallback (`make pipeline-v1`, `make pipeline-legacy`, or `make pipeline PIPELINE_MODE=v1`).
 - Operational docs added (`docs/DAGSTER_GUIDE.md`) and architecture docs updated with orchestration layer and dependency graph.
 - Data freshness sensor (`ecb_data_freshness_sensor`) and gold data quality gate (`gold_features` asset check, min rows) added.
 
@@ -59,13 +59,14 @@ This file records project evolution in release order.
 ## v2.5.0 (2026-03-28) — Reference extension
 
 **Theme**
-- Open table format (Iceberg) and optional data catalog (OpenMetadata) on top of the v2 stack.
+- Open table format (Iceberg) and optional data catalog / BI UI (OpenMetadata + Superset) on top of the v2 stack.
 
 **What landed**
 - Trino Iceberg catalog (`config/trino/catalog/iceberg.properties`) and catalog template expansion in `scripts/trino-entrypoint.sh`.
 - Gold refresh: Hive external Parquet staging + `iceberg.gold.ecb_dax_features_iceberg` via Trino CTAS (`ingestion/trino_sql.py`).
 - ML reads Gold through Trino when `TRINO_URL` is set (`trino` Python client).
 - Optional OpenMetadata stack: `docker/docker-compose.openmetadata.yml`, `docker/openmetadata/openmetadata.env`, `make up-openmetadata`.
+- Optional Superset stack: `docker/docker-compose.superset.yml`, `docker/superset/*`, `make up-superset`.
 - ADR-013, ADR-014; docs and tutorial updates.
 
 **Decision gate to v3**

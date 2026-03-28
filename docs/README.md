@@ -20,9 +20,9 @@ Core docs:
 |----------|-------------|
 | [USER_GUIDE_EN.md](USER_GUIDE_EN.md) | **Complete user guide (English)** — installation, v1/v2 walkthrough, all UIs, v3 preview, troubleshooting |
 | [USER_GUIDE.md](USER_GUIDE.md) | **完整用户指导书（中文）** — installation, v1/v2 walkthrough, all UIs, v3 preview, troubleshooting |
-| [quickstart.md](quickstart.md) | Clone → `make up` → verify → pipeline → explore UIs |
+| [quickstart.md](quickstart.md) | Clone → `make up` → verify → pipeline → explore UIs, plus optional `make up-openmetadata` / `make up-superset` |
 | [deployment.md](deployment.md) | Hardware/software prerequisites, full deployment, ports, troubleshooting |
-| [architecture.md](architecture.md) | Layers, components, dependencies; links to ADRs |
+| [architecture.md](architecture.md) | Layers, components, dependencies; includes optional OpenMetadata and Superset add-ons |
 | [medallion-model.md](medallion-model.md) | Bronze / Silver / Gold paths, principles, Trino examples |
 | [v1-to-v2-transition.md](v1-to-v2-transition.md) | Full narrative of v1 baseline, v1->v2 migration, and current v2 state |
 | [DAGSTER_GUIDE.md](DAGSTER_GUIDE.md) | Dagster UI, jobs, schedules, reruns, and operational usage |

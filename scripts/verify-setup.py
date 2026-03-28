@@ -91,16 +91,16 @@ def check_postgres() -> StatusTuple:
             connect_timeout=5,
         )
         with conn.cursor() as cur:
+            required = required_postgres_databases()
             cur.execute(
-                "SELECT datname FROM pg_database WHERE datname IN (%s, %s)",
-                ("hive_metastore", "mlflow"),
+                "SELECT datname FROM pg_database WHERE datname = ANY(%s)",
+                (list(required),),
             )
             existing = {row[0] for row in cur.fetchall()}
-        required = {"hive_metastore", "mlflow"}
         missing = sorted(required - existing)
         if missing:
             return ("PostgreSQL", "FAIL", f"Missing databases: {', '.join(missing)}")
-        return ("PostgreSQL", "PASS", "Databases: hive_metastore, mlflow")
+        return ("PostgreSQL", "PASS", f"Databases: {', '.join(sorted(required))}")
     except psycopg2.OperationalError as exc:
         message = str(exc)
         if "timeout" in message.lower():
@@ -128,10 +128,7 @@ def _check_postgres_via_docker(user: str) -> StatusTuple | None:
                 "postgres",
                 "-At",
                 "-c",
-                (
-                    "SELECT datname FROM pg_database WHERE datname IN "
-                    "('hive_metastore', 'mlflow', 'dagster_storage')"
-                ),
+                _postgres_list_databases_query(include_dagster=True),
             ],
             check=True,
             capture_output=True,
@@ -147,11 +144,11 @@ def _check_postgres_via_docker(user: str) -> StatusTuple | None:
         return ("PostgreSQL", "FAIL", detail.splitlines()[0])
 
     existing = {line.strip() for line in result.stdout.splitlines() if line.strip()}
-    required = {"hive_metastore", "mlflow", "dagster_storage"}
+    required = required_postgres_databases(include_dagster=True)
     missing = sorted(required - existing)
     if missing:
         return ("PostgreSQL", "FAIL", f"Missing databases: {', '.join(missing)}")
-    return ("PostgreSQL", "PASS", "Databases: hive_metastore, mlflow, dagster_storage")
+    return ("PostgreSQL", "PASS", f"Databases: {', '.join(sorted(required))}")
 
 
 def check_hive_metastore() -> StatusTuple:
@@ -213,6 +210,19 @@ def check_openmetadata() -> StatusTuple:
         return ("OpenMetadata", "FAIL", str(exc))
 
 
+def check_superset() -> StatusTuple:
+    base = os.environ.get("SUPERSET_URL", "http://localhost:8088").rstrip("/")
+    try:
+        response = requests.get(f"{base}/health", timeout=5)
+        if response.status_code == 200:
+            return ("Superset", "PASS", f"HTTP 200 ({base}/health)")
+        return ("Superset", "FAIL", f"HTTP {response.status_code}")
+    except requests.Timeout:
+        return ("Superset", "TIMEOUT", "Timed out after 5s")
+    except Exception as exc:
+        return ("Superset", "FAIL", str(exc))
+
+
 def check_dagster() -> StatusTuple:
     try:
         response = requests.get("http://localhost:3000/server_info", timeout=5)
@@ -241,6 +251,21 @@ def validate_required_env_vars() -> list[str]:
     return [name for name in required if not os.environ.get(name)]
 
 
+def _postgres_list_databases_query(*, include_dagster: bool) -> str:
+    dbs = sorted(required_postgres_databases(include_dagster=include_dagster))
+    in_list = ", ".join(repr(db) for db in dbs)
+    return f"SELECT datname FROM pg_database WHERE datname IN ({in_list})"
+
+
+def required_postgres_databases(*, include_dagster: bool = False) -> set[str]:
+    required = {"hive_metastore", "mlflow"}
+    if include_dagster:
+        required.add("dagster_storage")
+    if os.environ.get("SUPERSET_CHECK") == "1":
+        required.add(os.environ.get("SUPERSET_DB_NAME", "superset_metadata"))
+    return required
+
+
 def print_status_table(results: list[StatusTuple]) -> None:
     print("Service          Status  Detail")
     print("---------------- ------- ----------------------------")
@@ -266,6 +291,8 @@ def main() -> int:
     ]
     if os.environ.get("OPENMETADATA_CHECK") == "1":
         checks.append(check_openmetadata)
+    if os.environ.get("SUPERSET_CHECK") == "1":
+        checks.append(check_superset)
     results = [check() for check in checks]
     print_status_table(results)
 

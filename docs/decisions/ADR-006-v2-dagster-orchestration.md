@@ -23,7 +23,7 @@ Key implementation choices:
 1. Default run command switches to Dagster:
    - `make pipeline` executes `full_pipeline_job`
 2. Legacy script remains available during migration:
-   - `make pipeline-legacy` executes `scripts/run-pipeline.py`
+   - `make pipeline-legacy` executes `scripts/run-pipeline.py` directly; `make pipeline-v1` and `make pipeline PIPELINE_MODE=v1` invoke the same script via the `pipeline` target
 3. Runtime services include:
    - `dagster-webserver`
    - `dagster-daemon`
@@ -73,7 +73,7 @@ Run and event records persist across restarts and align with existing stateful-s
 
 ### Rollback
 
-- Use `make pipeline-legacy` immediately if Dagster path is unstable
+- Use `make pipeline-v1`, `make pipeline-legacy`, or `make pipeline PIPELINE_MODE=v1` immediately if Dagster path is unstable
 - Preserve data path compatibility (no medallion storage format changes introduced by orchestrator switch)
 
 ## Related Docs

@@ -10,8 +10,8 @@ not a framework or library. It demonstrates how platforms like Databricks and
 Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
-**Development target: v2.0** — orchestrated platform on top of the v1 baseline, with Dagster assets/schedules/UI while preserving local reliability and a legacy fallback path (see `docs/roadmap.md` and `docs/EVOLVING_PLAN.md`).  
-**v2.5 reference extension:** Apache Iceberg for Gold (`iceberg` Trino catalog) and optional OpenMetadata (`make up-openmetadata`).  
+**Current: v2.0 + v2.5** — orchestrated platform on top of the v1 baseline, with Dagster assets/schedules/UI while preserving local reliability and a legacy fallback path (see `docs/roadmap.md` and `docs/EVOLVING_PLAN.md`).  
+**v2.5 reference extension:** Apache Iceberg for Gold (`iceberg` Trino catalog), optional OpenMetadata (`make up-openmetadata`), and optional Superset (`make up-superset`).  
 **Next target (v3.0):** production infrastructure and governance hardening (multi-environment deployment, secrets/access governance, SLO/alerting, release promotion controls).
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
@@ -20,14 +20,15 @@ Compose node.
 
 | Layer | Technology | Version |
 |-------|-----------|---------|
-| Object Storage | MinIO (S3-compatible) | RELEASE.2025-09-07 |
+| Object Storage | MinIO (S3-compatible) | RELEASE.2025-09-07T16-13-09Z |
 | Metadata DB | PostgreSQL | 17 |
 | Table Catalog | Apache Hive Metastore (standalone) | 4.0.0 |
 | Query Engine | Trino (Hive + Iceberg catalogs) | 480 |
 | Table format (Gold) | Apache Iceberg (via Trino) | — |
 | Data catalog (optional) | OpenMetadata | 1.5.x (compose profile) |
+| BI / SQL UI (optional) | Apache Superset | 6.0.0 (compose profile) |
 | ML Tracking | MLflow | 3.10.1 |
-| Orchestration | Dagster | 1.7.x |
+| Orchestration | Dagster | 1.7.x (Python < 3.13) / 1.12.x (Python ≥ 3.13) |
 | Language | Python | 3.11+ |
 | Validation | Pydantic v2 | 2.12.5 |
 | Data Format | Parquet (snappy) via PyArrow; Gold also exposed as Iceberg | 23.0.1 |
@@ -39,6 +40,7 @@ Compose node.
 ```bash
 make up          # Start all Docker services + init MinIO buckets (includes Dagster services)
 make up-openmetadata # Optional: OpenMetadata + ES + OM MySQL (compose profile openmetadata)
+make up-superset # Optional: Superset over Trino (compose profile superset)
 make down        # Stop services (data preserved in volumes)
 make pipeline    # Run Dagster full_pipeline_job (default v2 path)
 make pipeline-legacy # Run legacy linear script orchestration
@@ -81,9 +83,11 @@ config/
 
 docker/
   docker-compose.yml        # Platform services (core + Dagster)
+  docker-compose.superset.yml # Optional Superset stack
   dagster/                  # Dagster image build context
   hive-metastore/           # Custom Dockerfile + entrypoint (envsubst)
   mlflow/                   # Custom Dockerfile
+  superset/                 # Custom Superset image + bootstrap config
 
 dagster/
   assets.py                 # Software-defined assets, sensor, asset checks
@@ -215,9 +219,14 @@ templates (see `config/trino/catalog/hive.properties`).
 ECB API / DAX CSV
     → Bronze (raw Parquet, partitioned by ingestion_date, immutable)
     → Silver (cleaned, typed, deduped, derived fields)
-    → Gold   (Parquet staging + Trino Iceberg table `iceberg.gold.ecb_dax_features_iceberg`)
+    → Gold Parquet (written to MinIO: gold/)
+        → Hive external table registered via Trino (hive.gold.ecb_dax_features)
+        → Iceberg Gold refreshed via Trino CTAS (iceberg.gold.ecb_dax_features_iceberg)
     → MLflow (XGBoost/LightGBM experiments with TimeSeriesSplit CV)
 ```
+
+Gold registration is handled by `ingestion/trino_sql.py` (`register_gold_tables_trino`), called as
+a Dagster asset after the Parquet write step.
 
 MinIO bucket: `sololakehouse` (paths: `bronze/`, `silver/`, `gold/`)
 MLflow bucket: `mlflow-artifacts`

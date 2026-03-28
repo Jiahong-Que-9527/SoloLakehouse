@@ -35,6 +35,7 @@ pip install -r requirements.txt
 make up
 make verify
 make verify-openmetadata   # optional, when the OpenMetadata profile is enabled
+make verify-superset       # optional, when the Superset profile is enabled
 make pipeline
 make pipeline PIPELINE_MODE=v1
 make test

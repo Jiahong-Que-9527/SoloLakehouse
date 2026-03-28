@@ -30,6 +30,15 @@ def load_dotenv_if_present() -> None:
             os.environ[key] = value
 
 
+def required_databases() -> tuple[str, ...]:
+    extra = tuple(
+        database.strip()
+        for database in os.environ.get("EXTRA_POSTGRES_DATABASES", "").split(",")
+        if database.strip()
+    )
+    return REQUIRED_DATABASES + extra
+
+
 def main() -> int:
     load_dotenv_if_present()
 
@@ -72,7 +81,7 @@ def ensure_databases_via_docker(user: str) -> list[str] | None:
 
     existing = {line.strip() for line in result.stdout.splitlines() if line.strip()}
     created: list[str] = []
-    for database in REQUIRED_DATABASES:
+    for database in required_databases():
         if database in existing:
             continue
         subprocess.run(
@@ -114,10 +123,10 @@ def ensure_databases_via_tcp(*, user: str, password: str) -> list[str]:
         with conn.cursor() as cur:
             cur.execute(
                 "SELECT datname FROM pg_database WHERE datname = ANY(%s)",
-                (list(REQUIRED_DATABASES),),
+                (list(required_databases()),),
             )
             existing = {row[0] for row in cur.fetchall()}
-            for database in REQUIRED_DATABASES:
+            for database in required_databases():
                 if database in existing:
                     continue
                 cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(database)))
