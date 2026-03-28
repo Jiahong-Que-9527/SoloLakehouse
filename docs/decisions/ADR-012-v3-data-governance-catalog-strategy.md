@@ -37,7 +37,7 @@ Current Trino + Hive + object storage model remains stable and operationally und
 **3) Upgrade-friendly posture**  
 By adding governance conventions now, future migration becomes structured rather than ad-hoc.
 
-**4) Better interview and stakeholder clarity**  
+**4) Better stakeholder clarity**  
 This avoids “tool-chasing” and shows controlled maturity planning: baseline now, enterprise lift when justified.
 
 ## Trade-offs

@@ -13,3 +13,9 @@ build/
 data/bronze/
 data/silver/
 data/gold/
+
+# Local-only: Mandarin deep-dive / interview-prep materials (not published to GitHub)
+tutorial_v1/
+tutorial_v2/
+docs/chatgpt narrative
+docs/项目快照_2026-03-26.md

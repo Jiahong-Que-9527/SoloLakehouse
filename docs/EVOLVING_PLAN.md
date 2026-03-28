@@ -389,5 +389,4 @@ Principle: prioritize platform productionization over feature expansion.
 | `docs/roadmap.md` | v2.5 | v2.5 row + subsection |
 | `docs/USER_GUIDE.md` | v2.5 | v3 scope vs v2.5 reference |
 | `docs/USER_GUIDE_EN.md` | v2.5 | Same |
-| `tutorial_v1/*.md` | v2.5 | v2.5 callouts |
 | `docs/history/*` | v2.5 | Timeline, architecture-evolution, v2.5 planning |
