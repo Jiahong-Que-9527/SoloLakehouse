@@ -13,7 +13,7 @@ Introduce **Apache Iceberg** for the **Gold** feature table (`ecb_dax_features`)
 
 - Trino **Iceberg** connector with `iceberg.catalog.type=hive_metastore` (same Hive Metastore as the Hive catalog)
 - **Staging**: Parquet remains written to `gold/rate_impact_features/` by the existing Python transform
-- **Registration**: After each write, Trino runs `CREATE TABLE iceberg.gold.ecb_dax_features AS SELECT * FROM hive.gold.ecb_dax_features` (after ensuring the Hive external table points at the Parquet location)
+- **Registration**: After each write, Trino runs `CREATE TABLE iceberg.gold.ecb_dax_features_iceberg AS SELECT * FROM hive.gold.ecb_dax_features` (after ensuring the Hive external table points at the Parquet location)
 
 Bronze and Silver remain **Parquet-on-MinIO** with Hive-style paths; only Gold is promoted to Iceberg for this reference scope.
 
@@ -25,7 +25,7 @@ Bronze and Silver remain **Parquet-on-MinIO** with Hive-style paths; only Gold i
 
 ## Consequences
 
-- ML training reads Gold via Trino (`iceberg.gold.ecb_dax_features`) when `TRINO_URL` is set; without Trino, evaluation falls back to reading the staging Parquet file
+- ML training reads Gold via Trino (`iceberg.gold.ecb_dax_features_iceberg`) when `TRINO_URL` is set; without Trino, evaluation falls back to reading the staging Parquet file
 - Extra Trino DDL steps on each Gold refresh (acceptable for batch demo scale)
 
 ## Related

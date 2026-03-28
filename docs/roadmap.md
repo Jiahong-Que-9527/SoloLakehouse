@@ -53,7 +53,7 @@ See [v1-to-v2-transition.md](v1-to-v2-transition.md) for a complete migration na
 
 Between v2 orchestration and v3 production hardening, this repo adds an **optional** upgrade path demonstration:
 
-- **Iceberg** for the Gold feature table (`iceberg.gold.ecb_dax_features`), with Parquet staging unchanged for Bronze/Silver.
+- **Iceberg** for the Gold feature table (`iceberg.gold.ecb_dax_features_iceberg`), with Parquet staging unchanged for Bronze/Silver.
 - **OpenMetadata** behind Docker Compose profile `openmetadata` (`make up-openmetadata`), for metadata discovery and Trino service configuration in the UI.
 
 This is **not** a v3 deliverable requirement; v3 still treats enterprise catalog migration as optional ([Task 78](EVOLVING_PLAN.md) scope guardrails).

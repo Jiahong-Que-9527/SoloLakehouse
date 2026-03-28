@@ -243,12 +243,12 @@ SHOW SCHEMAS IN hive;
 
 -- 查询 Gold 特征表
 SELECT
-    ecb_date,
+    event_date,
     rate_change_bps,
-    dax_return_pre_5d,
-    dax_return_post_5d
+    dax_return_1d,
+    dax_return_5d
 FROM hive.gold.ecb_dax_features
-ORDER BY ecb_date
+ORDER BY event_date
 LIMIT 10;
 ```
 
@@ -408,12 +408,12 @@ DESCRIBE hive.gold.ecb_dax_features;
 
 -- ECB 事件研究：利率上调后 DAX 的反应
 SELECT
-    ecb_date,
+    event_date,
     rate_change_bps,
-    ROUND(dax_return_post_5d * 100, 2) AS dax_5d_return_pct
+    ROUND(dax_return_5d, 2) AS dax_5d_return_pct
 FROM hive.gold.ecb_dax_features
 WHERE rate_change_bps > 0
-ORDER BY ecb_date;
+ORDER BY event_date;
 
 -- Silver 层查看清洗后的 ECB 利率
 SELECT * FROM hive.silver.ecb_rates_cleaned LIMIT 5;

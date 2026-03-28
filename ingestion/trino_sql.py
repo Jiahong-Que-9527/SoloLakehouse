@@ -11,6 +11,8 @@ import structlog
 
 logger = structlog.get_logger()
 
+ICEBERG_GOLD_TABLE = "iceberg.gold.ecb_dax_features_iceberg"
+
 
 def execute_trino_sql(
     trino_url: str,
@@ -91,15 +93,15 @@ def refresh_iceberg_gold_from_hive(trino_url: str, bucket: str) -> None:
         trino_url,
         f"CREATE SCHEMA IF NOT EXISTS iceberg.gold WITH (location = 's3://{bucket}/gold/iceberg/')",
     )
-    execute_trino_sql(trino_url, "DROP TABLE IF EXISTS iceberg.gold.ecb_dax_features")
+    execute_trino_sql(trino_url, f"DROP TABLE IF EXISTS {ICEBERG_GOLD_TABLE}")
     execute_trino_sql(
         trino_url,
         """
-        CREATE TABLE iceberg.gold.ecb_dax_features
+        CREATE TABLE iceberg.gold.ecb_dax_features_iceberg
         AS SELECT * FROM hive.gold.ecb_dax_features
         """,
     )
-    logger.info("iceberg_gold_refreshed", bucket=bucket, table="iceberg.gold.ecb_dax_features")
+    logger.info("iceberg_gold_refreshed", bucket=bucket, table=ICEBERG_GOLD_TABLE)
 
 
 def register_gold_tables_trino(trino_url: str, bucket: str) -> None:

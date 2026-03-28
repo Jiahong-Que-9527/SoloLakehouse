@@ -124,7 +124,9 @@ services:
       start_period: 30s
 
   dagster-webserver:
-    build: ./dagster
+    build:
+      context: ..
+      dockerfile: docker/dagster/Dockerfile
     container_name: slh-dagster-webserver
     depends_on:
       postgres:
@@ -154,7 +156,9 @@ services:
       start_period: 60s
 
   dagster-daemon:
-    build: ./dagster
+    build:
+      context: ..
+      dockerfile: docker/dagster/Dockerfile
     container_name: slh-dagster-daemon
     depends_on:
       postgres:

@@ -243,7 +243,7 @@ Goal: Demonstrate open table format and data catalog integration without changin
 ### 3b.1 Trino Iceberg catalog and Gold refresh
 
 - [x] **Task OM-1**: Add `config/trino/catalog/iceberg.properties` and expand all catalog templates in `scripts/trino-entrypoint.sh`.
-- [x] **Task OM-2**: Implement `ingestion/trino_sql.py` to register Hive staging Parquet and refresh `iceberg.gold.ecb_dax_features` via Trino CTAS; wire Dagster and `scripts/run-pipeline.py`.
+- [x] **Task OM-2**: Implement `ingestion/trino_sql.py` to register Hive staging Parquet and refresh `iceberg.gold.ecb_dax_features_iceberg` via Trino CTAS; wire Dagster and `scripts/run-pipeline.py`.
 - [x] **Task OM-3**: Read Gold for ML via Trino Python client when `TRINO_URL` is set; keep Parquet fallback for unit tests.
 
 ### 3b.2 OpenMetadata (optional profile)

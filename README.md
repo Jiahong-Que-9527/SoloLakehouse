@@ -19,7 +19,7 @@ SoloLakehouse is a **small but complete Lakehouse reference implementation** bui
 The project now represents:
 - **v1 delivered baseline**: five-service lakehouse core (MinIO/PostgreSQL/Hive Metastore/Trino/MLflow)
 - **v2 current platform**: Dagster orchestration layer (`dagster-webserver`, `dagster-daemon`) and governance-oriented runtime controls
-- **v2.5 reference extension**: Gold table as **Apache Iceberg** in Trino (`iceberg.gold.ecb_dax_features`); optional **OpenMetadata** via `make up-openmetadata` ([docs/roadmap.md](docs/roadmap.md), [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md), [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md))
+- **v2.5 reference extension**: Gold table as **Apache Iceberg** in Trino (`iceberg.gold.ecb_dax_features_iceberg`); optional **OpenMetadata** via `make up-openmetadata` ([docs/roadmap.md](docs/roadmap.md), [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md), [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md))
 - **v3 planned scope**: production-capable platform hardening (Kubernetes/Helm/Terraform, promotion/rollback controls, secrets/access governance, SLO-driven observability, Hive-first governance baseline, ML experiment governance)
 
 **Third-party components** (MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, etc.) keep their own licenses; this repo’s license applies to code and docs here.
