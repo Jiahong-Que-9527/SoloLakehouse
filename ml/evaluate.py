@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import os
 import pickle
 import tempfile
+import urllib.parse
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -17,17 +19,55 @@ from ml.train_ecb_dax_model import train
 logger = structlog.get_logger()
 
 
-def run_experiment_set(
-    minio_client: Any, mlflow_tracking_uri: str, bucket: str = "sololakehouse"
-) -> str:
-    """Run all configured experiment combinations and return the best run_id."""
+def _gold_dataframe_from_trino(trino_url: str) -> pd.DataFrame:
+    import trino as trino_mod
+
+    parsed = urllib.parse.urlparse(trino_url)
+    host = parsed.hostname or "localhost"
+    port = parsed.port or 8080
+    user = os.environ.get("TRINO_USER", "sololakehouse")
+    conn = trino_mod.dbapi.connect(
+        host=host,
+        port=port,
+        user=user,
+        catalog="iceberg",
+        schema="gold",
+        http_scheme="http",
+    )
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM ecb_dax_features")
+    rows = cur.fetchall()
+    if cur.description is None:
+        raise ValueError("Trino returned no column description for Gold Iceberg table")
+    columns = [d[0] for d in cur.description]
+    df = pd.DataFrame(rows, columns=columns)
+    cur.close()
+    conn.close()
+    return df
+
+
+def _gold_dataframe_from_minio_parquet(minio_client: Any, bucket: str) -> pd.DataFrame:
     gold_path = "gold/rate_impact_features/ecb_dax_features.parquet"
     response = minio_client.get_object(bucket, gold_path)
     try:
-        df = pd.read_parquet(BytesIO(response.read()))
+        return pd.read_parquet(BytesIO(response.read()))
     finally:
         response.close()
         response.release_conn()
+
+
+def run_experiment_set(
+    minio_client: Any,
+    mlflow_tracking_uri: str,
+    bucket: str = "sololakehouse",
+    trino_url: str | None = None,
+) -> str:
+    """Run all configured experiment combinations and return the best run_id."""
+    resolved_trino = trino_url or os.environ.get("TRINO_URL")
+    if resolved_trino:
+        df = _gold_dataframe_from_trino(resolved_trino)
+    else:
+        df = _gold_dataframe_from_minio_parquet(minio_client, bucket)
 
     mlflow.set_tracking_uri(mlflow_tracking_uri)
     mlflow.set_experiment("ecb_dax_impact")

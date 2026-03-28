@@ -11,6 +11,7 @@ Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
 **Development target: v2.0** — orchestrated platform on top of the v1 baseline, with Dagster assets/schedules/UI while preserving local reliability and a legacy fallback path (see `docs/roadmap.md` and `docs/EVOLVING_PLAN.md`).  
+**v2.5 reference extension:** Apache Iceberg for Gold (`iceberg` Trino catalog) and optional OpenMetadata (`make up-openmetadata`).  
 **Next target (v3.0):** production infrastructure and governance hardening (multi-environment deployment, secrets/access governance, SLO/alerting, release promotion controls).
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
@@ -22,12 +23,14 @@ Compose node.
 | Object Storage | MinIO (S3-compatible) | RELEASE.2025-09-07 |
 | Metadata DB | PostgreSQL | 17 |
 | Table Catalog | Apache Hive Metastore (standalone) | 4.0.0 |
-| Query Engine | Trino | 480 |
+| Query Engine | Trino (Hive + Iceberg catalogs) | 480 |
+| Table format (Gold) | Apache Iceberg (via Trino) | — |
+| Data catalog (optional) | OpenMetadata | 1.5.x (compose profile) |
 | ML Tracking | MLflow | 3.10.1 |
 | Orchestration | Dagster | 1.7.x |
 | Language | Python | 3.11+ |
 | Validation | Pydantic v2 | 2.12.5 |
-| Data Format | Parquet (snappy) via PyArrow | 23.0.1 |
+| Data Format | Parquet (snappy) via PyArrow; Gold also exposed as Iceberg | 23.0.1 |
 | Logging | structlog | 25.5.0 |
 | Testing | pytest | 9.0.2 |
 
@@ -35,6 +38,7 @@ Compose node.
 
 ```bash
 make up          # Start all Docker services + init MinIO buckets (includes Dagster services)
+make up-openmetadata # Optional: OpenMetadata + ES + OM MySQL (compose profile openmetadata)
 make down        # Stop services (data preserved in volumes)
 make pipeline    # Run Dagster full_pipeline_job (default v2 path)
 make pipeline-legacy # Run legacy linear script orchestration
@@ -52,6 +56,7 @@ ingestion/
   schema/             # Pydantic v2 models for record validation
   quality/            # Bronze-layer quality check functions
   bronze_writer.py    # Writes validated data to MinIO as Parquet
+  trino_sql.py          # Trino REST: Hive staging + Iceberg Gold refresh
 
 transformations/
   ecb_bronze_to_silver.py   # ECB: type cleanup, forward-fill, rate_change_bps
@@ -66,10 +71,11 @@ scripts/
   run-pipeline.py           # Legacy end-to-end orchestrator (deprecated in v2)
   verify-setup.py           # Service health checks
   init-minio.sh             # Legacy bucket init (now handled by minio-init container)
-  trino-entrypoint.sh       # envsubst for Trino catalog config
+  trino-entrypoint.sh       # Expands all Trino catalog *.properties templates
 
 config/
-  trino/catalog/hive.properties  # Template — uses ${S3_ACCESS_KEY}/${S3_SECRET_KEY}
+  trino/catalog/hive.properties   # Template — uses ${S3_ACCESS_KEY}/${S3_SECRET_KEY}
+  trino/catalog/iceberg.properties # Iceberg connector + Hive Metastore catalog
   trino/config.properties        # Trino coordinator settings
   postgres/init.sql              # Creates hive_metastore + mlflow databases
 
@@ -209,7 +215,7 @@ templates (see `config/trino/catalog/hive.properties`).
 ECB API / DAX CSV
     → Bronze (raw Parquet, partitioned by ingestion_date, immutable)
     → Silver (cleaned, typed, deduped, derived fields)
-    → Gold   (ML-ready feature table: one row per ECB event)
+    → Gold   (Parquet staging + Trino Iceberg table `iceberg.gold.ecb_dax_features`)
     → MLflow (XGBoost/LightGBM experiments with TimeSeriesSplit CV)
 ```
 
@@ -220,7 +226,7 @@ MLflow bucket: `mlflow-artifacts`
 
 - **Docker Compose, not K8s** — single-node reference; K8s is v3 (ADR-001)
 - **Trino, not DuckDB** — federation + Hive metadata (ADR-002)
-- **Parquet, not Delta Lake** — no ACID overkill for append-only batch workloads (ADR-003)
+- **Parquet for Bronze/Silver; Iceberg for Gold in Trino** — open table format where it teaches best; not full Delta/ACID scope (ADR-003, ADR-013)
 - **ECB/DAX data** — public APIs, temporal structure, no API keys (ADR-004)
 - **No Prometheus/Grafana until post-core** — meaningful metrics require custom instrumentation (ADR-005)
 - **TimeSeriesSplit** — no random CV on time-series data (look-ahead bias)
@@ -229,7 +235,7 @@ MLflow bucket: `mlflow-artifacts`
 
 ## Things to Watch Out For
 
-- `config/trino/catalog/hive.properties` is a **template** with `${VAR}` placeholders — envsubst runs at container startup via `scripts/trino-entrypoint.sh`
+- `config/trino/catalog/*.properties` are **templates** with `${VAR}` placeholders — bash `eval` expansion runs at container startup via `scripts/trino-entrypoint.sh` (includes `hive` + `iceberg`)
 - PostgreSQL is shared by Hive Metastore AND MLflow (two databases: `hive_metastore`, `mlflow`)
 - Bronze data is immutable — never update in place, always write new partitions
 - Tests run without Docker — they mock all external services

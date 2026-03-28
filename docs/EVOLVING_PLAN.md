@@ -234,6 +234,30 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 
 ---
 
+## Phase 3b: v2.5 — Iceberg Gold + optional OpenMetadata (delivered)
+
+Goal: Demonstrate open table format and data catalog integration without changing v3 scope guardrails.
+
+---
+
+### 3b.1 Trino Iceberg catalog and Gold refresh
+
+- [x] **Task OM-1**: Add `config/trino/catalog/iceberg.properties` and expand all catalog templates in `scripts/trino-entrypoint.sh`.
+- [x] **Task OM-2**: Implement `ingestion/trino_sql.py` to register Hive staging Parquet and refresh `iceberg.gold.ecb_dax_features` via Trino CTAS; wire Dagster and `scripts/run-pipeline.py`.
+- [x] **Task OM-3**: Read Gold for ML via Trino Python client when `TRINO_URL` is set; keep Parquet fallback for unit tests.
+
+### 3b.2 OpenMetadata (optional profile)
+
+- [x] **Task OM-4**: Add `docker/docker-compose.openmetadata.yml`, `docker/openmetadata/openmetadata.env`, and `make up-openmetadata`.
+- [x] **Task OM-5**: Extend `scripts/verify-setup.py` with optional OpenMetadata check (`OPENMETADATA_CHECK=1`).
+
+### 3b.3 Tests and docs
+
+- [x] **Task OM-6**: Add unit tests for Trino SQL helpers; add integration test for Iceberg catalog visibility.
+- [x] **Task OM-7**: Update architecture, roadmap, ADR-013/014, USER_GUIDE, tutorial notes, and `docs/history/` for v2.5.
+
+---
+
 ## Phase 4: v3.0 — Production-Capable Platform Hardening (planned)
 
 Goal: Move from internal MVP platform suitability to production-capable platform suitability.
@@ -321,6 +345,13 @@ Principle: prioritize platform productionization over feature expansion.
 | `docker/dagster/Dockerfile` | v2.0 | Dagster container image |
 | `requirements-dagster.txt` | v2.0 | Dagster dependency lockfile |
 | `docs/DAGSTER_GUIDE.md` | v2.0 | Dagster usage documentation |
+| `config/trino/catalog/iceberg.properties` | v2.5 | Trino Iceberg catalog (Hive Metastore) |
+| `ingestion/trino_sql.py` | v2.5 | Trino REST helpers + Gold Iceberg refresh |
+| `docker/docker-compose.openmetadata.yml` | v2.5 | Optional OpenMetadata stack |
+| `docker/openmetadata/openmetadata.env` | v2.5 | OpenMetadata server/migrate env |
+| `docker/openmetadata/upstream-docker-compose-1.5.6.yml` | v2.5 | Upstream reference for env derivation |
+| `tests/test_trino_sql.py` | v2.5 | Unit tests for Trino helpers |
+| `tests/integration/test_trino_iceberg.py` | v2.5 | Integration checks for Iceberg catalog |
 
 ## Summary of Modified Files
 
@@ -346,3 +377,17 @@ Principle: prioritize platform productionization over feature expansion.
 | `docs/deployment.md` | v1.0 | Troubleshooting section |
 | `docs/architecture.md` | v2.0 | Orchestration layer section |
 | `CLAUDE.md` | v2.0 | Updated roadmap, tech stack, commands |
+| `CLAUDE.md` | v2.5 | Iceberg + OpenMetadata rows, `up-openmetadata` |
+| `scripts/trino-entrypoint.sh` | v2.5 | Expand all `*.properties` catalog templates |
+| `scripts/run-pipeline.py` | v2.5 | Use `register_gold_tables_trino`; pass `trino_url` to ML |
+| `dagster/assets.py` | v2.5 | Iceberg refresh + ML Trino URL |
+| `ml/evaluate.py` | v2.5 | Load Gold via Trino when `TRINO_URL` set |
+| `scripts/verify-setup.py` | v2.5 | Optional OpenMetadata check |
+| `Makefile` | v2.5 | `up-openmetadata`, compose merge vars |
+| `README.md` | v2.5 | v2.5 narrative + ports |
+| `docs/architecture.md` | v2.5 | Iceberg layer + ADR-013/014 |
+| `docs/roadmap.md` | v2.5 | v2.5 row + subsection |
+| `docs/USER_GUIDE.md` | v2.5 | v3 scope vs v2.5 reference |
+| `docs/USER_GUIDE_EN.md` | v2.5 | Same |
+| `tutorial_v1/*.md` | v2.5 | v2.5 callouts |
+| `docs/history/*` | v2.5 | Timeline, architecture-evolution, v2.5 planning |

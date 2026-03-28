@@ -50,7 +50,21 @@ This document explains not only what architecture exists, but why certain option
 - **Accepted trade-off:** short-term dual-path complexity in Makefile/ops workflow.
 - **ADR reference:** `docs/decisions/ADR-006-v2-dagster-orchestration.md`
 
-## 3) v3 architecture decision frame (to fill during planning)
+## 3) v2.5 reference extension (implemented)
+
+### Iceberg for Gold
+- **Selected:** Trino-managed Iceberg table for `ecb_dax_features` in catalog `iceberg`, backed by the same Hive Metastore; Parquet files remain the staging write path from Python.
+- **Alternatives considered:** PyIceberg-only writes without Trino CTAS; full Silver migration to Iceberg in one step.
+- **Why selected:** minimal change to ingestion code while demonstrating table-format semantics and SQL-accessible snapshots.
+- **Reference:** `docs/decisions/ADR-013-iceberg-gold-trino.md`
+
+### OpenMetadata as optional profile
+- **Selected:** Compose overlay profile `openmetadata` with Collate OpenMetadata 1.5.x images, pipeline client disabled (no bundled Airflow).
+- **Alternatives considered:** mandatory catalog in default stack; documentation-only without runnable compose.
+- **Why selected:** keeps default footprint small while providing a realistic catalog UI for Trino metadata discovery.
+- **Reference:** `docs/decisions/ADR-014-openmetadata-optional-profile.md`
+
+## 4) v3 architecture decision frame (to fill during planning)
 
 ### Infrastructure target
 - **Candidate options:** Kubernetes + Helm + Terraform, managed cloud stack, hybrid approach
@@ -60,7 +74,7 @@ This document explains not only what architecture exists, but why certain option
 - **Candidate options:** managed services vs self-hosted parity
 - **Primary criteria:** lock-in risk, disaster recovery, migration complexity
 
-## 4) Planning method for future versions
+## 5) Planning method for future versions
 
 For each major version, document decisions with this structure:
 

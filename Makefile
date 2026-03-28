@@ -1,6 +1,7 @@
-.PHONY: up down clean pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify test test-cov test-cov-html test-integration lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up up-openmetadata down clean pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify test test-cov test-cov-html test-integration lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
+COMPOSE_OM := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml
 PYTHON := python3
 PIPELINE_MODE ?= v2
 ARGS ?=
@@ -15,6 +16,11 @@ up:
 	@echo "  Trino UI:       http://localhost:8080"
 	@echo "  MLflow UI:      http://localhost:5000"
 	@echo "  Dagster UI:     http://localhost:3000"
+	@echo "  (Optional OpenMetadata: make up-openmetadata)"
+
+up-openmetadata:
+	docker compose $(COMPOSE_OM) --profile openmetadata up -d
+	@echo "OpenMetadata UI: http://localhost:8585 (add Trino service in UI; host trino, port 8080)"
 
 down:
 	docker compose -f $(COMPOSE_FILE) down

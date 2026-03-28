@@ -13,13 +13,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import requests  # noqa: E402
 import structlog  # noqa: E402
 from minio import Minio  # noqa: E402
 
 from ingestion.collectors.dax_collector import DAXCollector  # noqa: E402
 from ingestion.collectors.ecb_collector import ECBCollector  # noqa: E402
 from ingestion.exceptions import CollectorUnavailableError, StepError  # noqa: E402
+from ingestion.trino_sql import register_gold_tables_trino  # noqa: E402
 from ml import evaluate  # noqa: E402
 from transformations import (  # noqa: E402
     dax_bronze_to_silver,
@@ -81,66 +81,12 @@ def retry_step(fn: Callable[[], Any], max_attempts: int = 3, delay: float = 5.0)
     raise last_error
 
 
-def execute_trino_sql(trino_url: str, sql: str) -> dict[str, Any]:
-    headers = {
-        "X-Trino-User": os.environ.get("TRINO_USER", "sololakehouse"),
-        "X-Trino-Catalog": "hive",
-        "X-Trino-Schema": "default",
-    }
-    response = requests.post(
-        f"{trino_url.rstrip('/')}/v1/statement",
-        data=sql.encode("utf-8"),
-        headers=headers,
-        timeout=30,
-    )
-    response.raise_for_status()
-    payload = response.json()
-
-    while True:
-        if "error" in payload:
-            message = payload["error"].get("message", "unknown Trino error")
-            raise ValueError(message)
-        next_uri = payload.get("nextUri")
-        if not next_uri:
-            return payload
-        response = requests.get(next_uri, timeout=30)
-        response.raise_for_status()
-        payload = response.json()
-
-
-def register_gold_table(trino_url: str, bucket: str) -> None:
-    execute_trino_sql(
-        trino_url,
-        f"CREATE SCHEMA IF NOT EXISTS hive.gold WITH (location = 's3://{bucket}/gold/')",
-    )
-    execute_trino_sql(
-        trino_url,
-        """
-        CREATE TABLE IF NOT EXISTS hive.gold.ecb_dax_features (
-            event_date DATE,
-            rate_change_bps DOUBLE,
-            rate_level_pct DOUBLE,
-            is_rate_hike BOOLEAN,
-            is_rate_cut BOOLEAN,
-            dax_pre_close DOUBLE,
-            dax_return_1d DOUBLE,
-            dax_return_5d DOUBLE,
-            dax_volatility_pre_5d DOUBLE
-        )
-        WITH (
-            format = 'PARQUET',
-            external_location = 's3://{bucket}/gold/rate_impact_features/'
-        )
-        """.replace("{bucket}", bucket).strip(),
-    )
-
-
 def run_gold_and_register(clients: dict[str, Any]) -> str:
     gold_path = silver_to_gold_features.run(
         minio_client=clients["minio_client"],
         bucket=clients["bucket"],
     )
-    register_gold_table(
+    register_gold_tables_trino(
         trino_url=clients["trino_url"],
         bucket=clients["bucket"],
     )
@@ -290,6 +236,7 @@ def main() -> int:
                 minio_client=clients["minio_client"],
                 mlflow_tracking_uri=clients["mlflow_tracking_uri"],
                 bucket=clients["bucket"],
+                trino_url=clients["trino_url"],
             ),
             False,
         ),

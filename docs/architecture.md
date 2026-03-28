@@ -21,7 +21,7 @@ Layer 1 — Data Sources: ECB SDW REST API + DAX daily CSV (sample)
 Layer 2 — Ingestion & Validation: Python collectors + Pydantic + structlog
     │
     ▼
-Layer 3 — Lakehouse storage (Medallion): MinIO, Parquet — bronze / silver / gold
+Layer 3 — Lakehouse storage (Medallion): MinIO; Bronze/Silver as Parquet files; **Gold** registered as **Apache Iceberg** in Trino (`iceberg` catalog) after Parquet staging (see [ADR-013](decisions/ADR-013-iceberg-gold-trino.md))
     │
     ▼
 Layer 4 — Compute & Query: Trino ↔ Hive Metastore ↔ PostgreSQL
@@ -76,7 +76,10 @@ ecb_silver      dax_silver
 | **MinIO** | S3-compatible storage for Parquet and MLflow artifacts | 9000 (API), 9001 (Console) |
 | **PostgreSQL** | Backend for Hive Metastore and MLflow | 5432 |
 | **Hive Metastore** | Table metadata (schema, partitions, locations) | 9083 |
-| **Trino** | SQL over the lakehouse via Hive connector | 8080 |
+| **Trino** | SQL over the lakehouse (Hive + Iceberg catalogs, shared Hive Metastore) | 8080 |
+| **OpenMetadata** (optional) | Data catalog UI; Trino metadata ingestion | 8585 |
+| **Elasticsearch** (optional) | Search backend for OpenMetadata | 9200 |
+| **OpenMetadata MySQL** (optional) | Application database for OpenMetadata | 3307 (host) |
 | **MLflow** | Experiments and model artifacts | 5000 |
 | **Dagster Webserver** | Orchestration UI + run entrypoint | 3000 |
 | **Dagster Daemon** | Schedules/sensors evaluator and run launcher | N/A (internal) |
@@ -125,3 +128,5 @@ Eight-layer enterprise layout: multi-source ingestion, dedicated metadata layer,
 | [ADR-010](decisions/ADR-010-v3-observability-and-slo.md) | v3 SLO-driven observability |
 | [ADR-011](decisions/ADR-011-v3-ml-productization-boundary.md) | v3 ML productization boundary |
 | [ADR-012](decisions/ADR-012-v3-data-governance-catalog-strategy.md) | v3 data governance catalog strategy |
+| [ADR-013](decisions/ADR-013-iceberg-gold-trino.md) | Iceberg for Gold via Trino |
+| [ADR-014](decisions/ADR-014-openmetadata-optional-profile.md) | OpenMetadata optional compose profile |

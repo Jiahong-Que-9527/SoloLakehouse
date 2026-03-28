@@ -56,6 +56,23 @@ This file records project evolution in release order.
 
 ---
 
+## v2.5.0 (2026-03-28) — Reference extension
+
+**Theme**
+- Open table format (Iceberg) and optional data catalog (OpenMetadata) on top of the v2 stack.
+
+**What landed**
+- Trino Iceberg catalog (`config/trino/catalog/iceberg.properties`) and catalog template expansion in `scripts/trino-entrypoint.sh`.
+- Gold refresh: Hive external Parquet staging + `iceberg.gold.ecb_dax_features` via Trino CTAS (`ingestion/trino_sql.py`).
+- ML reads Gold through Trino when `TRINO_URL` is set (`trino` Python client).
+- Optional OpenMetadata stack: `docker/docker-compose.openmetadata.yml`, `docker/openmetadata/openmetadata.env`, `make up-openmetadata`.
+- ADR-013, ADR-014; docs and tutorial updates.
+
+**Decision gate to v3**
+- v3 remains non-mandatory for enterprise catalog adoption; v2.5 is optional reference depth.
+
+---
+
 ## v3.0.0 - Planned
 
 **Theme**

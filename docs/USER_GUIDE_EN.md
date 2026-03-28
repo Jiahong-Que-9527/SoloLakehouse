@@ -503,16 +503,18 @@ v3 answers: *how do you make this platform production-capable?*
 | **Data governance** | Governance contracts for Gold and critical Silver outputs: `data_owner`, `refresh_sla`, `quality_class` |
 | **ML experiment governance** | Reproducible training/evaluation contracts, artifact lineage, cross-environment consistency |
 
-### Explicitly out of scope for v3
+### Explicitly not in the v3 **default delivery** scope
 
-The following components are intentionally excluded to avoid introducing complexity before it is justified:
+The following are intentionally **not** default v3 productionization goals (see [roadmap.md](roadmap.md)):
 
 - Kafka / Flink (stream processing)
-- OpenMetadata / DataHub (unified data catalog)
-- Delta Lake / Iceberg (table format replacement)
+- Mandatory migration to OpenMetadata / DataHub (unified enterprise catalog)
+- Mandatory wholesale replacement of storage with Delta Lake / Iceberg everywhere
 - Online model serving platform
 - Keycloak-class end-user identity system
 - Superset / FastAPI
+
+**v2.5 reference extension (implemented in this repo):** Gold is available as **Apache Iceberg** (Trino `iceberg` catalog). **OpenMetadata** is optional (`make up-openmetadata`, UI on port 8585). This does not contradict v3 guardrails: v2.5 is an educational/reference add-on; v3 still does not require OM adoption.
 
 These may be introduced in future versions when driven by a concrete use case — not added speculatively.
 

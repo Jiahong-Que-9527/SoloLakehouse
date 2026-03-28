@@ -153,6 +153,20 @@ def check_mlflow() -> StatusTuple:
         return ("MLflow", "FAIL", str(exc))
 
 
+def check_openmetadata() -> StatusTuple:
+    """Optional: set OPENMETADATA_CHECK=1 to require OpenMetadata UI (profile openmetadata)."""
+    base = os.environ.get("OPENMETADATA_URL", "http://localhost:8585").rstrip("/")
+    try:
+        response = requests.get(f"{base}/api/v1/system/version", timeout=5)
+        if response.status_code == 200:
+            return ("OpenMetadata", "PASS", f"API OK ({base})")
+        return ("OpenMetadata", "FAIL", f"HTTP {response.status_code}")
+    except requests.Timeout:
+        return ("OpenMetadata", "TIMEOUT", "Timed out after 5s")
+    except Exception as exc:
+        return ("OpenMetadata", "FAIL", str(exc))
+
+
 def check_dagster() -> StatusTuple:
     try:
         response = requests.get("http://localhost:3000/server_info", timeout=5)
@@ -196,7 +210,7 @@ def main() -> int:
     if missing_env:
         print(f"Missing required env vars: {', '.join(missing_env)}")
 
-    checks = [
+    checks: list = [
         check_minio,
         check_postgres,
         check_hive_metastore,
@@ -204,6 +218,8 @@ def main() -> int:
         check_mlflow,
         check_dagster,
     ]
+    if os.environ.get("OPENMETADATA_CHECK") == "1":
+        checks.append(check_openmetadata)
     results = [check() for check in checks]
     print_status_table(results)
 
