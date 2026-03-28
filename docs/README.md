@@ -19,6 +19,8 @@ Core docs:
 
 | Document | Description |
 |----------|-------------|
+| [USER_GUIDE_EN.md](USER_GUIDE_EN.md) | **Complete user guide (English)** — installation, v1/v2 walkthrough, all UIs, v3 preview, troubleshooting |
+| [USER_GUIDE.md](USER_GUIDE.md) | **完整用户指导书（中文）** — installation, v1/v2 walkthrough, all UIs, v3 preview, troubleshooting |
 | [quickstart.md](quickstart.md) | Clone → `make up` → verify → pipeline → explore UIs |
 | [deployment.md](deployment.md) | Hardware/software prerequisites, full deployment, ports, troubleshooting |
 | [architecture.md](architecture.md) | Layers, components, dependencies; links to ADRs |

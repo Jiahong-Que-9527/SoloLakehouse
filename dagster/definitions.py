@@ -14,8 +14,8 @@ if THIS_DIR not in sys.path:
 from assets import (  # noqa: E402
     dax_bronze,
     dax_silver,
-    ecb_data_freshness_sensor,
     ecb_bronze,
+    ecb_data_freshness_sensor,
     ecb_silver,
     gold_features,
     gold_features_min_rows_check,

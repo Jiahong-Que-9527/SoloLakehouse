@@ -8,8 +8,9 @@ from typing import Any
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import ConfigurableIOManager, InputContext, OutputContext
 from minio import Minio
+
+from dagster import ConfigurableIOManager, InputContext, OutputContext
 
 
 class ParquetIOManager(ConfigurableIOManager):

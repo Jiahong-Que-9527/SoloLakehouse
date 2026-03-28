@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
-# The Trino image does not ship envsubst, so expand the few ${VAR}
-# placeholders with bash itself before startup.
-template="$(cat /etc/trino/catalog/hive.properties)"
-eval "printf '%s\n' \"$template\"" > /tmp/hive.properties
-cp /tmp/hive.properties /etc/trino/catalog/hive.properties
+# Expand ${VAR} placeholders in the catalog template using bash.
+# The template directory is mounted :ro to prevent credential bleed-back to the host.
+# Expanded files are written to /etc/trino/catalog (writable container path).
+mkdir -p /etc/trino/catalog
+template="$(cat /etc/trino/catalog-template/hive.properties)"
+eval "printf '%s\n' \"$template\"" > /etc/trino/catalog/hive.properties
 
 exec /usr/lib/trino/bin/run-trino

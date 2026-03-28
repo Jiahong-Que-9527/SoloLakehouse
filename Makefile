@@ -9,11 +9,12 @@ DAGSTER_JOB ?= full_pipeline_job
 up:
 	docker compose -f $(COMPOSE_FILE) up -d
 	$(MAKE) wait
-	@echo "MinIO API:      http://localhost:9000"
-	@echo "MinIO Console:  http://localhost:9001"
-	@echo "Trino UI:       http://localhost:8080"
-	@echo "MLflow UI:      http://localhost:5000"
-	@echo "Postgres:       localhost:5432"
+	@echo ""
+	@echo "SoloLakehouse is ready."
+	@echo "  MinIO Console:  http://localhost:9001"
+	@echo "  Trino UI:       http://localhost:8080"
+	@echo "  MLflow UI:      http://localhost:5000"
+	@echo "  Dagster UI:     http://localhost:3000"
 
 down:
 	docker compose -f $(COMPOSE_FILE) down

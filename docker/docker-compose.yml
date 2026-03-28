@@ -90,7 +90,7 @@ services:
       - "8080:8080"
     volumes:
       - ../config/trino/config.properties:/etc/trino/config.properties:ro
-      - ../config/trino/catalog:/etc/trino/catalog
+      - ../config/trino/catalog:/etc/trino/catalog-template:ro
       - ../scripts/trino-entrypoint.sh:/usr/local/bin/trino-entrypoint.sh:ro
     entrypoint: ["/bin/bash", "/usr/local/bin/trino-entrypoint.sh"]
     healthcheck:
@@ -146,6 +146,12 @@ services:
       - "3000:3000"
     volumes:
       - dagster_storage:/app/dagster/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/server_info"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
   dagster-daemon:
     build: ./dagster
@@ -156,7 +162,7 @@ services:
       minio:
         condition: service_healthy
       dagster-webserver:
-        condition: service_started
+        condition: service_healthy
     environment:
       MINIO_ENDPOINT: minio:9000
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
