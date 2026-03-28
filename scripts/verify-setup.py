@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import socket
+import subprocess
 import sys
 from pathlib import Path
 
@@ -70,10 +71,14 @@ def check_minio() -> StatusTuple:
 
 
 def check_postgres() -> StatusTuple:
-    host = os.environ.get("POSTGRES_HOST", "localhost")
-    port = int(os.environ.get("POSTGRES_PORT", "5432"))
     user = os.environ.get("POSTGRES_USER", "postgres")
     password = os.environ.get("POSTGRES_PASSWORD", "postgres")
+    docker_result = _check_postgres_via_docker(user)
+    if docker_result is not None:
+        return docker_result
+
+    host = os.environ.get("POSTGRES_HOST", "localhost")
+    port = int(os.environ.get("POSTGRES_PORT", "5432"))
 
     conn = None
     try:
@@ -107,6 +112,43 @@ def check_postgres() -> StatusTuple:
     finally:
         if conn is not None:
             conn.close()
+
+
+def _check_postgres_via_docker(user: str) -> StatusTuple | None:
+    try:
+        result = subprocess.run(
+            [
+                "docker",
+                "exec",
+                "slh-postgres",
+                "psql",
+                "-U",
+                user,
+                "-d",
+                "postgres",
+                "-At",
+                "-c",
+                "SELECT datname FROM pg_database WHERE datname IN ('hive_metastore', 'mlflow', 'dagster_storage')",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except FileNotFoundError:
+        return None
+    except subprocess.TimeoutExpired:
+        return ("PostgreSQL", "TIMEOUT", "Timed out after 5s")
+    except subprocess.CalledProcessError as exc:
+        detail = exc.stderr.strip() or exc.stdout.strip() or exc.__class__.__name__
+        return ("PostgreSQL", "FAIL", detail.splitlines()[0])
+
+    existing = {line.strip() for line in result.stdout.splitlines() if line.strip()}
+    required = {"hive_metastore", "mlflow", "dagster_storage"}
+    missing = sorted(required - existing)
+    if missing:
+        return ("PostgreSQL", "FAIL", f"Missing databases: {', '.join(missing)}")
+    return ("PostgreSQL", "PASS", "Databases: hive_metastore, mlflow, dagster_storage")
 
 
 def check_hive_metastore() -> StatusTuple:

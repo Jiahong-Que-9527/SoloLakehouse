@@ -14,6 +14,8 @@ pip install -r requirements.txt
 make up
 ```
 
+Once `.venv` exists, `make` commands prefer `.venv/bin/python` automatically.
+
 `make up` starts all Docker services (including Dagster), waits until every health check passes, then prints:
 
 ```
@@ -31,6 +33,12 @@ make verify
 ```
 
 Checks MinIO (and buckets), PostgreSQL, Hive Metastore (9083), Trino `/v1/info`, MLflow API, and Dagster webserver (`/server_info`).
+
+If you also started OpenMetadata with `make up-openmetadata`, run:
+
+```bash
+make verify-openmetadata
+```
 
 ## 3. Run the example pipeline
 
@@ -67,11 +75,13 @@ Legacy script mode executes `scripts/run-pipeline.py` (six steps):
 | MLflow | http://localhost:5000 | Experiment `ecb_dax_impact` |
 | Trino | http://localhost:8080 | `docker exec -it slh-trino trino` |
 | Dagster UI | http://localhost:3000 | Asset graph, runs, schedules, sensors |
+| OpenMetadata (optional) | http://localhost:8585 | Start with `make up-openmetadata` |
 
 ```sql
 SHOW CATALOGS;
 SHOW SCHEMAS IN hive;
 SELECT * FROM hive.gold.ecb_dax_features LIMIT 10;
+SELECT * FROM iceberg.gold.ecb_dax_features_iceberg LIMIT 10;
 ```
 
 ## 5. Stop
