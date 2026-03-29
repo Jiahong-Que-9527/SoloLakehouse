@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+.codex/
 htmlcov/
 .coverage
 .mypy_cache/
