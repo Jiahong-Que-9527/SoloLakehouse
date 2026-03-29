@@ -23,7 +23,7 @@ Eight containers in v2 mode (7 core services + minio-init helper); idle RAM is t
 |----------|---------|---------|
 | Docker Engine | 24.0+ | Runtime |
 | Docker Compose | v2.20+ (plugin) | Orchestration |
-| Python | 3.11+ | Pipeline scripts |
+| Python | 3.13+ | Pipeline scripts |
 | make | any | `Makefile` tasks |
 
 ```bash

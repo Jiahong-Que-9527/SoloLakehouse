@@ -15,14 +15,21 @@
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # Linux/macOS
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dagster.txt
 make up
 make test
 ```
 
+For static checks (same as CI: `ruff`, `mypy`):
+
+```bash
+make lint
+make typecheck   # needs Dagster installed — use the pip line above
+```
+
 ## Guidelines
 
-- Python **3.11+**
+- Python **3.13+**
 - Type hints on public functions; docstrings for modules and public APIs
 - **`structlog`** for logging (not `print()`)
 - Validate at boundaries with **Pydantic** schemas
@@ -30,7 +37,7 @@ make test
 ## Tests and verification
 
 - Add tests under `tests/`
-- Before a PR: `make test` and, with Docker up, `make verify`
+- Before a PR: `make lint`, `make typecheck` (with `requirements-dagster.txt` installed as above), `make test`, and with Docker up, `make verify`
 
 ## Pull requests
 

@@ -180,6 +180,12 @@ services:
     command: ["dagster-daemon", "run", "-w", "/app/dagster/workspace.yaml"]
     volumes:
       - dagster_storage:/app/dagster/storage
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -f 'dagster-daemon' > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   minio_data:

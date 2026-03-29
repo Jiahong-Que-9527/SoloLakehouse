@@ -79,7 +79,7 @@ DAX CSV  (German stock index daily data)
 |----------|---------|-------|
 | Docker Engine | 24.0+ | `docker --version` |
 | Docker Compose | v2.20+ (plugin) | `docker compose version` |
-| Python | 3.11+ | `python3 --version` |
+| Python | 3.13+ | `python3 --version` |
 | make | any | `make --version` |
 
 ### 2.3 Operating systems
@@ -510,9 +510,11 @@ make pipeline PIPELINE_MODE=v2 DAGSTER_JOB=full_pipeline_job  # Explicit Dagster
 make test           # Run all unit tests (no Docker required)
 make test-cov       # Tests with coverage report
 make lint           # ruff code check
-make typecheck      # mypy type check
+make typecheck      # mypy type check (also needs: pip install -r requirements-dagster.txt)
 make dagster-ui     # Open Dagster UI in browser (:3000)
 ```
+
+`make typecheck` expects the PyPI **dagster** package installed so mypy does not confuse the repo’s `dagster/` folder with the library (same as CI: `requirements.txt` + `requirements-dagster.txt`).
 
 ### Trino access
 

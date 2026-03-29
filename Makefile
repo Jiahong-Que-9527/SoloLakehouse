@@ -91,6 +91,7 @@ release-check:
 lint:
 	$(PYTHON) -m ruff check .
 
+# Requires Dagster on PYTHONPATH (same as CI): pip install -r requirements.txt -r requirements-dagster.txt
 typecheck:
 	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/ dagster/
 
