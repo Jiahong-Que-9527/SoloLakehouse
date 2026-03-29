@@ -87,7 +87,7 @@ Not default v3 goals:
 
 ## Quick start
 
-**Needs:** Docker + Compose, Python 3.11+, `make`.
+**Needs:** Docker + Compose, Python 3.13+, `make`.
 
 ```bash
 git clone <repository-url>

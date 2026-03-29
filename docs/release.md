@@ -9,7 +9,7 @@ Run from repository root:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dagster.txt
 make setup
 make verify
 make verify-openmetadata   # optional, when `make up-openmetadata` is enabled

@@ -29,7 +29,7 @@ Compose node.
 | BI / SQL UI (optional) | Apache Superset | 6.0.0 (compose profile) |
 | ML Tracking | MLflow | 3.10.1 |
 | Orchestration | Dagster | 1.7.x (Python < 3.13) / 1.12.x (Python ≥ 3.13) |
-| Language | Python | 3.11+ |
+| Language | Python | 3.13+ |
 | Validation | Pydantic v2 | 2.12.5 |
 | Data Format | Parquet (snappy) via PyArrow; Gold also exposed as Iceberg | 23.0.1 |
 | Logging | structlog | 25.5.0 |
@@ -47,6 +47,8 @@ make pipeline-legacy # Run legacy linear script orchestration
 make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
+make lint        # ruff (CI)
+make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
 make clean       # Stop services + delete all data volumes
 ```
 

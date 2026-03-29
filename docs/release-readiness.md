@@ -31,7 +31,7 @@ git clone <repository-url>
 cd SoloLakehouse
 cp .env.example .env
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt -r requirements-dagster.txt
 make up
 make verify
 make verify-openmetadata   # optional, when the OpenMetadata profile is enabled

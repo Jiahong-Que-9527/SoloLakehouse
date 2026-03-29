@@ -1,6 +1,6 @@
 # Quick start
 
-**Prerequisites:** Docker (with Compose plugin), `make`, Python 3.11+.
+**Prerequisites:** Docker (with Compose plugin), `make`, Python 3.13+.
 
 ## 1. Clone and start
 

@@ -14,4 +14,5 @@ pytest==9.0.2
 pytest-cov==7.1.0
 ruff==0.15.7
 mypy==1.19.1
+types-requests==2.33.0.20260327
 psycopg2-binary==2.9.11

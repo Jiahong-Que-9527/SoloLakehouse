@@ -79,7 +79,7 @@ DAX CSV（德国股市日线）
 |------|---------|---------|
 | Docker Engine | 24.0+ | `docker --version` |
 | Docker Compose | v2.20+（插件形式） | `docker compose version` |
-| Python | 3.11+ | `python3 --version` |
+| Python | 3.13+ | `python3 --version` |
 | make | 任意版本 | `make --version` |
 
 ### 2.3 操作系统
@@ -510,9 +510,11 @@ make pipeline PIPELINE_MODE=v2 DAGSTER_JOB=full_pipeline_job  # 显式指定 job
 make test           # 运行所有单元测试（无需 Docker）
 make test-cov       # 带覆盖率报告
 make lint           # ruff 代码检查
-make typecheck      # mypy 类型检查
+make typecheck      # mypy 类型检查（另需：pip install -r requirements-dagster.txt）
 make dagster-ui     # 浏览器打开 Dagster UI（:3000）
 ```
+
+`make typecheck` 需要已安装 PyPI 的 **dagster**，否则 mypy 会把仓库里的 `dagster/` 目录误当成同名库（与 CI 一致：`requirements.txt` + `requirements-dagster.txt`）。
 
 ### Trino 快速访问
 
