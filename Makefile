@@ -1,4 +1,4 @@
-.PHONY: up up-openmetadata up-superset down clean bootstrap-db pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata verify-superset test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up up-openmetadata up-superset down clean bootstrap-db wait-postgres-ready pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata verify-superset test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_OM := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml
@@ -12,9 +12,20 @@ DAGSTER_JOB ?= full_pipeline_job
 VERIFY_ENV ?=
 SUPERSET_DB_NAME ?= superset_metadata
 
+# Ensure required DBs exist before MLflow and other clients start (avoids race with bootstrap-db).
+wait-postgres-ready:
+	@echo "Waiting for PostgreSQL to accept connections..."
+	@for i in $$(seq 1 90); do \
+		docker exec slh-postgres sh -c 'pg_isready -U "$$POSTGRES_USER" -d postgres' >/dev/null 2>&1 && exit 0; \
+		sleep 1; \
+	done; \
+	echo "Postgres did not become ready in time."; exit 1
+
 up:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d postgres minio
+	$(MAKE) wait-postgres-ready
 	$(MAKE) bootstrap-db
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d
 	$(MAKE) wait
 	@echo ""
 	@echo "SoloLakehouse is ready."
@@ -26,8 +37,10 @@ up:
 	@echo "  (Optional Superset:    make up-superset)"
 
 up-openmetadata:
-	$(DOCKER_COMPOSE) $(COMPOSE_OM) --profile openmetadata up -d
+	$(DOCKER_COMPOSE) $(COMPOSE_OM) --profile openmetadata up -d postgres minio
+	$(MAKE) wait-postgres-ready
 	$(MAKE) bootstrap-db
+	$(DOCKER_COMPOSE) $(COMPOSE_OM) --profile openmetadata up -d
 	@echo "OpenMetadata UI: http://localhost:8585 (add Trino service in UI; host trino, port 8080)"
 
 up-superset:
