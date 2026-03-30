@@ -97,7 +97,7 @@ DAX CSV（德国股市日线）
 ### 3.1 从 GitHub 克隆
 
 ```bash
-git clone https://github.com/<your-username>/SoloLakehouse.git
+git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
 ```
 
@@ -590,7 +590,23 @@ docker logs slh-dagster-webserver --tail 50
 
 ---
 
-### Q2：`make pipeline` 报错 "Error: No such container: slh-dagster-webserver"
+### Q2：`.env` 明明存在，但 `make up` 仍提示 "The \"...\" variable is not set"
+
+原因：当前 shell/session 下 Docker Compose 没有加载 `.env`（例如设置了 `COMPOSE_DISABLE_ENV_FILE=1`，或不同环境下 Compose 的默认行为有差异）。
+
+解决：
+```bash
+echo "COMPOSE_DISABLE_ENV_FILE=${COMPOSE_DISABLE_ENV_FILE:-<unset>}"
+docker compose --env-file .env -f docker/docker-compose.yml config | rg "POSTGRES_USER|POSTGRES_PASSWORD|MINIO_ROOT_USER|S3_ACCESS_KEY"
+docker compose --env-file .env -f docker/docker-compose.yml down
+make up
+```
+
+说明：项目 `Makefile` 已显式为 Docker Compose 添加 `--env-file .env`，更新到最新 `main` 后该问题通常不会再次出现。
+
+---
+
+### Q3：`make pipeline` 报错 "Error: No such container: slh-dagster-webserver"
 
 原因：Dagster 容器未在运行。
 解决：
@@ -601,7 +617,7 @@ make verify       # 确认 Dagster 状态为 PASS 后再跑 pipeline
 
 ---
 
-### Q3：ECB API 超时
+### Q4：ECB API 超时
 
 原因：ECB SDW API 有时响应慢或限流。
 解决：
@@ -616,7 +632,7 @@ make pipeline-v1
 
 ---
 
-### Q4：`make pipeline-v1` 跑过了但 Trino 查 Gold 表没数据
+### Q5：`make pipeline-v1` 跑过了但 Trino 查 Gold 表没数据
 
 原因：v1 路径会注册 Trino 表，但需要 Trino 已完全就绪。
 解决：
