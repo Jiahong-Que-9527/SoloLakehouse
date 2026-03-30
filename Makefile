@@ -3,6 +3,8 @@
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_OM := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml
 COMPOSE_SUPERSET := -f docker/docker-compose.yml -f docker/docker-compose.superset.yml
+ENV_FILE ?= .env
+DOCKER_COMPOSE := docker compose --env-file $(ENV_FILE)
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 PIPELINE_MODE ?= v2
 ARGS ?=
@@ -11,7 +13,7 @@ VERIFY_ENV ?=
 SUPERSET_DB_NAME ?= superset_metadata
 
 up:
-	docker compose -f $(COMPOSE_FILE) up -d
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d
 	$(MAKE) bootstrap-db
 	$(MAKE) wait
 	@echo ""
@@ -24,14 +26,14 @@ up:
 	@echo "  (Optional Superset:    make up-superset)"
 
 up-openmetadata:
-	docker compose $(COMPOSE_OM) --profile openmetadata up -d
+	$(DOCKER_COMPOSE) $(COMPOSE_OM) --profile openmetadata up -d
 	$(MAKE) bootstrap-db
 	@echo "OpenMetadata UI: http://localhost:8585 (add Trino service in UI; host trino, port 8080)"
 
 up-superset:
-	docker compose -f $(COMPOSE_FILE) up -d postgres
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d postgres
 	$(MAKE) bootstrap-db EXTRA_POSTGRES_DATABASES=$(SUPERSET_DB_NAME)
-	docker compose $(COMPOSE_SUPERSET) --profile superset up -d --build
+	$(DOCKER_COMPOSE) $(COMPOSE_SUPERSET) --profile superset up -d --build
 	$(MAKE) wait VERIFY_ENV="SUPERSET_CHECK=1 SUPERSET_DB_NAME=$(SUPERSET_DB_NAME)"
 	@echo "Superset UI: http://localhost:8088 (login admin/admin; add Trino host trino, port 8080)"
 
@@ -39,10 +41,10 @@ bootstrap-db:
 	EXTRA_POSTGRES_DATABASES="$(EXTRA_POSTGRES_DATABASES)" $(PYTHON) scripts/bootstrap-postgres.py
 
 down:
-	docker compose -f $(COMPOSE_FILE) down
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down
 
 clean:
-	docker compose -f $(COMPOSE_FILE) down -v
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down -v
 
 pipeline:
 	@if [ "$(PIPELINE_MODE)" = "v1" ] || [ "$(PIPELINE_MODE)" = "legacy" ]; then \
@@ -50,7 +52,7 @@ pipeline:
 		$(PYTHON) scripts/run-pipeline.py $(ARGS); \
 	else \
 		echo "Running v2 Dagster pipeline..."; \
-		docker compose -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j $(DAGSTER_JOB); \
+		$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j $(DAGSTER_JOB); \
 	fi
 
 pipeline-legacy:
@@ -107,7 +109,7 @@ setup:
 	@echo "[2/4] Ensuring .env exists..."
 	@test -f .env || cp .env.example .env
 	@echo "[3/4] Pulling container images..."
-	docker compose -f $(COMPOSE_FILE) pull
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) pull
 	@echo "[4/4] Starting services, bootstrapping databases, and waiting for health checks..."
 	$(MAKE) up
 

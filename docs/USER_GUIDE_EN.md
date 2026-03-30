@@ -97,7 +97,7 @@ DAX CSV  (German stock index daily data)
 ### 3.1 Clone from GitHub
 
 ```bash
-git clone https://github.com/<your-username>/SoloLakehouse.git
+git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
 ```
 
@@ -589,6 +589,22 @@ docker logs slh-dagster-webserver --tail 50
 **MLflow FAIL**
 Cause: Usually a PostgreSQL connectivity issue during startup.
 Fix: `make clean && make up`
+
+---
+
+### `make up` shows "The \"...\" variable is not set" even though `.env` exists
+
+Cause: Docker Compose did not load `.env` in the current shell/session (for example, `COMPOSE_DISABLE_ENV_FILE=1` is set, or Compose behavior differs across environments).
+
+Fix:
+```bash
+echo "COMPOSE_DISABLE_ENV_FILE=${COMPOSE_DISABLE_ENV_FILE:-<unset>}"
+docker compose --env-file .env -f docker/docker-compose.yml config | rg "POSTGRES_USER|POSTGRES_PASSWORD|MINIO_ROOT_USER|S3_ACCESS_KEY"
+docker compose --env-file .env -f docker/docker-compose.yml down
+make up
+```
+
+Note: The project `Makefile` now calls Docker Compose with `--env-file .env` explicitly, so this issue should not recur after updating to the latest `main`.
 
 ---
 
