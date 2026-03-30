@@ -125,7 +125,8 @@ wait:
 		now=$$(date +%s); \
 		if [ $$((now - start)) -ge 300 ]; then \
 			echo ""; \
-			echo "Timed out after 5 minutes."; \
+			echo "Timed out after 5 minutes. Last verify output:"; \
+			$(VERIFY_ENV) $(PYTHON) scripts/verify-setup.py || true; \
 			exit 1; \
 		fi; \
 		printf "."; \
