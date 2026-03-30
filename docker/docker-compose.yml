@@ -103,6 +103,7 @@ services:
   mlflow:
     build: ./mlflow
     container_name: slh-mlflow
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy

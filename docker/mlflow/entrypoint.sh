@@ -9,7 +9,19 @@ MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT:-s3://mlflow-artifacts/}"
 
 BACKEND_STORE_URI="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/mlflow"
 
-mlflow db upgrade "${BACKEND_STORE_URI}"
+attempt=1
+while [ "$attempt" -le 30 ]; do
+  if mlflow db upgrade "${BACKEND_STORE_URI}"; then
+    break
+  fi
+  if [ "$attempt" -eq 30 ]; then
+    echo "mlflow db upgrade failed after 30 attempts"
+    exit 1
+  fi
+  echo "mlflow db upgrade failed (attempt ${attempt}/30), retrying in 2s..."
+  sleep 2
+  attempt=$((attempt + 1))
+done
 
 exec mlflow server \
   --host 0.0.0.0 \
