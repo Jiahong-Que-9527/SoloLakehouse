@@ -107,6 +107,8 @@ cd SoloLakehouse
 cp .env.example .env
 ```
 
+`.env` 放在**仓库根目录**（与 `Makefile` 同级），**不要**复制到 `docker/`：项目通过 `make` 调用 `docker compose --env-file .env -f docker/docker-compose.yml`，从根目录读取该文件。
+
 `.env` 包含所有服务的默认本地开发凭据（端口、密码等）。**本地体验无需修改**，如有端口冲突再编辑对应变量。
 
 ### 3.3 Python 环境

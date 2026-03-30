@@ -107,6 +107,8 @@ cd SoloLakehouse
 cp .env.example .env
 ```
 
+Keep `.env` at the **repository root** (next to `Makefile`). **Do not** copy it into `docker/`: `make` runs `docker compose --env-file .env -f docker/docker-compose.yml`, which reads that file from the project root.
+
 `.env` contains default local development credentials for all services. **No changes are needed for a local walkthrough.** Edit specific variables only if you have port conflicts.
 
 ### 3.3 Set up Python environment
