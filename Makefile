@@ -1,4 +1,4 @@
-.PHONY: up up-openmetadata up-superset down clean bootstrap-db wait-postgres-ready pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata verify-superset test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up up-openmetadata up-superset down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata verify-superset test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_OM := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml
@@ -52,6 +52,15 @@ up-superset:
 
 bootstrap-db:
 	EXTRA_POSTGRES_DATABASES="$(EXTRA_POSTGRES_DATABASES)" $(PYTHON) scripts/bootstrap-postgres.py
+
+reset-mlflow-db:
+	@echo "Resetting MLflow metadata database (mlflow)..."
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) stop mlflow
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'mlflow' AND pid <> pg_backend_pid();\""
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"DROP DATABASE IF EXISTS mlflow;\""
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"CREATE DATABASE mlflow;\""
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d mlflow
+	@echo "MLflow metadata database reset complete."
 
 down:
 	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down

@@ -594,7 +594,21 @@ docker logs slh-dagster-webserver --tail 50
 
 ---
 
-### Q2：`.env` 明明存在，但 `make up` 仍提示 "The \"...\" variable is not set"
+### Q2：MLflow 迁移报错 `relation "metrics" does not exist`
+
+原因：`mlflow` 元数据库的迁移状态不一致（常见于复用旧 PostgreSQL volume 且升级过程曾中断）。
+
+解决：
+```bash
+make reset-mlflow-db
+make verify
+```
+
+`make reset-mlflow-db` 只会重建 MLflow 的**元数据库 schema**（PostgreSQL 里的 `mlflow` 数据库），不会删除 MinIO 里的数据集文件。
+
+---
+
+### Q3：`.env` 明明存在，但 `make up` 仍提示 "The \"...\" variable is not set"
 
 原因：当前 shell/session 下 Docker Compose 没有加载 `.env`（例如设置了 `COMPOSE_DISABLE_ENV_FILE=1`，或不同环境下 Compose 的默认行为有差异）。
 
@@ -610,7 +624,7 @@ make up
 
 ---
 
-### Q3：`make pipeline` 报错 "Error: No such container: slh-dagster-webserver"
+### Q4：`make pipeline` 报错 "Error: No such container: slh-dagster-webserver"
 
 原因：Dagster 容器未在运行。
 解决：
@@ -621,7 +635,7 @@ make verify       # 确认 Dagster 状态为 PASS 后再跑 pipeline
 
 ---
 
-### Q4：ECB API 超时
+### Q5：ECB API 超时
 
 原因：ECB SDW API 有时响应慢或限流。
 解决：
@@ -636,7 +650,7 @@ make pipeline-v1
 
 ---
 
-### Q5：`make pipeline-v1` 跑过了但 Trino 查 Gold 表没数据
+### Q6：`make pipeline-v1` 跑过了但 Trino 查 Gold 表没数据
 
 原因：v1 路径会注册 Trino 表，但需要 Trino 已完全就绪。
 解决：
@@ -647,7 +661,7 @@ make pipeline-v1   # 重新跑
 
 ---
 
-### Q5：重启后数据丢失
+### Q7：重启后数据丢失
 
 原因：使用了 `make clean`（会删除所有 Docker volumes）。
 正确停止方式（保留数据）：
@@ -658,14 +672,14 @@ make up            # 重启后数据自动恢复
 
 ---
 
-### Q6：MinIO "bucket already exists" 错误
+### Q8：MinIO "bucket already exists" 错误
 
 原因：`minio-init` 容器重复执行了 bucket 创建。
 处理：**可以忽略**。`minio-init` 是幂等的，不影响数据。
 
 ---
 
-### Q7：端口冲突
+### Q9：端口冲突
 
 如果 9000、9001、8080、5000、3000、5432 中有端口已被占用，在 `.env` 中修改对应端口变量：
 
