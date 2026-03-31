@@ -26,10 +26,6 @@ The project now represents:
 
 ## Five-layer core
 
-<p align="center">
-  <img src="docs/img/SLHv2.5-architecture.jpg" width="80%" alt="SoloLakehouse v2.5 architecture">
-</p>
-
 | Layer | Role |
 |-------|------|
 | Sources | ECB API + simulated DAX CSV |
@@ -40,7 +36,7 @@ The project now represents:
 
 **Details:** [docs/architecture.md](docs/architecture.md) · **Medallion:** [docs/medallion-model.md](docs/medallion-model.md)
 
-### Target — v1.0 (delivered)
+### SoloLakehouse v2.5 architecture
 
 ![SoloLakehouse v2.5 architecture](docs/img/SLHv2.5-architecture.jpg)
 
