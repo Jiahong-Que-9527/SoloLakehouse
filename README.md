@@ -169,6 +169,8 @@ If you started the optional metadata stack with `make up-openmetadata`, you can 
 
 See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deployment.md#troubleshooting).
 
+MLflow note: this repo now starts `mlflow server` directly (instead of `mlflow db upgrade`) to avoid empty-database migration-chain failures such as `relation "metrics" does not exist`.
+
 ## Design decisions (ADRs)
 
 | ADR | Topic |

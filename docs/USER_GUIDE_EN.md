@@ -591,16 +591,25 @@ docker logs slh-dagster-webserver --tail 50
 ```
 
 **MLflow FAIL**
-Cause: Usually a PostgreSQL connectivity issue during startup.
-Fix: `make clean && make up`
+Cause: Most commonly a transient startup race (PostgreSQL not ready yet), which may surface as connection reset in the first `make verify`.
+Fix:
+```bash
+make verify
+```
+If it still fails after a short wait:
+```bash
+make clean && make up
+```
 
 ---
 
 ### MLflow migration fails with `relation "metrics" does not exist`
 
-Cause: The `mlflow` metadata database schema is in an inconsistent migration state (commonly after interrupted upgrades on reused PostgreSQL volumes).
+Cause: Some MLflow/Alembic migration chains may start from an incremental migration that assumes base tables already exist. On an empty database this can fail with `relation "metrics" does not exist`.
 
-Fix:
+Current default behavior in this repository avoids this path by starting `mlflow server` directly and letting MLflow initialize tables internally.
+
+Recovery (only needed if an older environment still has inconsistent metadata state):
 ```bash
 make reset-mlflow-db
 make verify
