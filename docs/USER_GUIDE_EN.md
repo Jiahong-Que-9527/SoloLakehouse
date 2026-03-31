@@ -596,6 +596,20 @@ Fix: `make clean && make up`
 
 ---
 
+### MLflow migration fails with `relation "metrics" does not exist`
+
+Cause: The `mlflow` metadata database schema is in an inconsistent migration state (commonly after interrupted upgrades on reused PostgreSQL volumes).
+
+Fix:
+```bash
+make reset-mlflow-db
+make verify
+```
+
+`make reset-mlflow-db` only recreates the **metadata DB schema** used by MLflow tracking (`mlflow` PostgreSQL database). Existing datasets in MinIO are preserved.
+
+---
+
 ### `make up` shows "The \"...\" variable is not set" even though `.env` exists
 
 Cause: Docker Compose did not load `.env` in the current shell/session (for example, `COMPOSE_DISABLE_ENV_FILE=1` is set, or Compose behavior differs across environments).

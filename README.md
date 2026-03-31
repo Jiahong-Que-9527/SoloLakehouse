@@ -90,7 +90,7 @@ Not default v3 goals:
 **Needs:** Docker + Compose, Python 3.13+, `make`.
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
