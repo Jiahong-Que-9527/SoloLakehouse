@@ -6,6 +6,7 @@ POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-postgres}"
 POSTGRES_HOST="${POSTGRES_HOST:-postgres}"
 POSTGRES_PORT="${POSTGRES_PORT:-5432}"
 MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT:-s3://mlflow-artifacts/}"
+MLFLOW_ALLOWED_HOSTS="${MLFLOW_ALLOWED_HOSTS:-localhost,127.0.0.1,mlflow,mlflow:5000}"
 
 BACKEND_STORE_URI="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/mlflow"
 
@@ -52,5 +53,6 @@ wait_for_postgres
 exec mlflow server \
   --host 0.0.0.0 \
   --port 5000 \
+  --allowed-hosts "${MLFLOW_ALLOWED_HOSTS}" \
   --backend-store-uri "${BACKEND_STORE_URI}" \
   --default-artifact-root "${MLFLOW_ARTIFACT_ROOT}"
