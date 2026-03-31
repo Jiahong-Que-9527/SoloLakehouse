@@ -70,6 +70,25 @@ pip install -r requirements.txt
 
 `make` commands prefer `.venv/bin/python` automatically when that virtual environment exists.
 
+If you plan to run the host-side **legacy v1 pipeline** (`make pipeline-v1` / `make pipeline PIPELINE_MODE=v1`), install the system OpenMP runtime required by LightGBM before running it:
+
+- Debian / Ubuntu:
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y libgomp1
+  ```
+- RHEL / CentOS / Rocky / Amazon Linux:
+  ```bash
+  sudo yum install -y libgomp
+  # or: sudo dnf install -y libgomp
+  ```
+- Alpine:
+  ```bash
+  sudo apk add libgomp
+  ```
+
+The default v2 Dagster container image already includes this dependency; this requirement only applies when Python executes on the host machine.
+
 ### 3.4 Start services
 
 ```bash
@@ -216,13 +235,38 @@ Retrying is usually sufficient. If needed, test legacy compatibility path:
 make pipeline PIPELINE_MODE=v1
 ```
 
-### 4. MinIO "bucket already exists" error
+### 4. `make pipeline-v1` fails with `OSError: libgomp.so.1: cannot open shared object file`
+
+Root cause: the host machine is missing the OpenMP runtime required by `lightgbm`.
+
+Fix:
+- Debian / Ubuntu:
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y libgomp1
+  ```
+- RHEL / CentOS / Rocky / Amazon Linux:
+  ```bash
+  sudo yum install -y libgomp
+  # or: sudo dnf install -y libgomp
+  ```
+- Alpine:
+  ```bash
+  sudo apk add libgomp
+  ```
+
+Then re-run:
+```bash
+make pipeline-v1
+```
+
+### 5. MinIO "bucket already exists" error
 
 Root cause: bucket bootstrap re-runs.
 
 Fix: safe to ignore. `minio-init` is idempotent.
 
-### 5. MLflow UI shows no experiments
+### 6. MLflow UI shows no experiments
 
 Root cause: no experiment runs have been logged yet.
 
@@ -232,7 +276,7 @@ make pipeline
 ```
 The `ecb_dax_impact` experiment is created automatically during the run.
 
-### 6. Iceberg Gold DDL fails in Trino
+### 7. Iceberg Gold DDL fails in Trino
 
 Root cause: staging Parquet is missing or Hive external table metadata is stale.
 
@@ -240,13 +284,13 @@ Fix:
 1. Confirm `gold/rate_impact_features/ecb_dax_features.parquet` exists in MinIO after `make pipeline`.
 2. Re-run the Gold step so `ingestion.trino_sql.register_gold_tables_trino` can refresh `hive.gold` + `iceberg.gold`.
 
-### 7. OpenMetadata slow to start or OOM
+### 8. OpenMetadata slow to start or OOM
 
 Root cause: Elasticsearch + OpenMetadata JVM need RAM.
 
 Fix: start only when needed (`make up-openmetadata`), increase Docker memory, or stop other stacks. First-time migration (`om-migrate`) can take several minutes.
 
-### 8. Superset starts but cannot log in or connect to metadata DB
+### 9. Superset starts but cannot log in or connect to metadata DB
 
 Root cause: the optional Superset metadata database or secret key is missing/misaligned.
 

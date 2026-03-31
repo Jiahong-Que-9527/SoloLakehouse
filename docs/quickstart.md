@@ -2,6 +2,12 @@
 
 **Prerequisites:** Docker (with Compose plugin), `make`, Python 3.13+.
 
+If you want to run the host-side v1 legacy pipeline (`make pipeline-v1`), install LightGBM's system runtime first:
+
+- Debian / Ubuntu: `sudo apt-get update && sudo apt-get install -y libgomp1`
+- RHEL / CentOS / Rocky / Amazon Linux: `sudo yum install -y libgomp` or `sudo dnf install -y libgomp`
+- Alpine: `sudo apk add libgomp`
+
 ## 1. Clone and start
 
 ```bash
@@ -63,6 +69,8 @@ make pipeline-v1
 # or (same script, no PIPELINE_MODE)
 make pipeline-legacy
 ```
+
+These v1 commands run Python on the host machine, so they require the system `libgomp` package above. The default v2 Dagster container path already includes it.
 
 Legacy script mode executes `scripts/run-pipeline.py` (six steps):
 

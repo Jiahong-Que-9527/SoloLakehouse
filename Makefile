@@ -74,7 +74,7 @@ pipeline:
 		$(PYTHON) scripts/run-pipeline.py $(ARGS); \
 	else \
 		echo "Running v2 Dagster pipeline..."; \
-		$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -w /app/dagster/workspace.yaml -j $(DAGSTER_JOB); \
+		$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -f /app/dagster/definitions.py -j $(DAGSTER_JOB); \
 	fi
 
 pipeline-legacy:

@@ -272,7 +272,7 @@ Compose 的 `depends_on` + `condition: service_healthy` 保证：
 
 ```bash
 docker compose -f docker/docker-compose.yml exec dagster-webserver \
-  dagster job execute -w /app/dagster/workspace.yaml -j full_pipeline_job
+  dagster job execute -f /app/dagster/definitions.py -j full_pipeline_job
 ```
 
 即在 **dagster-webserver 容器内** 用 CLI 执行名为 `full_pipeline_job` 的 Job。该 Job 在 `dagster/definitions.py` 中定义为覆盖全部资产的 `define_asset_job`。

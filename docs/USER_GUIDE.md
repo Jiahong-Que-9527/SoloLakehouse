@@ -589,16 +589,25 @@ docker logs slh-dagster-webserver --tail 50
 ```
 
 **MLflow FAIL**
-原因：通常是 PostgreSQL 连接问题。
-解决：`make clean && make up`
+原因：最常见是启动阶段的瞬时竞态（PostgreSQL 尚未完全就绪），首次 `make verify` 可能出现 connection reset。
+解决：
+```bash
+make verify
+```
+若短暂等待后仍失败，再执行：
+```bash
+make clean && make up
+```
 
 ---
 
 ### Q2：MLflow 迁移报错 `relation "metrics" does not exist`
 
-原因：`mlflow` 元数据库的迁移状态不一致（常见于复用旧 PostgreSQL volume 且升级过程曾中断）。
+原因：部分 MLflow/Alembic 迁移链从增量迁移开始，默认假设基础表已存在；在空库上可能触发 `relation "metrics" does not exist`。
 
-解决：
+本仓库当前默认行为已规避该路径：直接启动 `mlflow server`，由 MLflow 在内部完成建表与迁移。
+
+恢复方案（仅在旧环境元数据状态不一致时需要）：
 ```bash
 make reset-mlflow-db
 make verify
