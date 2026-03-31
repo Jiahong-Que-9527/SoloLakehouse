@@ -12,6 +12,7 @@ COPY transformations ./transformations
 COPY ml ./ml
 COPY scripts ./scripts
 COPY dagster ./dagster
+COPY data ./data
 
 ENV PYTHONPATH=/app
 EXPOSE 3000
