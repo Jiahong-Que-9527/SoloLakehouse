@@ -196,7 +196,7 @@ Goal: Replace the linear `run-pipeline.py` script with a proper DAG orchestrator
 - [x] **Task 49** [depends: Task 45]: Keep `scripts/run-pipeline.py` working but add a deprecation warning: "This script is deprecated in v2.0. Use `dagster job execute -j full_pipeline_job` or the Dagster UI instead." Do NOT remove the script — it's useful for quick local runs without the Dagster daemon.
 
 - [x] **Task 50** [depends: Task 47]: Update `Makefile`:
-  - `make pipeline`: now runs `dagster job execute -j full_pipeline_job` (requires Dagster services up)
+  - `make pipeline`: now runs `dagster job execute -f /app/dagster/definitions.py -j full_pipeline_job` (requires Dagster services up)
   - `make pipeline-legacy`: runs the old `scripts/run-pipeline.py` directly
   - `make pipeline-v1` / `make pipeline PIPELINE_MODE=v1`: same script via the `pipeline` target
   - `make dagster-ui`: opens browser to `http://localhost:3000`

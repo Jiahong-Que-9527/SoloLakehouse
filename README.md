@@ -85,6 +85,12 @@ Not default v3 goals:
 
 **Needs:** Docker + Compose, Python 3.13+, `make`.
 
+If you plan to run the **host-side v1 legacy pipeline** (`make pipeline-v1` or `make pipeline PIPELINE_MODE=v1`), install the system OpenMP runtime required by LightGBM first:
+
+- Debian / Ubuntu: `sudo apt-get update && sudo apt-get install -y libgomp1`
+- RHEL / CentOS / Rocky / Amazon Linux: `sudo yum install -y libgomp` (or `sudo dnf install -y libgomp`)
+- Alpine: `sudo apk add libgomp`
+
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
@@ -170,6 +176,8 @@ If you started the optional metadata stack with `make up-openmetadata`, you can 
 See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deployment.md#troubleshooting).
 
 MLflow note: this repo now starts `mlflow server` directly (instead of `mlflow db upgrade`) to avoid empty-database migration-chain failures such as `relation "metrics" does not exist`.
+
+Legacy v1 note: if `make pipeline-v1` fails with `OSError: libgomp.so.1: cannot open shared object file`, the host machine is missing the LightGBM runtime dependency above. The default v2 Dagster container path already installs this library.
 
 ## Design decisions (ADRs)
 

@@ -29,7 +29,8 @@ def _make_model(model_type: str, params: dict[str, Any]) -> Any:
             **params,
         )
     if model_type == "lightgbm":
-        return LGBMClassifier(random_state=42, **params)
+        lightgbm_params = {"verbose": -1, **params}
+        return LGBMClassifier(random_state=42, **lightgbm_params)
     raise ValueError(f"Unsupported model_type: {model_type}")
 
 

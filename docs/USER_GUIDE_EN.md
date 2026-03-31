@@ -90,6 +90,27 @@ DAX CSV  (German stock index daily data)
 | macOS 13+ (Docker Desktop) | ✅ Supported |
 | Windows 11 + WSL2 | ✅ Run all commands inside WSL |
 
+### 2.4 Host dependency for the v1 legacy pipeline
+
+If you plan to run `make pipeline-v1` or `make pipeline PIPELINE_MODE=v1`, install the system OpenMP runtime required by LightGBM on the host machine:
+
+- Debian / Ubuntu:
+  ```bash
+  sudo apt-get update
+  sudo apt-get install -y libgomp1
+  ```
+- RHEL / CentOS / Rocky / Amazon Linux:
+  ```bash
+  sudo yum install -y libgomp
+  # or: sudo dnf install -y libgomp
+  ```
+- Alpine:
+  ```bash
+  sudo apk add libgomp
+  ```
+
+This applies only to the host-side v1 script path. The default v2 Dagster container image already includes `libgomp`.
+
 ---
 
 ## 3. Installation and Startup
@@ -197,6 +218,8 @@ Equivalent:
 ```bash
 make pipeline PIPELINE_MODE=v1
 ```
+
+These commands run `scripts/run-pipeline.py` with the host Python environment, so `libgomp` must be installed as described in [Section 2.4](#24-host-dependency-for-the-v1-legacy-pipeline).
 
 ### 5.2 What each step does
 

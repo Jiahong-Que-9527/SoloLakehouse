@@ -320,6 +320,22 @@ class TestTraining:
         with pytest.raises(ValueError):
             _make_model("unknown", {})
 
+    def test_make_model_sets_lightgbm_quiet_by_default(self, monkeypatch) -> None:
+        captured: dict[str, object] = {}
+
+        class CapturingClassifier(DummyClassifier):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                captured.update(kwargs)
+
+        monkeypatch.setattr("ml.train_ecb_dax_model.LGBMClassifier", CapturingClassifier)
+
+        _make_model("lightgbm", {"n_estimators": 10})
+
+        assert captured["random_state"] == 42
+        assert captured["verbose"] == -1
+        assert captured["n_estimators"] == 10
+
     def test_train_returns_metrics_and_model(self, monkeypatch) -> None:
         monkeypatch.setattr(
             "ml.train_ecb_dax_model._make_model",
