@@ -187,13 +187,62 @@ def check_trino() -> StatusTuple:
 def check_mlflow() -> StatusTuple:
     try:
         response = requests.get("http://localhost:5000/health", timeout=5)
-        if response.status_code == 200:
-            return ("MLflow", "PASS", "HTTP 200")
-        return ("MLflow", "FAIL", f"HTTP {response.status_code}")
+        if response.status_code != 200:
+            return ("MLflow", "FAIL", f"HTTP {response.status_code}")
+        # Verify DB migration completed: /health returns 200 even while gunicorn workers
+        # are still initializing; the experiments endpoint requires a fully migrated schema.
+        api_response = requests.get(
+            "http://localhost:5000/api/2.0/mlflow/experiments/search",
+            timeout=5,
+        )
+        if api_response.status_code != 200:
+            return (
+                "MLflow",
+                "FAIL",
+                f"/health OK but DB not ready (experiments API HTTP {api_response.status_code})",
+            )
+        return ("MLflow", "PASS", "HTTP 200, DB initialized")
     except requests.Timeout:
         return ("MLflow", "TIMEOUT", "Timed out after 5s")
     except Exception as exc:
         return ("MLflow", "FAIL", str(exc))
+
+
+_DAGSTER_REQUIRED_CONTAINER_ENV = {
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "MLFLOW_S3_ENDPOINT_URL",
+    "MLFLOW_TRACKING_URI",
+}
+
+
+def check_dagster_credentials() -> StatusTuple:
+    """Verify the Dagster daemon container has the S3/MLflow env vars needed for artifact upload.
+
+    The MLflow client inside Dagster uploads artifacts directly to S3 via boto3, so these
+    credentials must be present in the container process — not just in the MLflow server.
+    """
+    try:
+        result = subprocess.run(
+            ["docker", "exec", "slh-dagster-daemon", "env"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except FileNotFoundError:
+        return ("Dagster S3 creds", "FAIL", "docker CLI not found")
+    except subprocess.TimeoutExpired:
+        return ("Dagster S3 creds", "TIMEOUT", "Timed out after 5s")
+    except subprocess.CalledProcessError as exc:
+        detail = (exc.stderr or exc.stdout or "").strip().splitlines()
+        return ("Dagster S3 creds", "FAIL", detail[0] if detail else exc.__class__.__name__)
+
+    env_keys = {line.split("=", 1)[0] for line in result.stdout.splitlines() if "=" in line}
+    missing = sorted(_DAGSTER_REQUIRED_CONTAINER_ENV - env_keys)
+    if missing:
+        return ("Dagster S3 creds", "FAIL", f"Missing: {', '.join(missing)}")
+    return ("Dagster S3 creds", "PASS", "AWS + MLflow S3 credentials present")
 
 
 def check_openmetadata() -> StatusTuple:
@@ -288,6 +337,7 @@ def main() -> int:
         check_trino,
         check_mlflow,
         check_dagster,
+        check_dagster_credentials,
     ]
     if os.environ.get("OPENMETADATA_CHECK") == "1":
         checks.append(check_openmetadata)
