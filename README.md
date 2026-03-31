@@ -27,7 +27,7 @@ The project now represents:
 ## Five-layer core
 
 <p align="center">
-  <img src="docs/img/SLH_arch_v0.1.png" width="60%" alt="Five-layer core architecture">
+  <img src="docs/img/SLHv2.5-architecture.jpg" width="80%" alt="SoloLakehouse v2.5 architecture">
 </p>
 
 | Layer | Role |
@@ -42,7 +42,7 @@ The project now represents:
 
 ### Target — v1.0 (delivered)
 
-![v1.0 target architecture](docs/img/SLH_arch_v1.0.png)
+![SoloLakehouse v2.5 architecture](docs/img/SLHv2.5-architecture.jpg)
 
 Eight-layer enterprise-style stack (metadata, observability, user access, etc.): **[docs/roadmap.md](docs/roadmap.md)**.
 
