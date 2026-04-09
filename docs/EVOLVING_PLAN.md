@@ -264,61 +264,67 @@ Goal: Demonstrate open table format, metadata discovery, and browser-based BI / 
 
 Goal: Move from internal MVP platform suitability to production-capable platform suitability.
 
-Principle: prioritize platform productionization over feature expansion.
+Principle: prioritize platform productionization over feature expansion. Governance contracts and operating model clarity come first; infrastructure migration follows once those rules are explicit.
 
 ---
 
-### 4.1 Multi-environment infrastructure baseline
+### 4.1 Dataset governance contracts
 
-- [ ] **Task 59**: Introduce Kubernetes manifests or Helm chart skeletons for core services and Dagster services. Establish environment overlays for `dev` and `staging`.
-
-- [ ] **Task 60** [depends: Task 59]: Add Terraform baseline for infrastructure dependencies (network/storage/managed DB placeholders as applicable). Keep local-dev path intact during migration.
-
-- [ ] **Task 73** [depends: Task 60]: Document how the local Compose path coexists with the v3 infrastructure path during migration, including when each path should be used and what parity is expected between them.
-
-### 4.2 Security and governance hardening
-
-- [ ] **Task 61**: Replace local-dev credential assumptions with a secrets lifecycle model (external secret provider integration plan + runtime injection pattern).
-
-- [ ] **Task 62** [depends: Task 61]: Define and document access-control baseline (service-level credentials, least privilege, audit logging requirements).
-
-- [ ] **Task 67** [depends: Task 62]: Define dataset governance contracts for Gold and critical Silver outputs: `data_owner`, `refresh_sla`, `quality_class`, and lineage responsibility.
+- [ ] **Task 67**: Define dataset governance contracts for Gold and critical Silver outputs: `data_owner`, `refresh_sla`, `quality_class`, and lineage responsibility.
 
 - [ ] **Task 68** [depends: Task 67]: Publish and enforce naming/ownership conventions across environments (`dev`/`staging`/`production`) for schemas, tables, and storage prefixes.
 
-- [ ] **Task 74** [depends: Task 61]: Add a secrets rotation and emergency fallback runbook that covers critical services and documents expected audit evidence.
-
-### 4.3 Reliability and operations model
-
-- [ ] **Task 63**: Add production-focused observability baseline: metrics export plan, dashboards, and alert definitions for critical pipeline and orchestration failures.
-
-- [ ] **Task 64** [depends: Task 63]: Add incident runbooks and recovery drills for at least 3 scenarios (orchestrator unavailable, metadata DB degradation, storage access failure).
-
-- [ ] **Task 69** [depends: Task 63]: Define service and data-product SLOs (freshness, successful materialization rate, critical asset check pass rate) and map each SLO to alert policies.
-
-### 4.4 Release promotion and rollback standards
+### 4.2 Promotion, release, and rollback standards
 
 - [ ] **Task 65**: Define environment promotion flow (`dev -> staging -> production`) with explicit validation gates and rollback criteria.
 
 - [ ] **Task 66** [depends: Task 65]: Create `docs/V3_RELEASE_CHECKLIST.md` with multi-environment reproducibility, security, observability, and rollback acceptance criteria.
 
-- [x] **Task 70** [depends: Task 66]: Create `docs/governance-v3-runbook.md` that operationalizes governance workflows: access changes, secrets rotation, SLO breach handling, and incident communications.
+- [ ] **Task 70** [depends: Task 66]: Complete `docs/governance-v3-runbook.md` — the runbook skeleton exists but requires Task 66 acceptance criteria to be finalised before the operational workflows can be validated.
 
 - [ ] **Task 75** [depends: Task 65, Task 73]: Add a staged release rehearsal document that records one end-to-end `dev -> staging` promotion with validation evidence and rollback readiness confirmation.
 
-### 4.5 Governance evidence and auditability
+### 4.3 Reliability and observability
 
-- [ ] **Task 71** [depends: Task 67, Task 69]: Add `docs/governance-v3-matrix.md` evidence links for each governance domain (implemented artifact + validation evidence + owner).
+- [ ] **Task 63**: Add production-focused observability baseline: metrics export plan, dashboards, and alert definitions for critical pipeline and orchestration failures. Use Prometheus + Grafana as the v3 tooling stack (see ADR-015).
 
-- [ ] **Task 72** [depends: Task 71]: Add quarterly governance review checklist (policy drift, stale owners, alert noise, incident learning carry-forward) and version it under `docs/history/`.
+- [ ] **Task 64** [depends: Task 63]: Add incident runbooks and recovery drills for at least 3 scenarios (orchestrator unavailable, metadata DB degradation, storage access failure).
 
-### 4.6 ML experiment governance boundary
+- [ ] **Task 69** [depends: Task 63]: Define service and data-product SLOs (freshness, successful materialization rate, critical asset check pass rate) and map each SLO to alert policies.
+
+### 4.4 Secrets and access governance
+
+- [ ] **Task 61**: Replace local-dev credential assumptions with a secrets lifecycle model (external secret provider integration plan + runtime injection pattern).
+
+- [ ] **Task 62** [depends: Task 61]: Define and document access-control baseline (service-level credentials, least privilege, audit logging requirements).
+
+- [ ] **Task 74** [depends: Task 61]: Add a secrets rotation and emergency fallback runbook that covers critical services and documents expected audit evidence.
+
+### 4.5 ML experiment governance boundary
 
 - [ ] **Task 76**: Define v3 ML governance scope as experiment-platform-first in docs and release criteria, explicitly stating that full online serving is deferred unless separately approved.
 
 - [ ] **Task 77** [depends: Task 76]: Standardize ML experiment metadata, artifact path conventions, and evaluation contract requirements so experiment runs are reproducible and auditable across environments.
 
-### 4.7 Scope guardrails
+### 4.6 Governance evidence and auditability
+
+- [ ] **Task 71** [depends: Task 67, Task 69]: Add `docs/governance-v3-matrix.md` evidence links for each governance domain (implemented artifact + validation evidence + owner).
+
+- [ ] **Task 72** [depends: Task 71]: Add quarterly governance review checklist (policy drift, stale owners, alert noise, incident learning carry-forward) and version it under `docs/history/`.
+
+### 4.7 Kubernetes and Helm introduction
+
+- [ ] **Task 59**: Introduce Kubernetes manifests or Helm chart skeletons for core services and Dagster services. Establish environment overlays for `dev` and `staging`.
+
+- [ ] **Task 79** [depends: Task 59]: Define and implement the CI/CD pipeline for automated Kubernetes deployments. Choose GitOps approach (GitHub Actions Helm deploy vs. ArgoCD/FluxCD), create a workflow that deploys the Helm chart to the `dev` environment on merge to main, add a post-deploy verification step, and define the manual promotion gate for `staging` and `production`.
+
+### 4.8 Terraform introduction
+
+- [ ] **Task 60** [depends: Task 59]: Add Terraform baseline for infrastructure dependencies (network/storage/managed DB placeholders as applicable). Keep local-dev path intact during migration.
+
+- [ ] **Task 73** [depends: Task 60]: Document how the local Compose path coexists with the v3 infrastructure path during migration, including when each path should be used and what parity is expected between them.
+
+### 4.9 Scope guardrails
 
 - [ ] **Task 78**: Add a v3 scope guardrails section to planning and release docs that explicitly marks the following as non-required for v3: full online serving platform, Superset/FastAPI as primary delivery goals, Keycloak-class end-user identity, mandatory OpenMetadata/DataHub adoption, and complex streaming architecture.
 
@@ -356,6 +362,7 @@ Principle: prioritize platform productionization over feature expansion.
 | `docker/openmetadata/upstream-docker-compose-1.5.6.yml` | v2.5 | Upstream reference for env derivation |
 | `tests/test_trino_sql.py` | v2.5 | Unit tests for Trino helpers |
 | `tests/integration/test_trino_iceberg.py` | v2.5 | Integration checks for Iceberg catalog |
+| `docs/decisions/ADR-015-v3-observability-tooling.md` | v3.0 | Observability tooling selection: Prometheus + Grafana |
 
 ## Summary of Modified Files
 
