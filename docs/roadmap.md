@@ -14,7 +14,7 @@ Earlier docs listed **v0.1–v0.7** as incremental releases; **this project does
 | **v2.0** | **Current** | + Orchestration | Dagster asset orchestration, schedule/sensor/check governance, default pipeline migration with legacy fallback ([EVOLVING_PLAN.md](EVOLVING_PLAN.md) Phase 3) |
 | **v2.5** | Delivered (reference) | + Table format + catalog / BI UI | Apache Iceberg Gold table via Trino; optional OpenMetadata and Superset compose profiles ([ADR-013](decisions/ADR-013-iceberg-gold-trino.md), [ADR-014](decisions/ADR-014-openmetadata-optional-profile.md)) |
 | **v3.0** | Planned | — | Production-capable platform hardening: Kubernetes/Helm/Terraform, environment promotion and rollback controls, secrets/access governance, SLO-driven observability, Hive-first governance baseline, ML experiment governance ([CLAUDE.md](../CLAUDE.md)) |
-| **v4.0** | Planned | — | Self-serve maturity (documentation, verification, failure clarity); overlaps in theme with v2.0 in some older tables — reconcile when versioning stabilises |
+| **v4.0** | Planned | — | Self-Serve Usability: first-run onboarding clarity, verification commands, actionable failure messages, and documentation accessibility; distinct from v2.0 which addressed orchestration semantics |
 
 ---
 
@@ -77,7 +77,7 @@ Scope guardrails for v3:
 - no full online serving platform as a required v3 deliverable
 - no self-serve UX overhaul as a v3 primary goal
 
-**v3.0 / v4.0** extend production posture and later self-serve maturity — see [CLAUDE.md](../CLAUDE.md).
+**v3.0** hardens production infrastructure and governance posture. **v4.0** focuses on self-serve usability: onboarding clarity, verification commands, and actionable failure messages — see [CLAUDE.md](../CLAUDE.md).
 
 ---
 

@@ -31,12 +31,13 @@
 
 ### Priority order
 
-1. Multi-environment reproducibility
+1. Data governance baseline
 2. Promotion and rollback controls
-3. Security and access governance
-4. Reliability and observability
-5. Data governance baseline
-6. ML experiment governance
+3. Reliability and observability
+4. Security and access governance
+5. ML experiment governance
+6. Infrastructure (Kubernetes + Helm + Terraform)
+7. CI/CD deployment pipeline
 
 ## 2. Current-state pain points
 
@@ -94,12 +95,11 @@ Additional scope decisions for v3:
 
 ### Workstreams and milestones
 
-#### M1: Infrastructure baseline
+#### M1: Data governance baseline
 
-- Kubernetes baseline manifests / Helm chart skeletons
-- Terraform baseline for required resources
-- `dev` and `staging` environment split
-- documented coexistence of local Compose path and v3 infra path
+- governance contracts for Gold and critical Silver outputs
+- ownership, SLA, and quality metadata conventions
+- naming conventions across environments
 
 #### M2: Promotion and release controls
 
@@ -108,31 +108,39 @@ Additional scope decisions for v3:
 - rollback checklist and evidence model
 - staged release rehearsal
 
-#### M3: Security and access governance
+#### M3: Reliability and observability
+
+- minimal SLO set for critical services and pipelines
+- metrics for orchestration success, freshness, latency, and quality pass rate
+- alerting and dashboard baseline (Prometheus + Grafana)
+- incident runbooks and drills
+
+#### M4: Security and access governance
 
 - managed secret flow and runtime injection pattern
 - service-level credential boundary definition
 - least-privilege access baseline
 - auditability requirements for access changes
 
-#### M4: Reliability and observability
-
-- minimal SLO set for critical services and pipelines
-- metrics for orchestration success, freshness, latency, and quality pass rate
-- alerting and dashboard baseline
-- incident runbooks and drills
-
-#### M5: Data governance baseline
-
-- governance contracts for Gold and critical Silver outputs
-- ownership, SLA, and quality metadata conventions
-- naming conventions across environments
-
-#### M6: ML experiment governance
+#### M5: ML experiment governance
 
 - reproducible training and evaluation contracts
 - stronger experiment metadata and artifact lineage
 - future serving integration points documented, but serving deferred
+
+#### M6: Infrastructure baseline
+
+- Kubernetes baseline manifests / Helm chart skeletons
+- Terraform baseline for required resources
+- `dev` and `staging` environment split
+- documented coexistence of local Compose path and v3 infra path
+
+#### M7: CI/CD deployment pipeline
+
+- GitOps approach decision (GitHub Actions Helm deploy vs. ArgoCD/FluxCD)
+- automated Helm deployment to `dev` on merge to main
+- post-deploy verification step
+- manual promotion gates for `staging` and `production`
 
 ### Verification gates
 
