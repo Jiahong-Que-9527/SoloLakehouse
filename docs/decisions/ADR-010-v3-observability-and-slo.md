@@ -61,4 +61,4 @@ Shared dashboards and runbooks reduce tribal knowledge risk.
 ## Related Docs
 
 - `docs/history/v3-planning.md`
-- `docs/EVOLVING_PLAN.md` (Phase 4 observability tasks)
+- `TASKS.md` (Block C — Observability and Incident Readiness)

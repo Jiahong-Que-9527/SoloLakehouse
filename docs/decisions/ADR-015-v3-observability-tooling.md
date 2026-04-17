@@ -73,5 +73,5 @@ Task 53 already emits timing metrics to structlog in a structured format; these 
 
 - ADR-005: Prometheus/Grafana deferred in v1 scope
 - ADR-010: SLO-driven observability baseline decision
-- `docs/EVOLVING_PLAN.md` Phase 4 (Tasks 63, 64, 69)
+- `TASKS.md` (Block C — Observability and Incident Readiness)
 - `docs/history/v3-planning.md` M3

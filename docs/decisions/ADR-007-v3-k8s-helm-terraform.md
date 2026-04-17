@@ -71,4 +71,4 @@ Current service-oriented decomposition (MinIO/Postgres/Trino/MLflow/Dagster) map
 ## Related Docs
 
 - `docs/history/v3-planning.md`
-- `docs/EVOLVING_PLAN.md` (Phase 4)
+- `TASKS.md` (Blocks F-G)

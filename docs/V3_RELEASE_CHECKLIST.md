@@ -25,8 +25,7 @@ Use this checklist before tagging `v3.0.0`.
 
 ## 4) Pipeline and product validation
 
-- [ ] v2 default path equivalent succeeds in target environment.
-- [ ] Compatibility path checks are validated if legacy support remains enabled.
+- [ ] v2.5 single-track pipeline path succeeds in target environment.
 - [ ] Gold data quality checks pass with expected thresholds.
 - [ ] ML experiment workflow produces auditable run metadata.
 

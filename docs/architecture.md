@@ -2,11 +2,13 @@
 
 ## Overview
 
-SoloLakehouse is a **Lakehouse reference implementation** on a single Docker Compose host: **MinIO**, **PostgreSQL**, **Hive Metastore**, **Trino**, **MLflow**, and **Dagster** (v2 orchestration), with schema validation, structured logging, and **immutable** Bronze storage.
+SoloLakehouse is a **Lakehouse reference implementation** standardized on a **single v2.5 runtime path**.
+The local/reference deployment runs on one Docker Compose host with **MinIO**, **PostgreSQL**, **Hive Metastore**, **Trino**, **MLflow**, **Dagster**, **OpenMetadata**, and **Superset**.
 
-The **five-layer core** (sources → ingestion → medallion storage → query → ML) is the **foundation** for **v1.0**, which targets a full **eight-layer** stack (metadata, observability, user access). See **[roadmap.md](roadmap.md)**.
+The active architecture centers on five data/runtime layers (sources -> ingestion -> medallion storage -> query -> ML) plus platform services for orchestration, metadata, and BI access.
+Earlier version milestones and migration narratives are preserved in **[history/README.md](history/README.md)**.
 
-## Diagram — five-layer core
+## Diagram — v2.5 baseline
 
 ![SoloLakehouse v2.5 architecture](img/SLHv2.5-architecture.jpg)
 
@@ -69,7 +71,7 @@ ecb_silver      dax_silver
 - `dagster-daemon` evaluates schedules/sensors and launches runs.
 - Dagster instance storage uses PostgreSQL database `dagster_storage` for persisted run and event history.
 
-## Components
+## Components (current local/reference stack)
 
 | Component | Role | Port |
 |-----------|------|------|
@@ -77,10 +79,10 @@ ecb_silver      dax_silver
 | **PostgreSQL** | Backend for Hive Metastore and MLflow | 5432 |
 | **Hive Metastore** | Table metadata (schema, partitions, locations) | 9083 |
 | **Trino** | SQL over the lakehouse (Hive + Iceberg catalogs, shared Hive Metastore) | 8080 |
-| **OpenMetadata** (optional) | Data catalog UI; Trino metadata ingestion | 8585 |
-| **Elasticsearch** (optional) | Search backend for OpenMetadata | 9200 |
-| **OpenMetadata MySQL** (optional) | Application database for OpenMetadata | 3307 (host) |
-| **Apache Superset** (optional) | BI / SQL UI over Trino; dashboards and chart exploration | 8088 |
+| **OpenMetadata** | Data catalog UI; Trino metadata ingestion | 8585 |
+| **Elasticsearch** | Search backend for OpenMetadata | 9200 |
+| **OpenMetadata MySQL** | Application database for OpenMetadata | 3307 (host) |
+| **Apache Superset** | BI / SQL UI over Trino; dashboards and chart exploration | 8088 |
 | **MLflow** | Experiments and model artifacts | 5000 |
 | **Dagster Webserver** | Orchestration UI + run entrypoint | 3000 |
 | **Dagster Daemon** | Schedules/sensors evaluator and run launcher | N/A (internal) |
@@ -93,12 +95,15 @@ postgres ──► mlflow
 postgres ──► dagster-webserver
 postgres ──► dagster-daemon
 postgres ──► superset
+om-mysql  ──► openmetadata-server
+om-elasticsearch ──► openmetadata-server
 minio    ──► trino
 minio    ──► mlflow
 minio    ──► ingestion (Bronze writes)
 minio    ──► dagster assets runtime
 hive-metastore ──► trino
 trino    ──► superset
+trino    ──► openmetadata-server
 dagster-daemon ──► dagster-webserver (automation and run control)
 ```
 
@@ -110,11 +115,14 @@ dagster-daemon ──► dagster-webserver (automation and run control)
 
 Details: **[medallion-model.md](medallion-model.md)**.
 
-## Target state — v1.0
+## Historical evolution
 
-![SoloLakehouse v2.5 architecture](img/SLHv2.5-architecture.jpg)
+Current runtime guidance is intentionally limited to the v2.5 baseline.
+Earlier v1/v2 build-out stages and migration decisions remain available as narrative context under:
 
-Eight-layer enterprise layout: multi-source ingestion, dedicated metadata layer, observability (Prometheus + Grafana), user access (e.g. CloudBeaver). Scope and phasing: [roadmap.md](roadmap.md).
+- [history/timeline.md](history/timeline.md)
+- [history/architecture-evolution.md](history/architecture-evolution.md)
+- [history/legacy-overview.md](history/legacy-overview.md)
 
 ## Design decisions (ADRs)
 
@@ -125,7 +133,7 @@ Eight-layer enterprise layout: multi-source ingestion, dedicated metadata layer,
 | [ADR-003](decisions/ADR-003-parquet-vs-delta.md) | Parquet vs Delta Lake |
 | [ADR-004](decisions/ADR-004-financial-dataset.md) | ECB + DAX data |
 | [ADR-005](decisions/ADR-005-v1-scope.md) | Why Prometheus / Grafana / CloudBeaver ship after the five-service core (ADR-005) |
-| [ADR-006](decisions/ADR-006-v2-dagster-orchestration.md) | v2 Dagster orchestration and legacy fallback |
+| [ADR-006](decisions/ADR-006-v2-dagster-orchestration.md) | v2 Dagster orchestration migration and transition fallback (historical) |
 | [ADR-007](decisions/ADR-007-v3-k8s-helm-terraform.md) | v3 Kubernetes + Helm + Terraform baseline |
 | [ADR-008](decisions/ADR-008-v3-environment-promotion.md) | v3 environment promotion gates |
 | [ADR-009](decisions/ADR-009-v3-secrets-and-access-governance.md) | v3 secrets and access governance |
@@ -133,4 +141,4 @@ Eight-layer enterprise layout: multi-source ingestion, dedicated metadata layer,
 | [ADR-011](decisions/ADR-011-v3-ml-productization-boundary.md) | v3 ML productization boundary |
 | [ADR-012](decisions/ADR-012-v3-data-governance-catalog-strategy.md) | v3 data governance catalog strategy |
 | [ADR-013](decisions/ADR-013-iceberg-gold-trino.md) | Iceberg for Gold via Trino |
-| [ADR-014](decisions/ADR-014-openmetadata-optional-profile.md) | OpenMetadata optional compose profile |
+| [ADR-014](decisions/ADR-014-openmetadata-optional-profile.md) | OpenMetadata optional compose profile at introduction time (historical) |

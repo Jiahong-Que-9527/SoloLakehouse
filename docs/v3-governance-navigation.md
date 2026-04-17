@@ -50,7 +50,8 @@ v3 focuses on governance and productionization:
 
 ### C. Execution backlog
 
-- `docs/EVOLVING_PLAN.md` (Phase 4, Task 59+)
+- `TASKS.md`
+- `docs/history/v3-planning.md` for the longer-form planning narrative
 
 ### D. Operations and release
 
@@ -65,7 +66,7 @@ v3 focuses on governance and productionization:
 ```text
 ADR alignment
    -> governance matrix baselining
-      -> Phase 4 task execution
+      -> backlog execution
          -> runbook operationalization
             -> release checklist validation
                -> version history update
