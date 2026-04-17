@@ -1,4 +1,4 @@
-"""Dagster software-defined assets for SoloLakehouse v2."""
+"""Dagster software-defined assets for the SoloLakehouse v2.5 runtime."""
 
 from __future__ import annotations
 
