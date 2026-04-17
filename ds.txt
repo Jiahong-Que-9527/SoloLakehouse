@@ -1,5 +1,0 @@
-CONTAINER ID   NAME                 CPU %     MEM USAGE / LIMIT     MEM %     NET I/O          BLOCK I/O     PIDS
-0f4a1ed9fd77   slh-hive-metastore   0.17%     323.2MiB / 15.25GiB   2.07%     257kB / 283kB    0B / 8.9MB    242
-475168976d4b   slh-mlflow           0.04%     616.5MiB / 15.25GiB   3.95%     106kB / 9.85MB   0B / 2.18MB   46
-422fec7b7a0a   slh-postgres         0.11%     90.21MiB / 15.25GiB   0.58%     367kB / 325kB    0B / 96.5MB   42
-d2a12f6dd588   slh-minio            0.73%     107.8MiB / 15.25GiB   0.69%     108kB / 86.3kB   0B / 4.53MB   13
