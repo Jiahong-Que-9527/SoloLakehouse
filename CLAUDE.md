@@ -10,8 +10,7 @@ not a framework or library. It demonstrates how platforms like Databricks and
 Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
-**Current: v2.0 + v2.5** — orchestrated platform on top of the v1 baseline, with Dagster assets/schedules/UI while preserving local reliability and a legacy fallback path (see `docs/roadmap.md` and `docs/EVOLVING_PLAN.md`).  
-**v2.5 reference extension:** Apache Iceberg for Gold (`iceberg` Trino catalog), optional OpenMetadata (`make up-openmetadata`), and optional Superset (`make up-superset`).  
+**Current: v2.5 single-track baseline** — orchestrated platform with Dagster assets/schedules/UI, Iceberg Gold in Trino, and mandatory OpenMetadata + Superset in the default stack (see `docs/roadmap.md`).  
 **Next target (v3.0):** production infrastructure and governance hardening (multi-environment deployment, secrets/access governance, SLO/alerting, release promotion controls).
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
@@ -25,8 +24,8 @@ Compose node.
 | Table Catalog | Apache Hive Metastore (standalone) | 4.0.0 |
 | Query Engine | Trino (Hive + Iceberg catalogs) | 480 |
 | Table format (Gold) | Apache Iceberg (via Trino) | — |
-| Data catalog (optional) | OpenMetadata | 1.5.x (compose profile) |
-| BI / SQL UI (optional) | Apache Superset | 6.0.0 (compose profile) |
+| Data catalog | OpenMetadata | 1.5.x |
+| BI / SQL UI | Apache Superset | 6.0.0 |
 | ML Tracking | MLflow | 3.10.1 |
 | Orchestration | Dagster | 1.7.x (Python < 3.13) / 1.12.x (Python ≥ 3.13) |
 | Language | Python | 3.13+ |
@@ -39,11 +38,8 @@ Compose node.
 
 ```bash
 make up          # Start all Docker services + init MinIO buckets (includes Dagster services)
-make up-openmetadata # Optional: OpenMetadata + ES + OM MySQL (compose profile openmetadata)
-make up-superset # Optional: Superset over Trino (compose profile superset)
 make down        # Stop services (data preserved in volumes)
-make pipeline    # Run Dagster full_pipeline_job (default v2 path)
-make pipeline-legacy # Run legacy linear script orchestration
+make pipeline    # Run Dagster full_pipeline_job (v2.5 default path)
 make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
@@ -72,7 +68,6 @@ ml/
   evaluate.py               # MLflow experiment runner (multiple hyperparams)
 
 scripts/
-  run-pipeline.py           # Legacy end-to-end orchestrator (deprecated in v2)
   verify-setup.py           # Service health checks
   init-minio.sh             # Legacy bucket init (now handled by minio-init container)
   trino-entrypoint.sh       # Expands all Trino catalog *.properties templates
@@ -84,8 +79,9 @@ config/
   postgres/init.sql              # Creates hive_metastore + mlflow databases
 
 docker/
-  docker-compose.yml        # Platform services (core + Dagster)
-  docker-compose.superset.yml # Optional Superset stack
+  docker-compose.yml        # Core platform services
+  docker-compose.openmetadata.yml # OpenMetadata stack (included by default in Makefile)
+  docker-compose.superset.yml # Superset stack (included by default in Makefile)
   dagster/                  # Dagster image build context
   hive-metastore/           # Custom Dockerfile + entrypoint (envsubst)
   mlflow/                   # Custom Dockerfile
@@ -259,7 +255,7 @@ Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Detailed task list: 
 | Version | Theme | Status |
 |---------|-------|--------|
 | **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | delivered |
-| **v2.0** | Orchestrated Platform (Dagster DAG, retries/policies, scheduling, UI) + self-serve usability | **current** |
+| **v2.5** | Orchestrated platform baseline (Dagster + Iceberg + OpenMetadata + Superset) | **current** |
 | **v3.0** | Production Infrastructure + Governance (Kubernetes/Helm, Terraform, environment promotion, secrets/access controls, SLO/alerting) | planned |
 | **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
 

@@ -5,91 +5,40 @@
 </p>
 
 <p align="center">
-  <i>A production-minded lakehouse platform reference: from runnable core pipelines to orchestrated operations and production-capable platform hardening.</i>
+  <i>A production-minded lakehouse reference implementation with a single v2.5 runtime path.</i>
 </p>
 
-## What is this?
+## What this project is
 
-SoloLakehouse is a **small but complete Lakehouse reference implementation** built from open-source components. It shows how platforms like Databricks or Snowflake are typically layered — object storage, medallion transforms, SQL, ML tracking.
+SoloLakehouse is a runnable Lakehouse reference implementation built with open-source components.
+It is not a framework and not a library.
 
-**This is not a framework.** It is a repo you can read, run, and change.
+The active runtime is **v2.5 only**:
+- Dagster orchestration
+- Trino + Hive Metastore + Iceberg Gold
+- MLflow tracking
+- OpenMetadata and Superset included in the default stack
 
-**Current status: [v2.0 (current)](docs/roadmap.md)** — orchestration-first platform upgrade with Dagster assets, schedules, sensors, and checks, while preserving a v1-compatible execution path.
+Legacy version behavior (v1/v2 parallel execution) is archived in `docs/history/`.
 
-The project now represents:
-- **v1 delivered baseline**: five-service lakehouse core (MinIO/PostgreSQL/Hive Metastore/Trino/MLflow)
-- **v2 current platform**: Dagster orchestration layer (`dagster-webserver`, `dagster-daemon`) and governance-oriented runtime controls
-- **v2.5 reference extension**: Gold table as **Apache Iceberg** in Trino (`iceberg.gold.ecb_dax_features_iceberg`); optional **OpenMetadata** via `make up-openmetadata`; optional **Apache Superset** via `make up-superset` for BI/SQL exploration over Trino ([docs/roadmap.md](docs/roadmap.md), [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md), [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md))
-- **v3 planned scope**: production-capable platform hardening (Kubernetes/Helm/Terraform, promotion/rollback controls, secrets/access governance, SLO-driven observability, Hive-first governance baseline, ML experiment governance)
+## Runtime stack (v2.5 baseline)
 
-**Third-party components** (MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, etc.) keep their own licenses; this repo’s license applies to code and docs here.
+| Layer | Component |
+|-------|-----------|
+| Object storage | MinIO |
+| Metadata DB | PostgreSQL |
+| Metastore | Hive Metastore |
+| Query engine | Trino (`hive` + `iceberg`) |
+| Orchestration | Dagster |
+| ML tracking | MLflow |
+| Metadata catalog | OpenMetadata |
+| BI / SQL UI | Superset |
 
-## Five-layer core
-
-| Layer | Role |
-|-------|------|
-| Sources | ECB API + simulated DAX CSV |
-| Ingestion | Python collectors, Pydantic, structlog |
-| Storage | MinIO, Parquet (Bronze/Silver); Gold also registered as Iceberg in Trino |
-| Query | Trino + Hive Metastore + PostgreSQL |
-| ML | MLflow |
-
-**Details:** [docs/architecture.md](docs/architecture.md) · **Medallion:** [docs/medallion-model.md](docs/medallion-model.md)
-
-### SoloLakehouse v2.5 architecture
-
-![SoloLakehouse v2.5 architecture](docs/img/SLHv2.5-architecture.jpg)
-
-Eight-layer enterprise-style stack (metadata, observability, user access, etc.): **[docs/roadmap.md](docs/roadmap.md)**.
-
-### Current runtime — v2 orchestration
-
-- Default pipeline path: **Dagster** (`make pipeline`)
-- Compatibility path: **legacy script** (`make pipeline-v1` or `make pipeline PIPELINE_MODE=v1`)
-- Orchestration UI: `http://localhost:3000`
-
-## Version Narrative
-
-- **v1** answers: can the lakehouse pipeline run end-to-end, be validated, and support a minimal data-to-ML loop?
-- **v2** answers: can that pipeline be operated as a platform with asset orchestration, scheduling, checks, and replay?
-- **v3** answers: can the platform be hardened with multi-environment deployment, governance, security, observability, and release controls?
-
-In short:
-
-> v1 proves the runnable baseline.  
-> v2 adds orchestration and platform runtime semantics.  
-> v3 hardens the platform for production-minded operations.
-
-## v3 Direction
-
-v3 is intentionally about **platform productionization**, not feature expansion.
-
-Planned priorities:
-
-- Multi-environment reproducibility with `dev -> staging -> production`
-- Promotion gates and rollback readiness
-- Managed secrets direction and least-privilege access governance
-- SLO-driven metrics, alerting, dashboards, and incident runbooks
-- Hive-first governance contracts for key Gold and critical Silver datasets
-- Stronger ML experiment lineage and reproducibility without requiring full serving
-
-Not default v3 goals:
-
-- Kafka / Flink-style platform expansion
-- Full online serving platform
-- Superset / FastAPI as primary v3 deliverables
-- Mandatory enterprise catalog migration (this repo adds **optional** OpenMetadata for v2.5; v3 still does not require it)
-- Major self-serve UX overhaul
+Architecture diagram: [docs/img/SLHv2.5-architecture.jpg](docs/img/SLHv2.5-architecture.jpg)
 
 ## Quick start
 
-**Needs:** Docker + Compose, Python 3.13+, `make`.
-
-If you plan to run the **host-side v1 legacy pipeline** (`make pipeline-v1` or `make pipeline PIPELINE_MODE=v1`), install the system OpenMP runtime required by LightGBM first:
-
-- Debian / Ubuntu: `sudo apt-get update && sudo apt-get install -y libgomp1`
-- RHEL / CentOS / Rocky / Amazon Linux: `sudo yum install -y libgomp` (or `sudo dnf install -y libgomp`)
-- Alpine: `sudo apk add libgomp`
+Requirements: Docker + Compose plugin, Python 3.13+, `make`.
 
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
@@ -99,135 +48,55 @@ pip install -r requirements.txt
 make setup
 ```
 
-If `.venv/bin/python` exists, `make` commands automatically use it instead of the system `python3`.
-
-- MinIO Console: http://localhost:9001  
-- Trino: http://localhost:8080  
-- MLflow: http://localhost:5000  
-- Dagster: http://localhost:3000
-- OpenMetadata (optional): `make up-openmetadata` then http://localhost:8585
-- Superset (optional): `make up-superset` then http://localhost:8088
-
-`make up` now waits for all services to become healthy before returning.
+Run and validate:
 
 ```bash
 make verify
 make pipeline
 ```
 
-Optional OpenMetadata health check:
+Default service URLs:
+- MinIO Console: `http://localhost:9001`
+- Trino UI: `http://localhost:8080`
+- MLflow UI: `http://localhost:5000`
+- Dagster UI: `http://localhost:3000`
+- OpenMetadata UI: `http://localhost:8585`
+- Superset UI: `http://localhost:8088`
+
+## Common commands
 
 ```bash
-make verify-openmetadata
-```
-
-Optional Superset health check:
-
-```bash
-make verify-superset
-```
-
-Superset Trino connection example:
-
-```text
-trino://sololakehouse@trino:8080/iceberg/gold
-```
-
-`make up-superset` now pre-creates two Superset database connections by default:
-
-- `trino_iceberg_gold` -> `trino://sololakehouse@trino:8080/iceberg/gold`
-- `trino_hive_default` -> `trino://sololakehouse@trino:8080/hive/default`
-
-Compatibility run (v1-style):
-
-```bash
-make pipeline-v1
-# or
-make pipeline PIPELINE_MODE=v1
-```
-
-Full walkthrough: **[docs/quickstart.md](docs/quickstart.md)** · Deploy prerequisites and troubleshooting: **[docs/deployment.md](docs/deployment.md)** · Release steps: **[docs/release.md](docs/release.md)**
-
-## Quick Validation
-
-After `make up`, run:
-
-```bash
+make up
 make verify
+make pipeline
+make down
+make clean
+make test
+make lint
+make typecheck
 ```
 
-Expected output format:
+Cleanup options:
 
-```text
-Service          Status  Detail
----------------- ------- ----------------------------
-MinIO            PASS    Buckets: sololakehouse, mlflow-artifacts
-PostgreSQL       PASS    Databases: hive_metastore, mlflow, dagster_storage
-Hive Metastore   PASS    TCP port 9083 open
-Trino            PASS    Running, not starting
-MLflow           PASS    HTTP 200
-Dagster          PASS    HTTP 200 /server_info
+```bash
+make down                    # safe: stop stack, keep volumes
+make clean                   # destructive: stop and remove project volumes
+docker image prune -f        # optional: remove unused images
+docker volume prune -f       # optional: remove dangling volumes
 ```
 
-If you started the optional metadata stack with `make up-openmetadata`, you can also validate it with `make verify-openmetadata`.
+## Documentation
 
-## Common Issues
+- Main docs index: [docs/README.md](docs/README.md)
+- User guide (ZH): [docs/USER_GUIDE.md](docs/USER_GUIDE.md)
+- User guide (EN): [docs/USER_GUIDE_EN.md](docs/USER_GUIDE_EN.md)
+- Deployment and troubleshooting: [docs/deployment.md](docs/deployment.md)
+- Roadmap: [docs/roadmap.md](docs/roadmap.md)
+- Historical versions and migration records: [docs/history/README.md](docs/history/README.md)
 
-See troubleshooting guidance in [docs/deployment.md#troubleshooting](docs/deployment.md#troubleshooting).
+## ADRs
 
-MLflow note: this repo now starts `mlflow server` directly (instead of `mlflow db upgrade`) to avoid empty-database migration-chain failures such as `relation "metrics" does not exist`.
-
-Legacy v1 note: if `make pipeline-v1` fails with `OSError: libgomp.so.1: cannot open shared object file`, the host machine is missing the LightGBM runtime dependency above. The default v2 Dagster container path already installs this library.
-
-## Design decisions (ADRs)
-
-| ADR | Topic |
-|-----|--------|
-| [ADR-001](docs/decisions/ADR-001-docker-compose.md) | Docker Compose vs Kubernetes |
-| [ADR-002](docs/decisions/ADR-002-trino-vs-duckdb.md) | Trino vs DuckDB |
-| [ADR-003](docs/decisions/ADR-003-parquet-vs-delta.md) | Parquet vs Delta Lake |
-| [ADR-004](docs/decisions/ADR-004-financial-dataset.md) | ECB + DAX data |
-| [ADR-005](docs/decisions/ADR-005-v1-scope.md) | Observability / SQL UI deferred until after the five-service core |
-| [ADR-006](docs/decisions/ADR-006-v2-dagster-orchestration.md) | v2 Dagster orchestration with legacy fallback |
-| [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md) | Iceberg for Gold via Trino |
-| [ADR-014](docs/decisions/ADR-014-openmetadata-optional-profile.md) | OpenMetadata optional Compose profile |
-| [ADR index](docs/decisions/README.md) | Full ADR set (v1–v2.5 delivered; v3 planned) |
-
-## Documentation index
-
-| Doc | Content |
-|-----|---------|
-| [docs/USER_GUIDE_EN.md](docs/USER_GUIDE_EN.md) | **Complete user guide (English)** — install, v1/v2 walkthrough, all UIs, v3 preview, troubleshooting |
-| [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | **完整用户指导书（中文）** — 安装、v1/v2 全流程、所有 UI、v3 规划、排障 |
-| [docs/README.md](docs/README.md) | All docs |
-| [docs/roadmap.md](docs/roadmap.md) | v1.0 target and later versions |
-| [docs/v1-to-v2-transition.md](docs/v1-to-v2-transition.md) | v1 delivered baseline, v2 current scope, migration narrative |
-| [docs/EVOLVING_PLAN.md](docs/EVOLVING_PLAN.md) | Detailed implementation tasks |
-| [docs/governance-v3-matrix.md](docs/governance-v3-matrix.md) | v3 governance capability matrix |
-| [docs/v3-governance-navigation.md](docs/v3-governance-navigation.md) | One-page navigation for v3 governance docs |
-| [TASKS.md](TASKS.md) | Backlog and ideas |
-
-## Repository layout
-
-```
-SoloLakehouse/
-├── config/           # Trino, PostgreSQL, MinIO, …
-├── docker/           # Compose + Dockerfiles
-├── docs/             # Architecture, ADRs, deployment, roadmap
-├── ingestion/        # Collectors, schemas, Bronze writes
-├── transformations/  # Bronze → Silver → Gold
-├── ml/               # Training and evaluation
-├── scripts/          # Pipeline and verification
-├── tests/
-├── data/sample/      # Sample DAX CSV (demo)
-├── TASKS.md
-├── README.md
-└── CLAUDE.md         # Agent / contributor quick reference
-```
-
-## Contributing
-
-See **[docs/contributing.md](docs/contributing.md)** (or [CONTRIBUTING.md](CONTRIBUTING.md) in the root).
+See [docs/decisions/README.md](docs/decisions/README.md) for the full Architecture Decision Record index.
 
 ## License
 

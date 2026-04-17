@@ -1,53 +1,42 @@
-# Release readiness (demo assessment)
+# Release Readiness
 
-Whether the **bundled demo** runs end-to-end and whether a **tagged release** is reasonable to publish.
+Checklist for deciding whether the current branch is ready for tagging.
 
 ## 1. Demo flow
 
 | Stage | Check |
-|-------|--------|
-| Entry | `make pipeline` runs Dagster default path; `make pipeline PIPELINE_MODE=v1` keeps legacy compatibility |
-| DAX sample | `data/sample/dax_daily_sample.csv` present; columns match `DAXDailyRecord` |
-| Paths | Bronze → Silver → Gold Parquet paths align in both Dagster and legacy execution paths |
-| Iceberg | Trino exposes `iceberg` catalog and `iceberg.gold.ecb_dax_features_iceberg` is queryable |
-| ML | `run_experiment_set` / evaluate flow matches training scripts |
+|-------|-------|
+| Startup | `make up` completes |
+| Verification | `make verify` passes all required services |
+| Pipeline | `make pipeline` succeeds end-to-end |
+| Data | Hive and Iceberg Gold queries return rows |
+| ML | MLflow has experiment runs |
 
-**External:** ECB SDW API (public, no key); **Docker** for services; **network** for images and ECB.
+## 2. Preconditions
 
-**Minor:** If `evaluate.py` docstring mentions runs not implemented, it does not block “pipeline completes” as long as the configured runs execute.
+- `.env.example` is up to date
+- root docs match runtime behavior (`README.md`, `docs/README.md`, `docs/deployment.md`)
+- v2.5 single-track wording is consistent
+- history docs updated when milestone status changes
 
-## 2. Preconditions for “ready”
-
-- License and `.gitignore` (e.g. `.env` ignored)
-- Docs: root `README`, [quickstart.md](quickstart.md), [deployment.md](deployment.md), [architecture.md](architecture.md), ADRs
-- `.env.example` and consistent port/env usage
-- `make up` → `make verify` → `make pipeline` (v2 default) → `make pipeline PIPELINE_MODE=v1` (compatibility) → `make test` documented and working in a clean environment
-- `.venv`-backed `make` commands remain aligned with the installed project dependencies
-
-## 3. Pre-release self-check
+## 3. Self-check command set
 
 ```bash
-git clone <repository-url>
-cd SoloLakehouse
 cp .env.example .env
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r requirements-dagster.txt
+make clean
 make up
 make verify
-make verify-openmetadata   # optional, when the OpenMetadata profile is enabled
-make verify-superset       # optional, when the Superset profile is enabled
 make pipeline
-make pipeline PIPELINE_MODE=v1
 make test
+make lint
+make typecheck
 ```
-
-If default ports conflict, set overrides in `.env` and repeat `make up`.
 
 ## 4. Conclusion template
 
 | Question | Expected |
 |----------|----------|
-| Does the demo run? | Yes, with prerequisites met |
-| Ready to tag? | After the self-check on a clean machine / CI |
-
-Re-run before each release; environments differ (ports, network, ECB availability).
+| Does the demo run? | Yes |
+| Is it ready to tag? | Yes, after clean-environment self-check passes |

@@ -1,58 +1,37 @@
-# v2.x Release Checklist
+# v2.5 Release Checklist
 
-Covers v2.0 (Dagster orchestration) and v2.5 (Iceberg + optional services). Use this before tagging any `v2.x` release.
+Use before tagging any v2.5.x release.
 
 ## Core platform
 
-- [ ] `make clean && make up` completes without errors
-- [ ] `make verify` shows all six default services as PASS (`MinIO`, `PostgreSQL`, `Hive Metastore`, `Trino`, `MLflow`, `Dagster`)
-- [ ] `make pipeline` (Dagster default path) runs end-to-end without errors
-- [ ] `make pipeline PIPELINE_MODE=v1` (legacy fallback) completes without `PIPELINE FAILED`
-- [ ] `make test-cov` passes with coverage ≥ 70%
-- [ ] `make lint` passes with zero violations
-- [ ] `make typecheck` passes with zero errors
+- [ ] `make clean && make up` succeeds
+- [ ] `make verify` passes all required services:
+  - MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, Dagster, OpenMetadata, Superset
+- [ ] `make pipeline` succeeds end-to-end
+- [ ] `make test-cov` passes (coverage threshold met)
+- [ ] `make lint` passes
+- [ ] `make typecheck` passes
 - [ ] `make release-check` passes
 
-## Dagster orchestration
+## Data and ML checks
 
-- [ ] Dagster UI (`http://localhost:3000`) loads and shows `full_pipeline_job`
-- [ ] All six Dagster software-defined assets are visible and materializable
-- [ ] Dagster schedule (`daily_pipeline_schedule`) is present and enabled
-- [ ] Dagster freshness sensor (`ecb_data_freshness_sensor`) is active
+- [ ] `SELECT * FROM hive.gold.ecb_dax_features LIMIT 5` returns rows
+- [ ] `SELECT * FROM iceberg.gold.ecb_dax_features_iceberg LIMIT 5` returns rows
+- [ ] MLflow (`http://localhost:5000`) has at least one `ecb_dax_impact` run
 
-## Data layer (Hive + Iceberg)
+## UI checks
 
-- [ ] Trino query returns rows: `SELECT * FROM hive.gold.ecb_dax_features LIMIT 5`
-- [ ] Trino query returns rows: `SELECT * FROM iceberg.gold.ecb_dax_features_iceberg LIMIT 5`
-- [ ] MLflow UI (`http://localhost:5000`) shows experiment `ecb_dax_impact` with at least one run
-
-## Optional services (when profiles are enabled)
-
-- [ ] `make up-openmetadata` starts without errors
-- [ ] `make verify-openmetadata` passes
-- [ ] OpenMetadata version endpoint responds: `curl -fsS http://localhost:8585/api/v1/system/version`
-- [ ] `make up-superset` starts without errors
-- [ ] `make verify-superset` passes
-- [ ] Superset health endpoint responds: `curl -fsS http://localhost:8088/health`
+- [ ] Dagster UI loads and assets are materializable
+- [ ] OpenMetadata version endpoint responds
+- [ ] Superset `/health` endpoint responds
 
 ## Restart safety
 
-- [ ] `make down && make up` preserves all data in volumes (Parquet, MLflow runs, Trino metadata)
+- [ ] `make down && make up` preserves data volumes as expected
 
-## Documentation and metadata consistency
+## Documentation and metadata
 
-- [ ] `docs/roadmap.md` marks `v2.0` as `Current`
-- [ ] `CHANGELOG.md` includes the release entry with date
-- [ ] `docs/history/timeline.md` updated with milestone status
-- [ ] `docs/history/architecture-evolution.md` updated if any architecture decisions changed
-- [ ] Version references in `CLAUDE.md` tech stack table are accurate
-- [ ] CI (GitHub Actions) passes on clean branch push
-
-## Tagging
-
-```bash
-git tag v2.x.y
-git push origin v2.x.y
-```
-
-Only tag after all applicable checks above are green.
+- [ ] `docs/roadmap.md` marks v2.5 as current baseline
+- [ ] `README.md` and `docs/README.md` match actual runtime commands
+- [ ] `docs/history/timeline.md` updated when version status changes
+- [ ] `CHANGELOG.md` includes release entry

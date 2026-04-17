@@ -1,311 +1,108 @@
-# Deployment guide
+# Deployment Guide
 
-Deploy SoloLakehouse on your machine: MinIO, PostgreSQL, Hive Metastore, Trino, MLflow, Dagster. For a short command sequence after prerequisites are met, see **[quickstart.md](quickstart.md)**.
+This guide covers local deployment for the **v2.5 single-track runtime**.
 
----
-
-## 1. Hardware
+## 1. Requirements
 
 | Resource | Minimum | Recommended |
-|----------|---------|---------------|
-| CPU | 2 cores | 4+ |
-| RAM (free) | 4 GB | 8+ GB |
-| Disk | 5 GB | 10+ GB |
-| Network | Yes (images + ECB API for pipeline) | — |
+|----------|---------|-------------|
+| CPU | 4 cores | 6+ cores |
+| Free RAM | 8 GB | 12+ GB |
+| Disk | 10 GB | 20+ GB |
 
-Eight containers in v2 mode (7 core services + minio-init helper); idle RAM is typically higher than v1 and depends on host limits.
+| Software | Version |
+|----------|---------|
+| Docker Engine | 24.0+ |
+| Docker Compose plugin | v2.20+ |
+| Python | 3.13+ |
+| make | any |
 
----
-
-## 2. Software
-
-| Software | Version | Purpose |
-|----------|---------|---------|
-| Docker Engine | 24.0+ | Runtime |
-| Docker Compose | v2.20+ (plugin) | Orchestration |
-| Python | 3.13+ | Pipeline scripts |
-| make | any | `Makefile` tasks |
-
-```bash
-docker --version
-docker compose version
-python3 --version
-make --version
-```
-
-### Operating systems
-
-| OS | Notes |
-|----|--------|
-| Linux (e.g. Ubuntu 22.04+, Debian 12+) | Recommended |
-| macOS 13+ | Docker Desktop |
-| Windows 11 + WSL2 | Run commands inside WSL |
-
----
-
-## 3. Deploy
-
-### 3.1 Clone
-
-```bash
-git clone <repository-url>
-cd SoloLakehouse
-```
-
-### 3.2 Environment
+## 2. Setup
 
 ```bash
 cp .env.example .env
-```
-
-Defaults are for local dev; changing `.env` updates services that load these variables.
-
-### 3.3 Python environment
-
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-`make` commands prefer `.venv/bin/python` automatically when that virtual environment exists.
-
-If you plan to run the host-side **legacy v1 pipeline** (`make pipeline-v1` / `make pipeline PIPELINE_MODE=v1`), install the system OpenMP runtime required by LightGBM before running it:
-
-- Debian / Ubuntu:
-  ```bash
-  sudo apt-get update
-  sudo apt-get install -y libgomp1
-  ```
-- RHEL / CentOS / Rocky / Amazon Linux:
-  ```bash
-  sudo yum install -y libgomp
-  # or: sudo dnf install -y libgomp
-  ```
-- Alpine:
-  ```bash
-  sudo apk add libgomp
-  ```
-
-The default v2 Dagster container image already includes this dependency; this requirement only applies when Python executes on the host machine.
-
-### 3.4 Start services
+## 3. Start and verify
 
 ```bash
 make up
-```
-
-`make up` starts services, ensures the required PostgreSQL databases exist (`hive_metastore`, `mlflow`, `dagster_storage`), and waits until health checks pass (up to 5 minutes). It also runs `minio-init` for buckets `sololakehouse` and `mlflow-artifacts`.
-
-To add the optional Superset UI on top of the core stack:
-
-```bash
-make up-superset
-```
-
-This starts the base services if needed, creates the `superset_metadata` PostgreSQL database, builds the local Superset image with the Trino SQLAlchemy driver, and exposes the UI at `http://localhost:8088`.
-
-It also pre-creates two Superset database connections for local exploration:
-
-- `trino_iceberg_gold`
-- `trino_hive_default`
-
-For first-time setup, you can use one command:
-
-```bash
-make setup
-```
-
-This checks Docker, ensures `.env` exists, pulls images, starts services, and waits for readiness.
-
-### 3.5 Verify
-
-```bash
 make verify
 ```
 
-To include the optional OpenMetadata stack in validation:
+## 4. Run pipeline
 
-```bash
-make verify-openmetadata
-```
-
-To include the optional Superset UI in validation:
-
-```bash
-make verify-superset
-```
-
-### 3.6 Pipeline and UIs
-
-Run the demo and open MinIO / Trino / MLflow: **[quickstart.md](quickstart.md)** (pipeline step table, SQL examples, `make down` / `make clean`).
-
-For v2, default execution is Dagster (`make pipeline`).  
-For v1-compatible behavior, use:
-
-```bash
-make pipeline PIPELINE_MODE=v1
-# or
-make pipeline-v1
-# or (direct script target)
-make pipeline-legacy
-```
-
----
-
-## 4. Ports
-
-| Service | Port | Purpose |
-|---------|------|---------|
-| MinIO API | 9000 | S3 API |
-| MinIO Console | 9001 | Web UI |
-| PostgreSQL | 5432 | Metastore + MLflow DB |
-| Hive Metastore | 9083 | Thrift |
-| Trino | 8080 | HTTP + UI |
-| MLflow | 5000 | HTTP |
-| Dagster Webserver | 3000 | UI + orchestration endpoint |
-| Superset (optional) | 8088 | BI / SQL UI over Trino |
-
-Override host ports in `.env` if needed (e.g. `PG_PORT`, `MINIO_API_PORT`). `verify-setup.py` and pipeline scripts should read the same variables.
-
----
-
-## 5. Stop and reset
-
-```bash
-make down      # keep volumes
-make clean     # remove volumes (destructive)
-```
-
----
-
-## 6. Tests
-
-```bash
-make test
-```
-
-Unit tests use mocks; Docker is not required.
-
-For a fuller local release-style check with Docker services running:
-
-```bash
-make release-check
-```
-
----
-
-## Troubleshooting
-
-Commands assume the **repository root** (contains `Makefile`, `docker/`, `scripts/`).
-
-### 1. `hive-metastore` fails to start
-
-Root cause: PostgreSQL is not ready yet.
-
-Fix:
-```bash
-make clean && make up
-```
-
-If you intentionally kept volumes and only the expected databases are missing, `make up` now auto-creates them before readiness checks.
-
-### 2. Trino reports "catalog not available"
-
-Root cause: Hive Metastore is still initializing.
-
-Fix:
-1. Wait about 60 seconds.
-2. Re-run:
-```bash
-make verify
-```
-
-### 3. ECB API timeout during pipeline run
-
-Root cause: ECB API can be rate-limited or temporarily slow.
-
-Fix:
 ```bash
 make pipeline
 ```
-Retrying is usually sufficient. If needed, test legacy compatibility path:
+
+## 5. Service ports
+
+| Service | Port |
+|---------|------|
+| MinIO API | 9000 |
+| MinIO Console | 9001 |
+| PostgreSQL | 5432 |
+| Hive Metastore | 9083 |
+| Trino | 8080 |
+| MLflow | 5000 |
+| Dagster | 3000 |
+| OpenMetadata | 8585 / 8586 |
+| OpenMetadata MySQL | 3307 |
+| OpenMetadata Elasticsearch | 9200 / 9300 |
+| Superset | 8088 |
+
+## 6. Operational cleanup
+
+### Safe cleanup (recommended day-to-day)
+
+Stops containers and removes orphaned containers, but keeps volumes and images.
 
 ```bash
-make pipeline PIPELINE_MODE=v1
+docker compose --env-file .env \
+  -f docker/docker-compose.yml \
+  -f docker/docker-compose.openmetadata.yml \
+  -f docker/docker-compose.superset.yml \
+  down --remove-orphans
 ```
 
-### 4. `make pipeline-v1` fails with `OSError: libgomp.so.1: cannot open shared object file`
+### Deep cleanup (destructive)
 
-Root cause: the host machine is missing the OpenMP runtime required by `lightgbm`.
+Removes containers, networks, project volumes, and unused images.
 
-Fix:
-- Debian / Ubuntu:
-  ```bash
-  sudo apt-get update
-  sudo apt-get install -y libgomp1
-  ```
-- RHEL / CentOS / Rocky / Amazon Linux:
-  ```bash
-  sudo yum install -y libgomp
-  # or: sudo dnf install -y libgomp
-  ```
-- Alpine:
-  ```bash
-  sudo apk add libgomp
-  ```
-
-Then re-run:
 ```bash
-make pipeline-v1
+docker compose --env-file .env \
+  -f docker/docker-compose.yml \
+  -f docker/docker-compose.openmetadata.yml \
+  -f docker/docker-compose.superset.yml \
+  down -v --remove-orphans
+
+docker image prune -f
+docker volume prune -f
 ```
 
-### 5. MinIO "bucket already exists" error
+For a full reset from Makefile:
 
-Root cause: bucket bootstrap re-runs.
-
-Fix: safe to ignore. `minio-init` is idempotent.
-
-### 6. MLflow UI shows no experiments
-
-Root cause: no experiment runs have been logged yet.
-
-Fix:
 ```bash
-make pipeline
-```
-The `ecb_dax_impact` experiment is created automatically during the run.
-
-### 7. Iceberg Gold DDL fails in Trino
-
-Root cause: staging Parquet is missing or Hive external table metadata is stale.
-
-Fix:
-1. Confirm `gold/rate_impact_features/ecb_dax_features.parquet` exists in MinIO after `make pipeline`.
-2. Re-run the Gold step so `ingestion.trino_sql.register_gold_tables_trino` can refresh `hive.gold` + `iceberg.gold`.
-
-### 8. OpenMetadata slow to start or OOM
-
-Root cause: Elasticsearch + OpenMetadata JVM need RAM.
-
-Fix: start only when needed (`make up-openmetadata`), increase Docker memory, or stop other stacks. First-time migration (`om-migrate`) can take several minutes.
-
-### 9. Superset starts but cannot log in or connect to metadata DB
-
-Root cause: the optional Superset metadata database or secret key is missing/misaligned.
-
-Fix:
-```bash
-make up-superset
-make verify-superset
+make clean
 ```
 
-Confirm `.env` contains `SUPERSET_SECRET_KEY`, and if you changed `SUPERSET_DB_NAME`, use the same value when re-running `make up-superset`.
+## 7. Troubleshooting
 
----
+### `make up` times out
+- Check Docker resources (CPU/RAM), especially for OpenMetadata + Elasticsearch.
+- Re-run `make verify` to identify failing services.
 
-## 9. What’s next
+### Superset cannot log in
+- Confirm `.env` has `SUPERSET_ADMIN_USERNAME`, `SUPERSET_ADMIN_PASSWORD`, and `SUPERSET_SECRET_KEY`.
+- Recreate stack with `make clean && make up`.
 
-- **Architecture & ADRs:** [architecture.md](architecture.md), [decisions/](decisions/)
-- **Roadmap:** [roadmap.md](roadmap.md)
-- **Contribute:** [contributing.md](contributing.md)
+### OpenMetadata starts slowly
+- First startup includes migration and Elasticsearch warm-up.
+- Wait 2-5 minutes before final health verification.
+
+### Pipeline run fails immediately
+- Run `make verify` first; ensure Trino, MLflow, and Dagster are all `PASS`.
