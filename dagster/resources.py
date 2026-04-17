@@ -1,4 +1,4 @@
-"""Dagster resources for SoloLakehouse v2 orchestration."""
+"""Dagster resources for SoloLakehouse v2.5 orchestration."""
 
 from __future__ import annotations
 

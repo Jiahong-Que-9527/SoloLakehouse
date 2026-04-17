@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import subprocess
-import sys
 from io import BytesIO
 from pathlib import Path
 
@@ -18,7 +17,26 @@ def test_pipeline_smoke(minio_client) -> None:
 
     env = os.environ.copy()
     result = subprocess.run(
-        [sys.executable, "scripts/run-pipeline.py"],
+        [
+            "docker",
+            "compose",
+            "-f",
+            "docker/docker-compose.yml",
+            "-f",
+            "docker/docker-compose.openmetadata.yml",
+            "-f",
+            "docker/docker-compose.superset.yml",
+            "exec",
+            "-T",
+            "dagster-webserver",
+            "dagster",
+            "job",
+            "execute",
+            "-f",
+            "/app/dagster/definitions.py",
+            "-j",
+            "full_pipeline_job",
+        ],
         check=False,
         capture_output=True,
         text=True,

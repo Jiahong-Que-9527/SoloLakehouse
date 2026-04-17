@@ -82,9 +82,7 @@
 ├── scripts
 │   ├── init-minio.sh
 │   ├── __pycache__
-│   │   ├── run-pipeline.cpython-313.pyc
 │   │   └── verify-setup.cpython-313.pyc
-│   ├── run-pipeline.py
 │   ├── trino-entrypoint.sh
 │   └── verify-setup.py
 ├── TASKS.md

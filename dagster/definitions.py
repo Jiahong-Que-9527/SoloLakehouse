@@ -1,4 +1,4 @@
-"""Dagster Definitions for SoloLakehouse v2."""
+"""Dagster definitions for the SoloLakehouse v2.5 runtime."""
 
 from __future__ import annotations
 

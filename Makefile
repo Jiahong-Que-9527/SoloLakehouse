@@ -1,15 +1,11 @@
-.PHONY: up up-openmetadata up-superset down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-legacy pipeline-v1 pipeline-dagster verify verify-openmetadata verify-superset test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
 
 COMPOSE_FILE := docker/docker-compose.yml
-COMPOSE_OM := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml
-COMPOSE_SUPERSET := -f docker/docker-compose.yml -f docker/docker-compose.superset.yml
+COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
 ENV_FILE ?= .env
 DOCKER_COMPOSE := docker compose --env-file $(ENV_FILE)
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
-PIPELINE_MODE ?= v2
-ARGS ?=
 DAGSTER_JOB ?= full_pipeline_job
-VERIFY_ENV ?=
 SUPERSET_DB_NAME ?= superset_metadata
 
 # Ensure required DBs exist before MLflow and other clients start (avoids race with bootstrap-db).
@@ -22,10 +18,10 @@ wait-postgres-ready:
 	echo "Postgres did not become ready in time."; exit 1
 
 up:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d postgres minio
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d postgres minio
 	$(MAKE) wait-postgres-ready
 	$(MAKE) bootstrap-db
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d --build
 	$(MAKE) wait
 	@echo ""
 	@echo "SoloLakehouse is ready."
@@ -33,67 +29,36 @@ up:
 	@echo "  Trino UI:       http://localhost:8080"
 	@echo "  MLflow UI:      http://localhost:5000"
 	@echo "  Dagster UI:     http://localhost:3000"
-	@echo "  (Optional OpenMetadata: make up-openmetadata)"
-	@echo "  (Optional Superset:    make up-superset)"
-
-up-openmetadata:
-	$(DOCKER_COMPOSE) $(COMPOSE_OM) --profile openmetadata up -d postgres minio
-	$(MAKE) wait-postgres-ready
-	$(MAKE) bootstrap-db
-	$(DOCKER_COMPOSE) $(COMPOSE_OM) --profile openmetadata up -d
-	@echo "OpenMetadata UI: http://localhost:8585 (add Trino service in UI; host trino, port 8080)"
-
-up-superset:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d postgres
-	$(MAKE) bootstrap-db EXTRA_POSTGRES_DATABASES=$(SUPERSET_DB_NAME)
-	$(DOCKER_COMPOSE) $(COMPOSE_SUPERSET) --profile superset up -d --build
-	$(MAKE) wait VERIFY_ENV="SUPERSET_CHECK=1 SUPERSET_DB_NAME=$(SUPERSET_DB_NAME)"
-	@echo "Superset UI: http://localhost:8088 (login admin/admin; add Trino host trino, port 8080)"
+	@echo "  OpenMetadata:  http://localhost:8585"
+	@echo "  Superset UI:   http://localhost:8088"
 
 bootstrap-db:
 	EXTRA_POSTGRES_DATABASES="$(EXTRA_POSTGRES_DATABASES)" $(PYTHON) scripts/bootstrap-postgres.py
 
 reset-mlflow-db:
 	@echo "Resetting MLflow metadata database (mlflow)..."
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) stop mlflow
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'mlflow' AND pid <> pg_backend_pid();\""
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"DROP DATABASE IF EXISTS mlflow;\""
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"CREATE DATABASE mlflow;\""
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d mlflow
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) stop mlflow
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'mlflow' AND pid <> pg_backend_pid();\""
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"DROP DATABASE IF EXISTS mlflow;\""
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"CREATE DATABASE mlflow;\""
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d mlflow
 	@echo "MLflow metadata database reset complete."
 
 down:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) down --remove-orphans
 
 clean:
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down -v
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) down -v --remove-orphans
 
 pipeline:
-	@if [ "$(PIPELINE_MODE)" = "v1" ] || [ "$(PIPELINE_MODE)" = "legacy" ]; then \
-		echo "Running legacy v1-style pipeline..."; \
-		$(PYTHON) scripts/run-pipeline.py $(ARGS); \
-	else \
-		echo "Running v2 Dagster pipeline..."; \
-		$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec dagster-webserver dagster job execute -f /app/dagster/definitions.py -j $(DAGSTER_JOB); \
-	fi
-
-pipeline-legacy:
-	$(PYTHON) scripts/run-pipeline.py
-
-pipeline-v1:
-	$(MAKE) pipeline PIPELINE_MODE=v1 ARGS="$(ARGS)"
+	@echo "Running v2.5 Dagster pipeline..."
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver dagster job execute -f /app/dagster/definitions.py -j $(DAGSTER_JOB)
 
 pipeline-dagster:
-	$(MAKE) pipeline PIPELINE_MODE=v2 DAGSTER_JOB="$(DAGSTER_JOB)"
+	$(MAKE) pipeline DAGSTER_JOB="$(DAGSTER_JOB)"
 
 verify:
 	$(PYTHON) scripts/verify-setup.py
-
-verify-openmetadata:
-	OPENMETADATA_CHECK=1 $(PYTHON) scripts/verify-setup.py
-
-verify-superset:
-	SUPERSET_CHECK=1 SUPERSET_DB_NAME="$(SUPERSET_DB_NAME)" $(PYTHON) scripts/verify-setup.py
 
 test:
 	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
@@ -131,7 +96,7 @@ setup:
 	@echo "[2/4] Ensuring .env exists..."
 	@test -f .env || cp .env.example .env
 	@echo "[3/4] Pulling container images..."
-	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) pull
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) pull
 	@echo "[4/4] Starting services, bootstrapping databases, and waiting for health checks..."
 	$(MAKE) up
 
@@ -139,7 +104,7 @@ wait:
 	@echo "Waiting for services to become ready (timeout: 5 minutes)..."
 	@start=$$(date +%s); \
 	while true; do \
-		if $(VERIFY_ENV) $(PYTHON) scripts/verify-setup.py >/dev/null 2>&1; then \
+		if SUPERSET_DB_NAME="$(SUPERSET_DB_NAME)" $(PYTHON) scripts/verify-setup.py >/dev/null 2>&1; then \
 			echo ""; \
 			echo "All services are healthy."; \
 			exit 0; \
@@ -148,7 +113,7 @@ wait:
 		if [ $$((now - start)) -ge 300 ]; then \
 			echo ""; \
 			echo "Timed out after 5 minutes. Last verify output:"; \
-			$(VERIFY_ENV) $(PYTHON) scripts/verify-setup.py || true; \
+			SUPERSET_DB_NAME="$(SUPERSET_DB_NAME)" $(PYTHON) scripts/verify-setup.py || true; \
 			exit 1; \
 		fi; \
 		printf "."; \
