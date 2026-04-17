@@ -1,102 +1,50 @@
 # SoloLakehouse Timeline
 
-This file records project evolution in release order.
+This document records version evolution in release order.
 
-## v1.0.0 (2026-03-26) - Delivered
+## v1.0.0 (2026-03-26) - Delivered (historical)
 
-**Theme**
-- Full v1 platform baseline with reliable deployment and validation workflow.
+Theme:
+- Runnable baseline lakehouse core.
 
-**What landed**
-- Five-service core runs end-to-end: MinIO, PostgreSQL, Hive Metastore, Trino, MLflow.
-- Hardened ingestion and transform pipeline with retries, quality checks, and rejected-record handling.
-- CI quality gates for lint, typecheck, tests, and coverage baseline.
-- Release workflow formalized (`docs/release.md`) with repeatable local verification.
+What landed:
+- MinIO, PostgreSQL, Hive Metastore, Trino, MLflow baseline.
+- End-to-end medallion data flow and ML experiment logging.
 
-**Architecture posture**
-- Single-node Docker Compose reference architecture.
-- Medallion data flow (Bronze/Silver/Gold) and ML experiment tracking in place.
+## v2.0.0 (2026-03-28) - Delivered (historical)
 
-**Carry-forward risks**
-- No orchestrator yet (still script-based orchestration).
-- Observability/UI layers from eight-layer target are not yet fully implemented.
+Theme:
+- Dagster orchestration introduction.
 
-**Decision gate to v2**
-- Adopt orchestration (Dagster) without regressing simplicity of local setup.
+What landed:
+- Software-defined assets and `full_pipeline_job`.
+- Schedule, sensor, and asset check governance primitives.
 
----
+## v2.5.0 (2026-03-28) - Current baseline
 
-## v2.0.0 (2026-03-28) - Current
+Theme:
+- Single-track runtime standardization and platform completeness.
 
-**Theme**
-- Orchestrated platform with Dagster assets, schedules, and operational UX.
+What landed:
+- Iceberg Gold path via Trino.
+- OpenMetadata integrated in default stack.
+- Superset integrated in default stack.
+- Legacy parallel runtime paths removed from code.
 
-**What landed**
-- Dagster project scaffold with six software-defined assets: `ecb_bronze`, `dax_bronze`, `ecb_silver`, `dax_silver`, `gold_features`, `ml_experiment`.
-- `full_pipeline_job` and weekday schedule (`daily_pipeline_schedule`, 06:00 UTC) wired through `Definitions`.
-- Compose integration adds `dagster-webserver` and `dagster-daemon` with persistent Dagster storage configuration.
-- Default execution path switched to Dagster (`make pipeline`), with legacy script retained as migration fallback (`make pipeline-v1`, `make pipeline-legacy`, or `make pipeline PIPELINE_MODE=v1`).
-- Operational docs added (`docs/DAGSTER_GUIDE.md`) and architecture docs updated with orchestration layer and dependency graph.
-- Data freshness sensor (`ecb_data_freshness_sensor`) and gold data quality gate (`gold_features` asset check, min rows) added.
-
-**Operational suitability**
-- Suitable as an internal MVP platform for small teams (data ingestion, curation, feature/ML experimentation workflows).
-- Not yet positioned as enterprise production platform due to gaps in multi-environment HA, security governance depth, and full observability/on-call readiness.
-
-**Primary decision gate**
-- Keep script fallback vs full orchestrator-only mode.
-
-**Carry-forward risks**
-- Dual execution paths increase operational surface during transition period.
-- Legacy script removal decision still pending; keeping both paths has maintenance overhead.
-- Full production hardening (multi-environment infra, secret lifecycle, alerting) is deferred to later versions.
-
-**Decision gate to v3**
-- Decide whether to remove legacy script path and standardize on orchestrator-only execution before infrastructure migration.
-
----
-
-## v2.5.0 (2026-03-28) — Reference extension
-
-**Theme**
-- Open table format (Iceberg) and optional data catalog / BI UI (OpenMetadata + Superset) on top of the v2 stack.
-
-**What landed**
-- Trino Iceberg catalog (`config/trino/catalog/iceberg.properties`) and catalog template expansion in `scripts/trino-entrypoint.sh`.
-- Gold refresh: Hive external Parquet staging + `iceberg.gold.ecb_dax_features_iceberg` via Trino CTAS (`ingestion/trino_sql.py`).
-- ML reads Gold through Trino when `TRINO_URL` is set (`trino` Python client).
-- Optional OpenMetadata stack: `docker/docker-compose.openmetadata.yml`, `docker/openmetadata/openmetadata.env`, `make up-openmetadata`.
-- Optional Superset stack: `docker/docker-compose.superset.yml`, `docker/superset/*`, `make up-superset`.
-- ADR-013, ADR-014; docs and tutorial updates.
-
-**Decision gate to v3**
-- v3 remains non-mandatory for enterprise catalog adoption; v2.5 is optional reference depth.
-
----
+Decision gate to v3:
+- Harden infrastructure/governance without reintroducing parallel runtime entrypoints.
 
 ## v3.0.0 - Planned
 
-**Theme**
-- Production infrastructure (Kubernetes/Helm/Terraform).
+Theme:
+- Production infrastructure and governance hardening.
 
-**Expected outcomes**
-- Environment reproducibility beyond single host.
-- Deployment model that supports team-scale operations.
-- Production-grade governance baseline (security, secrets, auditability, release gates).
-- Reliability model with SLO-aligned observability and incident response tooling.
-
-**Primary decision gate**
-- Portability-first minimal stack vs cloud-specific optimizations.
-
----
+Focus:
+- Multi-environment deployment model.
+- Promotion controls, rollback strategy, secrets governance.
+- SLO-driven observability and incident workflows.
 
 ## v4.0.0 - Planned
 
-**Theme**
-- Self-serve maturity and operational clarity.
-
-**Expected outcomes**
-- Better onboarding, diagnostics, and failure guidance for end users.
-
-**Primary decision gate**
-- Feature breadth vs maintenance burden.
+Theme:
+- Self-serve usability and operational clarity.

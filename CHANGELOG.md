@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Changed
+- Standardized runtime to a single v2.5 execution path (`make pipeline` via Dagster only).
+- Promoted OpenMetadata and Superset from optional profiles to default mandatory stack components.
+- Updated verification/bootstrap/release docs to reflect v2.5 single-track operations.
+
+### Removed
+- Legacy host-side pipeline entrypoint (`scripts/run-pipeline.py`).
+- Legacy Makefile switches and targets (`PIPELINE_MODE`, `pipeline-v1`, `pipeline-legacy`).
+
 ## [v2.5.0] - 2026-03-28 (reference extension)
 
 ### Added
