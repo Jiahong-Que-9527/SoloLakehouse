@@ -11,7 +11,7 @@ import psycopg2
 from psycopg2 import sql
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-REQUIRED_DATABASES = ("hive_metastore", "mlflow", "dagster_storage")
+REQUIRED_DATABASES = ("hive_metastore", "mlflow", "dagster_storage", "superset_metadata")
 
 
 def load_dotenv_if_present() -> None:

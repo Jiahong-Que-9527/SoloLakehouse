@@ -39,7 +39,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${PG_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ../config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -136,6 +136,10 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      trino:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
     environment:
       MINIO_ENDPOINT: minio:9000
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
@@ -170,6 +174,10 @@ services:
       postgres:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      trino:
+        condition: service_healthy
+      mlflow:
         condition: service_healthy
       dagster-webserver:
         condition: service_healthy
