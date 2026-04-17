@@ -1,7 +1,4 @@
-# OpenMetadata 1.5.6 (Collate images). Optional profile: openmetadata
-# Usage:
-#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml \
-#     --profile openmetadata up -d
+# OpenMetadata 1.5.6 (Collate images) for the default v2.5 stack.
 # Env defaults: docker/openmetadata/openmetadata.env (generated from upstream compose; DB/ES hosts patched).
 
 volumes:
@@ -10,7 +7,6 @@ volumes:
 
 services:
   om-mysql:
-    profiles: ["openmetadata"]
     container_name: slh-om-mysql
     image: docker.getcollate.io/openmetadata/db:1.5.6
     command: ["--sort_buffer_size=10M"]
@@ -35,7 +31,6 @@ services:
       retries: 10
 
   om-elasticsearch:
-    profiles: ["openmetadata"]
     container_name: slh-om-elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
     environment:
@@ -58,7 +53,6 @@ services:
       retries: 10
 
   om-migrate:
-    profiles: ["openmetadata"]
     container_name: slh-om-migrate
     image: docker.getcollate.io/openmetadata/server:1.5.6
     command: ["./bootstrap/openmetadata-ops.sh", "migrate"]
@@ -71,7 +65,6 @@ services:
         condition: service_healthy
 
   openmetadata-server:
-    profiles: ["openmetadata"]
     container_name: slh-openmetadata-server
     image: docker.getcollate.io/openmetadata/server:1.5.6
     restart: unless-stopped

@@ -1,11 +1,7 @@
-# Apache Superset 6.0.0. Optional profile: superset
-# Usage:
-#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.superset.yml \
-#     --profile superset up -d --build
+# Apache Superset 6.0.0 for the default v2.5 stack.
 
 services:
   superset:
-    profiles: ["superset"]
     container_name: slh-superset
     build: ./superset
     depends_on:
