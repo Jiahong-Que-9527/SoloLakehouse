@@ -80,7 +80,6 @@ Primary scope:
 
 - `make verify` equivalent service health checks (environment-specific)
 - one full pipeline execution path
-- one compatibility path check if dual-mode support is active
 
 ### Emergency fallback
 

@@ -1,6 +1,7 @@
 # Architecture Decision Records (ADRs)
 
 This folder contains architecture decisions across versions.
+The active runtime baseline is **v2.5 single-track**; older ADRs remain valuable as historical rationale even when later decisions or repo cleanup changed the live stack shape.
 
 ## v1 decisions
 
@@ -12,12 +13,12 @@ This folder contains architecture decisions across versions.
 
 ## v2 decisions
 
-- [ADR-006-v2-dagster-orchestration.md](ADR-006-v2-dagster-orchestration.md): move default orchestration to Dagster with legacy fallback during migration
+- [ADR-006-v2-dagster-orchestration.md](ADR-006-v2-dagster-orchestration.md): move default orchestration to Dagster with legacy fallback during migration (historical transition context)
 
 ## v2.5 decisions (reference extension)
 
 - [ADR-013-iceberg-gold-trino.md](ADR-013-iceberg-gold-trino.md): Apache Iceberg for Gold via Trino (`iceberg` catalog)
-- [ADR-014-openmetadata-optional-profile.md](ADR-014-openmetadata-optional-profile.md): OpenMetadata as optional Docker Compose profile
+- [ADR-014-openmetadata-optional-profile.md](ADR-014-openmetadata-optional-profile.md): OpenMetadata as optional Docker Compose profile at introduction time (historical; current baseline uses the full default stack)
 
 ## v3 decisions (planned)
 

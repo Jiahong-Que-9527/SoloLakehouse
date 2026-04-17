@@ -4,12 +4,12 @@
 > It replaces the old v1 build-out checklist with a backlog aligned to the shipped platform:
 >
 > - `v1.0` delivered: runnable lakehouse baseline
-> - `v2.0` delivered/current path: Dagster orchestration
-> - `v2.5` delivered/reference: Iceberg Gold + optional OpenMetadata + optional Superset
+> - `v2.0` delivered: Dagster orchestration introduction
+> - `v2.5` delivered/current baseline: Iceberg Gold + OpenMetadata + Superset on the single-track runtime
 > - `v3.0` next: production-capable platform hardening
 >
 > Use this file for day-to-day execution ordering.
-> Use `docs/roadmap.md` for version framing and `docs/EVOLVING_PLAN.md` for the detailed version history.
+> Use `docs/roadmap.md` for version framing and `docs/history/README.md` for the detailed version history.
 
 ## Current Status
 
@@ -18,10 +18,10 @@
 - [x] Lakehouse core on Docker Compose: MinIO, PostgreSQL, Hive Metastore, Trino, MLflow
 - [x] Bronze/Silver/Gold medallion flow with schema validation and rejected-record handling
 - [x] Dagster asset orchestration, schedule, sensor, and asset check
-- [x] Legacy pipeline fallback path retained
+- [x] Single-track Dagster pipeline entrypoint (`make pipeline`)
 - [x] Gold Iceberg table in Trino
-- [x] Optional OpenMetadata profile
-- [x] Optional Superset profile
+- [x] OpenMetadata in the default local/reference stack
+- [x] Superset in the default local/reference stack
 - [x] Unit and integration test foundations
 - [x] Demo and release-readiness documentation
 
@@ -50,8 +50,9 @@
 - `README.md`
 - `docs/roadmap.md`
 - `docs/architecture.md`
-- `docs/EVOLVING_PLAN.md`
+- `docs/history/README.md`
 - `docs/history/v3-planning.md`
+- `docs/v3-governance-navigation.md`
 - `docs/governance-v3-matrix.md`
 - `docs/governance-v3-runbook.md`
 - `docs/V3_RELEASE_CHECKLIST.md`
@@ -114,7 +115,7 @@ Goal: make the platform operable across environments before introducing Kubernet
 - [ ] Define the minimum supported environment chain: `dev -> staging -> production`.
 - [ ] Document what "production-like" means for this repo before full production rollout.
 - [ ] Split configuration into environment-aware inputs rather than one local-default shape.
-- [ ] Define which services are required in every environment and which remain optional.
+- [ ] Define which services are required in every environment and which may be externalized or platform-managed in v3.
 
 ### B2. Promotion flow
 
@@ -135,7 +136,7 @@ Goal: make the platform operable across environments before introducing Kubernet
 ### B4. Release automation foundation
 
 - [ ] Add a script or Make target that bundles the required pre-promotion validations.
-- [ ] Ensure release validation covers the Dagster default path and any still-supported compatibility path.
+- [ ] Ensure release validation covers the v2.5 Dagster path end-to-end.
 - [ ] Define release artifact versioning rules for app code, Helm charts, and infra changes.
 
 Exit criteria:
@@ -265,7 +266,7 @@ Goal: introduce Kubernetes only after the operating model above is clear.
 ### F2. Helm chart baseline
 
 - [ ] Create an initial Helm chart structure for the core runtime.
-- [ ] Decide which services are in scope for the first K8s path versus left local/optional.
+- [ ] Decide which services are in scope for the first K8s path versus left local-only or externalized.
 - [ ] Establish values layering for `dev`, `staging`, and `production`.
 - [ ] Add probes, config injection patterns, and resource requests/limits where applicable.
 
@@ -344,5 +345,5 @@ Exit criteria:
 
 - Kubernetes should begin when multi-environment deployment and release controls are defined, not while those rules are still implicit.
 - Terraform should begin when the target environment topology is stable enough to codify as infrastructure, not while runtime ownership is still being debated.
-- OpenMetadata and Superset remain optional extensions unless roadmap scope changes.
+- OpenMetadata and Superset are part of the v2.5 local/reference stack; v3 can still decide whether they stay in-cluster, externalized, or local-only in specific environments.
 - v3 should continue to emphasize productionization over broad feature expansion.
