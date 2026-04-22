@@ -9,6 +9,8 @@ Historical version narratives are preserved under `docs/history/`.
 |----------|---------|
 | [roadmap.md](roadmap.md) | Canonical version status and forward roadmap |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
+| [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) | 完整 Demo 执行手册（中文，含验收清单与结论模板） |
+| [DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | Full demo runbook in English (with acceptance checklist) |
 | [deployment.md](deployment.md) | Prerequisites, deployment, operations, troubleshooting |
 | [DAGSTER_GUIDE.md](DAGSTER_GUIDE.md) | Dagster operations and runtime usage |
 
