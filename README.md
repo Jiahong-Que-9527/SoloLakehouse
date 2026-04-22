@@ -40,6 +40,16 @@ Architecture diagram: [docs/img/SLHv2.5-architecture.jpg](docs/img/SLHv2.5-archi
 
 Requirements: Docker + Compose plugin, Python 3.13+, `make`.
 
+Suggested host sizing for Docker runtime:
+
+| Profile | vCPU | Free RAM | Disk (SSD/NVMe) | Notes |
+|---------|------|----------|-----------------|-------|
+| Minimum | 4 | 8 GB | 40 GB | Can run the full stack, but startup may be slower. |
+| Recommended | 6+ | 12+ GB | 80+ GB | Stable for local development and single-user demos. |
+| Demo-stable | 8 | 16+ GB | 100+ GB | Better for live demos with multiple UIs open. |
+
+See `docs/deployment.md` for full deployment details and troubleshooting.
+
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
