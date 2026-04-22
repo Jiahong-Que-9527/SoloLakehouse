@@ -107,10 +107,10 @@ cp .env.example .env
 ```
 
 本地默认值通常可直接使用，不改也能启动。  
-如果你改过 PostgreSQL 用户/密码，请记得保持和已有数据卷一致（否则会出现认证失败）。
+如果你改过 PostgreSQL 用户/密码，请记得保持和 `docker/data/postgres/` 里已有集群一致（否则会出现认证失败）。
 
 **EN explanation:**  
-For first run, the default `.env` is usually enough. If you changed DB credentials previously, they must match persisted Docker volumes.
+For first run, the default `.env` is usually enough. If you changed DB credentials previously, they must match the PostgreSQL data already under `docker/data/postgres/`.
 
 ---
 
@@ -217,7 +217,7 @@ make verify
 make down
 ```
 
-### 彻底清理（删除数据卷，危险）
+### 彻底清理（删除 `docker/data/`，危险）
 
 ```bash
 make clean
@@ -237,7 +237,7 @@ Use `make down` for normal shutdown. Use `make clean` only when you want a full 
 ### 问题 A：`hive-metastore` 报 PostgreSQL 认证失败
 
 现象：日志包含 `password authentication failed for user "postgres"`。  
-原因：`.env` 密码与历史数据卷中的实际密码不一致。
+原因：`.env` 密码与 `docker/data/postgres/` 里已初始化的 PostgreSQL 集群保存的密码不一致（或曾用过旧版 Docker 命名卷）。
 
 修复（保留数据）：
 

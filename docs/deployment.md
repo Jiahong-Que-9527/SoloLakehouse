@@ -55,11 +55,25 @@ make pipeline
 | OpenMetadata Elasticsearch | 9200 / 9300 |
 | Superset | 8088 |
 
-## 6. Operational cleanup
+## 6. Runtime data on disk
+
+Compose uses **bind mounts** under `docker/data/` in the repository (not Docker named volumes):
+
+| Path | Service |
+|------|---------|
+| `docker/data/minio` | MinIO object storage |
+| `docker/data/postgres` | PostgreSQL cluster files |
+| `docker/data/dagster` | Dagster local storage |
+| `docker/data/om-mysql` | OpenMetadata MySQL |
+| `docker/data/om-elasticsearch` | OpenMetadata Elasticsearch |
+
+`make up` runs `scripts/prepare-docker-data-dirs.sh` to create these directories. They are listed in `.gitignore` (except `docker/data/.gitkeep`).
+
+## 7. Operational cleanup
 
 ### Safe cleanup (recommended day-to-day)
 
-Stops containers and removes orphaned containers, but keeps volumes and images.
+Stops containers and removes orphaned containers, but keeps `docker/data/` and images.
 
 ```bash
 docker compose --env-file .env \
@@ -71,26 +85,20 @@ docker compose --env-file .env \
 
 ### Deep cleanup (destructive)
 
-Removes containers, networks, project volumes, and unused images.
-
-```bash
-docker compose --env-file .env \
-  -f docker/docker-compose.yml \
-  -f docker/docker-compose.openmetadata.yml \
-  -f docker/docker-compose.superset.yml \
-  down -v --remove-orphans
-
-docker image prune -f
-docker volume prune -f
-```
-
-For a full reset from Makefile:
+`make clean` stops the stack, deletes the `docker/data/*` bind-mount directories, recreates empty dirs, and removes any **legacy** Docker named volumes from older layouts (names like `*_postgres_data`).
 
 ```bash
 make clean
 ```
 
-## 7. Troubleshooting
+Optional: prune unused images and other dangling volumes not managed by this project:
+
+```bash
+docker image prune -f
+docker volume prune -f
+```
+
+## 8. Troubleshooting
 
 ### `make up` times out
 - Check Docker resources (CPU/RAM), especially for OpenMetadata + Elasticsearch.

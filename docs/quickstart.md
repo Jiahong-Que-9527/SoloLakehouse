@@ -16,6 +16,8 @@ make up
 
 `make up` starts the full v2.5 stack including OpenMetadata and Superset.
 
+Durable local state (MinIO, PostgreSQL files, Dagster storage, OpenMetadata MySQL/Elasticsearch) is written under **`docker/data/`** in the repo (bind mounts; see [deployment.md](deployment.md)).
+
 ## 2) Verify
 
 ```bash

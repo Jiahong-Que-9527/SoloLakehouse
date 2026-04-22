@@ -3,6 +3,8 @@
 **Status:** Accepted  
 **Date:** 2026-03
 
+**Amendment (v2.5 baseline, 2026-04):** OpenMetadata (and Superset) are merged into the **default** `Makefile` `COMPOSE_STACK`, so `make up` starts them without a Compose profile or `make up-openmetadata`. The sections below record the original “optional overlay” intent; operator commands in the **Decision** bullet list are **obsolete** for current main.
+
 ## Context
 
 v3 planning explicitly avoids **forcing** a unified enterprise catalog (see [roadmap](../roadmap.md)). Teams still want a **reference** deployment of a data catalog UI that can ingest metadata from Trino.
@@ -26,7 +28,7 @@ Ship **OpenMetadata 1.5.x** (Collate images) as an **optional** Docker Compose o
 ## Consequences
 
 - Operators add a Trino connection in the OpenMetadata UI (host `trino`, port `8080`, catalogs `hive` / `iceberg`)
-- Optional health check: `OPENMETADATA_CHECK=1` with `make verify` (see `scripts/verify-setup.py`)
+- **Current main:** `scripts/verify-setup.py` always runs OpenMetadata (and Superset) checks as part of `make verify` (no env-gated skip).
 
 ## Related
 

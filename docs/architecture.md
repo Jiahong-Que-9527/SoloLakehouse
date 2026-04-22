@@ -87,6 +87,10 @@ ecb_silver      dax_silver
 | **Dagster Webserver** | Orchestration UI + run entrypoint | 3000 |
 | **Dagster Daemon** | Schedules/sensors evaluator and run launcher | N/A (internal) |
 
+### Persistence (local Compose)
+
+MinIO blobs, PostgreSQL cluster files, Dagster local storage, OpenMetadata MySQL, and OpenMetadata Elasticsearch data are bind-mounted from **`docker/data/`** under the repository (see `scripts/prepare-docker-data-dirs.sh` and `docs/deployment.md`). They are not stored in Docker Engine named volumes for this stack.
+
 ## Service dependencies
 
 ```

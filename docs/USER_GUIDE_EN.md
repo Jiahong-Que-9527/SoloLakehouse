@@ -93,7 +93,7 @@ cp .env.example .env
 ```
 
 Default values are usually enough for local first run.  
-If you already have old Docker volumes from previous runs, keep DB credentials consistent with those volumes.
+If you already have data under `docker/data/` from previous runs, keep DB credentials consistent with that PostgreSQL cluster.
 
 ---
 
@@ -198,7 +198,7 @@ docker image prune -f
 docker volume prune -f
 ```
 
-`make clean` removes project volumes, so next startup behaves like a fresh environment.
+`make clean` removes `docker/data/`, so next startup behaves like a fresh environment.
 
 ---
 
@@ -207,7 +207,7 @@ docker volume prune -f
 ### A) `hive-metastore` fails with PostgreSQL auth error
 
 Symptom: logs include `password authentication failed for user "postgres"`.  
-Cause: `.env` password does not match password stored in existing Postgres volume.
+Cause: `.env` password does not match the password stored in the existing PostgreSQL data directory (`docker/data/postgres/`, or a legacy Docker named volume from an older layout).
 
 Fix (keep data):
 

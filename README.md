@@ -89,11 +89,13 @@ make typecheck
 Cleanup options:
 
 ```bash
-make down                    # safe: stop stack, keep volumes
-make clean                   # destructive: stop and remove project volumes
+make down                    # safe: stop stack, keep data under docker/data/
+make clean                   # destructive: stop stack, delete docker/data/, remove legacy named volumes
 docker image prune -f        # optional: remove unused images
-docker volume prune -f       # optional: remove dangling volumes
+docker volume prune -f       # optional: remove other dangling Docker volumes
 ```
+
+Runtime state (MinIO, PostgreSQL files, Dagster storage, OpenMetadata MySQL/Elasticsearch) is stored under **`docker/data/`** in the repo (bind mounts), not in Docker-managed named volumes under the engine store.
 
 ## Documentation
 

@@ -105,7 +105,7 @@ cp .env.example .env
 ```
 
 For first-time local demo, default values are usually enough.  
-If you have old Docker volumes from previous runs, credential mismatch may require fixes (see troubleshooting section).
+If you have an existing `docker/data/postgres/` cluster from previous runs, credential mismatch may require fixes (see troubleshooting section).
 
 ---
 

@@ -35,7 +35,7 @@ v3 will migrate to Kubernetes. The migration is appropriate when:
 - Multi-tenant isolation is needed (separate namespaces per team)
 - CI/CD automation requires a stable cluster API
 
-The Docker Compose architecture is intentionally designed to map cleanly to Kubernetes: each `docker-compose.yml` service becomes a Kubernetes Deployment, each named volume becomes a PersistentVolumeClaim, and the shared network maps to a Kubernetes Service mesh.
+The Docker Compose architecture is intentionally designed to map cleanly to Kubernetes: each `docker-compose.yml` service becomes a Kubernetes Deployment, each durable data path becomes a `PersistentVolumeClaim` (or equivalent hostPath/local volume for dev), and the shared network maps to a Kubernetes Service mesh. (The reference stack uses **bind mounts** under `docker/data/` rather than Compose named volumes.)
 
 ## Rejected Alternative: Direct Kubernetes from v1
 

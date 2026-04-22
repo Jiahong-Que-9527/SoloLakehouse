@@ -38,14 +38,14 @@ Compose node.
 
 ```bash
 make up          # Start all Docker services + init MinIO buckets (includes Dagster services)
-make down        # Stop services (data preserved in volumes)
+make down        # Stop services (data preserved under docker/data/)
 make pipeline    # Run Dagster full_pipeline_job (v2.5 default path)
 make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
 make lint        # ruff (CI)
 make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
-make clean       # Stop services + delete all data volumes
+make clean       # Stop services + delete docker/data/ + purge legacy named Docker volumes
 ```
 
 ## Project Layout
@@ -69,6 +69,9 @@ ml/
 
 scripts/
   verify-setup.py           # Service health checks
+  bootstrap-postgres.py     # Ensure DBs exist; TCP password check + align vs .env after docker-exec bootstrap
+  prepare-docker-data-dirs.sh   # mkdir + perms for docker/data bind mounts
+  purge-legacy-docker-volumes.sh # Remove pre-bind-mount Docker named volumes (after down)
   init-minio.sh             # Legacy bucket init (now handled by minio-init container)
   trino-entrypoint.sh       # Expands all Trino catalog *.properties templates
 
@@ -82,6 +85,7 @@ docker/
   docker-compose.yml        # Core platform services
   docker-compose.openmetadata.yml # OpenMetadata stack (included by default in Makefile)
   docker-compose.superset.yml # Superset stack (included by default in Makefile)
+  data/                     # Bind-mounted runtime state (MinIO, Postgres, Dagster, OM; contents gitignored)
   dagster/                  # Dagster image build context
   hive-metastore/           # Custom Dockerfile + entrypoint (envsubst)
   mlflow/                   # Custom Dockerfile

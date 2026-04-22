@@ -8,5 +8,5 @@
 - [x] `make typecheck` passes with zero errors
 - [x] MLflow UI at http://localhost:5000 shows experiment `ecb_dax_impact`
 - [x] Trino query `SELECT * FROM hive.gold.ecb_dax_features LIMIT 5` returns rows
-- [x] `make down && make up` (restart) preserves all data in volumes
+- [x] `make down && make up` (restart) preserves runtime data under `docker/data/`
 - [x] CI (GitHub Actions) passes on clean branch push

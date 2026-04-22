@@ -15,6 +15,10 @@ data/bronze/
 data/silver/
 data/gold/
 
+# Docker Compose runtime bind mounts (MinIO, Postgres, Dagster, OpenMetadata)
+docker/data/*
+!docker/data/.gitkeep
+
 # Local-only: Mandarin deep-dive / interview-prep materials (not published to GitHub)
 tutorial_v1/
 tutorial_v2/

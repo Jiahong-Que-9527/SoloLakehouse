@@ -1,5 +1,7 @@
 ## SoloLakehouse v2.5.0 — reference extension
 
+> **Scope note:** This file describes the **v2.5.0 git tag** as published. On current `main`, OpenMetadata and Superset are part of the default `make up` stack, legacy pipeline Makefile switches are removed, and Compose persistence uses `docker/data/` bind mounts. See the repository root **`CHANGELOG.md`** (Unreleased) for the live contract.
+
 Version **v2.5** is a **reference extension** on top of the v2 Dagster-orchestrated platform: it adds an open table-format path for the Gold layer and an optional metadata-catalog stack. The default product narrative remains the v2 five-layer lakehouse core; scope and versioning are described in the [roadmap](https://github.com/Jiahong-Que-9527/SoloLakehouse/blob/v2.5.0/docs/roadmap.md).
 
 ### Added

@@ -10,12 +10,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Standardized runtime to a single v2.5 execution path (`make pipeline` via Dagster only).
 - Promoted OpenMetadata and Superset from optional profiles to default mandatory stack components.
 - Updated verification/bootstrap/release docs to reflect v2.5 single-track operations.
+- Local Compose durable state uses **bind mounts** under `docker/data/` (with `make prepare-data-dirs`) instead of Docker named volumes; `make clean` removes those directories and purges legacy named volumes when present.
+
+### Fixed
+- `scripts/bootstrap-postgres.py` verifies TCP PostgreSQL credentials after Docker-exec bootstrap and aligns the DB role password with `.env` when it has drifted from the data directory (avoids recurring Hive Metastore auth failures).
 
 ### Removed
 - Legacy host-side pipeline entrypoint (`scripts/run-pipeline.py`).
 - Legacy Makefile switches and targets (`PIPELINE_MODE`, `pipeline-v1`, `pipeline-legacy`).
 
 ## [v2.5.0] - 2026-03-28 (reference extension)
+
+**Note (2026-04):** Subsequent mainline changes merged OpenMetadata and Superset into the default `make up` path (Compose is always stacked from the `Makefile`; profile-only `make up-openmetadata` / `make up-superset` targets were removed). Local persistence later moved from Docker named volumes to `docker/data/` bind mounts.
 
 ### Added
 - Apache Iceberg Gold table via Trino (`iceberg.gold.ecb_dax_features_iceberg`) with Hive Metastore as the catalog backend (see [ADR-013](docs/decisions/ADR-013-iceberg-gold-trino.md)).
@@ -36,7 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `gold_features_min_rows_check` asset check as a quality gate.
 - Dagster webserver and daemon services in Docker Compose; `dagster_storage` PostgreSQL database.
 - `dagster/io_managers.py` with `ParquetIOManager` for DataFrame-native asset experiments.
-- `make pipeline` defaults to v2 Dagster path; `make pipeline PIPELINE_MODE=v1` retains legacy compatibility.
+- `make pipeline` defaults to v2 Dagster path (legacy `PIPELINE_MODE` / script path removed in v2.5+).
 - Bootstrap script (`scripts/bootstrap-postgres.py`) with Docker-exec and TCP fallback modes.
 
 ### Changed

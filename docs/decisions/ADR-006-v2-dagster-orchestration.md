@@ -3,6 +3,8 @@
 **Status:** Accepted  
 **Date:** 2026-03
 
+**Amendment (v2.5 single-track, 2026-04):** Legacy script orchestration and Makefile fallbacks (`pipeline-v1`, `pipeline-legacy`, `PIPELINE_MODE`, `scripts/run-pipeline.py`) were **removed**. The body below describes the v2 migration design; rollback today is via an older release tag or restoring the removed files from history, not via `make` targets.
+
 ## Context
 
 v1 orchestration relies on a linear script (`scripts/run-pipeline.py`). It is reliable for local execution, but has clear operational limitations:
@@ -22,8 +24,8 @@ Key implementation choices:
 
 1. Default run command switches to Dagster:
    - `make pipeline` executes `full_pipeline_job`
-2. Legacy script remains available during migration:
-   - `make pipeline-legacy` executes `scripts/run-pipeline.py` directly; `make pipeline-v1` and `make pipeline PIPELINE_MODE=v1` invoke the same script via the `pipeline` target
+2. Legacy script remained available during early v2 migration (removed in v2.5+):
+   - ~~`make pipeline-legacy` / `make pipeline-v1` / `make pipeline PIPELINE_MODE=v1`~~ invoked `scripts/run-pipeline.py` (file and targets no longer present)
 3. Runtime services include:
    - `dagster-webserver`
    - `dagster-daemon`
@@ -73,7 +75,7 @@ Run and event records persist across restarts and align with existing stateful-s
 
 ### Rollback
 
-- Use `make pipeline-v1`, `make pipeline-legacy`, or `make pipeline PIPELINE_MODE=v1` immediately if Dagster path is unstable
+- **Current stack:** there is no Makefile rollback to the legacy script; use a pre-removal git tag or branch if you must reproduce the old path.
 - Preserve data path compatibility (no medallion storage format changes introduced by orchestrator switch)
 
 ## Related Docs

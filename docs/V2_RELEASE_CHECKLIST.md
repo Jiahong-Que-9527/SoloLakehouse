@@ -27,7 +27,7 @@ Use before tagging any v2.5.x release.
 
 ## Restart safety
 
-- [ ] `make down && make up` preserves data volumes as expected
+- [ ] `make down && make up` preserves `docker/data/` as expected
 
 ## Documentation and metadata
 

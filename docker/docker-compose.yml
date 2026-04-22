@@ -10,7 +10,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - ./data/minio:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -41,7 +41,7 @@ services:
     ports:
       - "${PG_PORT:-5432}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
       - ../config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
@@ -157,7 +157,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - dagster_storage:/app/dagster/storage
+      - ./data/dagster:/app/dagster/storage
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/server_info"]
       interval: 15s
@@ -196,7 +196,7 @@ services:
       DAGSTER_HOME: /app/dagster
     command: ["dagster-daemon", "run", "-w", "/app/dagster/workspace.yaml"]
     volumes:
-      - dagster_storage:/app/dagster/storage
+      - ./data/dagster:/app/dagster/storage
     healthcheck:
       test: ["CMD-SHELL", "pgrep -f 'dagster-daemon' > /dev/null || exit 1"]
       interval: 30s
@@ -204,7 +204,3 @@ services:
       retries: 3
       start_period: 30s
 
-volumes:
-  minio_data:
-  postgres_data:
-  dagster_storage:

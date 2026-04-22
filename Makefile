@@ -1,4 +1,4 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
@@ -7,6 +7,14 @@ DOCKER_COMPOSE := docker compose --env-file $(ENV_FILE)
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 DAGSTER_JOB ?= full_pipeline_job
 SUPERSET_DB_NAME ?= superset_metadata
+
+# Runtime state (MinIO, Postgres, Dagster, OM) lives under docker/data/ (bind mounts), not Docker named volumes.
+prepare-data-dirs:
+	@sh scripts/prepare-docker-data-dirs.sh
+
+# Remove old named volumes from layouts before bind mounts (run after `make down`).
+purge-legacy-docker-volumes:
+	@sh scripts/purge-legacy-docker-volumes.sh
 
 # Ensure required DBs exist before MLflow and other clients start (avoids race with bootstrap-db).
 wait-postgres-ready:
@@ -17,7 +25,7 @@ wait-postgres-ready:
 	done; \
 	echo "Postgres did not become ready in time."; exit 1
 
-up:
+up: prepare-data-dirs
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d postgres minio
 	$(MAKE) wait-postgres-ready
 	$(MAKE) bootstrap-db
@@ -48,7 +56,10 @@ down:
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) down --remove-orphans
 
 clean:
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) down -v --remove-orphans
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) down --remove-orphans
+	rm -rf docker/data/minio docker/data/postgres docker/data/dagster docker/data/om-mysql docker/data/om-elasticsearch
+	$(MAKE) prepare-data-dirs
+	$(MAKE) purge-legacy-docker-volumes
 
 pipeline:
 	@echo "Running v2.5 Dagster pipeline..."

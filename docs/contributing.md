@@ -10,6 +10,8 @@
    git checkout -b feature/your-feature-name
    ```
 
+For the full day-to-day Git process, see **[git-workflow.md](git-workflow.md)**.
+
 ## Development
 
 ```bash
@@ -44,6 +46,7 @@ make typecheck   # needs Dagster installed — use the pip line above
 - Rebase or merge `main` as needed
 - Describe **what** changed and **why**
 - One focused change per PR where possible
+- Follow **[git-workflow.md](git-workflow.md)** for branch naming, commit message rules, and PR handling
 
 ## Issues
 
