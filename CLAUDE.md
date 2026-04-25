@@ -254,7 +254,7 @@ MLflow bucket: `mlflow-artifacts`
 
 ## Roadmap context
 
-Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Detailed task list: **`docs/EVOLVING_PLAN.md`**. Backlog: **`TASKS.md`**.
+Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Active backlog: **`TASKS.md`**. Historical planning: **`docs/history/`**.
 
 | Version | Theme | Status |
 |---------|-------|--------|
@@ -263,7 +263,7 @@ Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Detailed task list: 
 | **v3.0** | Production Infrastructure + Governance (Kubernetes/Helm, Terraform, environment promotion, secrets/access controls, SLO/alerting) | planned |
 | **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
 
-Ingestion-hardening and related tasks: **`docs/EVOLVING_PLAN.md`** Phase 1 (historical label “v0.2”).
+Ingestion-hardening and related tasks: see **`TASKS.md`** and **`docs/history/v2-planning.md`**.
 
 ## History maintenance (required)
 

@@ -17,5 +17,4 @@ This document archives retired runtime paths and where their history is preserve
 
 - `docs/history/timeline.md`
 - `docs/history/architecture-evolution.md`
-- `docs/v1-to-v2-transition.md`
-- `docs/EVOLVING_PLAN.md`
+- `docs/history/v2-planning.md`

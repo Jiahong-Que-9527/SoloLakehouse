@@ -135,7 +135,7 @@ def main() -> int:
             )
             return 1
         print(
-            "PostgreSQL role password is now aligned with .env for TCP clients (Hive Metastore, etc.).",
+            "PostgreSQL role password aligned with .env for TCP clients (Hive Metastore).",
             flush=True,
         )
 

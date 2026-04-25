@@ -24,7 +24,7 @@
 
 ### 2.1 Lakehouse 的核心要素是否齐备？
 
-Lakehouse 的关键标志是：**开放表格式 + 对象存储 + 分离计算 + 统一元数据 + 医patientine 分层**。本项目对照如下：
+Lakehouse 的关键标志是：**开放表格式 + 对象存储 + 分离计算 + 统一元数据 + Medallion 分层**。本项目对照如下：
 
 | Lakehouse 要素 | 本项目实现 | 合理性 |
 |--------------|-----------|--------|
@@ -33,7 +33,7 @@ Lakehouse 的关键标志是：**开放表格式 + 对象存储 + 分离计算 +
 | Bronze/Silver 存储格式 | Parquet（snappy） | 合理，对参考实现够用 |
 | 统一元数据 | Apache Hive Metastore（Hive + Iceberg 共用） | 合理，对单节点足够 |
 | 分离计算 | Trino 查询 + Python pandas 转换（Dagster 编排） | 合理，但 Silver 转换走本地 pandas 而非 Trino，是参考实现取舍 |
-| 医patientine 分层 | Bronze/Silver/Gold 明确分离，各有独立 prefix | 合理 |
+| Medallion 分层 | Bronze/Silver/Gold 明确分离，各有独立 prefix | 合理 |
 | 编排 | Dagster（asset-aware，含 schedule / sensor / asset check） | **较好**，asset + check + sensor + schedule 齐全 |
 | ML 追踪 | MLflow（Postgres + MinIO artifact store） | 合理 |
 | 数据目录 | OpenMetadata | 合理 |
@@ -47,7 +47,7 @@ Lakehouse 的关键标志是：**开放表格式 + 对象存储 + 分离计算 +
 这些是**概念到位、实现简化**的地方——不致命，但影响"成熟度"判断：
 
 1. **Bronze 是真 partition，Silver/Gold 不是。**
-   - Bronze 按 `ingestion_date=YYYY-MM-DD` 分区写入，immutable（符合医patientine 规范）。
+   - Bronze 按 `ingestion_date=YYYY-MM-DD` 分区写入，immutable（符合Medallion 规范）。
    - Silver 每次覆写到固定路径 `silver/<dataset>_cleaned/<dataset>_cleaned.parquet`，没有历史版本。
    - Gold（Parquet 落地层）同样是固定文件覆写。
    - Iceberg Gold 用 `DROP TABLE IF EXISTS + CTAS`，**每次重建、快照历史被丢弃**。
@@ -64,14 +64,14 @@ Lakehouse 的关键标志是：**开放表格式 + 对象存储 + 分离计算 +
 
 这块做得明显比一般"个人 demo"好：
 
-- ADR（001–014）完整、决策有记录
+- ADR（001-016）完整、决策有记录
 - 代码结构清晰、`CLAUDE.md`（Agent Guide）可读性高
 - 测试分 `tests/`（mock，无 Docker）+ `tests/integration/`
 - `ruff` + `mypy` CI 配置齐
 - `requirements.txt` 与 `requirements-dagster.txt` 分离
 - `scripts/verify-setup.py` 做健康检查
 - 有 Dagster schedule、sensor、asset check
-- 有医patientine 文档、roadmap、release checklist
+- 有 Medallion 文档、roadmap、release checklist
 
 这些是"项目合理性"的重要加分项。
 

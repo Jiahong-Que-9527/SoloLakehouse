@@ -80,7 +80,6 @@ Run and event records persist across restarts and align with existing stateful-s
 
 ## Related Docs
 
-- `docs/v1-to-v2-transition.md`
-- `docs/EVOLVING_PLAN.md` (Phase 3)
 - `docs/history/architecture-evolution.md`
 - `docs/history/timeline.md`
+- `docs/history/v2-planning.md`

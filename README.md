@@ -8,6 +8,20 @@
   <i>A production-minded lakehouse reference implementation with a single v2.5 runtime path.</i>
 </p>
 
+<p align="center">
+  <a href="https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml"><img src="https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml/badge.svg" alt="CI"></a>
+  <img src="https://img.shields.io/badge/python-3.13%2B-blue.svg" alt="Python 3.13+">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
+</p>
+
+## Why this might be worth a look
+
+If you've used Databricks or Snowflake and wondered how those pieces fit together, this is the open-source equivalent assembled by hand on one node. You can read the full **Bronze -> Silver -> Gold (Iceberg) -> MLflow** chain end-to-end, see how Dagster assets / sensors / asset checks wire orchestration, and find **16 ADRs** documenting the architecture trade-offs (Trino vs DuckDB, Parquet vs Delta, Compose vs K8s, Iceberg-on-Trino, ...).
+
+There is also a [self-assessment](docs/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) that is honest about where the reference implementation cuts corners (e.g. Iceberg Gold currently rebuilt via DROP+CTAS, Silver transformations in pandas rather than Trino SQL, DAX as static CSV).
+
+This is not a framework or a library. It is one runnable example you can read, fork, and break.
+
 ## What this project is
 
 SoloLakehouse is a runnable Lakehouse reference implementation built with open-source components.
@@ -86,6 +100,8 @@ make lint
 make typecheck
 ```
 
+**CI (GitHub Actions):** on every push and pull request, the [workflow](.github/workflows/test.yml) runs `ruff`, `mypy`, and **unit** `pytest` with a coverage floor (`tests/integration` is excluded). For parity with `make typecheck`, install `requirements-dagster.txt` in your venv. **Integration tests** need the Docker stack: run `make test-integration` (with services up) or the full local gate `make release-check` (`verify` + unit + integration tests) before a release or when changing cross-service behavior.
+
 Cleanup options:
 
 ```bash
@@ -112,4 +128,4 @@ See [docs/decisions/README.md](docs/decisions/README.md) for the full Architectu
 
 ## License
 
-MIT
+[MIT](LICENSE)

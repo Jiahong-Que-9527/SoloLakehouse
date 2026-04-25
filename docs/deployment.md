@@ -26,6 +26,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+The committed `.env.example` values are local-demo defaults only. Change passwords and secret keys before exposing any service beyond your own machine; production-grade secret management is tracked for v3.
+
 ## 3. Start and verify
 
 ```bash

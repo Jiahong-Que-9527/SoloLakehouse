@@ -34,7 +34,7 @@
 Evidence:
 
 - v1 uses `scripts/run-pipeline.py` for all orchestration.
-- Roadmap and EVOLVING_PLAN explicitly target Dagster in v2.
+- Roadmap explicitly targeted Dagster in v2.
 
 ## 3. Architecture options
 

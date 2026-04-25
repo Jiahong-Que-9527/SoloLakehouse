@@ -8,6 +8,7 @@ Historical version narratives are preserved under `docs/history/`.
 | Document | Purpose |
 |----------|---------|
 | [roadmap.md](roadmap.md) | Canonical version status and forward roadmap |
+| [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: where this reference implementation is honest about its limits |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
 | [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) | 完整 Demo 执行手册（中文，含验收清单与结论模板） |
 | [DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | Full demo runbook in English (with acceptance checklist) |

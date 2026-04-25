@@ -22,5 +22,3 @@ For each new milestone (for example `v2.0.0`):
 2. Update `architecture-evolution.md` with what changed and why.
 3. Copy `planning-template.md` into a versioned planning note (for example `v2-planning.md`) and fill it before implementation starts.
 4. Cross-link release artifacts (tag, PR, release notes, checklist).
-
-Cross-version narrative reference: [../v1-to-v2-transition.md](../v1-to-v2-transition.md).
