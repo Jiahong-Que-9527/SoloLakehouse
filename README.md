@@ -42,18 +42,20 @@ It is not a framework or library. It is a production-minded reference stack you 
   <em>v2.5 baseline: local-first lakehouse with orchestration, governance, BI, ML tracking, and Iceberg Gold tables.</em>
 </p>
 
-## Why It Exists
+## Why SoloLakehouse Exists
 
-SoloLakehouse is built for engineers who want to understand and own the operating model behind platforms like Databricks and Snowflake, not only consume them.
+Enterprise data platforms are often explained through vendor products: Databricks, Snowflake, managed Airflow, managed catalogs, managed object storage, managed everything. SoloLakehouse takes the opposite route. It exposes the core platform mechanics on one local runtime so the architecture is understandable, portable, and owned by the engineer running it.
 
-The project focuses on:
+The project exists to demonstrate:
 
-- **Cloud independence:** run the lakehouse locally with open-source components.
-- **Compliance awareness:** make data boundaries, metadata, release checks, and architecture decisions visible.
-- **Portability:** keep storage, orchestration, catalog, BI, and deployment layers replaceable.
-- **Senior platform signal:** demonstrate system design, governance thinking, CI, ADRs, roadmap ownership, and operational trade-offs.
+| Principle | What it means in SoloLakehouse |
+|-----------|--------------------------------|
+| **Cloud independence** | The platform runs locally with open-source components and avoids requiring a managed cloud lakehouse service. |
+| **Compliance awareness** | Data boundaries, service responsibilities, metadata, release checks, and architecture decisions are explicit rather than implied. |
+| **Portability** | Storage, orchestration, catalog, BI, and deployment layers have documented migration paths. |
+| **Platform engineering capability** | The project demonstrates orchestration, data quality, metadata, ML tracking, BI access, CI, ADRs, release discipline, and roadmap ownership. |
+| **Readable architecture** | The stack is intentionally small enough to inspect but complete enough to discuss production trade-offs. |
 
-Useful for data platform engineers, analytics/ML engineers, enterprise architects, and recruiters evaluating senior engineering credibility.
 
 ## Quick Start
 
