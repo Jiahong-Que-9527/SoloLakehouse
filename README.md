@@ -35,7 +35,7 @@ SoloLakehouse is a readable, runnable, cloud-neutral lakehouse reference archite
 It is not a framework or library. It is a production-minded reference stack you can run locally, inspect end to end, fork, critique, and extend.
 
 <p align="center">
-  <img src="docs/img/SLHv2.5-architecture.jpg" alt="SoloLakehouse v2.5 architecture">
+  <img src="docs/img/SLHv2.5_architecutre.png" alt="SoloLakehouse v2.5 architecture">
 </p>
 
 <p align="center">
