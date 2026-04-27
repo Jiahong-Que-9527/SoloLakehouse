@@ -34,14 +34,6 @@ SoloLakehouse is a readable, runnable, cloud-neutral lakehouse reference archite
 
 It is not a framework or library. It is a production-minded reference stack you can run locally, inspect end to end, fork, critique, and extend.
 
-<p align="center">
-  <img src="docs/img/SLHv2.5_architecutre.png" alt="SoloLakehouse v2.5 architecture">
-</p>
-
-<p align="center">
-  <em>v2.5 baseline: local-first lakehouse with orchestration, governance, BI, ML tracking, and Iceberg Gold tables.</em>
-</p>
-
 ## Why SoloLakehouse Exists
 
 Enterprise data platforms are often explained through vendor products: Databricks, Snowflake, managed Airflow, managed catalogs, managed object storage, managed everything. SoloLakehouse takes the opposite route. It exposes the core platform mechanics on one local runtime so the architecture is understandable, portable, and owned by the engineer running it.
@@ -100,6 +92,15 @@ See [docs/quickstart.md](docs/quickstart.md) and [docs/deployment.md](docs/deplo
 Current demo data uses ECB SDW API data and DAX sample data. The active runtime is **v2.5 only**; historical v1/v2 material lives in [docs/history/](docs/history/).
 
 ## Architecture
+
+<p align="center">
+  <img src="docs/img/SLHv2.5_architecutre.png" alt="SoloLakehouse v2.5 architecture">
+</p>
+
+<p align="center">
+  <em>v2.5 baseline: local-first lakehouse with orchestration, governance, BI, ML tracking, and Iceberg Gold tables.</em>
+</p>
+
 
 ```text
 Data sources
