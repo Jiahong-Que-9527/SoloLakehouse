@@ -62,6 +62,8 @@
 - `docs/decisions/ADR-010-v3-observability-and-slo.md`
 - `docs/decisions/ADR-011-v3-ml-productization-boundary.md`
 - `docs/decisions/ADR-012-v3-data-governance-catalog-strategy.md`
+- `docs/decisions/ADR-017-iceberg-rest-catalog-option.md`
+- `docs/decisions/ADR-018-ml-lineage-five-tuple.md`
 
 ---
 
@@ -240,6 +242,7 @@ Goal: strengthen the ML experiment platform without expanding into full serving.
 - [ ] Review current MLflow artifacts and identify missing lineage fields.
 - [ ] Add explicit linkage from trained model runs back to Gold dataset version or run context.
 - [ ] Make it possible to answer: "which data and code produced this model?"
+- [ ] Fill ADR-018 before implementation: confirm the required ML lineage five-tuple and fail-fast behavior.
 
 ### E3. Validation and release posture
 
@@ -331,15 +334,96 @@ Exit criteria:
 
 ---
 
+## Block H — Lineage Evidence (v2.6)
+
+Goal: turn lineage from "exists internally" into "produced as a signed evidence pack on demand". Scope corresponds to engineering actions E1–E5 in `docs/enterprise-evolution-plan-2026-05-05.md`.
+
+### H1. Three-source lineage fusion
+
+- [ ] Implement `governance/lineage_join.py` joining OpenMetadata + Iceberg snapshot + Dagster run by `dataset_id`.
+- [ ] Define a `LineageRecord` JSON schema covering owner / SLA / quality class / data version / orchestration context / quality evidence.
+- [ ] Hook into `full_pipeline_job` to write `audit/lineage/<dataset>/<run_id>.json` automatically.
+
+### H2. Evidence pack CLI
+
+- [ ] Implement `make lineage-evidence DATASET=X DATE=Y` end-to-end < 60 s.
+- [ ] Output schema, upstream chain, orchestration context, quality evidence, owner/SLA, PGP-signable manifest.
+- [ ] Document the CLI contract in `docs/governance-v3-runbook.md`.
+
+### H3. WORM audit storage
+
+- [ ] Enable MinIO Object Lock on `audit/` bucket; verify the underlying storage supports it.
+- [ ] Default retention 5 yr; configurable per dataset class via the data contract.
+- [ ] Daily archive of Dagster run history to `audit/dagster-runs/<date>.parquet`.
+
+### H4. Evidence drill
+
+- [ ] Run a simulated regulator request; record time-to-output and produced artifacts.
+- [ ] Archive the drill report under `docs/governance-v3-runbook.md`.
+
+Exit criteria:
+
+- [ ] All four sub-blocks delivered.
+- [ ] Evidence pack reproducible across two consecutive pipeline runs.
+- [ ] WORM resists overwrite/delete attempts in tests.
+
+---
+
+## Block I — Sovereignty & Portability Documentation (v2.7)
+
+Goal: turn "fully open and EU-hostable" from claim to demonstrable evidence. Scope corresponds to engineering actions E6–E9 and E14–E16.
+
+### I1. Sovereignty report
+
+- [ ] Implement `scripts/generate-sovereignty-report.py` scanning compose + requirements + image manifests.
+- [ ] Output `docs/sovereignty-report.md` (component → maintainer → origin country → license → phone-home).
+- [ ] Add a CI step (or release checklist item) to regenerate on every release.
+
+### I2. Portability matrix
+
+- [ ] Author `docs/portability-matrix.md` per layer (object storage / metastore / engine / orchestration / catalog / BI / ML tracking) with replacement cost in person-days.
+
+### I3. Multi-engine demo
+
+- [ ] Add `examples/multi-engine/` with Trino / DuckDB / Spark / Flink readers of the same Iceberg Gold table.
+- [ ] Verify schema, row count, and checksum parity across engines.
+- [ ] Keep Spark/Flink behind a compose profile; default `make up` is unchanged.
+
+### I4. REST catalog alternative
+
+- [ ] Fill ADR-017 comparing Hive Metastore, Iceberg REST Catalog, and AWS Glue.
+- [ ] Provide a compose profile to switch from Hive Metastore to REST Catalog.
+
+### I5. Cross-object-store demo
+
+- [ ] Demo Iceberg metadata + data files distributed across two MinIO instances (one acting as a second backend).
+
+### I6. Exit playbook
+
+- [ ] Author `docs/exit-playbook.md` with Iceberg metadata re-pointing, Trino catalog switch, and a Helm values placeholder for v3.0.
+- [ ] Author a customer-facing migration-IN tool (Databricks Delta → Iceberg) as PoC scope.
+
+Exit criteria:
+
+- [ ] Sovereignty report regenerated on every release.
+- [ ] All four engines verified against the same Iceberg table.
+- [ ] Exit playbook step-by-step covers metadata re-point.
+
+---
+
 ## Recommended Execution Order
 
-1. Block A — Governance Contracts First
-2. Block B — Promotion, Release, and Rollback
-3. Block C — Observability and Incident Readiness
-4. Block D — Secrets and Access Governance
-5. Block E — ML Governance and Reproducibility
-6. Block F — Kubernetes and Helm Introduction
-7. Block G — Terraform Introduction
+Aligned with the v2.6 → v3.0 minor-version arc (see `docs/roadmap.md` and `docs/history/v2.6-planning.md` ~ `v2.9-planning.md`):
+
+1. Block A — Governance Contracts First (v2.6)
+2. **Block H — Lineage Evidence** (v2.6, new)
+3. **Block I — Sovereignty & Portability Documentation** (v2.7, new)
+4. Block E — ML Governance and Reproducibility (v2.8 expansion)
+5. Block C — Observability and Incident Readiness (v2.9 form factor; full Prometheus in v3.0)
+6. Block D — Secrets and Access Governance (v2.9 local discipline; managed secrets in v3.0)
+7. Block B — Promotion, Release, and Rollback (v2.9 form factor; real multi-env in v3.0)
+8. Block F — Kubernetes and Helm Introduction (v3.0)
+9. Block G — Terraform Introduction (v3.0+)
 
 ## Notes On Timing
 

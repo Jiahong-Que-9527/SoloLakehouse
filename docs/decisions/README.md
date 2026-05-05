@@ -21,6 +21,11 @@ The active runtime baseline is **v2.5 single-track**; older ADRs remain valuable
 - [ADR-014-openmetadata-optional-profile.md](ADR-014-openmetadata-optional-profile.md): OpenMetadata as optional Docker Compose profile at introduction time (historical; current baseline uses the full default stack)
 - [ADR-016-compute-engine-migration.md](ADR-016-compute-engine-migration.md): move Silver/Gold transformations off pandas to Spark + dbt-spark, Trino becomes query-only (proposed)
 
+## v2.7-v2.8 decisions (planned evidence arc)
+
+- [ADR-017-iceberg-rest-catalog-option.md](ADR-017-iceberg-rest-catalog-option.md): placeholder for Hive Metastore vs Iceberg REST Catalog vs AWS Glue decision
+- [ADR-018-ml-lineage-five-tuple.md](ADR-018-ml-lineage-five-tuple.md): placeholder for the required ML lineage five-tuple
+
 ## v3 decisions (planned)
 
 - [ADR-007-v3-k8s-helm-terraform.md](ADR-007-v3-k8s-helm-terraform.md): adopt Kubernetes + Helm + Terraform as v3 production infrastructure baseline

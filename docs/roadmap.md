@@ -10,8 +10,15 @@ Previous parallel runtime paths are retired from code and kept only as historica
 | v1.0 | Delivered (historical) | Runnable baseline lakehouse core |
 | v2.0 | Delivered (historical) | Dagster orchestration introduction |
 | v2.5 | Current baseline | Single-track orchestrated runtime + Iceberg Gold + OpenMetadata + Superset |
-| v3.0 | Planned | Production infrastructure and governance hardening |
+| v2.6 | Planned | Governance evidence bedrock (data contracts, lineage evidence pack, WORM audit) |
+| v2.7 | Planned | Sovereignty & openness evidence (multi-engine Iceberg demo, sovereignty report, exit playbook) |
+| v2.8 | Planned | ML compliance bedrock (MLflow ↔ Iceberg snapshot binding, auto model card aligned with EU AI Act) |
+| v2.9 | Planned | Operational readiness (SLO emit, secrets discipline, promotion/rollback form, K8s readiness check) |
+| v3.0 | Planned | Production runtime: Kubernetes + Helm + Terraform + multi-environment + managed secrets + alerting |
+| v3.1 | Planned | AI compliance subsystems (decision evidence id, ComplianceRAG, AuditCopilot, LineageNarrator) |
 | v4.0 | Planned | Self-serve usability and operational clarity |
+
+> The v2.6 → v2.9 minor versions deliver the **governance, openness, ML compliance, and operational evidence** required by DORA / BaFin / EU AI Act on the existing Compose stack, so that v3.0 can focus purely on the runtime migration to Kubernetes. See `docs/history/v2.6-planning.md` through `v2.9-planning.md`.
 
 ## Current Baseline (v2.5)
 

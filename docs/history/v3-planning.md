@@ -93,9 +93,21 @@ Additional scope decisions for v3:
 
 ## 5. Delivery plan
 
+### Carry-forward scope from v2.6-v2.9
+
+The v2.6-v2.9 minor-version arc intentionally absorbs several workstreams that were previously listed as broad v3 scope:
+
+| Earlier v3 workstream | Carried by | What remains for v3.0 |
+|---|---|---|
+| M1 Data governance baseline | v2.6 governance contracts + lineage evidence | Deploy the existing contracts and evidence writers across real environments |
+| M3 Reliability and observability | v2.9 SLO emit, dashboard shape, breach sensor, rollback drill | Move SLO transport/storage to Prometheus + Grafana and wire production alerts |
+| M5 ML experiment governance | v2.8 ML lineage five-tuple + model card | Run the established ML evidence path in the production runtime |
+
+Therefore v3.0 work is narrowed to the runtime and operating-model workstreams: M2 promotion/release controls, M4 security/access governance, M6 infrastructure baseline, and M7 CI/CD deployment pipeline. Governance, ML evidence, and SLO semantics should not be reinvented in v3.0; they should be carried forward as tested artifacts.
+
 ### Workstreams and milestones
 
-#### M1: Data governance baseline
+#### M1: Data governance baseline (carried forward by v2.6)
 
 - governance contracts for Gold and critical Silver outputs
 - ownership, SLA, and quality metadata conventions
@@ -108,7 +120,7 @@ Additional scope decisions for v3:
 - rollback checklist and evidence model
 - staged release rehearsal
 
-#### M3: Reliability and observability
+#### M3: Reliability and observability (semantics carried forward by v2.9)
 
 - minimal SLO set for critical services and pipelines
 - metrics for orchestration success, freshness, latency, and quality pass rate
@@ -122,7 +134,7 @@ Additional scope decisions for v3:
 - least-privilege access baseline
 - auditability requirements for access changes
 
-#### M5: ML experiment governance
+#### M5: ML experiment governance (carried forward by v2.8)
 
 - reproducible training and evaluation contracts
 - stronger experiment metadata and artifact lineage
@@ -164,6 +176,7 @@ Additional scope decisions for v3:
 ## 7. Carry-forward notes
 
 - Technical debt accepted in this version: temporary coexistence of Compose and K8s paths during migration.
+- Carried-forward evidence accepted into v3.0: v2.6 lineage evidence, v2.8 ML evidence, and v2.9 SLO/promotion/rollback evidence are treated as inputs, not new v3 feature work.
 - Items deferred to next version: deep self-serve UX maturity, complete serving productization, and heavier catalog/platform replacements if later justified.
 - Revisit triggers: operational burden too high for team size, or production incidents reveal governance blind spots.
 

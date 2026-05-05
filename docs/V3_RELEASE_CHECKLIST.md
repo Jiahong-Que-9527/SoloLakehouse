@@ -29,7 +29,14 @@ Use this checklist before tagging `v3.0.0`.
 - [ ] Gold data quality checks pass with expected thresholds.
 - [ ] ML experiment workflow produces auditable run metadata.
 
-## 5) Documentation and release metadata
+## 5) v2.6-v2.9 carried-forward evidence
+
+- [ ] v2.6 lineage evidence pack can be generated in the target environment.
+- [ ] v2.7 sovereignty / portability evidence is attached or explicitly waived.
+- [ ] v2.8 ML lineage five-tuple and model-card sample are attached.
+- [ ] v2.9 SLO, promotion, rollback, and K8s-readiness evidence is attached.
+
+## 6) Documentation and release metadata
 
 - [ ] `docs/roadmap.md` version status aligns with release intent.
 - [ ] `docs/history/timeline.md` and `docs/history/architecture-evolution.md` are updated.
@@ -37,7 +44,7 @@ Use this checklist before tagging `v3.0.0`.
 - [ ] ADR index and v3 ADR set are up to date.
 - [ ] `CHANGELOG.md` contains v3.0.0 release notes.
 
-## 6) Final go/no-go decision
+## 7) Final go/no-go decision
 
 - [ ] All critical checklist items are complete or explicitly waived with approver sign-off.
 - [ ] Release owner and rollback owner are assigned.
