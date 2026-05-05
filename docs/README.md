@@ -7,6 +7,7 @@ Historical version narratives are preserved under `docs/history/`.
 
 | Document | Purpose |
 |----------|---------|
+| [ONBOARDING_READING_ORDER.md](ONBOARDING_READING_ORDER.md) | Suggested reading order for new maintainers (新接手者文档阅读顺序) |
 | [roadmap.md](roadmap.md) | Canonical version status and forward roadmap |
 | [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: where this reference implementation is honest about its limits |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
