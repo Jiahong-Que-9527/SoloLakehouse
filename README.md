@@ -25,7 +25,7 @@
   ·
   <a href="docs/decisions/README.md"><strong>ADRs</strong></a>
   ·
-  <a href="docs/ASSESSMENT_LAKEHOUSE_DAX_ECB.md"><strong>Self-assessment</strong></a>
+  <a href="docs/project-state-overview-2026-05-05.md"><strong>Self-assessment</strong></a>
 </p>
 
 ---
