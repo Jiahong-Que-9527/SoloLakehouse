@@ -46,9 +46,9 @@ For a step-by-step explanation of `make demo`, including the equivalent manual c
 
 ## Demo Data Rule
 
-ECB data must come from the ECB collector path. DAX data must come from the project DAX ingestion path configured for the v2.5 demo. If a live provider is unavailable, the recording must explicitly say which source failed and whether the checked-in sample CSV was used as a fallback.
+ECB data must come from the live ECB collector path. DAX data comes from the checked-in real historical OHLCV sample CSV used by the v2.5 demo path. This keeps the demo deterministic while still using financial-market data rather than generated mock rows.
 
-Do not describe fallback data as live data.
+Do not describe the DAX sample as live data. If any source is unavailable or skipped, the recording must explicitly say which source failed and what data path was used instead.
 
 ## Fallback Branches
 
