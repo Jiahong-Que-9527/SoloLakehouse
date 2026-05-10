@@ -20,11 +20,10 @@ This guide covers local deployment for the **v2.5 single-track runtime**.
 ## 2. Setup
 
 ```bash
-cp .env.example .env
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+make setup
 ```
+
+`make setup` creates `.env` from `.env.example`, creates `.venv`, installs Python dependencies, pulls container images, starts the Compose stack, bootstraps databases, and waits for service health checks.
 
 The committed `.env.example` values are local-demo defaults only. Change passwords and secret keys before exposing any service beyond your own machine; production-grade secret management is tracked for v3.
 
@@ -33,13 +32,18 @@ The committed `.env.example` values are local-demo defaults only. Change passwor
 ```bash
 make up
 make verify
+make health
 ```
+
+The health dashboard is available at `http://127.0.0.1:8090/health` while `make health` is running.
 
 ## 4. Run pipeline
 
 ```bash
-make pipeline
+make demo
 ```
+
+`make demo` runs `make verify`, the Dagster demo data-flow job, and Trino row-count assertions for Hive Gold and Iceberg Gold. Use `make pipeline` when you explicitly want the full pipeline including MLflow experiment execution.
 
 ## 5. Service ports
 

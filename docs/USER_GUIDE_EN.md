@@ -20,7 +20,8 @@ After following this guide, you will have a full local lakehouse stack running w
 
 Main data flow:
 
-`ECB/DAX sources -> Bronze -> Silver -> Gold -> MLflow`
+- Demo acceptance path: `ECB/DAX sources -> Bronze -> Silver -> Gold -> Trino`
+- Full pipeline: `ECB/DAX sources -> Bronze -> Silver -> Gold -> MLflow`
 
 ---
 
@@ -67,7 +68,7 @@ You should see `Makefile`, `docker/`, `docs/`, `scripts/`, etc.
 
 ## 3. Create Local Python Environment
 
-Even though core services run in Docker, local helper scripts (such as health checks) run from your Python venv.
+`make setup` creates `.venv` and installs dependencies automatically. Use the manual commands below only when you want to inspect or troubleshoot the local Python environment.
 
 ```bash
 python3 -m venv .venv
@@ -92,6 +93,7 @@ python --version
 cp .env.example .env
 ```
 
+`make setup` also creates `.env` from `.env.example` when `.env` is missing.
 Default values are usually enough for local first run.  
 If you already have data under `docker/data/` from previous runs, keep DB credentials consistent with that PostgreSQL cluster.
 
@@ -160,13 +162,13 @@ If all pages open after `make verify`, your environment is ready.
 
 ---
 
-## 8. Run the Pipeline (Main Workflow)
+## 8. Run the Demo Data Flow (Acceptance Path)
 
 ```bash
-make pipeline
+make demo
 ```
 
-This executes Dagster `full_pipeline_job` (the canonical v2.5 entrypoint).
+This runs `make verify`, executes Dagster `demo_data_flow_job`, then checks Hive Gold and Iceberg Gold row counts through Trino.
 
 After completion, run:
 
@@ -176,9 +178,16 @@ make verify
 
 Then inspect:
 
-- Dagster UI for run status
-- MLflow UI for experiment runs
+- Dagster UI for the `demo_data_flow_job` run status
 - Trino UI for query activity
+
+### Optional: Run the full pipeline including MLflow
+
+```bash
+make pipeline
+```
+
+`make pipeline` executes Dagster `full_pipeline_job`, which includes the demo data-flow assets plus `ml_experiment`. Use this command when you need MLflow experiment/run records.
 
 ---
 
@@ -248,7 +257,7 @@ pip install -r requirements.txt
 cp .env.example .env
 make setup
 make verify
-make pipeline
+make demo
 ```
 
 ---

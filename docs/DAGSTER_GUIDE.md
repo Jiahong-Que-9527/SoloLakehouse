@@ -1,6 +1,6 @@
 # Dagster Guide
 
-This guide describes the **only supported runtime orchestration path** in SoloLakehouse v2.5.
+This guide describes the supported Dagster orchestration paths in SoloLakehouse v2.5.
 
 ## Access Dagster UI
 
@@ -11,19 +11,33 @@ make dagster-ui
 
 Or open `http://localhost:3000`.
 
-## Run Pipeline
+## Run Demo Data Flow
+
+```bash
+make demo
+```
+
+`make demo` executes `demo_data_flow_job` via `dagster-webserver`, then verifies Hive Gold and Iceberg Gold row counts through Trino. This is the v2.5 acceptance and recording path.
+
+## Run Full Pipeline
 
 ```bash
 make pipeline
 ```
 
-`make pipeline` executes `full_pipeline_job` via `dagster-webserver`.
+`make pipeline` executes `full_pipeline_job`, which includes the demo data-flow assets plus `ml_experiment`.
 
 ## Asset Graph
 
 Current dependency chain:
 
-`ecb_bronze` and `dax_bronze` -> `ecb_silver` and `dax_silver` -> `gold_features` -> `ml_experiment`
+Demo path:
+
+`ecb_bronze` and `dax_bronze` -> `ecb_silver` and `dax_silver` -> `gold_features`
+
+Full pipeline adds:
+
+`gold_features` -> `ml_experiment`
 
 In UI:
 1. Open **Assets**

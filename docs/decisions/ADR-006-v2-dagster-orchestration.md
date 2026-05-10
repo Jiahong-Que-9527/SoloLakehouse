@@ -5,6 +5,8 @@
 
 **Amendment (v2.5 single-track, 2026-04):** Legacy script orchestration and Makefile fallbacks (`pipeline-v1`, `pipeline-legacy`, `PIPELINE_MODE`, `scripts/run-pipeline.py`) were **removed**. The body below describes the v2 migration design; rollback today is via an older release tag or restoring the removed files from history, not via `make` targets.
 
+**Amendment (v2.5 demo gate, 2026-05):** `make demo` now executes Dagster `demo_data_flow_job` for the acceptance/demo path (Bronze -> Silver -> Gold + Trino checks). `make pipeline` remains the full Dagster path and executes `full_pipeline_job`, including `ml_experiment`.
+
 ## Context
 
 v1 orchestration relies on a linear script (`scripts/run-pipeline.py`). It is reliable for local execution, but has clear operational limitations:
@@ -22,7 +24,8 @@ Adopt Dagster as the default orchestration path in v2.
 
 Key implementation choices:
 
-1. Default run command switches to Dagster:
+1. Default pipeline commands switch to Dagster:
+   - `make demo` executes `demo_data_flow_job` for acceptance/demo evidence
    - `make pipeline` executes `full_pipeline_job`
 2. Legacy script remained available during early v2 migration (removed in v2.5+):
    - ~~`make pipeline-legacy` / `make pipeline-v1` / `make pipeline PIPELINE_MODE=v1`~~ invoked `scripts/run-pipeline.py` (file and targets no longer present)

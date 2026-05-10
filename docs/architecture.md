@@ -60,7 +60,8 @@ ecb_silver      dax_silver
 
 ### Scheduling and automation
 
-- Job: `full_pipeline_job`
+- Job: `demo_data_flow_job` (Demo acceptance path: Bronze -> Silver -> Gold)
+- Job: `full_pipeline_job` (full path: Demo data-flow assets + `ml_experiment`)
 - Schedule: `daily_pipeline_schedule`
 - Cron: `0 6 * * 1-5` (06:00 UTC, weekdays)
 - Sensor: `ecb_data_freshness_sensor` checks ECB freshness every 30 minutes and can trigger `ecb_bronze` when stale.
@@ -146,3 +147,4 @@ Earlier v1/v2 build-out stages and migration decisions remain available as narra
 | [ADR-012](decisions/ADR-012-v3-data-governance-catalog-strategy.md) | v3 data governance catalog strategy |
 | [ADR-013](decisions/ADR-013-iceberg-gold-trino.md) | Iceberg for Gold via Trino |
 | [ADR-014](decisions/ADR-014-openmetadata-optional-profile.md) | OpenMetadata optional compose profile at introduction time (historical) |
+| [ADR-019](decisions/ADR-019-minio-seaweedfs-deferral.md) | MinIO to SeaweedFS migration deferral |

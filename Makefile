@@ -1,10 +1,11 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
 ENV_FILE ?= .env
 DOCKER_COMPOSE := docker compose --env-file $(ENV_FILE)
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
+VENV_PYTHON := .venv/bin/python
 DAGSTER_JOB ?= full_pipeline_job
 SUPERSET_DB_NAME ?= superset_metadata
 
@@ -71,6 +72,17 @@ pipeline-dagster:
 verify:
 	$(PYTHON) scripts/verify-setup.py
 
+demo:
+	$(MAKE) verify
+	$(MAKE) pipeline DAGSTER_JOB=demo_data_flow_job
+	$(PYTHON) scripts/verify-demo.py
+
+health:
+	$(PYTHON) scripts/health-server.py
+
+health-json:
+	$(PYTHON) scripts/health-server.py --port 8090
+
 test:
 	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
 
@@ -104,12 +116,14 @@ dagster-ui:
 setup:
 	@echo "[1/4] Checking Docker daemon..."
 	@docker info >/dev/null 2>&1 || (echo "Docker is not running. Please start Docker and retry." && exit 1)
-	@echo "[2/4] Ensuring .env exists..."
+	@echo "[2/4] Ensuring .env and Python environment exist..."
 	@test -f .env || cp .env.example .env
+	@test -x $(VENV_PYTHON) || python3 -m venv .venv
+	$(VENV_PYTHON) -m pip install -r requirements.txt
 	@echo "[3/4] Pulling container images..."
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) pull
 	@echo "[4/4] Starting services, bootstrapping databases, and waiting for health checks..."
-	$(MAKE) up
+	$(MAKE) up PYTHON=$(VENV_PYTHON)
 
 wait:
 	@echo "Waiting for services to become ready (timeout: 5 minutes)..."

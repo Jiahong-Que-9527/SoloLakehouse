@@ -13,7 +13,7 @@
 | 维度 | 结论 | 说明 |
 |------|------|------|
 | 是否是一个"合理的 Lakehouse 项目" | **是**（参考实现级别，非生产级） | 具备 Lakehouse 的所有标志性层次：对象存储 / 开放表格式 / 统一元数据 / 分离计算 / 编排 / ML / 目录 / BI。 |
-| 用 ECB+DAX 是否能**一次性跑通端到端** | **能跑通，但"完整"要打折扣** | `make up` + `make pipeline` 可以走通 `bronze → silver → gold(Iceberg) → MLflow`；但 DAX 数据只到 2024-12-31 且来源是本地静态 CSV，不是实时/增量接入，并且该 CSV 的数值与真实 DAX 指数存在明显偏差。 |
+| 用 ECB+DAX 是否能**一次性跑通端到端** | **能跑通，但"完整"要打折扣** | `make setup` + `make demo` 可以走通 `bronze → silver → gold(Iceberg)` 并通过 Trino 验证 Gold；`make pipeline` 另用于包含 MLflow 的完整流水线。但 DAX 数据只到 2024-12-31 且来源是本地静态 CSV，不是实时/增量接入，并且该 CSV 的数值与真实 DAX 指数存在明显偏差。 |
 | 是否是"生产就绪的 Lakehouse" | **不是** | v2.5 明确是参考/演示基线，生产就绪目标放在 v3.0（K8s/Helm/Terraform + 环境晋升 + 秘钥治理 + SLO），目前属于"功能齐 + 工程规范齐，但运行保证不足"。 |
 
 一句话定位：**它是一个工程规范写得相当好的单机 Lakehouse 参考实现，教学/演示用合格；但"真正的端到端可信运行"需要把 DAX 数据源、Iceberg Gold 写法、数据契约/质量门、Silver 分区以及运维观测补齐**。
@@ -81,16 +81,20 @@ Lakehouse 的关键标志是：**开放表格式 + 对象存储 + 分离计算 +
 
 ### 3.1 当前已经能跑通的部分
 
-以默认 `make up` + `make pipeline` 为路径，下列链路是**实际可运行**的：
+以默认 `make setup` + `make demo` 为验收路径，下列数据链路是**实际可运行**的：
 
 1. `ecb_bronze`：`ECBCollector` 从 `https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_RT.LEV` 拉取 MRO 利率，校验 → 写 `bronze/ecb_rates/ingestion_date=<today>/`。
 2. `dax_bronze`：`DAXCollector` 读取 `data/sample/dax_daily_sample.csv`（6522 行，2000-01-03 到 2024-12-31），校验 → 写 `bronze/dax_daily/ingestion_date=<today>/`。
 3. `ecb_silver` / `dax_silver`：合并所有 Bronze 分区 → 类型转换 / 前向填充 / 周末过滤 / 衍生字段 → 固定 Silver Parquet。
 4. `gold_features`：以 ECB 变动事件为锚点做 event-study 特征（pre 5 天 volatility，post 5 天累计收益等），落地 Parquet，并通过 Trino 建 Hive 外表 + CTAS 生成 Iceberg Gold 表。
-5. `ml_experiment`：从 **Trino 的 Iceberg Gold** 或（无 Trino 时）MinIO Parquet 读入 Gold → XGBoost+LightGBM × 3×2 网格 × TimeSeriesSplit(5) CV → 全部记录到 MLflow，返回最优 `run_id`。
+5. `scripts/verify-demo.py`：通过 Trino 验证 Hive Gold 与 Iceberg Gold 表都有数据。
 6. `gold_features_min_rows_check`：断言 Gold 至少有 10 行。
 
-只要 Docker 服务齐备、ECB API 可访问、没有日内重复运行被跳过，这条链路确实能**一次性**跑出一个最优模型 run。
+如需包含 MLflow 的完整流水线，再执行 `make pipeline`：
+
+1. `ml_experiment`：从 **Trino 的 Iceberg Gold** 或（无 Trino 时）MinIO Parquet 读入 Gold → XGBoost+LightGBM × 3×2 网格 × TimeSeriesSplit(5) CV → 全部记录到 MLflow，返回最优 `run_id`。
+
+只要 Docker 服务齐备、ECB API 可访问、没有日内重复运行被跳过，Demo 链路确实能**一次性**产出可查询 Gold；完整流水线也能跑出一个最优模型 run。
 
 ### 3.2 存在的"端到端打折"问题
 

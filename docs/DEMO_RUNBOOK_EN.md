@@ -10,7 +10,7 @@ The goal is deterministic execution: copy commands step by step and produce a fi
 By the end of this runbook, you should produce:
 
 1. A running local SoloLakehouse v2.5 stack
-2. One successful `make pipeline` execution
+2. One successful `make demo` execution for demo data-flow acceptance
 3. A completed acceptance checklist
 4. A final conclusion statement (ready for PR/report/email)
 
@@ -76,7 +76,7 @@ You should see at least:
 
 ## 3. Initialize Local Python Environment
 
-Even though core components run in Docker, local helper scripts (for example health checks) run in your local Python environment.
+`make setup` creates `.venv` and installs dependencies automatically. Use the manual commands below only when you want to inspect or troubleshoot the local Python environment.
 
 ```bash
 python3 -m venv .venv
@@ -104,6 +104,7 @@ Success criteria:
 cp .env.example .env
 ```
 
+`make setup` also creates `.env` from `.env.example` when `.env` is missing.
 For first-time local demo, default values are usually enough.  
 If you have an existing `docker/data/postgres/` cluster from previous runs, credential mismatch may require fixes (see troubleshooting section).
 
@@ -152,18 +153,28 @@ If one service is still warming up, wait 10-30 seconds and rerun `make verify`.
 
 ---
 
-## 7. Execute Main Demo Flow (Pipeline)
+## 7. Execute Demo Data Flow (Acceptance Path)
+
+```bash
+make demo
+```
+
+This runs `make verify`, executes Dagster `demo_data_flow_job`, then checks Hive Gold and Iceberg Gold row counts through Trino.
+
+Success criteria:
+
+- Command exits with code 0
+- Dagster `demo_data_flow_job` succeeds
+- `hive.gold.ecb_dax_features` row count is greater than 0
+- `iceberg.gold.ecb_dax_features_iceberg` row count is greater than 0
+
+If you need the full pipeline including MLflow experiment execution, run:
 
 ```bash
 make pipeline
 ```
 
-This executes Dagster `full_pipeline_job`, the canonical v2.5 execution path.
-
-Success criteria:
-
-- Command exits with code 0
-- No unhandled exception in output
+`make pipeline` executes `full_pipeline_job`, which includes the demo data-flow assets plus `ml_experiment`.
 
 Then run a post-run health check:
 
@@ -182,7 +193,7 @@ Open each endpoint and verify expected behavior:
 | MinIO Console | `http://localhost:9001` | Page opens, buckets include `sololakehouse` and `mlflow-artifacts` |
 | Trino UI | `http://localhost:8080` | Page opens, service healthy |
 | MLflow UI | `http://localhost:5000` | Page opens without invalid host header error |
-| Dagster UI | `http://localhost:3000` | Latest pipeline run visible |
+| Dagster UI | `http://localhost:3000` | Latest `demo_data_flow_job` run visible |
 | OpenMetadata | `http://localhost:8585` | Page opens |
 | Superset | `http://localhost:8088` | Login works (`admin / admin` by default) |
 
@@ -209,9 +220,9 @@ Success criteria:
 - Query execution succeeds
 - Returned row count > 0
 
-### 9.2 Verify MLflow run records
+### 9.2 Optional: Verify MLflow run records
 
-In MLflow UI, confirm:
+`make demo` does not execute MLflow training. To validate experiment records, run `make pipeline` first, then confirm in MLflow UI:
 
 - At least one run exists
 - Run has timestamp/status/metrics (as applicable)
@@ -220,7 +231,7 @@ In MLflow UI, confirm:
 
 In Dagster UI, confirm:
 
-- Latest `full_pipeline_job` status is success
+- Latest `demo_data_flow_job` status is success
 - No unresolved failed steps
 
 ---
@@ -235,7 +246,7 @@ Mark each item during execution:
 - [ ] `.env` created
 - [ ] `make setup` completed successfully
 - [ ] Initial `make verify` is all PASS
-- [ ] `make pipeline` completed successfully
+- [ ] `make demo` completed successfully
 - [ ] Post-run `make verify` is all PASS
 - [ ] MinIO UI accessible and buckets present
 - [ ] Trino UI accessible
@@ -245,12 +256,12 @@ Mark each item during execution:
 - [ ] Superset UI login successful
 - [ ] `hive.gold.ecb_dax_features` query succeeds with data
 - [ ] `iceberg.gold.ecb_dax_features_iceberg` query succeeds with data
-- [ ] MLflow run record visible
+- [ ] Optional: `make pipeline` completed successfully and MLflow run record visible
 
 Acceptance rule:
 
 - All required items PASS => Final result = **PASS**
-- Any critical failure (`verify`, `pipeline`, Gold query) => Final result = **FAIL**
+- Any critical failure (`verify`, `demo`, Gold query) => Final result = **FAIL**
 
 ---
 
@@ -266,9 +277,9 @@ Result: PASS / FAIL
 
 Acceptance summary:
 - Service health checks: <PASS/FAIL>
-- Pipeline execution: <PASS/FAIL>
+- Demo data-flow execution: <PASS/FAIL>
 - Gold data query checks: <PASS/FAIL>
-- MLflow run visibility: <PASS/FAIL>
+- MLflow run visibility (optional full pipeline): <PASS/FAIL/not run>
 - UI accessibility (6 items): <PASS/FAIL>
 
 Notes:
@@ -349,7 +360,7 @@ pip install -r requirements.txt
 cp .env.example .env
 make setup
 make verify
-make pipeline
+make demo
 make verify
 ```
 

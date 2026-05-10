@@ -33,4 +33,4 @@ What happened instead.
 
 ## Logs / Screenshots
 
-Paste relevant logs (for example from `make verify` / `make pipeline`).
+Paste relevant logs (for example from `make verify` / `make demo` / `make pipeline`).

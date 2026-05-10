@@ -34,6 +34,37 @@ SoloLakehouse is a self-contained, cloud-neutral lakehouse reference platform th
 
 It is built end-to-end on Docker Compose — small enough to read in a weekend, complete enough to discuss production trade-offs, and explicit enough to map onto DORA, BaFin BAIT/MaRisk, and EU AI Act Title III obligations.
 
+## Can My Machine Run This?
+
+Minimum local profile for the full v2.5 stack:
+
+| Requirement | Minimum | Recommended |
+|---|---:|---:|
+| CPU | 4 cores | 6+ cores |
+| Free RAM | 8 GB | 12+ GB |
+| Free disk | 10 GB | 20+ GB |
+
+Required software:
+
+| Software | Version |
+|---|---|
+| Git | 2.40+ |
+| Docker Engine / Desktop | 24.0+ |
+| Docker Compose plugin | v2.20+ |
+| Python | 3.13+ |
+| make | any recent GNU/BSD make |
+
+OS compatibility:
+
+| OS | Status | Notes |
+|---|---|---|
+| Linux | Supported | Primary local path |
+| macOS | Supported | Docker Desktop required |
+| Windows WSL2 | Supported | Run commands inside the Linux distro |
+| Native Windows shell | Not supported | Use WSL2 |
+
+First run usually takes 10-15 minutes on a typical laptop because Docker pulls OpenMetadata, Superset, Trino, MLflow, and database images. If your network is slow, budget 20-30 minutes for image pulls.
+
 ## Architecture
 
 <p align="center">
@@ -73,22 +104,25 @@ Most lakehouse tutorials show **how to plug components together**. SoloLakehouse
 
 ## Quick Start
 
-Requirements: Docker with the Compose plugin, Python 3.13+, and `make`.
+From a cold clone, the full stack starts through one command:
 
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
 make setup
 ```
 
-Validate the stack and run the pipeline:
+`make setup` creates `.env` from `.env.example`, prepares `.venv`, installs Python dependencies, pulls images, starts the Compose stack, bootstraps databases, and waits for service health checks.
+
+Validate the stack, open a single health page, and run the end-to-end demo:
 
 ```bash
 make verify
-make pipeline
+make health
+make demo
 ```
+
+Health dashboard: `http://127.0.0.1:8090/health`
 
 Key UIs:
 
@@ -99,7 +133,7 @@ Key UIs:
 - Trino: `http://localhost:8080`
 - MinIO Console: `http://localhost:9001`
 
-See [docs/quickstart.md](docs/quickstart.md) and [docs/deployment.md](docs/deployment.md) for details, sizing, credentials, and troubleshooting.
+See [docs/quickstart.md](docs/quickstart.md), [docs/deployment.md](docs/deployment.md), [DEMO.md](DEMO.md), and [RUNBOOK.md](RUNBOOK.md) for details, sizing, credentials, and troubleshooting.
 
 ## Demo
 

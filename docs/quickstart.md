@@ -1,20 +1,16 @@
 # Quick Start
 
-Prerequisites: Docker (Compose plugin), Python 3.13+, `make`.
+Prerequisites: Docker (Compose plugin), Python 3.13+, Git, and `make`.
 
 ## 1) Clone and boot
 
 ```bash
 git clone <repository-url>
 cd SoloLakehouse
-cp .env.example .env
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-make up
+make setup
 ```
 
-`make up` starts the full v2.5 stack including OpenMetadata and Superset.
+`make setup` creates `.env` if needed, creates `.venv` if needed, installs Python dependencies, pulls images, and starts the full v2.5 stack including OpenMetadata and Superset.
 
 Durable local state (MinIO, PostgreSQL files, Dagster storage, OpenMetadata MySQL/Elasticsearch) is written under **`docker/data/`** in the repo (bind mounts; see [deployment.md](deployment.md)).
 
@@ -24,11 +20,21 @@ Durable local state (MinIO, PostgreSQL files, Dagster storage, OpenMetadata MySQ
 make verify
 ```
 
-## 3) Run pipeline
+For a browser health view:
 
 ```bash
-make pipeline
+make health
 ```
+
+Open `http://127.0.0.1:8090/health`.
+
+## 3) Run the demo path
+
+```bash
+make demo
+```
+
+`make demo` runs service verification, executes the Dagster demo data-flow job, and checks that both Hive Gold and Iceberg Gold return rows through Trino.
 
 ## 4) Explore UIs
 

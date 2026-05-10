@@ -10,7 +10,7 @@
 完成本手册后，你将交付：
 
 1. 一套可运行的 v2.5 本地 Lakehouse 环境
-2. 一次完整的 `make pipeline` 执行记录
+2. 一次完整的 `make demo` 执行记录（Demo 数据流验收）
 3. 一份可勾选的验收清单（PASS/FAIL）
 4. 一段最终结论（可直接放到汇报/PR/邮件）
 
@@ -83,7 +83,7 @@ All remaining commands assume you are at repository root.
 
 ## 3. 初始化本地 Python 运行环境
 
-> 虽然核心服务在 Docker 里，本地仍需要 Python 环境运行 `make verify` 等脚本。
+> `make setup` 会自动创建 `.venv` 并安装依赖。下面命令是手动初始化方式，适合你想拆开执行或排查本地 Python 环境时使用。
 
 ```bash
 python3 -m venv .venv
@@ -104,7 +104,7 @@ python --version
 - `pip install` 无报错退出
 
 **EN explanation:**  
-Keep this venv activated in the same terminal while running demo steps.
+`make setup` performs this automatically. Run these commands manually only when you want to inspect or troubleshoot the local Python environment.
 
 ---
 
@@ -114,6 +114,7 @@ Keep this venv activated in the same terminal while running demo steps.
 cp .env.example .env
 ```
 
+`make setup` 也会在 `.env` 不存在时自动从 `.env.example` 创建。
 本地首次演示可直接使用默认 `.env`。  
 如果你是旧环境（之前跑过），遇到数据库认证异常时请看“故障处理”章节。
 
@@ -171,18 +172,28 @@ Do not continue to pipeline execution until all services pass health checks.
 
 ---
 
-## 7. 执行主流程 Demo（数据管道）
+## 7. 执行 Demo 数据流（验收路径）
+
+```bash
+make demo
+```
+
+该命令会先执行 `make verify`，再通过 Dagster 执行 `demo_data_flow_job`，最后用 Trino 校验 Hive Gold 和 Iceberg Gold 都能查到数据。
+
+成功标准：
+
+- 命令退出码为 0
+- Dagster `demo_data_flow_job` 成功
+- `hive.gold.ecb_dax_features` 行数 > 0
+- `iceberg.gold.ecb_dax_features_iceberg` 行数 > 0
+
+如果你需要验证包含 MLflow 训练实验的完整流水线，再单独执行：
 
 ```bash
 make pipeline
 ```
 
-该命令通过 Dagster 执行 `full_pipeline_job`，是 v2.5 主线唯一支持入口。
-
-成功标准：
-
-- 命令退出码为 0
-- 终端无未处理异常
+`make pipeline` 会执行 `full_pipeline_job`，包含 Demo 数据流以及 `ml_experiment`。
 
 建议补做一次健康复核：
 
@@ -191,7 +202,7 @@ make verify
 ```
 
 **EN explanation:**  
-This is the core business demo action: one full end-to-end pipeline run.
+This is the core demo action: a Dagster data-flow run plus Trino Gold table assertions. Use `make pipeline` separately when MLflow experiment execution is in scope.
 
 ---
 
@@ -204,7 +215,7 @@ This is the core business demo action: one full end-to-end pipeline run.
 | MinIO Console | `http://localhost:9001` | 页面可访问，桶存在（`sololakehouse`、`mlflow-artifacts`） |
 | Trino UI | `http://localhost:8080` | 页面可访问，服务状态正常 |
 | MLflow UI | `http://localhost:5000` | 页面可访问，无 Host header 报错 |
-| Dagster UI | `http://localhost:3000` | 可看到最近一次 pipeline run |
+| Dagster UI | `http://localhost:3000` | 可看到最近一次 `demo_data_flow_job` run |
 | OpenMetadata | `http://localhost:8585` | 页面可访问 |
 | Superset | `http://localhost:8088` | 可登录（默认 `admin / admin`） |
 
@@ -237,9 +248,9 @@ FROM iceberg.gold.ecb_dax_features_iceberg;
 - SQL 执行成功
 - 结果行数 > 0
 
-### 9.2 使用 MLflow 验证实验记录
+### 9.2 可选：使用 MLflow 验证实验记录
 
-在 MLflow UI 中确认：
+`make demo` 不执行 MLflow 训练实验。需要验证实验记录时，先执行 `make pipeline`，再在 MLflow UI 中确认：
 
 - 至少存在一次 run
 - 该 run 有时间戳、状态、关键指标（如有）
@@ -248,7 +259,7 @@ FROM iceberg.gold.ecb_dax_features_iceberg;
 
 在 Dagster UI 中确认：
 
-- 最近一次 `full_pipeline_job` 为成功状态（success）
+- 最近一次 `demo_data_flow_job` 为成功状态（success）
 - 关键节点未出现失败重试风暴
 
 **EN explanation:**  
@@ -259,7 +270,7 @@ This section proves that the demo is not only “services up” but also “busi
 ## 10. Demo 验收清单（复制即可用）
 
 > 建议演示者一边执行一边勾选。  
-> 全部 `PASS` 才可判定 Demo 完成。
+> 必选项全部 `PASS` 才可判定 Demo 完成；标注“可选”的 MLflow 完整流水线项只在本次演示覆盖 ML 时填写。
 
 - [ ] 环境工具检查通过（git/docker/python/make）
 - [ ] 代码成功 clone 并进入仓库根目录
@@ -267,7 +278,7 @@ This section proves that the demo is not only “services up” but also “busi
 - [ ] `.env` 已创建
 - [ ] `make setup` 成功
 - [ ] `make verify` 首次全 PASS
-- [ ] `make pipeline` 成功执行
+- [ ] `make demo` 成功执行
 - [ ] `make verify` 二次复核 PASS
 - [ ] MinIO UI 可访问且桶存在
 - [ ] Trino UI 可访问
@@ -277,12 +288,12 @@ This section proves that the demo is not only “services up” but also “busi
 - [ ] Superset UI 可登录
 - [ ] Trino 查询 `hive.gold.ecb_dax_features` 成功且有数据
 - [ ] Trino 查询 `iceberg.gold.ecb_dax_features_iceberg` 成功且有数据
-- [ ] MLflow 中可见 run 记录
+- [ ] 可选：`make pipeline` 成功执行，MLflow 中可见 run 记录
 
 **结论规则：**
 
 - 勾选项全部通过 => Demo 结论为 **PASS**
-- 存在任一关键项失败（pipeline / verify / Gold 查询）=> Demo 结论为 **FAIL**
+- 存在任一关键项失败（demo / verify / Gold 查询）=> Demo 结论为 **FAIL**
 
 **EN explanation:**  
 Use this checklist as the formal acceptance gate for demo sign-off.
@@ -303,9 +314,9 @@ Use this checklist as the formal acceptance gate for demo sign-off.
 
 验收摘要：
 - 服务健康检查：<PASS/FAIL>
-- Pipeline 执行：<PASS/FAIL>
+- Demo 数据流执行：<PASS/FAIL>
 - Gold 数据查询：<PASS/FAIL>
-- MLflow 运行记录：<PASS/FAIL>
+- MLflow 运行记录（可选 full pipeline）：<PASS/FAIL/未执行>
 - UI 可访问性（6项）：<PASS/FAIL>
 
 备注：
@@ -324,9 +335,9 @@ Result: PASS / FAIL
 
 Acceptance summary:
 - Service health checks: <PASS/FAIL>
-- Pipeline execution: <PASS/FAIL>
+- Demo data-flow execution: <PASS/FAIL>
 - Gold data query checks: <PASS/FAIL>
-- MLflow run visibility: <PASS/FAIL>
+- MLflow run visibility (optional full pipeline): <PASS/FAIL/not run>
 - UI accessibility (6 items): <PASS/FAIL>
 
 Notes:
@@ -414,7 +425,7 @@ pip install -r requirements.txt
 cp .env.example .env
 make setup
 make verify
-make pipeline
+make demo
 make verify
 ```
 

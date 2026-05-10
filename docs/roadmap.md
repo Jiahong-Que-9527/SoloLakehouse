@@ -23,15 +23,19 @@ Previous parallel runtime paths are retired from code and kept only as historica
 ## Current Baseline (v2.5)
 
 The v2.5 baseline includes:
-- Dagster as the only orchestration entrypoint (`make pipeline`)
+- Dagster as the only orchestration engine
+- `make demo` as the acceptance/demo data-flow entrypoint
+- `make pipeline` as the full pipeline entrypoint including MLflow experiment execution
 - Trino with Hive and Iceberg catalogs
 - Gold registration/refresh via Trino
 - OpenMetadata in the default platform stack
 - Superset in the default platform stack
 
 Operational contract:
-- `make up` starts the full mandatory stack
+- `make setup` prepares a cold clone and starts the full mandatory stack
+- `make up` restarts the full mandatory stack after setup
 - `make verify` validates all core services and UIs
+- `make demo` executes `demo_data_flow_job` and verifies Hive/Iceberg Gold row counts
 - `make pipeline` executes `full_pipeline_job`
 
 ## v3.0 Direction

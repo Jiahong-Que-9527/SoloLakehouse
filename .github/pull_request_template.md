@@ -9,7 +9,8 @@ Explain the motivation and expected outcome.
 ## Validation
 
 - [ ] `make verify`
-- [ ] `make pipeline` (if relevant)
+- [ ] `make demo` (if runtime/demo flow is relevant)
+- [ ] `make pipeline` (if full MLflow pipeline is relevant)
 - [ ] `make lint`
 - [ ] `make typecheck`
 - [ ] `make test`

@@ -35,3 +35,31 @@ jobs:
           python-version: "3.13"
       - run: pip install -r requirements.txt
       - run: pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-fail-under=70
+
+  compose-demo:
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Run full v2.5 demo path
+        run: |
+          make setup
+          make demo
+      - name: Show container logs on failure
+        if: failure()
+        run: |
+          docker ps -a
+          docker logs --tail 200 slh-postgres || true
+          docker logs --tail 200 slh-minio || true
+          docker logs --tail 200 slh-hive-metastore || true
+          docker logs --tail 200 slh-trino || true
+          docker logs --tail 200 slh-dagster-webserver || true
+          docker logs --tail 200 slh-dagster-daemon || true
+          docker logs --tail 200 slh-mlflow || true
+      - name: Stop stack
+        if: always()
+        run: make down

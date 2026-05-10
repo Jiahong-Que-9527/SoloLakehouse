@@ -30,8 +30,8 @@
 
 | 顺序 | 文档 | 目的 |
 |------|------|------|
-| 5 | [docs/quickstart.md](quickstart.md) | 最短路径：clone → up → verify → pipeline。 |
-| 6 | [docs/DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) 或 [docs/DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | 完整 Demo / 验收清单与结论模板（中英二选一）。 |
+| 5 | [docs/quickstart.md](quickstart.md) | 最短路径：clone → setup → verify → demo。 |
+| 6 | [docs/DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) 或 [docs/DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | 完整 Demo / 验收清单与结论模板（中英二选一）；`make demo` 是验收入口，`make pipeline` 是含 MLflow 的完整流水线。 |
 | 7 | [docs/deployment.md](deployment.md) | 前置条件、部署、运维与排障（跑不通时回到这篇）。 |
 
 ---
@@ -57,6 +57,7 @@
 
 - **理解当前栈为何长这样**：ADR-001～005（v1 基础取舍）、ADR-006（Dagster 编排）、ADR-013（Iceberg Gold）、ADR-014（OpenMetadata 相关历史说明，与当前默认栈对照阅读）。
 - **规划与争议中的方向**：ADR-016（计算引擎迁移提案）、ADR-007～012（v3 基础设施与治理）、ADR-015～018（可观测性、目录与血缘等演进占位）。
+- **v2.5 freeze 取舍**：ADR-019（SeaweedFS 延后记录）。
 
 不必第一天读完所有 ADR；遇到具体决策点再读对应编号即可。
 

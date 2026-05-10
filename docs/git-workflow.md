@@ -187,7 +187,7 @@ make test
 make verify
 ```
 
-Run `make pipeline` as well if your change affects runtime flow or data processing behavior.
+Run `make demo` as well if your change affects runtime flow or data processing behavior. Run `make pipeline` too when full MLflow experiment coverage is relevant.
 
 ### Open the PR
 

@@ -11,6 +11,9 @@ Historical version narratives are preserved under `docs/history/`.
 | [roadmap.md](roadmap.md) | Canonical version status and forward roadmap |
 | [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: where this reference implementation is honest about its limits |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
+| [../DEMO.md](../DEMO.md) | Fixed 20-30 minute v2.5 recording script |
+| [make-demo-guide.md](make-demo-guide.md) | Detailed `make demo` explanation and manual execution guide |
+| [../RUNBOOK.md](../RUNBOOK.md) | Operational runbook for common local-stack scenarios |
 | [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) | 完整 Demo 执行手册（中文，含验收清单与结论模板） |
 | [DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | Full demo runbook in English (with acceptance checklist) |
 | [deployment.md](deployment.md) | Prerequisites, deployment, operations, troubleshooting |
@@ -30,6 +33,7 @@ Historical version narratives are preserved under `docs/history/`.
 | [architecture.md](architecture.md) | Layered architecture and component relationships |
 | [medallion-model.md](medallion-model.md) | Bronze/Silver/Gold conventions and data contracts |
 | [decisions/README.md](decisions/README.md) | ADR index (including v2.5 decisions) |
+| [compliance/README.md](compliance/README.md) | DORA, BaFin BAIT, and MiFID II / MiFIR evidence mappings |
 
 ## Release and Quality
 

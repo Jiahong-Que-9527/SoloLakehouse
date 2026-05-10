@@ -24,11 +24,17 @@ from assets import (  # noqa: E402
 from io_managers import ParquetIOManager  # noqa: E402
 from resources import MinioResource, PipelineConfigResource  # noqa: E402
 
-all_assets = [ecb_bronze, dax_bronze, ecb_silver, dax_silver, gold_features, ml_experiment]
+data_flow_assets = [ecb_bronze, dax_bronze, ecb_silver, dax_silver, gold_features]
+all_assets = [*data_flow_assets, ml_experiment]
 
 full_pipeline_job = define_asset_job(
     name="full_pipeline_job",
     selection=AssetSelection.assets(*all_assets),
+)
+
+demo_data_flow_job = define_asset_job(
+    name="demo_data_flow_job",
+    selection=AssetSelection.assets(*data_flow_assets),
 )
 
 daily_pipeline_schedule = ScheduleDefinition(
@@ -41,7 +47,7 @@ daily_pipeline_schedule = ScheduleDefinition(
 defs = Definitions(
     assets=all_assets,
     asset_checks=[gold_features_min_rows_check],
-    jobs=[full_pipeline_job],
+    jobs=[full_pipeline_job, demo_data_flow_job],
     schedules=[daily_pipeline_schedule],
     sensors=[ecb_data_freshness_sensor],
     resources={

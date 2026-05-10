@@ -22,14 +22,15 @@ FEATURE_COLUMNS = [
 
 def _make_model(model_type: str, params: dict[str, Any]) -> Any:
     if model_type == "xgboost":
+        xgboost_params = {"n_jobs": 1, "tree_method": "hist", "verbosity": 0, **params}
         return XGBClassifier(
             objective="binary:logistic",
             eval_metric="logloss",
             random_state=42,
-            **params,
+            **xgboost_params,
         )
     if model_type == "lightgbm":
-        lightgbm_params = {"verbose": -1, **params}
+        lightgbm_params = {"n_jobs": 1, "verbose": -1, **params}
         return LGBMClassifier(random_state=42, **lightgbm_params)
     raise ValueError(f"Unsupported model_type: {model_type}")
 

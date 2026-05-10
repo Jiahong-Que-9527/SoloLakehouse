@@ -20,6 +20,7 @@ The active runtime baseline is **v2.5 single-track**; older ADRs remain valuable
 - [ADR-013-iceberg-gold-trino.md](ADR-013-iceberg-gold-trino.md): Apache Iceberg for Gold via Trino (`iceberg` catalog)
 - [ADR-014-openmetadata-optional-profile.md](ADR-014-openmetadata-optional-profile.md): OpenMetadata as optional Docker Compose profile at introduction time (historical; current baseline uses the full default stack)
 - [ADR-016-compute-engine-migration.md](ADR-016-compute-engine-migration.md): move Silver/Gold transformations off pandas to Spark + dbt-spark, Trino becomes query-only (proposed)
+- [ADR-019-minio-seaweedfs-deferral.md](ADR-019-minio-seaweedfs-deferral.md): defer MinIO to SeaweedFS migration until after the v2.5 freeze
 
 ## v2.7-v2.8 decisions (planned evidence arc)
 

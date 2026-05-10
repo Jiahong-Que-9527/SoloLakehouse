@@ -20,7 +20,8 @@
 
 数据主链路：
 
-`ECB/DAX 数据源 -> Bronze -> Silver -> Gold -> MLflow`
+- Demo 验收链路：`ECB/DAX 数据源 -> Bronze -> Silver -> Gold -> Trino`
+- 完整流水线：`ECB/DAX 数据源 -> Bronze -> Silver -> Gold -> MLflow`
 
 **EN explanation:**  
 After completing this guide, you will have the full v2.5 local lakehouse stack running and verified, from raw ingestion to orchestration and ML tracking.
@@ -76,7 +77,7 @@ All commands in this guide assume you are in the repository root (`SoloLakehouse
 
 ## 3. 初始化本地 Python 环境
 
-> 即使核心服务跑在 Docker 里，也需要本地 Python 环境来执行 `make verify` 等脚本。
+> `make setup` 会自动创建 `.venv` 并安装依赖。下面命令是手动初始化方式，适合你想拆开执行或排查本地 Python 环境时使用。
 
 ```bash
 python3 -m venv .venv
@@ -94,7 +95,7 @@ python --version
 输出路径应指向 `.../SoloLakehouse/.venv/bin/python`。
 
 **EN explanation:**  
-The virtual environment is required for local helper scripts (especially health checks). Keep it activated in your current terminal session.
+`make setup` performs this automatically. Run these commands manually only when you want to inspect or troubleshoot the local Python environment.
 
 ---
 
@@ -106,6 +107,7 @@ The virtual environment is required for local helper scripts (especially health 
 cp .env.example .env
 ```
 
+`make setup` 也会在 `.env` 不存在时自动从 `.env.example` 创建。
 本地默认值通常可直接使用，不改也能启动。  
 如果你改过 PostgreSQL 用户/密码，请记得保持和 `docker/data/postgres/` 里已有集群一致（否则会出现认证失败）。
 
@@ -184,13 +186,13 @@ If these URLs open successfully after `make verify`, your platform is operationa
 
 ---
 
-## 8. 运行数据管道（主流程）
+## 8. 运行 Demo 数据流（验收路径）
 
 ```bash
-make pipeline
+make demo
 ```
 
-该命令会在 Dagster 中执行 `full_pipeline_job`（当前唯一支持入口）。
+该命令会先执行 `make verify`，再通过 Dagster 执行 `demo_data_flow_job`，最后用 Trino 校验 Hive Gold 和 Iceberg Gold 都能查到数据。
 
 完成后你可以再次执行：
 
@@ -200,12 +202,19 @@ make verify
 
 然后在以下 UI 检查结果：
 
-- Dagster UI：查看作业执行记录
-- MLflow UI：查看实验/运行
+- Dagster UI：查看 `demo_data_flow_job` 执行记录
 - Trino UI：查看查询
 
 **EN explanation:**  
-`make pipeline` runs the end-to-end v2.5 workflow through Dagster and is the canonical execution path.
+`make demo` is the v2.5 acceptance path: health checks, Dagster data-flow execution, and Trino Gold table assertions.
+
+### 可选：运行完整流水线（包含 MLflow）
+
+```bash
+make pipeline
+```
+
+`make pipeline` 会执行 Dagster `full_pipeline_job`，包含 Demo 数据流以及 `ml_experiment`。需要查看 MLflow 实验/运行记录时使用这个命令。
 
 ---
 
@@ -281,11 +290,11 @@ pip install -r requirements.txt
 cp .env.example .env
 make setup
 make verify
-make pipeline
+make demo
 ```
 
 **EN explanation:**  
-These commands are the minimal deterministic path from clone to a fully running stack plus one full pipeline run.
+These commands are the minimal deterministic path from clone to a fully running stack plus one accepted demo data-flow run.
 
 ---
 

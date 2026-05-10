@@ -13,7 +13,7 @@ Prompts for AI coding agents working on the current v2.5 single-track codebase.
 ## Verification prompt
 
 ```
-依次运行 make verify、make pipeline、make test、make lint、make typecheck，
+依次运行 make verify、make demo、make pipeline、make test、make lint、make typecheck，
 定位失败项并修复，输出根因与修复说明。
 ```
 
