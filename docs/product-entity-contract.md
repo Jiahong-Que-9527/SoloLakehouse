@@ -215,6 +215,9 @@ repository checkout itself is the runtime root or whether bind mounts live under
 
 Dataset IDs are logical identities and are not storage paths. They should map to
 current physical locations through configuration and governance metadata.
+See [Dataset ID and Governance Naming Convention](dataset-governance-naming.md)
+for naming rules, current FinLakehouse mappings, Aviation Lakehouse
+placeholders, and v2.6 lineage evidence fields.
 
 Examples:
 

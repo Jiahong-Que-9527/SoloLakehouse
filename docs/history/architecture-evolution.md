@@ -54,6 +54,16 @@ This file explains major architecture choices over time and why they changed.
 - Why: entity split, object-store replacement, and v2.6 governance evidence are
   separate risk surfaces and should be validated independently.
 
+3) Logical dataset IDs as governance join keys
+- Selected: use stable `fin.*` and `aviation.*` dataset IDs that map to current
+  object-store paths, Trino tables, OpenMetadata entities, and Dagster assets.
+- Why: v2.6 lineage evidence and future storage migrations need a stable key
+  that is not tied to MinIO bucket names, warehouse URIs, or catalog table
+  names.
+- Alternative rejected: use physical paths or Trino table names as governance
+  identities. Those names are expected to change during entity split and
+  side-by-side migration.
+
 ## v3 Decision Frame (planned)
 
 - Multi-environment deployment architecture

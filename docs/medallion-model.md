@@ -2,6 +2,11 @@
 
 The Medallion pattern tiers data by quality: raw → cleaned → analytics/ML-ready. SoloLakehouse implements it with **Parquet** on **MinIO** (see [ADR-003](decisions/ADR-003-parquet-vs-delta.md)).
 
+For product entities, physical paths and Trino table names are mapped to stable
+logical dataset IDs in
+[dataset-governance-naming.md](dataset-governance-naming.md). Those IDs are the
+governance keys that should survive bucket, catalog, and object-store changes.
+
 ## Bronze — raw
 
 **Purpose:** Preserve data as received, with traceability.

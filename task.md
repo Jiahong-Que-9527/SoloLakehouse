@@ -726,7 +726,7 @@ During the window:
 - [ ] MLflow artifact root configurable.
 - [ ] Audit bucket planned.
 - [ ] Lightweight portal planned and implemented.
-- [ ] Dataset ID convention defined.
+- [x] Dataset ID convention defined (`docs/dataset-governance-naming.md`).
 - [ ] Backup procedure written.
 - [ ] Restore drill completed.
 - [ ] MinIO retained as initial provider.

@@ -51,8 +51,9 @@
 |------|------|------|
 | 10 | [docs/architecture.md](architecture.md) | 分层与组件关系。 |
 | 11 | [docs/product-entity-contract.md](product-entity-contract.md) | FinLakehouse / Aviation Lakehouse 产品实体契约：身份、存储、运行时、元数据字段边界。 |
-| 12 | [docs/medallion-model.md](medallion-model.md) | Bronze / Silver / Gold 约定与数据契约。 |
-| 13 | [docs/decisions/README.md](decisions/README.md) | ADR 索引；先扫目录，再按需打开单篇。 |
+| 12 | [docs/dataset-governance-naming.md](dataset-governance-naming.md) | 稳定 dataset ID、物理路径映射、v2.6 lineage evidence 命名规则。 |
+| 13 | [docs/medallion-model.md](medallion-model.md) | Bronze / Silver / Gold 约定与数据契约。 |
+| 14 | [docs/decisions/README.md](decisions/README.md) | ADR 索引；先扫目录，再按需打开单篇。 |
 
 **ADR 建议优先级（在读完 ADR 索引后）**
 
@@ -70,11 +71,11 @@
 
 | 顺序 | 文档 | 目的 |
 |------|------|------|
-| 14 | [task.md](../task.md) | 当前仓库执行任务板（与 roadmap 配套）。 |
-| 15 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
-| 16 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
-| 17 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
-| 18 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
+| 15 | [task.md](../task.md) | 当前仓库执行任务板（与 roadmap 配套）。 |
+| 16 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
+| 17 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
+| 18 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
+| 19 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
 
 **可选（更细的版本规划笔记，按需）**
 
