@@ -35,6 +35,12 @@ and upgrade lifecycle.
 
 ## Required fields
 
+Implementation note: storage fields such as `DATA_BUCKET`, `AUDIT_BUCKET`,
+`MLFLOW_ARTIFACT_BUCKET`, and `WAREHOUSE_URI` are entity contract targets. The
+current v2.5 runtime still uses `BUCKET_NAME`, `MLFLOW_ARTIFACT_ROOT`, and
+existing `sololakehouse` / `mlflow-artifacts` defaults until the relevant
+runtime parameterization issues are implemented.
+
 | Field | Class | Required | FinLakehouse example | Aviation Lakehouse example | Notes |
 |---|---|---:|---|---|---|
 | `PRODUCT_ID` | Stable logical identity | Yes | `finlakehouse` | `aviation-lakehouse` | Lowercase product instance ID. Prefer DNS-safe names for host paths, compose projects, and service labels. |

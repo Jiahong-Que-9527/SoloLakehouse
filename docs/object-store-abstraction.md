@@ -17,6 +17,12 @@ object store can be replaced later through a separate side-by-side migration.
 - Related issue: #11.
 - Related ADR: [ADR-019](decisions/ADR-019-minio-seaweedfs-deferral.md).
 - Current provider: MinIO.
+- Runtime status: this is a contract document. The current v2.5 runtime still
+  uses `BUCKET_NAME`, `MLFLOW_ARTIFACT_ROOT`, S3-compatible variables, and some
+  hardcoded/default `sololakehouse` / `mlflow-artifacts` mappings. The
+  entity-level `DATA_BUCKET`, `AUDIT_BUCKET`, `MLFLOW_ARTIFACT_BUCKET`, and
+  `WAREHOUSE_URI` names below are target contract variables for later
+  parameterization work, not fully active runtime settings yet.
 
 ## Decision
 
@@ -37,12 +43,34 @@ Each is a separate migration surface with its own validation gates.
 
 ## Configuration layers
 
-Use three layers of configuration language.
+Use explicit current-runtime, future-target, and compatibility/runtime-specific
+configuration language.
 
-### Product-level object-store configuration
+### Current v2.5 runtime variables
 
-These values describe what the product entity needs from an object store. New
-application-level code and docs should prefer these names.
+These are the object-store related settings that are actually supported by the
+current v2.5 runtime today. This PR does not change their behavior.
+
+| Current variable or default | Current consumer examples | Current behavior |
+|---|---|---|
+| `BUCKET_NAME` | Dagster `PipelineConfigResource`; Dagster webserver/daemon compose environment | Main pipeline data bucket. Defaults to `sololakehouse` in code and is set to `sololakehouse` in `docker/docker-compose.yml`. |
+| `MLFLOW_ARTIFACT_ROOT` | `docker/mlflow/entrypoint.sh` | MLflow default artifact root. Defaults to `s3://mlflow-artifacts/`. |
+| `S3_ACCESS_KEY` / `S3_SECRET_KEY` | Trino, Hive Metastore, Dagster, MLflow/AWS SDK clients | S3-compatible credentials for current MinIO-backed clients. |
+| `S3_ENDPOINT` | Hive Metastore S3A configuration and generic S3-compatible clients | S3-compatible endpoint, currently `http://minio:9000` in `.env.example`. |
+| `MLFLOW_S3_ENDPOINT_URL` | MLflow artifact storage and Dagster runtime | MLflow S3 endpoint, currently `http://minio:9000`. |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | boto3 / AWS SDK compatibility | Compatibility aliases for S3 credentials. |
+| `MINIO_ENDPOINT` | Dagster Minio client defaults and current compose runtime | Current MinIO endpoint. |
+| `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | MinIO server bootstrap; fallback defaults for some Python clients | MinIO runtime credentials for local reference use. |
+| `s3a://sololakehouse/warehouse/` | Hive Metastore template | Current warehouse default in `docker/hive-metastore/metastore-site.xml.template`. |
+| `sololakehouse` and `mlflow-artifacts` buckets | MinIO init and verification scripts | Current local buckets created by `scripts/init-minio.sh` and checked by `scripts/verify-setup.py`. |
+
+### Future product-level object-store contract targets
+
+These values describe what a product entity should eventually need from an
+object store. New application-level code and docs should prefer these names once
+issue #4 and related storage parameterization work (#5/#6 or v2.6+ governance
+work) implement them. Until then, they are contract targets, not a guarantee
+that the v2.5 runtime reads them.
 
 | Variable | Purpose | Example |
 |---|---|---|
@@ -58,6 +86,27 @@ application-level code and docs should prefer these names.
 
 `OBJECT_STORE_PROVIDER` is a deployment detail. It must not be used as product
 identity, dataset namespace, or owner metadata.
+
+The target variables above become active only when the corresponding runtime
+components are parameterized. Until then, use the current v2.5 variables in the
+previous table when running the stack.
+
+### Compatibility mapping from current to future variables
+
+This table defines the intended migration path without changing behavior in this
+PR.
+
+| Current v2.5 setting | Future entity-level target | Migration note |
+|---|---|---|
+| `BUCKET_NAME=sololakehouse` | `DATA_BUCKET=<product_id>-data` | Future #5 work should make the data bucket entity-aware across Dagster, Python transforms, MinIO init, verification, and Trino registration. |
+| hardcoded/default `sololakehouse` bucket in Python helpers and scripts | `DATA_BUCKET` | Replace only when storage parameterization is implemented and tests cover the default local path. |
+| `MLFLOW_ARTIFACT_ROOT=s3://mlflow-artifacts/` | `MLFLOW_ARTIFACT_BUCKET=<product_id>-mlflow` plus an artifact root derived from it | Future #6 work should decide whether the active runtime keeps root URI config or derives it from the bucket variable. |
+| `mlflow-artifacts` bucket | `MLFLOW_ARTIFACT_BUCKET` | Future bucket initialization should create the entity MLflow bucket. |
+| no active v2.5 audit bucket variable | `AUDIT_BUCKET=<product_id>-audit` | Reserved for v2.6+ governance evidence; documenting it does not enable audit writes in v2.5. |
+| `s3a://sololakehouse/warehouse/` in Hive Metastore template | `WAREHOUSE_URI=s3a://<data_bucket>/warehouse/` | Future #5 work should parameterize the Hive warehouse template and related Trino schema locations. |
+| `S3_ACCESS_KEY` / `S3_SECRET_KEY` | `OBJECT_STORE_ACCESS_KEY` / `OBJECT_STORE_SECRET_KEY`, mapped back to S3 compatibility vars | Current clients still consume S3-compatible names. |
+| `S3_ENDPOINT`, `MLFLOW_S3_ENDPOINT_URL`, `MINIO_ENDPOINT` | `OBJECT_STORE_ENDPOINT`, mapped back where clients require legacy names | Endpoint consolidation is future runtime parameterization work. |
+| `MINIO_ROOT_USER` / `MINIO_ROOT_PASSWORD` | MinIO-only runtime settings, not product-level identity | Keep these names for MinIO server bootstrap while MinIO is the provider. |
 
 ### S3-compatible client configuration
 
@@ -92,7 +141,7 @@ itself.
 New product-facing code should avoid adding new `MINIO_*` variables unless the
 setting cannot apply to another S3-compatible provider.
 
-## Current compatibility mapping
+## Current compatibility example
 
 The v2.5 local reference stack currently uses MinIO and S3-compatible variables
 together:
@@ -102,6 +151,9 @@ OBJECT_STORE_PROVIDER=minio
 OBJECT_STORE_ENDPOINT=http://minio:9000
 OBJECT_STORE_EXTERNAL_ENDPOINT=http://localhost:9000
 
+# Current active client/runtime variables:
+BUCKET_NAME=sololakehouse
+MLFLOW_ARTIFACT_ROOT=s3://mlflow-artifacts/
 S3_ENDPOINT=http://minio:9000
 MLFLOW_S3_ENDPOINT_URL=http://minio:9000
 
@@ -115,16 +167,16 @@ AWS_SECRET_ACCESS_KEY=sololakehouse123
 
 For the initial product entities, the credentials may still be wired through the
 existing S3/MinIO variables. The important boundary is naming and ownership:
-entity configuration should introduce product-level object-store values first,
-then map them into compatibility variables where the current stack requires
-them.
+future entity configuration should introduce product-level object-store values
+first, then map them into compatibility variables where the current stack
+requires them.
 
 ## What changes during the first entity split
 
-For FinLakehouse and Aviation Lakehouse, change entity identity and owned
-storage names while keeping MinIO as provider.
+For FinLakehouse and Aviation Lakehouse, the target contract changes entity
+identity and owned storage names while keeping MinIO as provider.
 
-Examples:
+Target examples for issue #4 and related storage parameterization:
 
 ```bash
 # FinLakehouse
@@ -144,7 +196,8 @@ MLFLOW_ARTIFACT_BUCKET=aviation-lakehouse-mlflow
 WAREHOUSE_URI=s3a://aviation-lakehouse-data/warehouse/
 ```
 
-Do not replace MinIO in this step.
+These names are not fully active in the current v2.5 runtime until the relevant
+parameterization issues are implemented. Do not replace MinIO in this step.
 
 ## What does not change during the first entity split
 
@@ -152,6 +205,8 @@ The initial split should not change:
 
 - object-store provider implementation;
 - S3/S3A protocol assumptions;
+- current `BUCKET_NAME` / `MLFLOW_ARTIFACT_ROOT` behavior until their
+  parameterization issues are implemented;
 - Trino/Hive S3 connector behavior;
 - MLflow artifact protocol;
 - Iceberg table format;
@@ -236,7 +291,13 @@ The object-store boundary is prepared when:
 
 - docs describe MinIO as current provider, not product identity;
 - product-level `OBJECT_STORE_*`, `DATA_BUCKET`, `AUDIT_BUCKET`,
-  `MLFLOW_ARTIFACT_BUCKET`, and `WAREHOUSE_URI` settings are defined;
+  `MLFLOW_ARTIFACT_BUCKET`, and `WAREHOUSE_URI` settings are defined as future
+  contract targets;
+- current v2.5 runtime variables (`BUCKET_NAME`, `MLFLOW_ARTIFACT_ROOT`,
+  S3-compatible settings, and current default bucket/warehouse mappings) are
+  documented separately from future entity-level targets;
+- compatibility mapping from current variables to future target variables is
+  documented;
 - S3-compatible variables are explicitly documented as compatibility variables;
 - MinIO-specific variables are limited to MinIO runtime configuration;
 - entity split and object-store replacement are documented as separate changes;
