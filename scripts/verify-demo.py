@@ -12,6 +12,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import trino  # noqa: E402
+
 from runtime_identity import get_trino_user  # noqa: E402
 
 DEMO_QUERIES = {
