@@ -1,7 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TRINO_USER="${TRINO_USER:-sololakehouse}"
+PRODUCT_ID="${PRODUCT_ID:-sololakehouse}"
+
+normalize_trino_user() {
+  printf "%s" "$1" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9_]+/_/g; s/^_+//; s/_+$//'
+}
+
+if [ -z "${TRINO_USER:-}" ]; then
+  TRINO_USER="$(normalize_trino_user "${PRODUCT_ID}")"
+fi
+if [ -z "${TRINO_USER}" ]; then
+  echo "TRINO_USER could not be derived from PRODUCT_ID=${PRODUCT_ID}" >&2
+  exit 1
+fi
 
 create_admin_if_missing() {
   /app/.venv/bin/superset fab list-users | grep -q "${SUPERSET_ADMIN_USERNAME}"

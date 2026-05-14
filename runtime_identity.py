@@ -35,7 +35,7 @@ def get_runtime_identity(environ: Mapping[str, str] | None = None) -> RuntimeIde
 
     Defaults preserve the v2.5 SoloLakehouse local reference behavior.
     """
-    env = environ or os.environ
+    env = os.environ if environ is None else environ
     product_id = _env(env, "PRODUCT_ID", DEFAULT_PRODUCT_ID).lower()
     display_name = _env(env, "PRODUCT_DISPLAY_NAME", _default_display_name(product_id))
     domain = _env(env, "PRODUCT_DOMAIN", DEFAULT_DOMAIN)

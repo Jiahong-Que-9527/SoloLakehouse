@@ -2,11 +2,40 @@
 
 from __future__ import annotations
 
+import os
+from unittest.mock import patch
+
 from runtime_identity import get_runtime_identity, get_trino_user
 
 
-def test_default_identity_preserves_sololakehouse_baseline() -> None:
-    identity = get_runtime_identity({})
+def test_none_env_uses_process_environment() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "PRODUCT_ID": "finlakehouse",
+            "PRODUCT_DISPLAY_NAME": "FinLakehouse",
+            "TRINO_USER": "finlakehouse_user",
+        },
+        clear=True,
+    ):
+        identity = get_runtime_identity(None)
+
+    assert identity.product_id == "finlakehouse"
+    assert identity.display_name == "FinLakehouse"
+    assert identity.trino_user == "finlakehouse_user"
+
+
+def test_empty_env_mapping_does_not_read_process_environment() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "PRODUCT_ID": "aviation-lakehouse",
+            "PRODUCT_DISPLAY_NAME": "Aviation Lakehouse",
+            "TRINO_USER": "aviation_lakehouse",
+        },
+        clear=True,
+    ):
+        identity = get_runtime_identity({})
 
     assert identity.product_id == "sololakehouse"
     assert identity.display_name == "SoloLakehouse"
@@ -15,6 +44,23 @@ def test_default_identity_preserves_sololakehouse_baseline() -> None:
     assert identity.runtime_version == "slh-v2.5.1"
     assert identity.compose_project_name == "sololakehouse"
     assert identity.trino_user == "sololakehouse"
+
+
+def test_provided_mapping_resolves_identity_from_that_mapping() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "PRODUCT_ID": "sololakehouse",
+            "TRINO_USER": "sololakehouse",
+        },
+        clear=True,
+    ):
+        identity = get_runtime_identity({"PRODUCT_ID": "aviation-lakehouse"})
+
+    assert identity.product_id == "aviation-lakehouse"
+    assert identity.display_name == "Aviation Lakehouse"
+    assert identity.compose_project_name == "aviation-lakehouse"
+    assert identity.trino_user == "aviation_lakehouse"
 
 
 def test_entity_identity_derives_safe_defaults_from_product_id() -> None:
