@@ -10,6 +10,11 @@ services:
       trino:
         condition: service_healthy
     environment:
+      PRODUCT_ID: ${PRODUCT_ID:-sololakehouse}
+      PRODUCT_DISPLAY_NAME: ${PRODUCT_DISPLAY_NAME:-SoloLakehouse}
+      PRODUCT_DOMAIN: ${PRODUCT_DOMAIN:-financial_markets}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      RUNTIME_VERSION: ${RUNTIME_VERSION:-slh-v2.5.1}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER}
@@ -21,10 +26,11 @@ services:
       SUPERSET_ADMIN_FIRSTNAME: ${SUPERSET_ADMIN_FIRSTNAME:-Solo}
       SUPERSET_ADMIN_LASTNAME: ${SUPERSET_ADMIN_LASTNAME:-Lakehouse}
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:-sololakehouse-superset-secret-key-change-me}
+      TRINO_USER: ${TRINO_USER:-sololakehouse}
       SUPERSET_TRINO_ICEBERG_DB_NAME: ${SUPERSET_TRINO_ICEBERG_DB_NAME:-trino_iceberg_gold}
-      SUPERSET_TRINO_ICEBERG_URI: ${SUPERSET_TRINO_ICEBERG_URI:-trino://sololakehouse@trino:8080/iceberg/gold}
+      SUPERSET_TRINO_ICEBERG_URI: ${SUPERSET_TRINO_ICEBERG_URI:-}
       SUPERSET_TRINO_HIVE_DB_NAME: ${SUPERSET_TRINO_HIVE_DB_NAME:-trino_hive_default}
-      SUPERSET_TRINO_HIVE_URI: ${SUPERSET_TRINO_HIVE_URI:-trino://sololakehouse@trino:8080/hive/default}
+      SUPERSET_TRINO_HIVE_URI: ${SUPERSET_TRINO_HIVE_URI:-}
     ports:
       - "8088:8088"
     healthcheck:

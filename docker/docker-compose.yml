@@ -141,6 +141,11 @@ services:
       mlflow:
         condition: service_healthy
     environment:
+      PRODUCT_ID: ${PRODUCT_ID:-sololakehouse}
+      PRODUCT_DISPLAY_NAME: ${PRODUCT_DISPLAY_NAME:-SoloLakehouse}
+      PRODUCT_DOMAIN: ${PRODUCT_DOMAIN:-financial_markets}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      RUNTIME_VERSION: ${RUNTIME_VERSION:-slh-v2.5.1}
       MINIO_ENDPOINT: minio:9000
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
@@ -149,6 +154,7 @@ services:
       AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
       BUCKET_NAME: sololakehouse
+      TRINO_USER: ${TRINO_USER:-sololakehouse}
       TRINO_URL: http://trino:8080
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -182,6 +188,11 @@ services:
       dagster-webserver:
         condition: service_healthy
     environment:
+      PRODUCT_ID: ${PRODUCT_ID:-sololakehouse}
+      PRODUCT_DISPLAY_NAME: ${PRODUCT_DISPLAY_NAME:-SoloLakehouse}
+      PRODUCT_DOMAIN: ${PRODUCT_DOMAIN:-financial_markets}
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      RUNTIME_VERSION: ${RUNTIME_VERSION:-slh-v2.5.1}
       MINIO_ENDPOINT: minio:9000
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
@@ -190,6 +201,7 @@ services:
       AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
       BUCKET_NAME: sololakehouse
+      TRINO_USER: ${TRINO_USER:-sololakehouse}
       TRINO_URL: http://trino:8080
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

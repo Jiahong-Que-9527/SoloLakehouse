@@ -15,6 +15,7 @@ import pandas as pd
 import structlog
 
 from ml.train_ecb_dax_model import train
+from runtime_identity import get_trino_user
 
 logger = structlog.get_logger()
 
@@ -25,7 +26,7 @@ def _gold_dataframe_from_trino(trino_url: str) -> pd.DataFrame:
     parsed = urllib.parse.urlparse(trino_url)
     host = parsed.hostname or "localhost"
     port = parsed.port or 8080
-    user = os.environ.get("TRINO_USER", "sololakehouse")
+    user = get_trino_user()
     conn = trino_mod.dbapi.connect(
         host=host,
         port=port,
