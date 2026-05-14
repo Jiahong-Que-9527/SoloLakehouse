@@ -5,7 +5,7 @@
 **速记锚点**
 
 - **当前运行时基线**：v2.5（单轨 Docker Compose + Dagster + Trino Iceberg Gold + OpenMetadata + Superset）。权威说明见 `docs/roadmap.md`。
-- **日常执行 backlog**：仓库根目录 `TASKS.md`。
+- **日常执行 backlog**：仓库根目录 `task.md`。
 - **文档总索引**：`docs/README.md`。
 - **给 AI/Agent 的仓库速查**（人类也可扫一眼命令与目录）：`CLAUDE.md`。
 
@@ -50,8 +50,9 @@
 | 顺序 | 文档 | 目的 |
 |------|------|------|
 | 10 | [docs/architecture.md](architecture.md) | 分层与组件关系。 |
-| 11 | [docs/medallion-model.md](medallion-model.md) | Bronze / Silver / Gold 约定与数据契约。 |
-| 12 | [docs/decisions/README.md](decisions/README.md) | ADR 索引；先扫目录，再按需打开单篇。 |
+| 11 | [docs/product-entity-contract.md](product-entity-contract.md) | FinLakehouse / Aviation Lakehouse 产品实体契约：身份、存储、运行时、元数据字段边界。 |
+| 12 | [docs/medallion-model.md](medallion-model.md) | Bronze / Silver / Gold 约定与数据契约。 |
+| 13 | [docs/decisions/README.md](decisions/README.md) | ADR 索引；先扫目录，再按需打开单篇。 |
 
 **ADR 建议优先级（在读完 ADR 索引后）**
 
@@ -69,11 +70,11 @@
 
 | 顺序 | 文档 | 目的 |
 |------|------|------|
-| 13 | [TASKS.md](../TASKS.md) | 当前仓库执行任务板（与 roadmap 配套）。 |
-| 14 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
-| 15 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
-| 16 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
-| 17 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
+| 14 | [task.md](../task.md) | 当前仓库执行任务板（与 roadmap 配套）。 |
+| 15 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
+| 16 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
+| 17 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
+| 18 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
 
 **可选（更细的版本规划笔记，按需）**
 

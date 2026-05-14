@@ -31,6 +31,7 @@ Historical version narratives are preserved under `docs/history/`.
 | Document | Purpose |
 |----------|---------|
 | [architecture.md](architecture.md) | Layered architecture and component relationships |
+| [product-entity-contract.md](product-entity-contract.md) | Required identity, storage, runtime, and metadata fields for FinLakehouse/Aviation product entities |
 | [medallion-model.md](medallion-model.md) | Bronze/Silver/Gold conventions and data contracts |
 | [decisions/README.md](decisions/README.md) | ADR index (including v2.5 decisions) |
 | [compliance/README.md](compliance/README.md) | DORA, BaFin BAIT, and MiFID II / MiFIR evidence mappings |

@@ -8,6 +8,10 @@ The local/reference deployment runs on one Docker Compose host with **MinIO**, *
 The active architecture centers on five data/runtime layers (sources -> ingestion -> medallion storage -> query -> ML) plus platform services for orchestration, metadata, and BI access.
 Earlier version milestones and migration narratives are preserved in **[history/README.md](history/README.md)**.
 
+For product instances derived from the v2.5 template, use the
+**[Product Entity Contract](product-entity-contract.md)** to separate stable
+entity identity from physical runtime and storage details.
+
 ## Diagram — v2.5 baseline
 
 ![SoloLakehouse v2.5 architecture](img/SLHv2.5-architecture.jpg)

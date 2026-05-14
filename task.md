@@ -719,7 +719,7 @@ During the window:
 ### Before Entity Split
 
 - [ ] v2.5 accepted and tagged.
-- [ ] Entity contract written.
+- [x] Entity contract written (`docs/product-entity-contract.md`).
 - [ ] Runtime identity configurable.
 - [ ] Buckets configurable.
 - [ ] Warehouse URI configurable.

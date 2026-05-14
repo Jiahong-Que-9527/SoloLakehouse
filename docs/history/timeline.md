@@ -34,6 +34,22 @@ What landed:
 Decision gate to v3:
 - Harden infrastructure/governance without reintroducing parallel runtime entrypoints.
 
+## Post-v2.5 entity-template preparation - In progress
+
+Theme:
+- Prepare the v2.5 reference runtime to become a repeatable product entity
+  template before splitting FinLakehouse and Aviation Lakehouse.
+
+Current scope:
+- Define the product entity contract for stable identity, physical runtime
+  details, storage locations, service labels, and side-by-side upgrade policy.
+- Keep MinIO as the initial S3-compatible object-store provider while preparing
+  configuration boundaries for later replacement.
+
+Next decision gate:
+- Parameterize runtime identity, data buckets, warehouse URI, MLflow artifacts,
+  audit bucket, and entity-local runtime state from the contract.
+
 ## v3.0.0 - Planned
 
 Theme:
