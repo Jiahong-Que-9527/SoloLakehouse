@@ -39,7 +39,7 @@ This file explains major architecture choices over time and why they changed.
 
 ## Post-v2.5 Entity Template Choices (in progress)
 
-1) Product entity contract before product split  
+1) Product entity contract before product split
 - Selected: define a required entity contract before launching FinLakehouse or
   Aviation Lakehouse as long-running runtimes.
 - Why: stable product identity, dataset namespace, storage locations, metadata
@@ -48,7 +48,7 @@ This file explains major architecture choices over time and why they changed.
 - Alternative rejected: copy the v2.5 runtime first and rename values later.
   That would mix product identity changes with storage/runtime migration risk.
 
-2) MinIO retained for the first split  
+2) MinIO retained for the first split
 - Selected: keep MinIO as the initial S3-compatible provider while naming the
   object-store boundary generically in product-level configuration.
 - Why: entity split, object-store replacement, and v2.6 governance evidence are
