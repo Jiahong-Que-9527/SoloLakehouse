@@ -154,6 +154,39 @@ Rules:
   `PRODUCT_ID`; create a new file and review every credential, bucket, service,
   and backup path.
 
+### Loading the product-level `.env` from `app/`
+
+The repository `Makefile` defaults to `ENV_FILE=.env`. If an operator runs
+commands from `/opt/<product_id>/app/`, that default points at
+`/opt/<product_id>/app/.env`, not the product-level
+`/opt/<product_id>/.env`.
+
+Preferred operator command:
+
+```bash
+cd /opt/<product_id>/app
+ENV_FILE=../.env make up
+ENV_FILE=../.env make verify
+ENV_FILE=../.env make demo
+```
+
+This keeps the secret-bearing runtime configuration outside the active app
+checkout while using the existing Makefile contract.
+
+Acceptable alternatives:
+
+1. Create a product-level wrapper script, for example
+   `/opt/<product_id>/bin/slh`, that runs `make ENV_FILE=/opt/<product_id>/.env
+   ...` from the active app directory.
+2. Create a symlink from `/opt/<product_id>/app/.env` to
+   `/opt/<product_id>/.env` if the operational model intentionally keeps a
+   checkout-local `.env` path.
+3. Copy `.env` into the app path only when the copy is intentionally managed as
+   secret material and kept in sync with the product-level file.
+
+Without one of these strategies, a product deployment may start with missing
+configuration or with stale/default values from the app checkout.
+
 ## Side-by-side upgrade layout
 
 Side-by-side upgrades should create a new runtime root rather than mutating the
