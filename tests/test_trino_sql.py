@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from unittest.mock import MagicMock, patch
 
 import requests
@@ -26,6 +27,20 @@ def test_execute_trino_sql_polls_next_uri() -> None:
         with patch("ingestion.trino_sql.requests.get", return_value=get_resp):
             out = execute_trino_sql("http://localhost:8080", "SELECT 1")
     assert "stats" in out
+
+
+def test_execute_trino_sql_uses_runtime_identity_user() -> None:
+    post_resp = MagicMock()
+    post_resp.raise_for_status = MagicMock()
+    post_resp.json.return_value = {"stats": {"state": "FINISHED"}}
+
+    env = {**os.environ, "PRODUCT_ID": "aviation-lakehouse"}
+    env.pop("TRINO_USER", None)
+    with patch.dict(os.environ, env, clear=True):
+        with patch("ingestion.trino_sql.requests.post", return_value=post_resp) as post_mock:
+            execute_trino_sql("http://localhost:8080", "SELECT 1")
+
+    assert post_mock.call_args.kwargs["headers"]["X-Trino-User"] == "aviation_lakehouse"
 
 
 def test_register_gold_tables_trino_calls_sequence() -> None:

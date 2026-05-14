@@ -7,7 +7,10 @@
 
 ## Trino connection in OpenMetadata
 
-Add a Trino service with host `trino`, port `8080`, user `sololakehouse` (or your `TRINO_USER`), and catalogs `hive` and `iceberg`. Run metadata ingestion from the UI.
+Add a Trino service with host `trino`, port `8080`, the effective `TRINO_USER`
+from `.env` (default `sololakehouse`; otherwise derived from `PRODUCT_ID` unless
+explicitly set), and catalogs `hive` and `iceberg`. Run metadata ingestion from
+the UI.
 
 ## Verify
 

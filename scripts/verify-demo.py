@@ -13,6 +13,8 @@ if str(REPO_ROOT) not in sys.path:
 
 import trino  # noqa: E402
 
+from runtime_identity import get_trino_user  # noqa: E402
+
 DEMO_QUERIES = {
     "Hive Gold": "SELECT count(*) AS total_rows FROM hive.gold.ecb_dax_features",
     "Iceberg Gold": "SELECT count(*) AS total_rows FROM iceberg.gold.ecb_dax_features_iceberg",
@@ -38,7 +40,7 @@ def execute_count(trino_url: str, sql: str) -> int:
     conn = trino.dbapi.connect(
         host=parsed.hostname or "localhost",
         port=parsed.port or 8080,
-        user=os.environ.get("TRINO_USER", "sololakehouse"),
+        user=get_trino_user(),
         http_scheme=parsed.scheme or "http",
     )
     try:

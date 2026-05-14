@@ -41,6 +41,17 @@ current v2.5 runtime still uses `BUCKET_NAME`, `MLFLOW_ARTIFACT_ROOT`, and
 existing `sololakehouse` / `mlflow-artifacts` defaults until the relevant
 runtime parameterization issues are implemented.
 
+Runtime identity fields such as `PRODUCT_ID`, `PRODUCT_DISPLAY_NAME`,
+`PRODUCT_DOMAIN`, `ENVIRONMENT`, `RUNTIME_VERSION`, and `TRINO_USER` are active
+for health/verification labels and Trino client defaults. `COMPOSE_PROJECT_NAME`
+is documented as the entity-level Compose identity value, but the current
+Compose files still keep explicit `slh-*` container names for local compatibility
+until runtime state layout work changes that contract.
+If `TRINO_USER` is omitted, runtime clients derive a safe default from
+`PRODUCT_ID` by normalizing unsupported characters to underscores (for example,
+`aviation-lakehouse` becomes `aviation_lakehouse`). Operators may still set
+`TRINO_USER` explicitly in `.env` when a service requires a different username.
+
 | Field | Class | Required | FinLakehouse example | Aviation Lakehouse example | Notes |
 |---|---|---:|---|---|---|
 | `PRODUCT_ID` | Stable logical identity | Yes | `finlakehouse` | `aviation-lakehouse` | Lowercase product instance ID. Prefer DNS-safe names for host paths, compose projects, and service labels. |

@@ -3,12 +3,20 @@
 from __future__ import annotations
 
 import argparse
+import html
 import importlib.util
 import json
+import sys
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from runtime_identity import RuntimeIdentity, get_runtime_identity  # noqa: E402
 
 StatusTuple = tuple[str, str, str]
 
@@ -44,8 +52,10 @@ def collect_statuses() -> list[StatusTuple]:
 
 def status_payload() -> dict[str, Any]:
     statuses = collect_statuses()
+    identity = get_runtime_identity()
     return {
         "status": "PASS" if all(status == "PASS" for _, status, _ in statuses) else "FAIL",
+        "entity": identity.as_dict(),
         "services": [
             {"service": service, "status": status, "detail": detail}
             for service, status, detail in statuses
@@ -53,10 +63,20 @@ def status_payload() -> dict[str, Any]:
     }
 
 
+def _identity_summary(identity: RuntimeIdentity) -> str:
+    return (
+        f"{identity.display_name} ({identity.product_id}, "
+        f"{identity.environment}, {identity.runtime_version})"
+    )
+
+
 def render_html(payload: dict[str, Any]) -> str:
+    identity = RuntimeIdentity(**payload["entity"])
+    display_name = html.escape(identity.display_name)
+    identity_summary = html.escape(_identity_summary(identity))
     rows = "\n".join(
         f"<tr><td>{item['service']}</td><td class='{item['status'].lower()}'>{item['status']}</td>"
-        f"<td>{item['detail']}</td></tr>"
+        f"<td>{html.escape(item['detail'])}</td></tr>"
         for item in payload["services"]
     )
     return f"""<!doctype html>
@@ -64,7 +84,7 @@ def render_html(payload: dict[str, Any]) -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SoloLakehouse Health</title>
+  <title>{display_name} Health</title>
   <style>
     body {{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -82,7 +102,8 @@ def render_html(payload: dict[str, Any]) -> str:
   </style>
 </head>
 <body>
-  <h1>SoloLakehouse v2.5 Health</h1>
+  <h1>{display_name} Health</h1>
+  <p class="summary">Runtime: <code>{identity_summary}</code></p>
   <p class="summary">
     Overall status: <span class="{payload['status'].lower()}">{payload['status']}</span>
   </p>
@@ -130,7 +151,8 @@ def main() -> int:
     args = parser.parse_args()
 
     server = ThreadingHTTPServer((args.host, args.port), HealthHandler)
-    print(f"SoloLakehouse health dashboard: http://{args.host}:{args.port}/health")
+    identity = get_runtime_identity()
+    print(f"{identity.display_name} health dashboard: http://{args.host}:{args.port}/health")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

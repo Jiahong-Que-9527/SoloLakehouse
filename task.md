@@ -720,7 +720,7 @@ During the window:
 
 - [ ] v2.5 accepted and tagged.
 - [x] Entity contract written (`docs/product-entity-contract.md`).
-- [ ] Runtime identity configurable.
+- [x] Runtime identity configurable (`PRODUCT_ID`, labels, `TRINO_USER`).
 - [ ] Buckets configurable.
 - [ ] Warehouse URI configurable.
 - [ ] MLflow artifact root configurable.

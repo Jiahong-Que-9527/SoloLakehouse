@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import os
 import time
 from typing import Any
 
 import requests
 import structlog
+
+from runtime_identity import get_trino_user
 
 logger = structlog.get_logger()
 
@@ -26,7 +27,7 @@ def execute_trino_sql(
     """Run a SQL statement via Trino REST API and poll until completion."""
     base = trino_url.rstrip("/")
     headers: dict[str, str] = {
-        "X-Trino-User": user or os.environ.get("TRINO_USER", "sololakehouse"),
+        "X-Trino-User": user or get_trino_user(),
         "Content-Type": "text/plain; charset=utf-8",
     }
     if catalog:

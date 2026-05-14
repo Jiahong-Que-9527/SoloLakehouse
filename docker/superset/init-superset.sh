@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PRODUCT_ID="${PRODUCT_ID:-sololakehouse}"
+
+normalize_trino_user() {
+  printf "%s" "$1" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9_]+/_/g; s/^_+//; s/_+$//'
+}
+
+if [ -z "${TRINO_USER:-}" ]; then
+  TRINO_USER="$(normalize_trino_user "${PRODUCT_ID}")"
+fi
+if [ -z "${TRINO_USER}" ]; then
+  echo "TRINO_USER could not be derived from PRODUCT_ID=${PRODUCT_ID}" >&2
+  exit 1
+fi
+
 create_admin_if_missing() {
   /app/.venv/bin/superset fab list-users | grep -q "${SUPERSET_ADMIN_USERNAME}"
 }
@@ -34,11 +50,11 @@ echo "Initializing Superset roles and permissions..."
 
 ensure_database_connection \
   "${SUPERSET_TRINO_ICEBERG_DB_NAME:-trino_iceberg_gold}" \
-  "${SUPERSET_TRINO_ICEBERG_URI:-trino://sololakehouse@trino:8080/iceberg/gold}"
+  "${SUPERSET_TRINO_ICEBERG_URI:-trino://${TRINO_USER}@trino:8080/iceberg/gold}"
 
 ensure_database_connection \
   "${SUPERSET_TRINO_HIVE_DB_NAME:-trino_hive_default}" \
-  "${SUPERSET_TRINO_HIVE_URI:-trino://sololakehouse@trino:8080/hive/default}"
+  "${SUPERSET_TRINO_HIVE_URI:-trino://${TRINO_USER}@trino:8080/hive/default}"
 
 echo "Starting Superset server..."
 exec /app/docker/entrypoints/run-server.sh

@@ -12,6 +12,12 @@ import psycopg2
 import requests
 from minio import Minio
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from runtime_identity import get_runtime_identity  # noqa: E402
+
 StatusTuple = tuple[str, str, str]
 VALID_STATUSES = {"PASS", "FAIL", "TIMEOUT"}
 
@@ -312,6 +318,7 @@ def print_status_table(results: list[StatusTuple]) -> None:
 
 def main() -> int:
     load_dotenv_if_present()
+    identity = get_runtime_identity()
 
     missing_env = validate_required_env_vars()
     if missing_env:
@@ -329,6 +336,11 @@ def main() -> int:
         check_superset,
     ]
     results = [check() for check in checks]
+    print(
+        "Runtime identity: "
+        f"{identity.display_name} ({identity.product_id}, {identity.environment}, "
+        f"{identity.runtime_version})"
+    )
     print_status_table(results)
 
     all_pass = all(status == "PASS" for _, status, _ in results)
