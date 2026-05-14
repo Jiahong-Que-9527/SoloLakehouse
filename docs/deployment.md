@@ -75,6 +75,11 @@ Compose uses **bind mounts** under `docker/data/` in the repository (not Docker 
 
 `make up` runs `scripts/prepare-docker-data-dirs.sh` to create these directories. They are listed in `.gitignore` (except `docker/data/.gitkeep`).
 
+For long-running product entities, keep the same state classes but move
+ownership under an entity root such as `/opt/<product_id>/data/`. See
+[runtime-state-layout.md](runtime-state-layout.md) for the entity-owned host
+layout, `.env` location, and side-by-side upgrade rules.
+
 ## 7. Operational cleanup
 
 ### Safe cleanup (recommended day-to-day)

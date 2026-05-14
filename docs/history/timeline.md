@@ -47,6 +47,8 @@ Current scope:
   and future Aviation Lakehouse governance evidence.
 - Keep MinIO as the initial S3-compatible object-store provider and document
   the product-level object-store configuration boundary for later replacement.
+- Define entity-owned runtime roots, bind mount ownership, `.env` placement, and
+  side-by-side state layout.
 
 Next decision gate:
 - Parameterize runtime identity, data buckets, warehouse URI, MLflow artifacts,

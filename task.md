@@ -727,6 +727,7 @@ During the window:
 - [ ] Audit bucket planned.
 - [ ] Lightweight portal planned and implemented.
 - [x] Dataset ID convention defined (`docs/dataset-governance-naming.md`).
+- [x] Runtime state layout documented (`docs/runtime-state-layout.md`).
 - [ ] Backup procedure written.
 - [ ] Restore drill completed.
 - [x] MinIO retained as initial provider (`docs/object-store-abstraction.md`).

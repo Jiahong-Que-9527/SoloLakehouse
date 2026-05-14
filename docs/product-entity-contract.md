@@ -204,7 +204,8 @@ define:
 ## Runtime root layout
 
 For continuously operated product entities, prefer a host root owned by the
-entity:
+entity. See [Entity Runtime State Layout](runtime-state-layout.md) for bind
+mount ownership, `.env` handling, and side-by-side upgrade layouts.
 
 ```text
 /opt/<product_id>/app/       # checked-out code or release artifact

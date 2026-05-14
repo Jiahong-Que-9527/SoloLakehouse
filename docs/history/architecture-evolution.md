@@ -68,6 +68,15 @@ This file explains major architecture choices over time and why they changed.
   identities. Those names are expected to change during entity split and
   side-by-side migration.
 
+4) Entity-owned runtime roots
+- Selected: keep repository-local `docker/data/` for the local reference runtime
+  while recommending `/opt/<product_id>/` roots for continuously operated
+  product entities.
+- Why: the reference path stays easy to run, while product entities get clear
+  ownership for code, bind-mounted runtime data, backups, logs, and `.env`.
+- Alternative rejected: share one checkout and one `docker/data/` tree across
+  entities. That would blur backup, restore, rollback, and incident boundaries.
+
 ## v3 Decision Frame (planned)
 
 - Multi-environment deployment architecture
