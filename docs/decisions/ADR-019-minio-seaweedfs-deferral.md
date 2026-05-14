@@ -44,4 +44,10 @@ The migration remains a future portability exercise, not a v2.5 deliverable.
 
 ## Follow-up
 
-Revisit object storage portability in a later version after the v2.5 cold-clone, demo, documentation, and CI gates are green.
+Revisit object storage portability in a later version after the v2.5 cold-clone,
+demo, documentation, and CI gates are green.
+
+During entity-template preparation, use
+[Object Store Abstraction and MinIO Deferral](../object-store-abstraction.md) to
+separate product-level S3-compatible object-store configuration from
+MinIO-specific runtime settings.

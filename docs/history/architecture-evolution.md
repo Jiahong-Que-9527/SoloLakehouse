@@ -53,6 +53,10 @@ This file explains major architecture choices over time and why they changed.
   object-store boundary generically in product-level configuration.
 - Why: entity split, object-store replacement, and v2.6 governance evidence are
   separate risk surfaces and should be validated independently.
+- Boundary: product-level configuration uses `OBJECT_STORE_*`, bucket, and
+  warehouse names; existing `S3_*`, `AWS_*`, `MLFLOW_S3_ENDPOINT_URL`, and
+  `MINIO_*` names remain compatibility/runtime settings until code
+  parameterization replaces them safely.
 
 3) Logical dataset IDs as governance join keys
 - Selected: use stable `fin.*` and `aviation.*` dataset IDs that map to current

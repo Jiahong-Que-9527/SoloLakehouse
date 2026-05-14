@@ -33,6 +33,7 @@ Historical version narratives are preserved under `docs/history/`.
 | [architecture.md](architecture.md) | Layered architecture and component relationships |
 | [product-entity-contract.md](product-entity-contract.md) | Required identity, storage, runtime, and metadata fields for FinLakehouse/Aviation product entities |
 | [dataset-governance-naming.md](dataset-governance-naming.md) | Stable logical dataset IDs and physical mapping rules for entity governance |
+| [object-store-abstraction.md](object-store-abstraction.md) | Object-store configuration boundary and MinIO deferral strategy for entity split |
 | [medallion-model.md](medallion-model.md) | Bronze/Silver/Gold conventions and data contracts |
 | [decisions/README.md](decisions/README.md) | ADR index (including v2.5 decisions) |
 | [compliance/README.md](compliance/README.md) | DORA, BaFin BAIT, and MiFID II / MiFIR evidence mappings |

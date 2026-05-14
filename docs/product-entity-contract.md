@@ -29,7 +29,9 @@ and upgrade lifecycle.
 4. Entity-specific values must come from environment/configuration, not code
    edits to the shared SoloLakehouse template.
 5. The first entity split keeps MinIO. Object-store replacement is a later,
-   separate migration.
+   separate migration. See
+   [Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)
+   for the provider/configuration boundary.
 
 ## Required fields
 

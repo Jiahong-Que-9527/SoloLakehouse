@@ -45,8 +45,8 @@ Current scope:
   details, storage locations, service labels, and side-by-side upgrade policy.
 - Define stable logical dataset IDs and physical mapping rules for FinLakehouse
   and future Aviation Lakehouse governance evidence.
-- Keep MinIO as the initial S3-compatible object-store provider while preparing
-  configuration boundaries for later replacement.
+- Keep MinIO as the initial S3-compatible object-store provider and document
+  the product-level object-store configuration boundary for later replacement.
 
 Next decision gate:
 - Parameterize runtime identity, data buckets, warehouse URI, MLflow artifacts,

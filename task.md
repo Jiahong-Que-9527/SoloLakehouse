@@ -729,8 +729,8 @@ During the window:
 - [x] Dataset ID convention defined (`docs/dataset-governance-naming.md`).
 - [ ] Backup procedure written.
 - [ ] Restore drill completed.
-- [ ] MinIO retained as initial provider.
-- [ ] Object-store abstraction prepared.
+- [x] MinIO retained as initial provider (`docs/object-store-abstraction.md`).
+- [x] Object-store abstraction prepared (`docs/object-store-abstraction.md`).
 
 ### FinLakehouse
 

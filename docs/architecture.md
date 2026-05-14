@@ -10,7 +10,9 @@ Earlier version milestones and migration narratives are preserved in **[history/
 
 For product instances derived from the v2.5 template, use the
 **[Product Entity Contract](product-entity-contract.md)** to separate stable
-entity identity from physical runtime and storage details.
+entity identity from physical runtime and storage details. Use
+**[Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)**
+for the current MinIO provider boundary and future storage replacement path.
 
 ## Diagram — v2.5 baseline
 

@@ -10,6 +10,8 @@ It complements the [Product Entity Contract](product-entity-contract.md):
 - `DATASET_NAMESPACE` identifies the logical dataset namespace.
 - dataset IDs identify governed data assets and must survive physical storage,
   catalog, and runtime migrations.
+- [Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)
+  defines which object-store values may change without changing dataset IDs.
 
 ## Status
 
