@@ -34,37 +34,6 @@ SoloLakehouse is a self-contained, cloud-neutral lakehouse reference platform th
 
 It is built end-to-end on Docker Compose — small enough to read in a weekend, complete enough to discuss production trade-offs, and explicit enough to map onto DORA, BaFin BAIT/MaRisk, and EU AI Act Title III obligations.
 
-## Can My Machine Run This?
-
-Minimum local profile for the full v2.5 stack:
-
-| Requirement | Minimum | Recommended |
-|---|---:|---:|
-| CPU | 4 cores | 6+ cores |
-| Free RAM | 8 GB | 12+ GB |
-| Free disk | 10 GB | 20+ GB |
-
-Required software:
-
-| Software | Version |
-|---|---|
-| Git | 2.40+ |
-| Docker Engine / Desktop | 24.0+ |
-| Docker Compose plugin | v2.20+ |
-| Python | 3.13+ |
-| make | any recent GNU/BSD make |
-
-OS compatibility:
-
-| OS | Status | Notes |
-|---|---|---|
-| Linux | Supported | Primary local path |
-| macOS | Supported | Docker Desktop required |
-| Windows WSL2 | Supported | Run commands inside the Linux distro |
-| Native Windows shell | Not supported | Use WSL2 |
-
-First run usually takes 10-15 minutes on a typical laptop because Docker pulls OpenMetadata, Superset, Trino, MLflow, and database images. If your network is slow, budget 20-30 minutes for image pulls.
-
 ## Architecture
 
 <p align="center">
@@ -202,6 +171,38 @@ The platform is built around **replaceable boundaries** — not because every co
 | BI / Catalog | Superset / OpenMetadata | Enterprise tool (Looker, Atlan, etc.) | enterprise procurement constraints |
 
 Each boundary has a corresponding ADR explaining the current choice and the explicit conditions under which it should change. See the [ADR index](docs/decisions/README.md).
+
+## Can My Machine Run This?
+
+Minimum local profile for the full v2.5 stack:
+
+| Requirement | Minimum | Recommended |
+|---|---:|---:|
+| CPU | 4 cores | 6+ cores |
+| Free RAM | 8 GB | 12+ GB |
+| Free disk | 10 GB | 20+ GB |
+
+Required software:
+
+| Software | Version |
+|---|---|
+| Git | 2.40+ |
+| Docker Engine / Desktop | 24.0+ |
+| Docker Compose plugin | v2.20+ |
+| Python | 3.13+ |
+| make | any recent GNU/BSD make |
+
+OS compatibility:
+
+| OS | Status | Notes |
+|---|---|---|
+| Linux | Supported | Primary local path |
+| macOS | Supported | Docker Desktop required |
+| Windows WSL2 | Supported | Run commands inside the Linux distro |
+| Native Windows shell | Not supported | Use WSL2 |
+
+First run usually takes 10-15 minutes on a typical laptop because Docker pulls OpenMetadata, Superset, Trino, MLflow, and database images. If your network is slow, budget 20-30 minutes for image pulls.
+
 
 ## Documentation
 
