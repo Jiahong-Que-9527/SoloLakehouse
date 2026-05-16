@@ -78,10 +78,9 @@ preserving the logical business dataset identity.
 ## FinLakehouse dataset IDs
 
 The current financial reference flow maps to the `fin` namespace.
-The object paths below use future entity-level target variables for governance
-clarity. In the current v2.5 runtime, `${DATA_BUCKET}` is still represented by
-`BUCKET_NAME` / the default `sololakehouse` bucket until storage
-parameterization is implemented.
+The object paths below use entity-level storage variables. `DATA_BUCKET` is the
+active product-level setting for the main data bucket, with `BUCKET_NAME`
+retained as a v2.5 compatibility alias.
 
 | Logical dataset ID | Layer | Current physical object path | Trino mapping | Current Dagster asset | Notes |
 |---|---|---|---|---|---|

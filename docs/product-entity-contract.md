@@ -35,11 +35,11 @@ and upgrade lifecycle.
 
 ## Required fields
 
-Implementation note: storage fields such as `DATA_BUCKET`, `AUDIT_BUCKET`,
-`MLFLOW_ARTIFACT_BUCKET`, and `WAREHOUSE_URI` are entity contract targets. The
-current v2.5 runtime still uses `BUCKET_NAME`, `MLFLOW_ARTIFACT_ROOT`, and
-existing `sololakehouse` / `mlflow-artifacts` defaults until the relevant
-runtime parameterization issues are implemented.
+Implementation note: `DATA_BUCKET` and `WAREHOUSE_URI` are active runtime
+settings for entity data and Hive/Trino warehouse locations. `BUCKET_NAME`
+remains supported as a v2.5 compatibility alias. `AUDIT_BUCKET` and
+`MLFLOW_ARTIFACT_BUCKET` are still entity contract targets until the audit and
+MLflow artifact parameterization work is implemented.
 
 Runtime identity fields such as `PRODUCT_ID`, `PRODUCT_DISPLAY_NAME`,
 `PRODUCT_DOMAIN`, `ENVIRONMENT`, `RUNTIME_VERSION`, and `TRINO_USER` are active

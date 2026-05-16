@@ -14,6 +14,7 @@ COPY scripts ./scripts
 COPY dagster ./dagster
 COPY data ./data
 COPY runtime_identity.py ./runtime_identity.py
+COPY storage_config.py ./storage_config.py
 
 ENV PYTHONPATH=/app
 EXPOSE 3000

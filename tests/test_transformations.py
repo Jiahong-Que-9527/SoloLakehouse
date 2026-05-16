@@ -26,6 +26,11 @@ class TestECBTransform:
         assert len(out) == 3
         assert out["rate_pct"].isnull().sum() == 0
         assert out["observation_date"].duplicated().sum() == 0
+        rate_change = out.loc[
+            out["observation_date"] == dt.date(2024, 1, 2),
+            "rate_change_bps",
+        ].item()
+        assert rate_change == 25.0
 
 
 class TestDAXTransform:

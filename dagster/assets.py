@@ -170,7 +170,11 @@ def gold_features(
         bucket=pipeline_config.bucket,
     )
     gold_df = _read_parquet_from_minio(minio_client, pipeline_config.bucket, gold_path)
-    register_gold_tables_trino(trino_url=pipeline_config.trino_url, bucket=pipeline_config.bucket)
+    register_gold_tables_trino(
+        trino_url=pipeline_config.trino_url,
+        bucket=pipeline_config.bucket,
+        warehouse_uri=pipeline_config.warehouse_uri,
+    )
     context.add_output_metadata({"gold_path": gold_path, "event_count": int(len(gold_df.index))})
     _emit_metric("gold_features", started)
     return gold_path

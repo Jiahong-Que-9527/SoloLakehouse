@@ -10,11 +10,13 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from storage_config import get_data_bucket
+
 
 class BronzeWriter:
-    def __init__(self, minio_client: Any, bucket: str = "sololakehouse"):
+    def __init__(self, minio_client: Any, bucket: str | None = None):
         self.minio = minio_client
-        self.bucket = bucket
+        self.bucket = bucket or get_data_bucket()
 
     def write(self, df: pd.DataFrame, source: str, ingestion_date: str | None = None) -> str:
         """Write dataframe as snappy parquet and return object path."""

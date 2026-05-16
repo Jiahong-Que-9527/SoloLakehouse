@@ -16,6 +16,7 @@ import structlog
 
 from ml.train_ecb_dax_model import train
 from runtime_identity import get_trino_user
+from storage_config import get_data_bucket
 
 logger = structlog.get_logger()
 
@@ -60,10 +61,11 @@ def _gold_dataframe_from_minio_parquet(minio_client: Any, bucket: str) -> pd.Dat
 def run_experiment_set(
     minio_client: Any,
     mlflow_tracking_uri: str,
-    bucket: str = "sololakehouse",
+    bucket: str | None = None,
     trino_url: str | None = None,
 ) -> str:
     """Run all configured experiment combinations and return the best run_id."""
+    bucket = bucket or get_data_bucket()
     resolved_trino = trino_url or os.environ.get("TRINO_URL")
     if resolved_trino:
         df = _gold_dataframe_from_trino(resolved_trino)

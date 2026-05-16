@@ -17,6 +17,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from runtime_identity import get_runtime_identity  # noqa: E402
+from storage_config import get_data_bucket  # noqa: E402
 
 StatusTuple = tuple[str, str, str]
 VALID_STATUSES = {"PASS", "FAIL", "TIMEOUT"}
@@ -64,12 +65,13 @@ def check_minio() -> StatusTuple:
         )
         client = Minio(minio_endpoint, access_key=access_key, secret_key=secret_key, secure=False)
         buckets = {bucket.name for bucket in client.list_buckets()}
-        required = {"sololakehouse", "mlflow-artifacts"}
+        data_bucket = get_data_bucket()
+        required = {data_bucket, "mlflow-artifacts"}
         missing = sorted(required - buckets)
         if missing:
             return ("MinIO", "FAIL", f"Missing buckets: {', '.join(missing)}")
 
-        return ("MinIO", "PASS", "Buckets: sololakehouse, mlflow-artifacts")
+        return ("MinIO", "PASS", f"Buckets: {data_bucket}, mlflow-artifacts")
     except requests.Timeout:
         return ("MinIO", "TIMEOUT", "Timed out after 5s")
     except Exception as exc:

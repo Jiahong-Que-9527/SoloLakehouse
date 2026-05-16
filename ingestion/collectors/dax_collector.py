@@ -13,6 +13,7 @@ from pydantic import ValidationError
 from ingestion.bronze_writer import BronzeWriter
 from ingestion.quality.bronze_checks import run_dax_bronze_checks
 from ingestion.schema.dax_schema import DAXRecord
+from storage_config import get_data_bucket
 
 logger = structlog.get_logger()
 
@@ -24,14 +25,14 @@ class DAXCollector:
         self,
         minio_client: Any,
         csv_path: str = "data/sample/dax_daily_sample.csv",
-        bucket: str = "sololakehouse",
+        bucket: str | None = None,
         force: bool = False,
     ):
         self.minio = minio_client
         self.csv_path = csv_path
-        self.bucket = bucket
+        self.bucket = bucket or get_data_bucket()
         self.force = force
-        self.bronze_writer = BronzeWriter(minio_client=minio_client, bucket=bucket)
+        self.bronze_writer = BronzeWriter(minio_client=minio_client, bucket=self.bucket)
 
     def _fetch_data(self) -> list[dict[str, Any]]:
         rename_map = {

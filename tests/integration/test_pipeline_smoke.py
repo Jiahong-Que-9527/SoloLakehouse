@@ -8,6 +8,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from storage_config import get_data_bucket
+
 
 @pytest.mark.integration
 def test_pipeline_smoke(minio_client) -> None:
@@ -45,7 +47,7 @@ def test_pipeline_smoke(minio_client) -> None:
     assert result.returncode == 0, result.stdout + result.stderr
 
     gold_path = "gold/rate_impact_features/ecb_dax_features.parquet"
-    response = minio_client.get_object("sololakehouse", gold_path)
+    response = minio_client.get_object(get_data_bucket(), gold_path)
     try:
         gold_df = pd.read_parquet(BytesIO(response.read()))
     finally:

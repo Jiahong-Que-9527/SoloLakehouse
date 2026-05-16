@@ -22,7 +22,7 @@
   </property>
   <property>
     <name>metastore.warehouse.dir</name>
-    <value>s3a://sololakehouse/warehouse/</value>
+    <value>${WAREHOUSE_URI}</value>
   </property>
   <!-- Map s3:// URIs to S3AFileSystem (now on classpath via hadoop-aws symlink) -->
   <property>

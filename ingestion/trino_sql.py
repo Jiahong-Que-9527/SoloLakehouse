@@ -9,6 +9,7 @@ import requests
 import structlog
 
 from runtime_identity import get_trino_user
+from storage_config import default_warehouse_uri
 
 logger = structlog.get_logger()
 
@@ -88,11 +89,21 @@ def register_hive_gold_staging_parquet(trino_url: str, bucket: str) -> None:
     logger.info("hive_gold_staging_registered", bucket=bucket)
 
 
-def refresh_iceberg_gold_from_hive(trino_url: str, bucket: str) -> None:
+def _join_uri(base_uri: str, suffix: str) -> str:
+    return f"{base_uri.rstrip('/')}/{suffix.lstrip('/')}"
+
+
+def refresh_iceberg_gold_from_hive(
+    trino_url: str,
+    bucket: str,
+    warehouse_uri: str | None = None,
+) -> None:
     """Replace Iceberg Gold table from Hive staging Parquet (CTAS)."""
+    effective_warehouse_uri = warehouse_uri or default_warehouse_uri(bucket)
+    iceberg_gold_location = _join_uri(effective_warehouse_uri, "gold/")
     execute_trino_sql(
         trino_url,
-        f"CREATE SCHEMA IF NOT EXISTS iceberg.gold WITH (location = 's3://{bucket}/gold/iceberg/')",
+        f"CREATE SCHEMA IF NOT EXISTS iceberg.gold WITH (location = '{iceberg_gold_location}')",
     )
     execute_trino_sql(trino_url, f"DROP TABLE IF EXISTS {ICEBERG_GOLD_TABLE}")
     execute_trino_sql(
@@ -102,17 +113,26 @@ def refresh_iceberg_gold_from_hive(trino_url: str, bucket: str) -> None:
         AS SELECT * FROM hive.gold.ecb_dax_features
         """,
     )
-    logger.info("iceberg_gold_refreshed", bucket=bucket, table=ICEBERG_GOLD_TABLE)
+    logger.info(
+        "iceberg_gold_refreshed",
+        bucket=bucket,
+        warehouse_uri=effective_warehouse_uri,
+        table=ICEBERG_GOLD_TABLE,
+    )
 
 
-def register_gold_tables_trino(trino_url: str, bucket: str) -> None:
+def register_gold_tables_trino(
+    trino_url: str,
+    bucket: str,
+    warehouse_uri: str | None = None,
+) -> None:
     """Ensure Hive staging + Iceberg Gold are aligned after Parquet write."""
     attempts = 3
     delay_s = 5.0
     for attempt in range(1, attempts + 1):
         try:
             register_hive_gold_staging_parquet(trino_url, bucket)
-            refresh_iceberg_gold_from_hive(trino_url, bucket)
+            refresh_iceberg_gold_from_hive(trino_url, bucket, warehouse_uri=warehouse_uri)
             return
         except (requests.RequestException, TimeoutError, ValueError) as exc:
             if attempt >= attempts or not _is_retryable_trino_error(exc):

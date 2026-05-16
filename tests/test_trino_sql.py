@@ -58,6 +58,39 @@ def test_register_gold_tables_trino_calls_sequence() -> None:
     assert any("DROP TABLE IF EXISTS iceberg.gold.ecb_dax_features_iceberg" in c for c in calls)
 
 
+def test_register_gold_tables_trino_uses_entity_bucket_and_warehouse_uri() -> None:
+    calls: list[str] = []
+
+    def fake_exec(url: str, sql: str, **_k) -> dict:
+        calls.append(sql.strip())
+        return {}
+
+    with patch("ingestion.trino_sql.execute_trino_sql", side_effect=fake_exec):
+        register_gold_tables_trino(
+            "http://localhost:8080",
+            "finlakehouse-data",
+            warehouse_uri="s3a://finlakehouse-data/warehouse/",
+        )
+
+    assert any("s3://finlakehouse-data/gold/" in c for c in calls)
+    assert any("s3a://finlakehouse-data/warehouse/gold/" in c for c in calls)
+
+
+def test_register_gold_tables_trino_derives_default_warehouse_from_bucket_override() -> None:
+    calls: list[str] = []
+
+    def fake_exec(url: str, sql: str, **_k) -> dict:
+        calls.append(sql.strip())
+        return {}
+
+    with patch("ingestion.trino_sql.execute_trino_sql", side_effect=fake_exec):
+        register_gold_tables_trino("http://localhost:8080", "finlakehouse-data")
+
+    assert any("s3://finlakehouse-data/gold/" in c for c in calls)
+    assert any("s3a://finlakehouse-data/warehouse/gold/" in c for c in calls)
+    assert not any("s3a://sololakehouse/warehouse/gold/" in c for c in calls)
+
+
 def test_register_gold_tables_trino_retries_transient_errors() -> None:
     calls: list[str] = []
     attempts = {"count": 0}

@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
+DATA_BUCKET="${DATA_BUCKET:-${BUCKET_NAME:-sololakehouse}}"
+WAREHOUSE_URI="${WAREHOUSE_URI:-s3a://${DATA_BUCKET}/warehouse/}"
+export WAREHOUSE_URI
+
 envsubst < /opt/hive/conf/metastore-site.xml.template > /opt/hive/conf/metastore-site.xml
 
 DB_HOST="${DB_HOST:-postgres}"

@@ -9,6 +9,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from storage_config import get_data_bucket
 from transformations.quality_report import run_silver_quality_report
 
 
@@ -99,8 +100,9 @@ def build_gold_features(ecb_df: pd.DataFrame, dax_df: pd.DataFrame) -> pd.DataFr
     ]
 
 
-def run(minio_client: Any, bucket: str = "sololakehouse") -> str:
+def run(minio_client: Any, bucket: str | None = None) -> str:
     """Read silver ECB/DAX, build gold features, write parquet, and return path."""
+    bucket = bucket or get_data_bucket()
     ecb_path = "silver/ecb_rates_cleaned/ecb_rates_cleaned.parquet"
     dax_path = "silver/dax_daily_cleaned/dax_daily_cleaned.parquet"
 

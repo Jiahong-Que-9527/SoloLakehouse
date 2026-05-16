@@ -9,6 +9,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from storage_config import get_data_bucket
 from transformations.quality_report import run_silver_quality_report
 
 
@@ -44,8 +45,9 @@ def transform_dax_bronze_to_silver(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
 
-def run(minio_client: Any, bucket: str = "sololakehouse") -> str:
+def run(minio_client: Any, bucket: str | None = None) -> str:
     """Read DAX bronze partitions, transform, write silver parquet, and return path."""
+    bucket = bucket or get_data_bucket()
     prefix = "bronze/dax_daily/"
     parquet_paths: list[str] = []
     for obj in minio_client.list_objects(bucket, prefix=prefix, recursive=True):

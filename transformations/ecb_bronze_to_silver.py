@@ -9,6 +9,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from storage_config import get_data_bucket
 from transformations.quality_report import run_silver_quality_report
 
 
@@ -30,17 +31,18 @@ def transform_ecb_bronze_to_silver(df: pd.DataFrame) -> pd.DataFrame:
 
     transformed = transformed.sort_values("observation_date")
     transformed["rate_pct"] = transformed["rate_pct"].ffill()
+    transformed = transformed.drop_duplicates(subset=["observation_date"], keep="last")
+    transformed = transformed.drop(columns=["_ingestion_timestamp", "_source"], errors="ignore")
     transformed["rate_change_bps"] = (
         (transformed["rate_pct"] - transformed["rate_pct"].shift(1)) * 100
     ).round(1)
-    transformed = transformed.drop_duplicates(subset=["observation_date"], keep="last")
-    transformed = transformed.drop(columns=["_ingestion_timestamp", "_source"], errors="ignore")
 
     return transformed[["observation_date", "rate_pct", "rate_change_bps"]]
 
 
-def run(minio_client: Any, bucket: str = "sololakehouse") -> str:
+def run(minio_client: Any, bucket: str | None = None) -> str:
     """Read ECB bronze partitions, transform, write silver parquet, and return path."""
+    bucket = bucket or get_data_bucket()
     prefix = "bronze/ecb_rates/"
     parquet_paths: list[str] = []
     for obj in minio_client.list_objects(bucket, prefix=prefix, recursive=True):

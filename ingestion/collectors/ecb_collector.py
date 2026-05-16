@@ -16,6 +16,7 @@ from ingestion.bronze_writer import BronzeWriter
 from ingestion.exceptions import CollectorUnavailableError
 from ingestion.quality.bronze_checks import run_ecb_bronze_checks
 from ingestion.schema.ecb_schema import ECBRecord
+from storage_config import get_data_bucket
 
 logger = structlog.get_logger()
 
@@ -25,11 +26,11 @@ class ECBCollector:
 
     ENDPOINT = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_RT.LEV"
 
-    def __init__(self, minio_client: Any, bucket: str = "sololakehouse", force: bool = False):
+    def __init__(self, minio_client: Any, bucket: str | None = None, force: bool = False):
         self.minio = minio_client
-        self.bucket = bucket
+        self.bucket = bucket or get_data_bucket()
         self.force = force
-        self.bronze_writer = BronzeWriter(minio_client=minio_client, bucket=bucket)
+        self.bronze_writer = BronzeWriter(minio_client=minio_client, bucket=self.bucket)
 
     def _fetch_data(self) -> list[dict[str, Any]]:
         params = {"format": "jsondata", "startPeriod": "1999-01-01"}

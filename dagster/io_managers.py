@@ -12,6 +12,7 @@ import pyarrow.parquet as pq
 from minio import Minio
 
 from dagster import ConfigurableIOManager, InputContext, OutputContext
+from storage_config import get_data_bucket
 
 
 class ParquetIOManager(ConfigurableIOManager):
@@ -26,7 +27,7 @@ class ParquetIOManager(ConfigurableIOManager):
         os.environ.get("MINIO_ROOT_PASSWORD", "sololakehouse123"),
     )
     secure: bool = False
-    bucket: str = "sololakehouse"
+    bucket: str = get_data_bucket()
     base_prefix: str = "dagster/assets"
 
     def _client(self) -> Minio:

@@ -30,6 +30,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      DATA_BUCKET: ${DATA_BUCKET:-}
+      BUCKET_NAME: ${BUCKET_NAME:-sololakehouse}
     restart: "no"
 
   postgres:
@@ -65,6 +67,9 @@ services:
       S3_ENDPOINT: ${S3_ENDPOINT}
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
+      DATA_BUCKET: ${DATA_BUCKET:-}
+      BUCKET_NAME: ${BUCKET_NAME:-sololakehouse}
+      WAREHOUSE_URI: ${WAREHOUSE_URI:-}
     ports:
       - "9083:9083"
     healthcheck:
@@ -153,7 +158,9 @@ services:
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
       AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
-      BUCKET_NAME: sololakehouse
+      DATA_BUCKET: ${DATA_BUCKET:-}
+      BUCKET_NAME: ${BUCKET_NAME:-sololakehouse}
+      WAREHOUSE_URI: ${WAREHOUSE_URI:-}
       TRINO_USER: ${TRINO_USER:-}
       TRINO_URL: http://trino:8080
       POSTGRES_USER: ${POSTGRES_USER}
@@ -200,7 +207,9 @@ services:
       MLFLOW_S3_ENDPOINT_URL: http://minio:9000
       AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
-      BUCKET_NAME: sololakehouse
+      DATA_BUCKET: ${DATA_BUCKET:-}
+      BUCKET_NAME: ${BUCKET_NAME:-sololakehouse}
+      WAREHOUSE_URI: ${WAREHOUSE_URI:-}
       TRINO_USER: ${TRINO_USER:-}
       TRINO_URL: http://trino:8080
       POSTGRES_USER: ${POSTGRES_USER}
@@ -210,9 +219,8 @@ services:
     volumes:
       - ./data/dagster:/app/dagster/storage
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f 'dagster-daemon' > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import os; os.kill(1, 0)\""]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-
