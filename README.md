@@ -209,6 +209,7 @@ First run usually takes 10-15 minutes on a typical laptop because Docker pulls O
 - [Architecture](docs/architecture.md)
 - [Quick start](docs/quickstart.md)
 - [Deployment](docs/deployment.md)
+- [Entity backup and restore runbook](docs/entity-backup-restore-runbook.md)
 - [Roadmap](docs/roadmap.md)
 - [ADR index](docs/decisions/README.md)
 - [Demo runbook](docs/DEMO_RUNBOOK_EN.md)
