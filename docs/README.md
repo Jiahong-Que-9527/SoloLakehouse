@@ -36,6 +36,7 @@ Historical version narratives are preserved under `docs/history/`.
 | [object-store-abstraction.md](object-store-abstraction.md) | Object-store configuration boundary and MinIO deferral strategy for entity split |
 | [runtime-state-layout.md](runtime-state-layout.md) | Entity-owned runtime roots, bind mount ownership, `.env`, and side-by-side state layout |
 | [entity-backup-restore-runbook.md](entity-backup-restore-runbook.md) | Minimum backup set, restore order, and validation checks for a product entity |
+| [restore-drills/2026-05-17-entity-template-restore-drill.md](restore-drills/2026-05-17-entity-template-restore-drill.md) | Completed v2.5 entity-template restore drill evidence for issue #10 |
 | [medallion-model.md](medallion-model.md) | Bronze/Silver/Gold conventions and data contracts |
 | [decisions/README.md](decisions/README.md) | ADR index (including v2.5 decisions) |
 | [compliance/README.md](compliance/README.md) | DORA, BaFin BAIT, and MiFID II / MiFIR evidence mappings |
