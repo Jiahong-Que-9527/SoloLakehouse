@@ -42,7 +42,11 @@ def test_status_payload_contains_portal_sections(monkeypatch) -> None:
     assert payload["demo"]["readiness"]["status"] == "READY"
     assert payload["demo"]["flow"][0]["command"] == "make verify"
     assert payload["demo"]["readiness"]["command"] == "make demo"
-    assert {"label": "Health JSON", "url": "/health.json", "detail": "Machine-readable portal status"} in payload["links"]
+    assert {
+        "label": "Health JSON",
+        "url": "/health.json",
+        "detail": "Machine-readable portal status",
+    } in payload["links"]
     assert any(link["url"] == "http://object-store.local:9001" for link in payload["links"])
     assert any(doc["url"] == "/docs/make-demo-guide.md" for doc in payload["docs"])
 

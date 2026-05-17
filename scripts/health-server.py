@@ -339,12 +339,30 @@ def render_html(payload: dict[str, Any]) -> str:
     <section>
       <h2>Entity</h2>
       <div class="identity-grid">
-        <div class="metric"><strong>{html.escape(identity.product_id)}</strong><span>Product ID</span></div>
-        <div class="metric"><strong>{html.escape(identity.domain)}</strong><span>Domain</span></div>
-        <div class="metric"><strong>{html.escape(identity.environment)}</strong><span>Environment</span></div>
-        <div class="metric"><strong>{html.escape(identity.runtime_version)}</strong><span>Runtime Version</span></div>
-        <div class="metric"><strong>{html.escape(storage['data_bucket'])}</strong><span>Data Bucket</span></div>
-        <div class="metric"><strong>{html.escape(storage['warehouse_uri'])}</strong><span>Warehouse URI</span></div>
+        <div class="metric">
+          <strong>{html.escape(identity.product_id)}</strong>
+          <span>Product ID</span>
+        </div>
+        <div class="metric">
+          <strong>{html.escape(identity.domain)}</strong>
+          <span>Domain</span>
+        </div>
+        <div class="metric">
+          <strong>{html.escape(identity.environment)}</strong>
+          <span>Environment</span>
+        </div>
+        <div class="metric">
+          <strong>{html.escape(identity.runtime_version)}</strong>
+          <span>Runtime Version</span>
+        </div>
+        <div class="metric">
+          <strong>{html.escape(storage['data_bucket'])}</strong>
+          <span>Data Bucket</span>
+        </div>
+        <div class="metric">
+          <strong>{html.escape(storage['warehouse_uri'])}</strong>
+          <span>Warehouse URI</span>
+        </div>
       </div>
     </section>
 
@@ -352,7 +370,10 @@ def render_html(payload: dict[str, Any]) -> str:
       <h2>Demo Readiness</h2>
       <div class="readiness {readiness_class}">
         <strong class="{readiness_class}">{html.escape(readiness['status'])}</strong>
-        <p class="muted">{html.escape(readiness['summary'])} Command: <code>{html.escape(readiness['command'])}</code></p>
+        <p class="muted">
+          {html.escape(readiness['summary'])}
+          Command: <code>{html.escape(readiness['command'])}</code>
+        </p>
         {blocked_detail}
       </div>
       <ol>{flow}</ol>
@@ -365,7 +386,12 @@ def render_html(payload: dict[str, Any]) -> str:
 
     <section>
       <h2>Health</h2>
-      <p class="summary">Overall status: <span class="{_css_class(payload['status'])}">{html.escape(payload['status'])}</span></p>
+      <p class="summary">
+        Overall status:
+        <span class="{_css_class(payload['status'])}">
+          {html.escape(payload['status'])}
+        </span>
+      </p>
       <table>
         <thead><tr><th>Service</th><th>Status</th><th>Detail</th></tr></thead>
         <tbody>{rows}</tbody>
