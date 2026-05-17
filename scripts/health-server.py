@@ -11,7 +11,7 @@ import sys
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
@@ -21,7 +21,15 @@ from runtime_identity import RuntimeIdentity, get_runtime_identity  # noqa: E402
 from storage_config import get_storage_config  # noqa: E402
 
 StatusTuple = tuple[str, str, str]
-DOC_LINKS = [
+
+
+class DocLink(TypedDict):
+    label: str
+    route: str
+    path: Path
+
+
+DOC_LINKS: list[DocLink] = [
     {
         "label": "Make Demo Guide",
         "route": "/docs/make-demo-guide.md",
@@ -38,7 +46,7 @@ DOC_LINKS = [
         "path": REPO_ROOT / "docs" / "DEMO_RUNBOOK_EN.md",
     },
 ]
-DOC_ROUTES = {item["route"]: item["path"] for item in DOC_LINKS}
+DOC_ROUTES: dict[str, Path] = {item["route"]: item["path"] for item in DOC_LINKS}
 
 DEMO_FLOW = [
     {
