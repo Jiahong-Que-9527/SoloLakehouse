@@ -7,7 +7,9 @@ import os
 from minio import Minio
 
 from dagster import ConfigurableResource
-from storage_config import get_data_bucket, get_warehouse_uri
+from storage_config import get_storage_config
+
+DEFAULT_STORAGE_CONFIG = get_storage_config()
 
 
 class MinioResource(ConfigurableResource):
@@ -35,7 +37,10 @@ class MinioResource(ConfigurableResource):
 class PipelineConfigResource(ConfigurableResource):
     """Pipeline runtime config resource."""
 
-    bucket: str = get_data_bucket()
-    warehouse_uri: str = get_warehouse_uri()
+    bucket: str = DEFAULT_STORAGE_CONFIG.data_bucket
+    audit_bucket: str = DEFAULT_STORAGE_CONFIG.audit_bucket
+    mlflow_artifact_bucket: str = DEFAULT_STORAGE_CONFIG.mlflow_artifact_bucket
+    mlflow_artifact_root: str = DEFAULT_STORAGE_CONFIG.mlflow_artifact_root
+    warehouse_uri: str = DEFAULT_STORAGE_CONFIG.warehouse_uri
     mlflow_tracking_uri: str = os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000")
     trino_url: str = os.environ.get("TRINO_URL", "http://localhost:8080")

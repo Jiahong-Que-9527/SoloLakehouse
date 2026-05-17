@@ -190,7 +190,7 @@ Open each endpoint and verify expected behavior:
 
 | Service | URL | Expected Result |
 |---------|-----|-----------------|
-| MinIO Console | `http://localhost:9001` | Page opens, buckets include `sololakehouse` and `mlflow-artifacts` |
+| MinIO Console | `http://localhost:9001` | Page opens, configured data, audit, and MLflow artifact buckets exist |
 | Trino UI | `http://localhost:8080` | Page opens, service healthy |
 | MLflow UI | `http://localhost:5000` | Page opens without invalid host header error |
 | Dagster UI | `http://localhost:3000` | Latest `demo_data_flow_job` run visible |

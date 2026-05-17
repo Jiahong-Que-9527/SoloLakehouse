@@ -37,9 +37,9 @@ and upgrade lifecycle.
 
 Implementation note: `DATA_BUCKET` and `WAREHOUSE_URI` are active runtime
 settings for entity data and Hive/Trino warehouse locations. `BUCKET_NAME`
-remains supported as a v2.5 compatibility alias. `AUDIT_BUCKET` and
-`MLFLOW_ARTIFACT_BUCKET` are still entity contract targets until the audit and
-MLflow artifact parameterization work is implemented.
+remains supported as a v2.5 compatibility alias. `AUDIT_BUCKET`,
+`MLFLOW_ARTIFACT_BUCKET`, and `MLFLOW_ARTIFACT_ROOT` are active runtime settings
+for bucket initialization, verification, and MLflow artifact storage.
 
 Runtime identity fields such as `PRODUCT_ID`, `PRODUCT_DISPLAY_NAME`,
 `PRODUCT_DOMAIN`, `ENVIRONMENT`, `RUNTIME_VERSION`, and `TRINO_USER` are active
