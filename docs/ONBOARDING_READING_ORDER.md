@@ -54,8 +54,9 @@
 | 12 | [docs/dataset-governance-naming.md](dataset-governance-naming.md) | 稳定 dataset ID、物理路径映射、v2.6 lineage evidence 命名规则。 |
 | 13 | [docs/object-store-abstraction.md](object-store-abstraction.md) | S3-compatible object store 配置边界，以及首轮拆分继续保留 MinIO 的原因。 |
 | 14 | [docs/runtime-state-layout.md](runtime-state-layout.md) | 产品实体 `/opt/<product_id>/` 运行态目录、bind mount、`.env` 与 side-by-side 布局。 |
-| 15 | [docs/medallion-model.md](medallion-model.md) | Bronze / Silver / Gold 约定与数据契约。 |
-| 16 | [docs/decisions/README.md](decisions/README.md) | ADR 索引；先扫目录，再按需打开单篇。 |
+| 15 | [docs/entity-backup-restore-runbook.md](entity-backup-restore-runbook.md) | 产品实体最小备份集、恢复顺序与 restore 后验收。 |
+| 16 | [docs/medallion-model.md](medallion-model.md) | Bronze / Silver / Gold 约定与数据契约。 |
+| 17 | [docs/decisions/README.md](decisions/README.md) | ADR 索引；先扫目录，再按需打开单篇。 |
 
 **ADR 建议优先级（在读完 ADR 索引后）**
 

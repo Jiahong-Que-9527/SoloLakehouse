@@ -14,6 +14,7 @@ Lakehouse.
 - Related docs:
   - [Product Entity Contract](product-entity-contract.md)
   - [Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)
+  - [Entity Backup and Restore Runbook](entity-backup-restore-runbook.md)
   - [Deployment Guide](deployment.md)
 
 ## Principles
@@ -230,7 +231,9 @@ Rules:
 
 ## State classification
 
-Use this classification for backup/restore and side-by-side planning:
+Use this classification for backup/restore and side-by-side planning. The
+operator procedure is in
+[Entity Backup and Restore Runbook](entity-backup-restore-runbook.md).
 
 | State | Location | Preferred migration action |
 |---|---|---|
