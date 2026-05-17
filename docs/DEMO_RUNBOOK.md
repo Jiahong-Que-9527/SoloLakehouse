@@ -212,7 +212,7 @@ This is the core demo action: a Dagster data-flow run plus Trino Gold table asse
 
 | 服务 | URL | 期望 |
 |------|-----|------|
-| MinIO Console | `http://localhost:9001` | 页面可访问，桶存在（`sololakehouse`、`mlflow-artifacts`） |
+| MinIO Console | `http://localhost:9001` | 页面可访问，配置的数据、审计、MLflow artifact bucket 存在 |
 | Trino UI | `http://localhost:8080` | 页面可访问，服务状态正常 |
 | MLflow UI | `http://localhost:5000` | 页面可访问，无 Host header 报错 |
 | Dagster UI | `http://localhost:3000` | 可看到最近一次 `demo_data_flow_job` run |

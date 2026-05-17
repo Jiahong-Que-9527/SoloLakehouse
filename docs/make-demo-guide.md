@@ -117,7 +117,7 @@ make verify
 
 它检查：
 
-- MinIO API 是否可用，且 `sololakehouse` / `mlflow-artifacts` bucket 存在
+- MinIO API 是否可用，且配置的数据、审计、MLflow artifact bucket 存在
 - PostgreSQL 是否可连接，且必要数据库存在
 - Hive Metastore 9083 端口是否可连接
 - Trino `/v1/info` 是否健康
@@ -311,6 +311,7 @@ MINIO_ROOT_PASSWORD=sololakehouse123
 确认 bucket：
 
 - `sololakehouse`
+- `sololakehouse-audit`
 - `mlflow-artifacts`
 
 确认数据路径：

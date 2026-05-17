@@ -5,7 +5,28 @@ POSTGRES_USER="${POSTGRES_USER:-postgres}"
 POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-postgres}"
 POSTGRES_HOST="${POSTGRES_HOST:-postgres}"
 POSTGRES_PORT="${POSTGRES_PORT:-5432}"
-MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT:-s3://mlflow-artifacts/}"
+DATA_BUCKET="${DATA_BUCKET:-${BUCKET_NAME:-sololakehouse}}"
+default_named_bucket() {
+  base_bucket="$1"
+  suffix="$2"
+  case "${base_bucket}" in
+    *-data) echo "${base_bucket%-data}-${suffix}" ;;
+    *) echo "${base_bucket}-${suffix}" ;;
+  esac
+}
+
+if [ "${DATA_BUCKET}" = "sololakehouse" ]; then
+  DEFAULT_MLFLOW_ARTIFACT_BUCKET="mlflow-artifacts"
+else
+  DEFAULT_MLFLOW_ARTIFACT_BUCKET="$(default_named_bucket "${DATA_BUCKET}" "mlflow")"
+fi
+
+MLFLOW_ARTIFACT_BUCKET="${MLFLOW_ARTIFACT_BUCKET:-${DEFAULT_MLFLOW_ARTIFACT_BUCKET}}"
+MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT:-s3://${MLFLOW_ARTIFACT_BUCKET}/}"
+case "${MLFLOW_ARTIFACT_ROOT}" in
+  */) ;;
+  *) MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT}/" ;;
+esac
 MLFLOW_ALLOWED_HOSTS="${MLFLOW_ALLOWED_HOSTS:-localhost,localhost:5000,127.0.0.1,127.0.0.1:5000,mlflow,mlflow:5000}"
 
 BACKEND_STORE_URI="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/mlflow"
