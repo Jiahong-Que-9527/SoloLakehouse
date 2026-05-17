@@ -291,9 +291,16 @@ existing `docker/data/` aside before restoring.
 
 ### 2. Start Base Services
 
-Start PostgreSQL and MinIO first:
+Load the restored `.env` into the shell before bootstrapping PostgreSQL.
+`scripts/bootstrap-postgres.py` reads host environment variables, so passing
+only `ENV_FILE` to `make bootstrap-db` is not enough for restored entities with
+custom database settings.
 
 ```bash
+set -a
+. "$ENV_FILE"
+set +a
+
 ENV_FILE="$ENV_FILE" make prepare-data-dirs
 docker compose --env-file "$ENV_FILE" \
   -f docker/docker-compose.yml \
@@ -304,7 +311,8 @@ ENV_FILE="$ENV_FILE" make bootstrap-db
 
 ### 3. Restore Object-Store Buckets
 
-Load restored entity configuration:
+If this step is run from a new shell, load the restored entity configuration
+again:
 
 ```bash
 set -a
