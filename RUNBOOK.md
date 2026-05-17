@@ -12,7 +12,9 @@ make health
 docker ps
 ```
 
-Open `http://127.0.0.1:8090/health` after `make health` to see the full service status in one page.
+Open `http://127.0.0.1:8090/health` after `make health` to use the local
+operator portal. It shows entity identity, service status, demo readiness,
+core UI links, and links to the demo runbooks.
 
 ## Restart One Service
 

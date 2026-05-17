@@ -262,9 +262,9 @@ docker compose --env-file .env \
 
 命令行通过后，可以用 UI 做人工确认。
 
-### 6.1 健康页面
+### 6.1 SLH Portal
 
-启动健康页面：
+启动本地 operator/demo portal：
 
 ```bash
 make health
@@ -276,7 +276,7 @@ make health
 http://127.0.0.1:8090/health
 ```
 
-确认所有服务显示 `PASS`。
+确认 entity identity、核心 UI 链接、demo readiness、demo flow 和服务健康表都符合当前运行环境。服务健康全部显示 `PASS` 后，再继续执行或复核 `make demo`。
 
 ### 6.2 Dagster
 

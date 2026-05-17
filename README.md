@@ -83,7 +83,7 @@ make setup
 
 `make setup` creates `.env` from `.env.example`, prepares `.venv`, installs Python dependencies, pulls images, starts the Compose stack, bootstraps databases, and waits for service health checks.
 
-Validate the stack, open a single health page, and run the end-to-end demo:
+Validate the stack, open the local operator portal, and run the end-to-end demo:
 
 ```bash
 make verify
@@ -91,7 +91,11 @@ make health
 make demo
 ```
 
-Health dashboard: `http://127.0.0.1:8090/health`
+Operator portal: `http://127.0.0.1:8090/health`
+
+The portal shows entity identity, service health, demo readiness, links to the
+core UIs, and the `make verify` -> Dagster -> Bronze/Silver/Gold -> Trino
+demo path.
 
 Key UIs:
 
