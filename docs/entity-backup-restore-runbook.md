@@ -139,7 +139,31 @@ spaces that are valid for Docker Compose but not valid shell assignment syntax.
 
 ```bash
 env_value() {
-  grep -E "^$1=" "$ENV_FILE" | tail -1 | cut -d= -f2- || true
+  python3 - "$ENV_FILE" "$1" <<'PY'
+import ast
+import re
+import sys
+
+env_file, key = sys.argv[1], sys.argv[2]
+value = ""
+with open(env_file, encoding="utf-8") as handle:
+    for raw_line in handle:
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        name, raw_value = line.split("=", 1)
+        if name != key:
+            continue
+        raw_value = raw_value.strip()
+        if len(raw_value) >= 2 and raw_value[0] == raw_value[-1] and raw_value[0] in "'\"":
+            try:
+                value = ast.literal_eval(raw_value)
+            except (SyntaxError, ValueError):
+                value = raw_value[1:-1]
+        else:
+            value = re.sub(r"\s+#.*$", "", raw_value)
+print(value)
+PY
 }
 
 MINIO_ROOT_USER="$(env_value MINIO_ROOT_USER)"
@@ -347,7 +371,10 @@ for bucket in "$DATA_BUCKET" "$AUDIT_BUCKET" "$MLFLOW_ARTIFACT_BUCKET"; do
     -v "$BACKUP_ROOT/object-store:/backup" \
     --entrypoint sh minio-init -c "
       mc alias set local http://minio:9000 \"$MINIO_ROOT_USER\" \"$MINIO_ROOT_PASSWORD\" &&
-      mkdir -p \"/backup/${bucket}\" &&
+      if [ ! -d \"/backup/${bucket}\" ]; then
+        echo \"Missing object-store backup source: /backup/${bucket}\" >&2
+        exit 1
+      fi &&
       mc mirror --overwrite \"/backup/${bucket}\" \"local/${bucket}\"
     "
 done
