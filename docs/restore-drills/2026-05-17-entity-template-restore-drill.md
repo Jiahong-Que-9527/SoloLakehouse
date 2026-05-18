@@ -4,7 +4,7 @@
 
 Issue: #10
 
-Result: PASS with one recorded OpenMetadata state gap tracked by #21.
+Result: PASS. OpenMetadata was classified as re-ingest-only for Phase 1.
 
 The v2.5 local SoloLakehouse entity template was backed up from the local
 reference runtime, restored into a disposable clone under `/tmp`, and validated
@@ -36,7 +36,7 @@ removed after the non-secret results below were transcribed.
 | Object files | 36 object-store files listed in `metadata/object-store-files.txt` |
 | PostgreSQL | `hive_metastore`, `mlflow`, `dagster_storage`, and `superset_metadata` dumps restored |
 | Dagster local files | `files/dagster-data.tgz` restored |
-| OpenMetadata | MySQL dump captured; service restored by clean re-initialization/re-index path |
+| OpenMetadata | Service restored by clean re-initialization/re-index path; catalog history classified as re-ingest-only |
 | Evidence manifest | 37 files listed in `metadata/final-evidence-manifest.txt` |
 
 Resolved storage values:
@@ -94,8 +94,8 @@ All restored containers were healthy in `compose-ps-after-restore.txt`.
    `/root/Workspace/My-Lakehouse/SoloLakehouse/.venv/bin/python`.
 3. The OpenMetadata MySQL dump was captured, but direct restore failed on
    `apps_extension_time_series` SQL containing malformed `VALUES` syntax. The
-   drill used the documented fallback: rebuild/re-index OpenMetadata state
-   instead of treating OpenMetadata MySQL continuity as a Phase 1 blocker.
+   accepted Phase 1 strategy is re-ingest-only: rebuild/re-index OpenMetadata
+   state instead of treating OpenMetadata MySQL continuity as a blocker.
 
 ## Acceptance Decision
 
@@ -107,8 +107,9 @@ Accepted for Phase 1 entity-template readiness:
 - critical Hive and Iceberg Gold assets are queryable after restore;
 - restore evidence and restore gaps are recorded here.
 
-Before long-running product operation, OpenMetadata preservation should either
-be validated with a corrected dump/import strategy or explicitly classified as
-re-ingest-only for the first entity split.
+OpenMetadata catalog-history continuity is not required for Phase 1 entity
+template readiness. A future entity that requires OpenMetadata history
+preservation must validate a corrected dump/import strategy on a disposable
+target before using restore/import as its acceptance path.
 
-Follow-up issue: #21.
+Follow-up issue: #21 classified the strategy.

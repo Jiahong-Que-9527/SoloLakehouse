@@ -44,8 +44,8 @@ runbook has been exercised once on a disposable restore target.
 | Dagster DB | PostgreSQL `dagster_storage` | `pg_dump --format=custom` | Restore for run/event history when needed |
 | Superset DB | PostgreSQL `${SUPERSET_DB_NAME:-superset_metadata}` | `pg_dump --format=custom` | Restore, then validate Trino connections |
 | Dagster local files | `docker/data/dagster` or entity `data/dagster` | Archive directory | Restore for diagnostics/local instance data |
-| OpenMetadata MySQL | `slh-om-mysql`, database `openmetadata_db` | `mysqldump` or re-ingestion plan | Restore dump if preserving catalog history |
-| OpenMetadata Elasticsearch | `docker/data/om-elasticsearch` | Prefer rebuild/re-index; optional cold archive | Rebuild from OpenMetadata where possible |
+| OpenMetadata MySQL | `slh-om-mysql`, database `openmetadata_db` | Record re-ingestion strategy; optional `mysqldump` for diagnostics or history-preserving entities | Phase 1 default: start clean and re-ingest catalog metadata |
+| OpenMetadata Elasticsearch | `docker/data/om-elasticsearch` | Rebuild/re-index; optional cold archive for fast local rollback only | Rebuild from OpenMetadata and Trino |
 | Host logs | `/opt/<product_id>/logs` | Archive useful command logs | Restore only for evidence/debugging |
 
 ## Backup Root
@@ -253,7 +253,26 @@ OpenMetadata has two state components:
 - MySQL database `openmetadata_db`.
 - Elasticsearch search index.
 
-Back up MySQL when catalog history should be preserved:
+For the first entity split, OpenMetadata is classified as **re-ingest-only**.
+Restore acceptance requires the service to start and catalog metadata to be
+re-ingested from runtime sources such as Trino; it does not require preserving
+OpenMetadata application history from MySQL.
+
+Record that strategy in the backup set:
+
+```bash
+cat > "$BACKUP_ROOT/openmetadata/restore-strategy.md" <<'EOF'
+OpenMetadata restore strategy: re-ingest-only for Phase 1.
+
+The restore target starts OpenMetadata with clean MySQL and Elasticsearch state,
+then re-ingests catalog metadata from runtime sources such as Trino after the
+stack is healthy. OpenMetadata catalog-history continuity is not a Phase 1
+restore acceptance requirement.
+EOF
+```
+
+Optionally capture the MySQL database as diagnostic evidence or for entities
+that explicitly require catalog-history continuity:
 
 ```bash
 docker exec slh-om-mysql mysqldump \
@@ -265,9 +284,12 @@ docker exec slh-om-mysql mysqldump \
   openmetadata_db > "$BACKUP_ROOT/openmetadata/openmetadata_db.sql"
 ```
 
-For Elasticsearch, prefer rebuilding/re-indexing from OpenMetadata and Trino
-after restore. If a fast local restore is required, take a cold archive only
-after stopping OpenMetadata services:
+Do not rely on this optional dump for Phase 1 acceptance unless the
+restore/import path has been validated on a disposable target for that entity.
+
+For Elasticsearch, rebuild/re-index from OpenMetadata and Trino after restore.
+If a fast local rollback archive is required, take a cold archive only after
+stopping OpenMetadata services:
 
 ```bash
 docker compose --env-file "$ENV_FILE" \
@@ -277,16 +299,6 @@ tar -C docker/data -czf "$BACKUP_ROOT/openmetadata/om-elasticsearch-data.tgz" om
 docker compose --env-file "$ENV_FILE" \
   $COMPOSE_FILES \
   up -d om-elasticsearch openmetadata-server
-```
-
-If the restore strategy is re-ingestion instead of Elasticsearch restore, record
-that explicitly:
-
-```bash
-cat > "$BACKUP_ROOT/openmetadata/restore-strategy.md" <<'EOF'
-OpenMetadata MySQL will be restored from openmetadata_db.sql.
-Elasticsearch will be rebuilt/re-indexed after OpenMetadata starts.
-EOF
 ```
 
 ### 6. Finalize Backup Metadata
@@ -304,8 +316,8 @@ Minimum backup acceptance:
   `${MLFLOW_ARTIFACT_BUCKET}`.
 - PostgreSQL dumps exist for `hive_metastore`, `mlflow`, `dagster_storage`, and
   Superset.
-- OpenMetadata MySQL dump exists or the backup notes state that metadata will be
-  re-ingested.
+- `openmetadata/restore-strategy.md` exists and classifies OpenMetadata as
+  re-ingest-only or restore/import for the entity.
 - `verify-before-backup.txt` records the pre-backup health state.
 
 ## Restore Procedure
@@ -411,7 +423,25 @@ done
 
 ### 5. Restore OpenMetadata
 
-If restoring OpenMetadata MySQL:
+For Phase 1, use the re-ingest-only strategy recorded in
+`$BACKUP_ROOT/openmetadata/restore-strategy.md`. Start OpenMetadata with clean
+MySQL and Elasticsearch state, then re-ingest catalog metadata from runtime
+sources such as Trino after the stack is healthy:
+
+```bash
+docker compose --env-file "$ENV_FILE" \
+  $COMPOSE_FILES \
+  up -d om-mysql om-elasticsearch om-migrate openmetadata-server
+```
+
+After `ENV_FILE="$ENV_FILE" make verify` passes, re-create or re-run the
+OpenMetadata ingestion workflow for the restored entity. Record the ingestion
+run, service names, and any manually configured catalog settings in the restore
+evidence.
+
+Only restore OpenMetadata MySQL when catalog-history continuity is an explicit
+entity requirement and the dump/import process has already been validated on a
+disposable target:
 
 ```bash
 docker compose --env-file "$ENV_FILE" \
@@ -432,13 +462,11 @@ rm -rf docker/data/om-elasticsearch
 tar -C docker/data -xzf "$BACKUP_ROOT/openmetadata/om-elasticsearch-data.tgz"
 ```
 
-If not restoring Elasticsearch, start OpenMetadata and re-ingest metadata from
-Trino after the stack is healthy. If the OpenMetadata MySQL dump fails to
-restore, reset the disposable target's OpenMetadata MySQL data directory, start
-OpenMetadata cleanly, and record the entity as using the re-ingestion path for
-catalog state. Do not let OpenMetadata catalog-history continuity block restore
-acceptance unless catalog-history preservation is an explicit requirement for
-that entity.
+If a history-preserving MySQL restore fails in a disposable drill, reset the
+target's OpenMetadata MySQL and Elasticsearch data directories, return to the
+re-ingest-only path, and record catalog-history continuity as a restore gap. Do
+not let OpenMetadata catalog-history continuity block Phase 1 restore acceptance
+unless it is an explicit requirement for that entity.
 
 ### 6. Restore Dagster Local Files
 
