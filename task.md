@@ -230,13 +230,17 @@ The correct preparation is to make object-store configuration replaceable, while
 
 ### Phase 1 Exit Criteria
 
-- Entity contract exists.
-- Runtime identity is configurable.
-- Data, audit, MLflow, and warehouse locations are configurable.
-- A lightweight portal exists as the shared operator/demo entrypoint.
-- Backup and restore procedure is documented and tested once.
-- Dataset ID naming convention exists.
-- MinIO is treated as the current S3-compatible provider, not as the product identity.
+Phase 1 readiness evidence is summarized in
+[`docs/entity-template-readiness.md`](docs/entity-template-readiness.md).
+
+- [x] Entity contract exists.
+- [x] Runtime identity is configurable.
+- [x] Data, audit, MLflow, and warehouse locations are configurable.
+- [x] A lightweight portal exists as the shared operator/demo entrypoint.
+- [x] Runtime state ownership is documented for product entities.
+- [x] Backup and restore procedure is documented and tested once.
+- [x] Dataset ID naming convention exists.
+- [x] MinIO is treated as the current S3-compatible provider, not as the product identity.
 
 ## Phase 2: Split Out Two Domain Entities
 
