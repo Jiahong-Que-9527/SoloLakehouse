@@ -24,8 +24,8 @@ The active runtime baseline is **v2.5 single-track**; older ADRs remain valuable
 
 ## v2.7-v2.8 decisions (planned evidence arc)
 
-- [ADR-017-iceberg-rest-catalog-option.md](ADR-017-iceberg-rest-catalog-option.md): placeholder for Hive Metastore vs Iceberg REST Catalog vs AWS Glue decision
-- [ADR-018-ml-lineage-five-tuple.md](ADR-018-ml-lineage-five-tuple.md): placeholder for the required ML lineage five-tuple
+- [ADR-017-iceberg-rest-catalog-option.md](ADR-017-iceberg-rest-catalog-option.md): placeholder for Hive Metastore vs Iceberg REST Catalog vs AWS Glue decision (v2.7)
+- [ADR-018-ml-lineage-five-tuple.md](ADR-018-ml-lineage-five-tuple.md): placeholder for the required ML lineage five-tuple (v2.8)
 
 ## v3 decisions (planned)
 
@@ -35,6 +35,7 @@ The active runtime baseline is **v2.5 single-track**; older ADRs remain valuable
 - [ADR-010-v3-observability-and-slo.md](ADR-010-v3-observability-and-slo.md): SLO-driven observability and alerting baseline
 - [ADR-011-v3-ml-productization-boundary.md](ADR-011-v3-ml-productization-boundary.md): define ML productization boundary (experiment platform first)
 - [ADR-012-v3-data-governance-catalog-strategy.md](ADR-012-v3-data-governance-catalog-strategy.md): Hive-first governance baseline with upgrade-ready catalog strategy
+- [ADR-015-v3-observability-tooling.md](ADR-015-v3-observability-tooling.md): adopt Prometheus + Grafana + Alertmanager as the v3 observability stack (concrete tooling for ADR-010)
 
 ## How to add new ADRs
 

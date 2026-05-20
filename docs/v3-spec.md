@@ -4,7 +4,7 @@
 
 将 SoloLakehouse 从：
 
-> v2：面向内部 MVP 的 Dagster 编排型 Lakehouse 平台
+> v2.5：单轨 Dagster 编排 + Iceberg Gold + OpenMetadata + Superset 的本地参考运行时（含实体模板能力，可派生 finlakehouse / aviation-lakehouse）
 
 升级为：
 
@@ -348,8 +348,8 @@ You are working on SoloLakehouse v3.
 
 The project is currently at:
 
-- v1 delivered
-- v2 current: Dagster-orchestrated internal MVP platform
+- v1, v2, v2.5 delivered (v2.5 is the frozen baseline; v2.5.1 closed the freeze checklist)
+- v2.5 entity-template preparation: Phase 1 complete (Fin / Aviation Lakehouse can now be split out without code edits)
 - v3 planned: production-capable platform hardening
 
 Your job is to improve **platform productionization**, not expand product features.

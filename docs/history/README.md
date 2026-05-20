@@ -12,6 +12,10 @@ Use it as the long-term continuity layer between roadmap intent and implementati
 - [planning-template.md](planning-template.md): reusable planning template for v2/v3/v4 milestones
 - [v2-planning.md](v2-planning.md): delivered v2 planning and migration notes
 - [v2.5-planning.md](v2.5-planning.md): delivered v2.5 planning notes
+- [v2.6-planning.md](v2.6-planning.md): planned governance evidence bedrock (data contracts, lineage evidence pack, WORM audit)
+- [v2.7-planning.md](v2.7-planning.md): planned sovereignty and openness evidence (multi-engine Iceberg, exit playbook)
+- [v2.8-planning.md](v2.8-planning.md): planned ML compliance bedrock (MLflow ↔ Iceberg snapshot binding, model card)
+- [v2.9-planning.md](v2.9-planning.md): planned operational readiness (SLO emit, secrets discipline, promotion/rollback drill)
 - [v3-planning.md](v3-planning.md): draft plan for production infrastructure and governance
 
 ## How to maintain

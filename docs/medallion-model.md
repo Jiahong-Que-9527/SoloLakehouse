@@ -17,8 +17,10 @@ governance keys that should survive bucket, catalog, and object-store changes.
 **Path pattern:**
 
 ```
-sololakehouse/bronze/{source}/ingestion_date={YYYY-MM-DD}/{source}.parquet
+${DATA_BUCKET}/bronze/{source}/ingestion_date={YYYY-MM-DD}/{source}.parquet
 ```
+
+`${DATA_BUCKET}` defaults to `sololakehouse` in the v2.5 reference runtime and becomes the entity bucket (for example `finlakehouse-data`) when the template is forked into a product entity. See [object-store-abstraction.md](object-store-abstraction.md).
 
 ## Silver — cleaned
 
@@ -34,7 +36,7 @@ UTC dates; `snake_case` columns; Bronze metadata columns dropped. Quality checks
 **Path pattern:**
 
 ```
-sololakehouse/silver/{source}_cleaned/{source}_cleaned.parquet
+${DATA_BUCKET}/silver/{source}_cleaned/{source}_cleaned.parquet
 ```
 
 ## Gold — features
@@ -46,7 +48,7 @@ Demo table: **`ecb_dax_features`** — one row per ECB rate-change event; event-
 **Path:**
 
 ```
-sololakehouse/gold/rate_impact_features/ecb_dax_features.parquet
+${DATA_BUCKET}/gold/rate_impact_features/ecb_dax_features.parquet
 ```
 
 **v2.5:** Gold is also registered as an **Apache Iceberg** table in Trino:

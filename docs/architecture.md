@@ -137,13 +137,15 @@ Earlier v1/v2 build-out stages and migration decisions remain available as narra
 
 ## Design decisions (ADRs)
 
+The repository currently carries **19 ADRs**. See [decisions/README.md](decisions/README.md) for the grouped index.
+
 | ADR | Topic |
 |-----|--------|
 | [ADR-001](decisions/ADR-001-docker-compose.md) | Docker Compose vs Kubernetes |
 | [ADR-002](decisions/ADR-002-trino-vs-duckdb.md) | Trino vs DuckDB |
 | [ADR-003](decisions/ADR-003-parquet-vs-delta.md) | Parquet vs Delta Lake |
 | [ADR-004](decisions/ADR-004-financial-dataset.md) | ECB + DAX data |
-| [ADR-005](decisions/ADR-005-v1-scope.md) | Why Prometheus / Grafana / CloudBeaver ship after the five-service core (ADR-005) |
+| [ADR-005](decisions/ADR-005-v1-scope.md) | Why Prometheus / Grafana / CloudBeaver ship after the five-service core |
 | [ADR-006](decisions/ADR-006-v2-dagster-orchestration.md) | v2 Dagster orchestration migration and transition fallback (historical) |
 | [ADR-007](decisions/ADR-007-v3-k8s-helm-terraform.md) | v3 Kubernetes + Helm + Terraform baseline |
 | [ADR-008](decisions/ADR-008-v3-environment-promotion.md) | v3 environment promotion gates |
@@ -153,4 +155,8 @@ Earlier v1/v2 build-out stages and migration decisions remain available as narra
 | [ADR-012](decisions/ADR-012-v3-data-governance-catalog-strategy.md) | v3 data governance catalog strategy |
 | [ADR-013](decisions/ADR-013-iceberg-gold-trino.md) | Iceberg for Gold via Trino |
 | [ADR-014](decisions/ADR-014-openmetadata-optional-profile.md) | OpenMetadata optional compose profile at introduction time (historical) |
+| [ADR-015](decisions/ADR-015-v3-observability-tooling.md) | v3 observability tooling: Prometheus + Grafana + Alertmanager |
+| [ADR-016](decisions/ADR-016-compute-engine-migration.md) | Compute engine migration to Spark + dbt-spark with Trino as query-only (proposed) |
+| [ADR-017](decisions/ADR-017-iceberg-rest-catalog-option.md) | Hive Metastore vs Iceberg REST Catalog vs AWS Glue (v2.7 placeholder) |
+| [ADR-018](decisions/ADR-018-ml-lineage-five-tuple.md) | ML lineage five-tuple (v2.8 placeholder) |
 | [ADR-019](decisions/ADR-019-minio-seaweedfs-deferral.md) | MinIO to SeaweedFS migration deferral |

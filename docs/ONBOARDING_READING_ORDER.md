@@ -75,11 +75,12 @@
 
 | 顺序 | 文档 | 目的 |
 |------|------|------|
-| 17 | [task.md](../task.md) | 当前仓库执行任务板（与 roadmap 配套）。 |
-| 18 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
-| 19 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
-| 20 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
-| 21 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
+| 19 | [task.md](../task.md) | 当前仓库执行任务板（与 roadmap 配套；包含拉 finlakehouse / aviation-lakehouse 的三阶段计划）。 |
+| 20 | [docs/项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md) | 最新中文工程基线快照（拉 flh 之前的状态）。 |
+| 21 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
+| 22 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
+| 23 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
+| 24 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
 
 **可选（更细的版本规划笔记，按需）**
 
@@ -91,11 +92,11 @@
 
 | 顺序 | 文档 | 目的 |
 |------|------|------|
-| 18 | [docs/v3-governance-navigation.md](v3-governance-navigation.md) | v3 治理主题导航。 |
-| 19 | [docs/governance-v3-matrix.md](governance-v3-matrix.md) | 治理矩阵类总览（若存在且与当前工作相关）。 |
-| 20 | [docs/governance-v3-runbook.md](governance-v3-runbook.md) | 治理相关运行手册。 |
-| 21 | [docs/v3-spec.md](v3-spec.md) | v3 规格/要求类说明（与规划、ADRs 交叉验证）。 |
-| 22 | [docs/V3_RELEASE_CHECKLIST.md](V3_RELEASE_CHECKLIST.md) | v3 发布级检查清单。 |
+| 25 | [docs/v3-governance-navigation.md](v3-governance-navigation.md) | v3 治理主题导航。 |
+| 26 | [docs/governance-v3-matrix.md](governance-v3-matrix.md) | 治理矩阵类总览（若存在且与当前工作相关）。 |
+| 27 | [docs/governance-v3-runbook.md](governance-v3-runbook.md) | 治理相关运行手册。 |
+| 28 | [docs/v3-spec.md](v3-spec.md) | v3 规格/要求类说明（与规划、ADRs 交叉验证）。 |
+| 29 | [docs/V3_RELEASE_CHECKLIST.md](V3_RELEASE_CHECKLIST.md) | v3 发布级检查清单。 |
 
 同时回顾阶段 3 中的 v3 相关 ADR（007～012、015 等）。
 
@@ -105,11 +106,12 @@
 
 | 顺序 | 文档 | 目的 |
 |------|------|------|
-| 23 | [docs/contributing.md](contributing.md) | 贡献约定。 |
-| 24 | [docs/git-workflow.md](git-workflow.md) | 分支与协作流程。 |
-| 25 | [docs/release.md](release.md) | 发布Runbook。 |
-| 26 | [docs/release-readiness.md](release-readiness.md) | 发布前自检。 |
-| 27 | [docs/V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md)、[docs/V2_RELEASE_CHECKLIST.md](V2_RELEASE_CHECKLIST.md) | 历史版本检查清单（审计或对照过时栈时）。 |
+| 30 | [docs/contributing.md](contributing.md) | 贡献约定。 |
+| 31 | [docs/git-workflow.md](git-workflow.md) | 分支与协作流程。 |
+| 32 | [docs/release.md](release.md) | 发布Runbook。 |
+| 33 | [docs/release-readiness.md](release-readiness.md) | 发布前自检。 |
+| 34 | [docs/v2.5-acceptance-criteria.md](v2.5-acceptance-criteria.md) | v2.5 冻结基线 Definition of Done（已闭环，作为门槛参考）。 |
+| 35 | [docs/V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md)、[docs/V2_RELEASE_CHECKLIST.md](V2_RELEASE_CHECKLIST.md) | 历史/v2.5.x 检查清单。 |
 
 ---
 
@@ -125,6 +127,8 @@
 历史某一时间点的快照（若需要对比「当时写了什么」）：
 
 - [docs/项目快照_2026-03-26.md](项目快照_2026-03-26.md)
+- [docs/项目现状总览_2026-05-09.md](项目现状总览_2026-05-09.md)（v2.5 验收缺口分析）
+- [docs/项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md)（**最新**，拉 flh 之前的基线）
 
 ---
 

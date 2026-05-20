@@ -48,6 +48,9 @@ Historical version narratives are preserved under `docs/history/`.
 |----------|---------|
 | [release.md](release.md) | Release runbook |
 | [release-readiness.md](release-readiness.md) | Pre-release readiness checks |
+| [v2.5-acceptance-criteria.md](v2.5-acceptance-criteria.md) | v2.5 frozen-baseline Definition of Done |
+| [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | v1 release checklist (historical) |
+| [V2_RELEASE_CHECKLIST.md](V2_RELEASE_CHECKLIST.md) | v2.5.x release checklist (active template) |
 | [V3_RELEASE_CHECKLIST.md](V3_RELEASE_CHECKLIST.md) | v3 planning checklist |
 
 ## Historical and Legacy Records
@@ -57,6 +60,26 @@ Historical version narratives are preserved under `docs/history/`.
 | [history/README.md](history/README.md) | History index |
 | [history/timeline.md](history/timeline.md) | Version timeline |
 | [history/architecture-evolution.md](history/architecture-evolution.md) | Architecture decision evolution |
-| [history/legacy-overview.md](history/legacy-overview.md) | Legacy runtime/archive map |
+| [history/legacy-overview.md](history/legacy-overview.md) | Retired runtime paths and archive map |
+| [history/planning-template.md](history/planning-template.md) | Reusable version-planning template |
+| [history/v2-planning.md](history/v2-planning.md) | Delivered v2 planning |
+| [history/v2.5-planning.md](history/v2.5-planning.md) | Delivered v2.5 planning |
+| [history/v2.6-planning.md](history/v2.6-planning.md) | Planned v2.6 governance evidence bedrock |
+| [history/v2.7-planning.md](history/v2.7-planning.md) | Planned v2.7 sovereignty & openness evidence |
+| [history/v2.8-planning.md](history/v2.8-planning.md) | Planned v2.8 ML compliance bedrock |
+| [history/v2.9-planning.md](history/v2.9-planning.md) | Planned v2.9 operational readiness |
+| [history/v3-planning.md](history/v3-planning.md) | Planned v3 production runtime |
+
+## Project State Snapshots (dated, do not retroactively edit)
+
+| Document | Purpose |
+|----------|---------|
+| [项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md) | Latest CN snapshot — pre-FinLakehouse-split engineering baseline |
+| [项目现状总览_2026-05-09.md](项目现状总览_2026-05-09.md) | CN snapshot — v2.5 acceptance gap analysis |
+| [项目现状总览_2026-05-05.md](项目现状总览_2026-05-05.md) | CN snapshot — v2.5 baseline overview |
+| [project-state-overview-2026-05-05.md](project-state-overview-2026-05-05.md) | EN equivalent of the 05-05 CN snapshot |
+| [项目快照_2026-03-26.md](项目快照_2026-03-26.md) | CN snapshot — v1.0 release snapshot |
+| [enterprise-evolution-plan-2026-05-05.md](enterprise-evolution-plan-2026-05-05.md) | EN enterprise evolution plan (05-05) |
+| [企业级演进规划_2026-05-05.md](企业级演进规划_2026-05-05.md) | CN enterprise evolution plan (05-05) |
 
 Diagrams are under [img/](img/README.md).
