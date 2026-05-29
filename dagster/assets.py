@@ -23,8 +23,8 @@ from dagster import (
 from ingestion import iceberg_io
 from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
-from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
 from ml.evaluate import run_experiment_set
+from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
 
 logger = structlog.get_logger()
 
@@ -32,6 +32,15 @@ logger = structlog.get_logger()
 def _emit_metric(step: str, started_at: float) -> None:
     duration_ms = int((time.perf_counter() - started_at) * 1000)
     logger.info("pipeline_metric", metric="pipeline.step.duration_ms", step=step, value=duration_ms)
+
+
+def _metadata_row_count(result: dict[str, Any]) -> int:
+    row_count = result.get("row_count", 0)
+    if isinstance(row_count, bool):
+        return int(row_count)
+    if isinstance(row_count, int | float | str):
+        return int(row_count)
+    return 0
 
 
 @asset(group_name="bronze", retry_policy=RetryPolicy(max_retries=3, delay=5))
@@ -98,7 +107,7 @@ def ecb_silver(
     started = time.perf_counter()
     result = ecb_bronze_to_silver.run(iceberg_catalog.get_catalog())
     context.add_output_metadata(
-        {"table": result["table"], "row_count": int(result["row_count"])}
+        {"table": result["table"], "row_count": _metadata_row_count(result)}
     )
     _emit_metric("ecb_silver", started)
     return str(result["table"])
@@ -114,7 +123,7 @@ def dax_silver(
     started = time.perf_counter()
     result = dax_bronze_to_silver.run(iceberg_catalog.get_catalog())
     context.add_output_metadata(
-        {"table": result["table"], "row_count": int(result["row_count"])}
+        {"table": result["table"], "row_count": _metadata_row_count(result)}
     )
     _emit_metric("dax_silver", started)
     return str(result["table"])
@@ -131,7 +140,7 @@ def gold_features(
     started = time.perf_counter()
     result = silver_to_gold_features.run(iceberg_catalog.get_catalog())
     context.add_output_metadata(
-        {"table": result["table"], "event_count": int(result["row_count"])}
+        {"table": result["table"], "event_count": _metadata_row_count(result)}
     )
     _emit_metric("gold_features", started)
     return str(result["table"])

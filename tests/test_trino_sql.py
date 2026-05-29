@@ -5,8 +5,6 @@ from __future__ import annotations
 import os
 from unittest.mock import MagicMock, patch
 
-import requests
-
 from ingestion.trino_sql import execute_trino_sql
 
 

@@ -7,7 +7,7 @@ import pickle
 import tempfile
 import urllib.parse
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import mlflow
 import pandas as pd
