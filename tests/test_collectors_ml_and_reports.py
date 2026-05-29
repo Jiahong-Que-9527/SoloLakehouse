@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import datetime as dt
-from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 import pytest
 
 from ingestion.collectors.dax_collector import DAXCollector
@@ -16,6 +13,10 @@ from ingestion.exceptions import CollectorUnavailableError
 from ml import evaluate
 from ml.train_ecb_dax_model import _make_model, train
 from transformations.quality_report import run_silver_quality_report
+
+
+def _make_catalog() -> MagicMock:
+    return MagicMock(name="catalog")
 
 
 def make_gold_training_frame(rows: int = 12) -> pd.DataFrame:
@@ -34,25 +35,9 @@ def make_gold_training_frame(rows: int = 12) -> pd.DataFrame:
     )
 
 
-class FakeResponse:
-    def __init__(self, payload: bytes):
-        self._payload = payload
-        self.closed = False
-        self.released = False
-
-    def read(self) -> bytes:
-        return self._payload
-
-    def close(self) -> None:
-        self.closed = True
-
-    def release_conn(self) -> None:
-        self.released = True
-
-
 class TestECBCollector:
     def test_parse_payload_extracts_records(self) -> None:
-        collector = ECBCollector(minio_client=MagicMock())
+        collector = ECBCollector(catalog=_make_catalog())
         payload = {
             "structure": {
                 "dimensions": {
@@ -85,7 +70,7 @@ class TestECBCollector:
         ]
 
     def test_fetch_data_retries_then_succeeds(self, monkeypatch) -> None:
-        collector = ECBCollector(minio_client=MagicMock())
+        collector = ECBCollector(catalog=_make_catalog())
         calls = {"count": 0}
 
         class DummyResponse:
@@ -111,7 +96,7 @@ class TestECBCollector:
         assert records == [{"payload": {"ok": True}}]
 
     def test_fetch_data_raises_after_retries(self, monkeypatch) -> None:
-        collector = ECBCollector(minio_client=MagicMock())
+        collector = ECBCollector(catalog=_make_catalog())
 
         monkeypatch.setattr(
             "ingestion.collectors.ecb_collector.requests.get",
@@ -123,7 +108,7 @@ class TestECBCollector:
             collector._fetch_data()
 
     def test_validate_records_splits_valid_and_rejected(self) -> None:
-        collector = ECBCollector(minio_client=MagicMock())
+        collector = ECBCollector(catalog=_make_catalog())
         tomorrow = (dt.date.today() + dt.timedelta(days=1)).isoformat()
 
         valid, rejected = collector._validate_records(
@@ -137,19 +122,32 @@ class TestECBCollector:
         assert len(rejected) == 1
         assert "rejection_reason" in rejected[0]
 
-    def test_already_ingested_today_detects_latest_partition(self) -> None:
-        today = dt.date.today().isoformat()
-        minio = MagicMock()
-        minio.list_objects.return_value = [
-            SimpleNamespace(object_name="bronze/ecb_rates/ingestion_date=2024-01-01/a.parquet"),
-            SimpleNamespace(object_name=f"bronze/ecb_rates/ingestion_date={today}/b.parquet"),
-        ]
-        collector = ECBCollector(minio_client=minio)
+    def test_already_ingested_today_uses_iceberg_scan(self, monkeypatch) -> None:
+        today_ts = dt.datetime.now(dt.UTC)
+        df = pd.DataFrame({"_ingestion_timestamp": [today_ts]})
+        catalog = _make_catalog()
+        collector = ECBCollector(catalog=catalog)
+        monkeypatch.setattr(
+            "ingestion.collectors.ecb_collector.iceberg_io.scan_table",
+            lambda cat, ns, tbl: df,
+        )
 
         assert collector._already_ingested_today() is True
 
+    def test_already_ingested_today_returns_false_when_table_missing(self, monkeypatch) -> None:
+        from pyiceberg.exceptions import NoSuchTableError
+
+        catalog = _make_catalog()
+        collector = ECBCollector(catalog=catalog)
+        monkeypatch.setattr(
+            "ingestion.collectors.ecb_collector.iceberg_io.scan_table",
+            lambda *_: (_ for _ in ()).throw(NoSuchTableError("bronze.ecb_rates")),
+        )
+
+        assert collector._already_ingested_today() is False
+
     def test_collect_returns_skip_when_partition_exists(self, monkeypatch) -> None:
-        collector = ECBCollector(minio_client=MagicMock(), force=False)
+        collector = ECBCollector(catalog=_make_catalog(), force=False)
         monkeypatch.setattr(collector, "_already_ingested_today", lambda: True)
 
         result = collector.collect()
@@ -157,7 +155,7 @@ class TestECBCollector:
         assert result == {"status": "skipped", "reason": "already_ingested_today"}
 
     def test_collect_writes_valid_and_rejected_records(self, monkeypatch) -> None:
-        collector = ECBCollector(minio_client=MagicMock(), force=True)
+        collector = ECBCollector(catalog=_make_catalog(), force=True)
         monkeypatch.setattr(
             collector,
             "_fetch_data",
@@ -171,10 +169,10 @@ class TestECBCollector:
             lambda df: None,
         )
         collector.bronze_writer = MagicMock()
-        collector.bronze_writer.write.return_value = (
-            "bronze/ecb_rates/ingestion_date=2024-01-01/x.parquet"
+        collector.bronze_writer.write.return_value = "iceberg:bronze.ecb_rates"
+        collector.bronze_writer.write_rejected.return_value = (
+            "iceberg:bronze.rejected_records[source=ECB]"
         )
-        collector.bronze_writer.write_rejected.return_value = "bronze/rejected/source=ECB/x.parquet"
 
         result = collector.collect()
 
@@ -192,7 +190,7 @@ class TestDAXCollector:
             "date,open,high,low,close,volume\n2024-01-02,100,101,99,100.5,12345\n",
             encoding="utf-8",
         )
-        collector = DAXCollector(minio_client=MagicMock(), csv_path=str(csv_path))
+        collector = DAXCollector(catalog=_make_catalog(), csv_path=str(csv_path))
 
         records = collector._fetch_data()
 
@@ -208,7 +206,7 @@ class TestDAXCollector:
         ]
 
     def test_validate_records_splits_valid_and_rejected(self) -> None:
-        collector = DAXCollector(minio_client=MagicMock())
+        collector = DAXCollector(catalog=_make_catalog())
 
         valid, rejected = collector._validate_records(
             [
@@ -235,7 +233,7 @@ class TestDAXCollector:
         assert len(rejected) == 1
 
     def test_collect_returns_skip_when_already_ingested(self, monkeypatch) -> None:
-        collector = DAXCollector(minio_client=MagicMock(), force=False)
+        collector = DAXCollector(catalog=_make_catalog(), force=False)
         monkeypatch.setattr(collector, "_already_ingested_today", lambda: True)
 
         result = collector.collect()
@@ -243,7 +241,7 @@ class TestDAXCollector:
         assert result == {"status": "skipped", "reason": "already_ingested_today"}
 
     def test_collect_success_path(self, monkeypatch) -> None:
-        collector = DAXCollector(minio_client=MagicMock(), force=True)
+        collector = DAXCollector(catalog=_make_catalog(), force=True)
         monkeypatch.setattr(
             collector,
             "_fetch_data",
@@ -263,9 +261,7 @@ class TestDAXCollector:
             lambda df: None,
         )
         collector.bronze_writer = MagicMock()
-        collector.bronze_writer.write.return_value = (
-            "bronze/dax_daily/ingestion_date=2024-01-02/x.parquet"
-        )
+        collector.bronze_writer.write.return_value = "iceberg:bronze.dax_daily"
         collector.bronze_writer.write_rejected.return_value = None
 
         result = collector.collect()
@@ -274,7 +270,7 @@ class TestDAXCollector:
             "status": "ok",
             "valid_count": 1,
             "rejected_count": 0,
-            "path": "bronze/dax_daily/ingestion_date=2024-01-02/x.parquet",
+            "path": "iceberg:bronze.dax_daily",
             "rejected_path": None,
         }
 
@@ -362,12 +358,7 @@ class TestTraining:
 class TestEvaluate:
     def test_run_experiment_set_returns_best_run_id(self, monkeypatch) -> None:
         df = make_gold_training_frame()
-        buffer = BytesIO()
-        pq.write_table(pa.Table.from_pandas(df, preserve_index=False), buffer, compression="snappy")
-        payload = buffer.getvalue()
-
-        minio = MagicMock()
-        minio.get_object.return_value = FakeResponse(payload)
+        catalog = _make_catalog()
 
         train_calls: list[tuple[str, int, int]] = []
 
@@ -401,8 +392,10 @@ class TestEvaluate:
         monkeypatch.setattr(evaluate.mlflow, "log_metrics", lambda *args, **kwargs: None)
         monkeypatch.setattr(evaluate.mlflow, "log_artifact", lambda *args, **kwargs: None)
         monkeypatch.delenv("TRINO_URL", raising=False)
+        # Mock iceberg scan so no real catalog connection is made
+        monkeypatch.setattr(evaluate.iceberg_io, "scan_table", lambda cat, ns, tbl: df)
 
-        best_run_id = evaluate.run_experiment_set(minio, "http://localhost:5000")
+        best_run_id = evaluate.run_experiment_set(catalog, "http://localhost:5000")
 
         assert best_run_id == "run-7"
         assert len(train_calls) == 12

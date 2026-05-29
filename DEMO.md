@@ -24,9 +24,9 @@ The goal is not to show every feature. The goal is to prove, in one take, that a
 | 00:00-02:00 | Opening | State what SoloLakehouse is and why it exists. | README one-sentence What / Why / How. |
 | 02:00-06:00 | Cold start | Run `git clone`, `cd SoloLakehouse`, then `make setup`. | Setup performs env creation, dependency install, image pull, Compose start, and health wait. |
 | 06:00-08:00 | Health surface | Run `make health` and open `http://127.0.0.1:8090/health`. | Every service shows PASS or a clear failing service. |
-| 08:00-13:00 | Data flow | Run `make demo`. | Dagster executes the demo data-flow job, then Trino row-count checks pass for Hive Gold and Iceberg Gold. |
-| 13:00-17:00 | Three-layer view | Open MinIO and show Bronze, Silver, and Gold object paths. | Bronze/Silver Parquet and Gold feature paths are visible. |
-| 17:00-21:00 | Query and compliance angle | Show the Gold SQL checks and explain why auditable row counts matter. | `hive.gold.ecb_dax_features` and `iceberg.gold.ecb_dax_features_iceberg` return rows. |
+| 08:00-13:00 | Data flow | Run `make demo`. | Dagster executes the demo data-flow job, then Trino row-count check passes for Iceberg Gold. |
+| 13:00-17:00 | Three-layer view | Open MinIO and show Bronze, Silver, and Gold Iceberg table paths under the warehouse prefix. | All three medallion layers are visible as Iceberg data files. |
+| 17:00-21:00 | Query and compliance angle | Show the Gold SQL check and explain why auditable row counts matter. | `iceberg.gold.ecb_dax_features` returns rows; all layers queryable via `iceberg.*`. |
 | 21:00-25:00 | Orchestration | Open Dagster and show the latest successful `demo_data_flow_job` run. | Asset graph and recent run status are visible. |
 | 25:00-28:00 | Metadata and ML | Open OpenMetadata and MLflow. | Catalog UI and experiment tracking surface are reachable. |
 | 28:00-30:00 | Close | Summarize v2.5 boundary and point to v2.6 roadmap. | v2.5 is a frozen baseline, not a feature backlog. |
@@ -67,4 +67,4 @@ Do not describe the DAX sample as live data. If any source is unavailable or ski
 - `make demo` exits 0.
 - Health dashboard shows all services as PASS.
 - Dagster shows a successful `demo_data_flow_job`.
-- Trino returns row counts greater than zero for both Gold tables.
+- Trino returns row count greater than zero for `iceberg.gold.ecb_dax_features`.

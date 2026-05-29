@@ -152,6 +152,7 @@ services:
       mlflow:
         condition: service_healthy
     environment:
+      HIVE_METASTORE_URI: thrift://hive-metastore:9083
       PRODUCT_ID: ${PRODUCT_ID:-sololakehouse}
       PRODUCT_DISPLAY_NAME: ${PRODUCT_DISPLAY_NAME:-SoloLakehouse}
       PRODUCT_DOMAIN: ${PRODUCT_DOMAIN:-financial_markets}
@@ -204,6 +205,7 @@ services:
       dagster-webserver:
         condition: service_healthy
     environment:
+      HIVE_METASTORE_URI: thrift://hive-metastore:9083
       PRODUCT_ID: ${PRODUCT_ID:-sololakehouse}
       PRODUCT_DISPLAY_NAME: ${PRODUCT_DISPLAY_NAME:-SoloLakehouse}
       PRODUCT_DOMAIN: ${PRODUCT_DOMAIN:-financial_markets}

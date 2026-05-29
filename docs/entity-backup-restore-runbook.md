@@ -496,11 +496,11 @@ Minimum data checks:
 ```bash
 docker compose --env-file "$ENV_FILE" -f docker/docker-compose.yml exec -T trino \
   trino --server http://localhost:8080 --user "${TRINO_USER:-sololakehouse}" \
-  --execute "SELECT count(*) FROM hive.gold.ecb_dax_features"
+  --execute "SELECT count(*) FROM iceberg.gold.ecb_dax_features"
 
 docker compose --env-file "$ENV_FILE" -f docker/docker-compose.yml exec -T trino \
   trino --server http://localhost:8080 --user "${TRINO_USER:-sololakehouse}" \
-  --execute "SELECT count(*) FROM iceberg.gold.ecb_dax_features_iceberg"
+  --execute "SELECT count(*) FROM iceberg.bronze.ecb_rates"
 ```
 
 Minimum service checks:
@@ -508,7 +508,7 @@ Minimum service checks:
 - MinIO contains data, audit, and MLflow artifact buckets.
 - PostgreSQL contains `hive_metastore`, `mlflow`, `dagster_storage`, and
   Superset metadata databases.
-- Hive Metastore starts and Trino can query Hive and Iceberg Gold.
+- Hive Metastore starts and Trino can query all Iceberg layers (Bronze, Silver, Gold).
 - MLflow UI opens and previous runs/artifacts are visible when restored.
 - Dagster UI opens and restored run history is visible if `dagster_storage` was
   restored.

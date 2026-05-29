@@ -1,6 +1,7 @@
 minio==7.2.20
 pandas==2.2.3
 pyarrow==23.0.1
+pyiceberg[hive,s3fs,pyiceberg-core]>=0.8.0
 pydantic==2.12.5
 structlog==25.5.0
 requests==2.33.0

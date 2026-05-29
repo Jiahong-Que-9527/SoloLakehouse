@@ -2,34 +2,15 @@ from __future__ import annotations
 
 import datetime as dt
 import importlib
-from io import BytesIO
-from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pandas as pd
-import pyarrow.parquet as pq
 
 from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
 
 
-class FakeResponse:
-    def __init__(self, payload: bytes):
-        self._payload = payload
-
-    def read(self) -> bytes:
-        return self._payload
-
-    def close(self) -> None:
-        return None
-
-    def release_conn(self) -> None:
-        return None
-
-
-def parquet_bytes(frame: pd.DataFrame) -> bytes:
-    buffer = BytesIO()
-    frame.to_parquet(buffer, index=False)
-    return buffer.getvalue()
+def _make_catalog() -> MagicMock:
+    return MagicMock(name="catalog")
 
 
 class TestTransformationRuns:
@@ -43,11 +24,14 @@ class TestTransformationRuns:
                 "_source": ["ECB_SDW"] * 2,
             }
         )
-        minio = MagicMock()
-        minio.list_objects.return_value = [
-            SimpleNamespace(object_name="bronze/ecb_rates/ingestion_date=2024-01-01/a.parquet")
-        ]
-        minio.get_object.return_value = FakeResponse(parquet_bytes(bronze))
+        written: list[pd.DataFrame] = []
+
+        monkeypatch.setattr(ecb_bronze_to_silver, "scan_table", lambda cat, ns, tbl: bronze)
+        monkeypatch.setattr(
+            ecb_bronze_to_silver,
+            "overwrite_table",
+            lambda cat, ns, tbl, df, schema, **_: written.append(df),
+        )
         quality_calls: list[tuple[int, str]] = []
         monkeypatch.setattr(
             ecb_bronze_to_silver,
@@ -55,13 +39,12 @@ class TestTransformationRuns:
             lambda df, layer: quality_calls.append((len(df), layer)),
         )
 
-        path = ecb_bronze_to_silver.run(minio)
+        result = ecb_bronze_to_silver.run(_make_catalog())
 
-        assert path == "silver/ecb_rates_cleaned/ecb_rates_cleaned.parquet"
+        assert result["table"] == "iceberg:silver.ecb_rates_cleaned"
+        assert result["row_count"] == 2
         assert quality_calls == [(2, "ecb_rates_cleaned")]
-        args = minio.put_object.call_args.args
-        written = pq.read_table(BytesIO(args[2].getvalue())).to_pandas()
-        assert written.columns.tolist() == ["observation_date", "rate_pct", "rate_change_bps"]
+        assert written[0].columns.tolist() == ["observation_date", "rate_pct", "rate_change_bps"]
 
     def test_dax_run_reads_bronze_and_writes_silver(self, monkeypatch) -> None:
         importlib.reload(dax_bronze_to_silver)
@@ -77,11 +60,14 @@ class TestTransformationRuns:
                 "_source": ["DAX_SAMPLE"] * 2,
             }
         )
-        minio = MagicMock()
-        minio.list_objects.return_value = [
-            SimpleNamespace(object_name="bronze/dax_daily/ingestion_date=2024-01-05/a.parquet")
-        ]
-        minio.get_object.return_value = FakeResponse(parquet_bytes(bronze))
+        written: list[pd.DataFrame] = []
+
+        monkeypatch.setattr(dax_bronze_to_silver, "scan_table", lambda cat, ns, tbl: bronze)
+        monkeypatch.setattr(
+            dax_bronze_to_silver,
+            "overwrite_table",
+            lambda cat, ns, tbl, df, schema, **_: written.append(df),
+        )
         quality_calls: list[tuple[int, str]] = []
         monkeypatch.setattr(
             dax_bronze_to_silver,
@@ -89,13 +75,11 @@ class TestTransformationRuns:
             lambda df, layer: quality_calls.append((len(df), layer)),
         )
 
-        path = dax_bronze_to_silver.run(minio)
+        result = dax_bronze_to_silver.run(_make_catalog())
 
-        assert path == "silver/dax_daily_cleaned/dax_daily_cleaned.parquet"
+        assert result["table"] == "iceberg:silver.dax_daily_cleaned"
         assert quality_calls == [(2, "dax_daily_cleaned")]
-        args = minio.put_object.call_args.args
-        written = pq.read_table(BytesIO(args[2].getvalue())).to_pandas()
-        assert "daily_return" in written.columns
+        assert "daily_return" in written[0].columns
 
     def test_gold_run_reads_silver_and_writes_gold(self, monkeypatch) -> None:
         importlib.reload(silver_to_gold_features)
@@ -114,11 +98,19 @@ class TestTransformationRuns:
                 "daily_return": [0.1 + i * 0.01 for i in range(20)],
             }
         )
-        minio = MagicMock()
-        minio.get_object.side_effect = [
-            FakeResponse(parquet_bytes(ecb)),
-            FakeResponse(parquet_bytes(dax)),
-        ]
+        scan_returns = iter([ecb, dax])
+
+        monkeypatch.setattr(
+            silver_to_gold_features,
+            "scan_table",
+            lambda cat, ns, tbl: next(scan_returns),
+        )
+        written: list[pd.DataFrame] = []
+        monkeypatch.setattr(
+            silver_to_gold_features,
+            "overwrite_table",
+            lambda cat, ns, tbl, df, schema, **_: written.append(df),
+        )
         quality_calls: list[tuple[int, str]] = []
         monkeypatch.setattr(
             silver_to_gold_features,
@@ -126,13 +118,11 @@ class TestTransformationRuns:
             lambda df, layer: quality_calls.append((len(df), layer)),
         )
 
-        path = silver_to_gold_features.run(minio)
+        result = silver_to_gold_features.run(_make_catalog())
 
-        assert path == "gold/rate_impact_features/ecb_dax_features.parquet"
+        assert result["table"] == "iceberg:gold.ecb_dax_features"
         assert quality_calls == [(1, "ecb_dax_features")]
-        args = minio.put_object.call_args.args
-        written = pq.read_table(BytesIO(args[2].getvalue())).to_pandas()
-        assert written.columns.tolist() == [
+        assert written[0].columns.tolist() == [
             "event_date",
             "rate_change_bps",
             "rate_level_pct",

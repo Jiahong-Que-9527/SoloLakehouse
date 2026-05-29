@@ -10,7 +10,7 @@ not a framework or library. It demonstrates how platforms like Databricks and
 Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
-**Current: v2.5 single-track baseline** — orchestrated platform with Dagster assets/schedules/UI, Iceberg Gold in Trino, and mandatory OpenMetadata + Superset in the default stack (see `docs/roadmap.md`).  
+**Current: v2.5 single-track baseline** — orchestrated platform with Dagster assets/schedules/UI, **full-stack Iceberg** (Bronze/Silver/Gold all written via pyiceberg), and mandatory OpenMetadata + Superset in the default stack (see `docs/roadmap.md`).  
 **Next target (v3.0):** production infrastructure and governance hardening (multi-environment deployment, secrets/access governance, SLO/alerting, release promotion controls).
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
@@ -23,21 +23,21 @@ Compose node.
 | Metadata DB | PostgreSQL | 17 |
 | Table Catalog | Apache Hive Metastore (standalone) | 4.0.0 |
 | Query Engine | Trino (Hive + Iceberg catalogs) | 480 |
-| Table format (Gold) | Apache Iceberg (via Trino) | — |
+| Table format (all layers) | Apache Iceberg via pyiceberg (Bronze/Silver/Gold) | ≥0.8.0 |
 | Data catalog | OpenMetadata | 1.5.x |
 | BI / SQL UI | Apache Superset | 6.0.0 |
 | ML Tracking | MLflow | 3.10.1 |
 | Orchestration | Dagster | 1.7.x (Python < 3.13) / 1.12.x (Python ≥ 3.13) |
 | Language | Python | 3.13+ |
 | Validation | Pydantic v2 | 2.12.5 |
-| Data Format | Parquet (snappy) via PyArrow; Gold also exposed as Iceberg | 23.0.1 |
+| Data Format | Iceberg (Parquet data files, snappy) for all layers; PyArrow 23.0.1 internally | — |
 | Logging | structlog | 25.5.0 |
 | Testing | pytest | 9.0.2 |
 
 ## Commands
 
 ```bash
-make up          # Start all Docker services + init MinIO buckets (includes Dagster services)
+make up          # Start all Docker services + init MinIO buckets + create Iceberg namespaces/tables
 make down        # Stop services (data preserved under docker/data/)
 make pipeline    # Run Dagster full_pipeline_job (v2.5 default path)
 make dagster-ui  # Open Dagster UI (http://localhost:3000)
@@ -55,8 +55,10 @@ ingestion/
   collectors/         # One class per data source (ECBCollector, DAXCollector)
   schema/             # Pydantic v2 models for record validation
   quality/            # Bronze-layer quality check functions
-  bronze_writer.py    # Writes validated data to MinIO as Parquet
-  trino_sql.py          # Trino REST: Hive staging + Iceberg Gold refresh
+  bronze_writer.py    # Writes validated data to Iceberg (pyiceberg append_table)
+  iceberg_io.py       # Core I/O: append_table, overwrite_table, scan_table, get_catalog
+  iceberg_schemas.py  # Iceberg Schema + PartitionSpec for all six tables
+  trino_sql.py        # Trino REST utility (execute_trino_sql only; Hive staging removed)
 
 transformations/
   ecb_bronze_to_silver.py   # ECB: type cleanup, forward-fill, rate_change_bps
@@ -93,7 +95,7 @@ docker/
 
 dagster/
   assets.py                 # Software-defined assets, sensor, asset checks
-  resources.py              # MinIO/config resources
+  resources.py              # IcebergCatalogResource + config resources
   definitions.py            # Jobs/schedule/definitions registry
   workspace.yaml            # Dagster code location workspace
   dagster.yaml              # Dagster instance config (PostgreSQL storage)
@@ -109,9 +111,9 @@ data/sample/                # Committed sample CSV for DAX
 
 ```python
 class NewCollector:
-    def __init__(self, minio_client, config: dict):
-        self.minio = minio_client
-        self.bronze_writer = BronzeWriter(minio_client)
+    def __init__(self, catalog: Catalog, bucket: str | None = None):
+        self.catalog = catalog
+        self.bronze_writer = BronzeWriter(catalog)
 
     def _fetch_data(self, ...) -> list | pd.DataFrame:
         """Pull from source. Use structlog for logging."""
@@ -120,9 +122,12 @@ class NewCollector:
         """Validate each record against a Pydantic schema.
         Returns (valid_dicts, rejected_dicts)."""
 
+    def _already_ingested_today(self) -> bool:
+        """Check iceberg_io.scan_table for today's _ingestion_timestamp."""
+
     def collect(self, ...) -> dict:
-        """Orchestrate: fetch → validate → write Bronze.
-        Returns summary dict with counts."""
+        """Orchestrate: fetch → validate → write Bronze (Iceberg append).
+        Returns summary dict with counts and iceberg: path."""
 ```
 
 ### Schema Pattern (ingestion/schema/)
@@ -159,20 +164,39 @@ Every transformation file has two functions:
        return df[["col1", "col2", ...]]  # explicit column subset
    ```
 
-2. **Orchestration function** (reads MinIO, calls transform, writes MinIO):
+2. **Orchestration function** (reads Iceberg, calls transform, writes Iceberg):
    ```python
-   def run(minio_client, bucket="sololakehouse") -> str:
-       # read Bronze Parquet(s) → transform → write Silver Parquet
-       return silver_path
+   def run(catalog: Catalog) -> dict[str, object]:
+       df = scan_table(catalog, "bronze", "source_name")
+       silver_df = transform_X_bronze_to_silver(df)
+       overwrite_table(catalog, "silver", "source_name_cleaned", silver_df, SILVER_SCHEMA)
+       return {"table": "iceberg:silver.source_name_cleaned", "row_count": len(silver_df)}
    ```
+
+### Iceberg I/O Pattern (ingestion/iceberg_io.py)
+
+```python
+from ingestion.iceberg_io import append_table, overwrite_table, scan_table, get_catalog
+
+catalog = get_catalog()  # reads HIVE_METASTORE_URI, MINIO_ENDPOINT, S3_ACCESS_KEY from env
+
+# Bronze (immutable append)
+append_table(catalog, "bronze", "ecb_rates", df, BRONZE_ECB_RATES_SCHEMA, BRONZE_ECB_RATES_PARTITION)
+
+# Silver / Gold (full overwrite on each run)
+overwrite_table(catalog, "silver", "ecb_rates_cleaned", df, SILVER_ECB_RATES_SCHEMA)
+
+# Read
+df = scan_table(catalog, "gold", "ecb_dax_features")
+```
 
 ### Testing Pattern (tests/)
 
 - `class TestXxx` grouping, plain pytest (no unittest.TestCase)
-- Mock MinIO with `unittest.mock.MagicMock`
+- Mock `pyiceberg.Catalog` with `unittest.mock.MagicMock`; monkeypatch `iceberg_io.scan_table` / `iceberg_io.overwrite_table` to capture writes
 - Test pure transform functions with small synthetic DataFrames
 - Test schemas for both valid and invalid inputs
-- Helper functions like `make_ecb_bronze()` for test data
+- Helper functions like `make_gold_training_frame()` for test data
 
 ### Logging Pattern
 
@@ -180,22 +204,19 @@ Every transformation file has two functions:
 import structlog
 logger = structlog.get_logger()
 
-logger.info("event_name_snake_case", rows=100, path="bronze/ecb/...")
+logger.info("event_name_snake_case", rows=100, table="iceberg:bronze.ecb_rates")
 ```
 
 - Event names: `snake_case`
 - Context: key-value pairs, not formatted strings
 - Log at step boundaries with counts
 
-### MinIO / Parquet I/O Pattern
+### MinIO / Parquet direct I/O
+
+**No longer used in the pipeline** — all writes go through `iceberg_io`.
+If you need a raw MinIO client for tooling only:
 
 ```python
-# Write
-buffer = BytesIO()
-pq.write_table(pa.Table.from_pandas(df), buffer, compression="snappy")
-buffer.seek(0)
-minio.put_object(bucket, path, buffer, length=buffer.getbuffer().nbytes)
-
 # Read
 response = minio.get_object(bucket, path)
 df = pd.read_parquet(BytesIO(response.read()))
@@ -215,29 +236,33 @@ user = os.environ.get("MINIO_ROOT_USER", "sololakehouse")
 Never hardcode credentials. Config files that need credentials use `envsubst`
 templates (see `config/trino/catalog/hive.properties`).
 
-## Data Flow (Medallion)
+## Data Flow (Medallion — all Iceberg)
 
 ```
 ECB API / DAX CSV
-    → Bronze (raw Parquet, partitioned by ingestion_date, immutable)
-    → Silver (cleaned, typed, deduped, derived fields)
-    → Gold Parquet (written to MinIO: gold/)
-        → Hive external table registered via Trino (hive.gold.ecb_dax_features)
-        → Iceberg Gold refreshed via Trino CTAS (iceberg.gold.ecb_dax_features_iceberg)
+    → Bronze Iceberg (iceberg.bronze.{ecb_rates,dax_daily})
+        append-only, day-partitioned on _ingestion_timestamp
+    → Silver Iceberg (iceberg.silver.{ecb_rates_cleaned,dax_daily_cleaned})
+        full overwrite each run; cleaned, typed, deduped, derived fields
+    → Gold Iceberg (iceberg.gold.ecb_dax_features)
+        full overwrite each run; one row per ECB rate-change event
+        — readable via Trino: SELECT * FROM iceberg.gold.ecb_dax_features
     → MLflow (XGBoost/LightGBM experiments with TimeSeriesSplit CV)
+        reads Gold from Trino (preferred) or pyiceberg scan_table
 ```
 
-Gold registration is handled by `ingestion/trino_sql.py` (`register_gold_tables_trino`), called as
-a Dagster asset after the Parquet write step.
+All writes go through `ingestion/iceberg_io.py` (pyiceberg HiveCatalog).
+`ingestion/trino_sql.py` is now a thin utility for ad-hoc Trino SQL only
+(Hive staging / CTAS removed — superseded by pyiceberg direct writes, ADR-020).
 
-MinIO bucket: `sololakehouse` (paths: `bronze/`, `silver/`, `gold/`)
+MinIO bucket: `sololakehouse` (Iceberg warehouse: `s3://sololakehouse/warehouse/`)
 MLflow bucket: `mlflow-artifacts`
 
 ## Key Design Decisions
 
 - **Docker Compose, not K8s** — single-node reference; K8s is v3 (ADR-001)
 - **Trino, not DuckDB** — federation + Hive metadata (ADR-002)
-- **Parquet for Bronze/Silver; Iceberg for Gold in Trino** — open table format where it teaches best; not full Delta/ACID scope (ADR-003, ADR-013)
+- **Iceberg for all layers via pyiceberg** — replaces Parquet+Hive staging; eliminates write-path duplication (ADR-020 supersedes ADR-003 and ADR-013)
 - **ECB/DAX data** — public APIs, temporal structure, no API keys (ADR-004)
 - **No Prometheus/Grafana until post-core** — meaningful metrics require custom instrumentation (ADR-005)
 - **TimeSeriesSplit** — no random CV on time-series data (look-ahead bias)
@@ -248,8 +273,10 @@ MLflow bucket: `mlflow-artifacts`
 
 - `config/trino/catalog/*.properties` are **templates** with `${VAR}` placeholders — bash `eval` expansion runs at container startup via `scripts/trino-entrypoint.sh` (includes `hive` + `iceberg`)
 - PostgreSQL is shared by Hive Metastore AND MLflow (two databases: `hive_metastore`, `mlflow`)
-- Bronze data is immutable — never update in place, always write new partitions
-- Tests run without Docker — they mock all external services
+- Bronze data is immutable — `BronzeWriter` calls `iceberg_io.append_table`; never overwrite
+- Iceberg namespaces/tables are bootstrapped by `scripts/init-iceberg-namespaces.py` (called by `make up`); if you reset the Hive Metastore run `make init-iceberg` to recreate them
+- `HIVE_METASTORE_URI=thrift://localhost:9083` in `.env` is for host-side scripts; Docker services override to `thrift://hive-metastore:9083`
+- Tests run without Docker — they mock `iceberg_io.scan_table` / `iceberg_io.overwrite_table`
 - The `version: "3.8"` field was intentionally removed from docker-compose.yml (deprecated in Compose V2)
 
 ## Roadmap context

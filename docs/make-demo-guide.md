@@ -206,14 +206,7 @@ http://localhost:3000
 
 ```sql
 SELECT count(*) AS total_rows
-FROM hive.gold.ecb_dax_features;
-```
-
-以及：
-
-```sql
-SELECT count(*) AS total_rows
-FROM iceberg.gold.ecb_dax_features_iceberg;
+FROM iceberg.gold.ecb_dax_features;
 ```
 
 通过标准：
@@ -221,7 +214,6 @@ FROM iceberg.gold.ecb_dax_features_iceberg;
 ```text
 Demo check      Rows  Status
 --------------- ----- ------
-Hive Gold       <n>   PASS
 Iceberg Gold    <n>   PASS
 ```
 

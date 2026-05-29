@@ -159,14 +159,13 @@ If one service is still warming up, wait 10-30 seconds and rerun `make verify`.
 make demo
 ```
 
-This runs `make verify`, executes Dagster `demo_data_flow_job`, then checks Hive Gold and Iceberg Gold row counts through Trino.
+This runs `make verify`, executes Dagster `demo_data_flow_job`, then checks Iceberg Gold row count through Trino.
 
 Success criteria:
 
 - Command exits with code 0
 - Dagster `demo_data_flow_job` succeeds
-- `hive.gold.ecb_dax_features` row count is greater than 0
-- `iceberg.gold.ecb_dax_features_iceberg` row count is greater than 0
+- `iceberg.gold.ecb_dax_features` row count is greater than 0
 
 If you need the full pipeline including MLflow experiment execution, run:
 
@@ -207,12 +206,7 @@ Run at least one (preferably both):
 
 ```sql
 SELECT count(*) AS total_rows
-FROM hive.gold.ecb_dax_features;
-```
-
-```sql
-SELECT count(*) AS total_rows
-FROM iceberg.gold.ecb_dax_features_iceberg;
+FROM iceberg.gold.ecb_dax_features;
 ```
 
 Success criteria:
@@ -254,8 +248,7 @@ Mark each item during execution:
 - [ ] Dagster UI shows successful run
 - [ ] OpenMetadata UI accessible
 - [ ] Superset UI login successful
-- [ ] `hive.gold.ecb_dax_features` query succeeds with data
-- [ ] `iceberg.gold.ecb_dax_features_iceberg` query succeeds with data
+- [ ] `iceberg.gold.ecb_dax_features` query succeeds with data
 - [ ] Optional: `make pipeline` completed successfully and MLflow run record visible
 
 Acceptance rule:

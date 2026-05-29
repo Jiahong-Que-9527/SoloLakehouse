@@ -26,16 +26,26 @@ This file explains major architecture choices over time and why they changed.
 - Historical state: v2 initially kept dual runtime paths for migration.  
 - Current state: dual paths retired; orchestration is Dagster-only in active runtime.
 
-## v2.5 Baseline Choices (implemented, current)
+## v2.5 Baseline Choices (implemented, historical)
 
 1) Iceberg for Gold  
 - Selected: Trino-managed Iceberg Gold table while preserving Python Parquet staging.
+- Superseded by ADR-020 (all-layer Iceberg) — see v2.5.x section below.
 
 2) Metadata and BI stack posture  
 - Selected: OpenMetadata + Superset as required platform components in default runtime.
 
 3) Single runtime entrypoint  
 - Selected: `make pipeline` (Dagster `full_pipeline_job`) as only execution path.
+
+## v2.5.x Full-stack Iceberg Migration (2026-05-29)
+
+1) Iceberg for all medallion layers  
+- Selected: pyiceberg `HiveCatalog` writes for Bronze (append), Silver (overwrite), Gold (overwrite).  
+- Rejected: continue Parquet-only for Bronze/Silver — leaves them invisible to Trino/OpenMetadata.  
+- Rejected: Trino INSERT INTO for Bronze/Silver — would require materialising DataFrames into a Hive external table first, re-introducing the staging problem.  
+- Key consequence: `BronzeWriter`, both collectors, and all three transformation `run()` functions now depend on pyiceberg rather than MinIO SDK. The `minio_client` parameter was removed from collectors.  
+- ADR-020 records this decision.
 
 ## Post-v2.5 Entity Template Choices (Phase 1 complete, 2026-05-18)
 

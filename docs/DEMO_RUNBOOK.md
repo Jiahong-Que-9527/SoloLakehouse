@@ -178,14 +178,13 @@ Do not continue to pipeline execution until all services pass health checks.
 make demo
 ```
 
-该命令会先执行 `make verify`，再通过 Dagster 执行 `demo_data_flow_job`，最后用 Trino 校验 Hive Gold 和 Iceberg Gold 都能查到数据。
+该命令会先执行 `make verify`，再通过 Dagster 执行 `demo_data_flow_job`，最后用 Trino 校验 Iceberg Gold 能查到数据。
 
 成功标准：
 
 - 命令退出码为 0
 - Dagster `demo_data_flow_job` 成功
-- `hive.gold.ecb_dax_features` 行数 > 0
-- `iceberg.gold.ecb_dax_features_iceberg` 行数 > 0
+- `iceberg.gold.ecb_dax_features` 行数 > 0
 
 如果你需要验证包含 MLflow 训练实验的完整流水线，再单独执行：
 
@@ -231,16 +230,11 @@ These UI checks validate both service readiness and demo visibility for stakehol
 方式 A（UI）：在 Trino UI 中执行 SQL。  
 方式 B（命令行）：在 Trino 容器执行。
 
-示例 SQL（至少执行一条）：
+示例 SQL：
 
 ```sql
 SELECT count(*) AS total_rows
-FROM hive.gold.ecb_dax_features;
-```
-
-```sql
-SELECT count(*) AS total_rows
-FROM iceberg.gold.ecb_dax_features_iceberg;
+FROM iceberg.gold.ecb_dax_features;
 ```
 
 成功标准：
@@ -286,8 +280,7 @@ This section proves that the demo is not only “services up” but also “busi
 - [ ] Dagster UI 可看到成功 run
 - [ ] OpenMetadata UI 可访问
 - [ ] Superset UI 可登录
-- [ ] Trino 查询 `hive.gold.ecb_dax_features` 成功且有数据
-- [ ] Trino 查询 `iceberg.gold.ecb_dax_features_iceberg` 成功且有数据
+- [ ] Trino 查询 `iceberg.gold.ecb_dax_features` 成功且有数据
 - [ ] 可选：`make pipeline` 成功执行，MLflow 中可见 run 记录
 
 **结论规则：**

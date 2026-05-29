@@ -6,17 +6,19 @@ import os
 import pickle
 import tempfile
 import urllib.parse
-from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import mlflow
 import pandas as pd
 import structlog
 
+from ingestion import iceberg_io
 from ml.train_ecb_dax_model import train
 from runtime_identity import get_trino_user
-from storage_config import get_data_bucket
+
+if TYPE_CHECKING:
+    from pyiceberg.catalog import Catalog
 
 logger = structlog.get_logger()
 
@@ -37,7 +39,7 @@ def _gold_dataframe_from_trino(trino_url: str) -> pd.DataFrame:
         http_scheme="http",
     )
     cur = conn.cursor()
-    cur.execute("SELECT * FROM ecb_dax_features_iceberg")
+    cur.execute("SELECT * FROM ecb_dax_features")
     rows = cur.fetchall()
     if cur.description is None:
         raise ValueError("Trino returned no column description for Gold Iceberg table")
@@ -48,29 +50,21 @@ def _gold_dataframe_from_trino(trino_url: str) -> pd.DataFrame:
     return df
 
 
-def _gold_dataframe_from_minio_parquet(minio_client: Any, bucket: str) -> pd.DataFrame:
-    gold_path = "gold/rate_impact_features/ecb_dax_features.parquet"
-    response = minio_client.get_object(bucket, gold_path)
-    try:
-        return pd.read_parquet(BytesIO(response.read()))
-    finally:
-        response.close()
-        response.release_conn()
+def _gold_dataframe_from_iceberg(catalog: "Catalog") -> pd.DataFrame:
+    return iceberg_io.scan_table(catalog, "gold", "ecb_dax_features")
 
 
 def run_experiment_set(
-    minio_client: Any,
+    catalog: "Catalog",
     mlflow_tracking_uri: str,
-    bucket: str | None = None,
     trino_url: str | None = None,
 ) -> str:
     """Run all configured experiment combinations and return the best run_id."""
-    bucket = bucket or get_data_bucket()
     resolved_trino = trino_url or os.environ.get("TRINO_URL")
     if resolved_trino:
         df = _gold_dataframe_from_trino(resolved_trino)
     else:
-        df = _gold_dataframe_from_minio_parquet(minio_client, bucket)
+        df = _gold_dataframe_from_iceberg(catalog)
 
     mlflow.set_tracking_uri(mlflow_tracking_uri)
     mlflow.set_experiment("ecb_dax_impact")

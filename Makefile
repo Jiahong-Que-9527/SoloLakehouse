@@ -1,4 +1,4 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
@@ -26,12 +26,16 @@ wait-postgres-ready:
 	done; \
 	echo "Postgres did not become ready in time."; exit 1
 
+init-iceberg:
+	$(PYTHON) scripts/init-iceberg-namespaces.py
+
 up: prepare-data-dirs
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d postgres minio
 	$(MAKE) wait-postgres-ready
 	$(MAKE) bootstrap-db
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d --build
 	$(MAKE) wait
+	$(MAKE) init-iceberg
 	@echo ""
 	@echo "SoloLakehouse is ready."
 	@echo "  MinIO Console:  http://localhost:9001"

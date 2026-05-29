@@ -22,7 +22,7 @@ from assets import (  # noqa: E402
     ml_experiment,
 )
 from io_managers import ParquetIOManager  # noqa: E402
-from resources import MinioResource, PipelineConfigResource  # noqa: E402
+from resources import IcebergCatalogResource, MinioResource, PipelineConfigResource  # noqa: E402
 
 data_flow_assets = [ecb_bronze, dax_bronze, ecb_silver, dax_silver, gold_features]
 all_assets = [*data_flow_assets, ml_experiment]
@@ -53,7 +53,7 @@ defs = Definitions(
     resources={
         "minio": MinioResource(),
         "pipeline_config": PipelineConfigResource(),
-        # Optional IO manager for DataFrame-native asset experiments.
+        "iceberg_catalog": IcebergCatalogResource(),
         "parquet_io_manager": ParquetIOManager(),
     },
 )

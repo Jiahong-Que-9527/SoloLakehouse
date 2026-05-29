@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from io import BytesIO
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 
-from storage_config import get_data_bucket
+from ingestion.iceberg_io import overwrite_table, scan_table
+from ingestion.iceberg_schemas import GOLD_FEATURES_SCHEMA
 from transformations.quality_report import run_silver_quality_report
+
+if TYPE_CHECKING:
+    from pyiceberg.catalog import Catalog
 
 
 def _compute_cumulative_return_pct(returns_pct: pd.Series) -> float:
@@ -100,36 +101,14 @@ def build_gold_features(ecb_df: pd.DataFrame, dax_df: pd.DataFrame) -> pd.DataFr
     ]
 
 
-def run(minio_client: Any, bucket: str | None = None) -> str:
-    """Read silver ECB/DAX, build gold features, write parquet, and return path."""
-    bucket = bucket or get_data_bucket()
-    ecb_path = "silver/ecb_rates_cleaned/ecb_rates_cleaned.parquet"
-    dax_path = "silver/dax_daily_cleaned/dax_daily_cleaned.parquet"
-
-    ecb_response = minio_client.get_object(bucket, ecb_path)
-    try:
-        ecb_df = pd.read_parquet(BytesIO(ecb_response.read()))
-    finally:
-        ecb_response.close()
-        ecb_response.release_conn()
-
-    dax_response = minio_client.get_object(bucket, dax_path)
-    try:
-        dax_df = pd.read_parquet(BytesIO(dax_response.read()))
-    finally:
-        dax_response.close()
-        dax_response.release_conn()
+def run(catalog: "Catalog") -> dict[str, object]:
+    """Read silver ECB/DAX Iceberg tables, build gold features, write to gold, return summary."""
+    ecb_df = scan_table(catalog, "silver", "ecb_rates_cleaned")
+    dax_df = scan_table(catalog, "silver", "dax_daily_cleaned")
 
     gold_df = build_gold_features(ecb_df, dax_df)
     run_silver_quality_report(gold_df, "ecb_dax_features")
 
-    gold_path = "gold/rate_impact_features/ecb_dax_features.parquet"
-    buffer = BytesIO()
-    pq.write_table(
-        pa.Table.from_pandas(gold_df, preserve_index=False),
-        buffer,
-        compression="snappy",
-    )
-    buffer.seek(0)
-    minio_client.put_object(bucket, gold_path, buffer, length=buffer.getbuffer().nbytes)
-    return gold_path
+    overwrite_table(catalog, "gold", "ecb_dax_features", gold_df, GOLD_FEATURES_SCHEMA)
+
+    return {"table": "iceberg:gold.ecb_dax_features", "row_count": len(gold_df)}

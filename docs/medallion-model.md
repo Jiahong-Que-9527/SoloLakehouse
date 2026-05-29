@@ -1,6 +1,6 @@
 # Medallion architecture (Bronze / Silver / Gold)
 
-The Medallion pattern tiers data by quality: raw → cleaned → analytics/ML-ready. SoloLakehouse implements it with **Parquet** on **MinIO** (see [ADR-003](decisions/ADR-003-parquet-vs-delta.md)).
+The Medallion pattern tiers data by quality: raw → cleaned → analytics/ML-ready. SoloLakehouse implements all three layers with **Apache Iceberg** via pyiceberg (HiveCatalog + MinIO S3FileIO), superseding the earlier Parquet-only write path (see [ADR-020](decisions/ADR-020-iceberg-all-layers.md)).
 
 For product entities, physical paths and Trino table names are mapped to stable
 logical dataset IDs in
@@ -11,16 +11,13 @@ governance keys that should survive bucket, catalog, and object-store changes.
 
 **Purpose:** Preserve data as received, with traceability.
 
-- Immutable, append-only partitions; idempotent runs via `ingestion_date` partitions
+- Immutable, append-only Iceberg table; `pyiceberg.append_table` enforces immutability
+- Day-partitioned on `_ingestion_timestamp`
 - Extra columns: `_ingestion_timestamp`, `_source`
 
-**Path pattern:**
+**Trino table:** `iceberg.bronze.{ecb_rates,dax_daily}`
 
-```
-${DATA_BUCKET}/bronze/{source}/ingestion_date={YYYY-MM-DD}/{source}.parquet
-```
-
-`${DATA_BUCKET}` defaults to `sololakehouse` in the v2.5 reference runtime and becomes the entity bucket (for example `finlakehouse-data`) when the template is forked into a product entity. See [object-store-abstraction.md](object-store-abstraction.md).
+`${WAREHOUSE_URI}` is the Iceberg warehouse root; defaults to `s3://sololakehouse/warehouse` in the v2.5 reference runtime. See [object-store-abstraction.md](object-store-abstraction.md).
 
 ## Silver — cleaned
 
@@ -32,27 +29,17 @@ ${DATA_BUCKET}/bronze/{source}/ingestion_date={YYYY-MM-DD}/{source}.parquet
 | DAX | Drop weekends, OHLCV types, `daily_return`, dedupe |
 
 UTC dates; `snake_case` columns; Bronze metadata columns dropped. Quality checks run after transforms.
+Full overwrite on each pipeline run (idempotent, re-runnable).
 
-**Path pattern:**
-
-```
-${DATA_BUCKET}/silver/{source}_cleaned/{source}_cleaned.parquet
-```
+**Trino table:** `iceberg.silver.{ecb_rates_cleaned,dax_daily_cleaned}`
 
 ## Gold — features
 
 **Purpose:** ML-ready, business-meaningful tables.
 
-Demo table: **`ecb_dax_features`** — one row per ECB rate-change event; event-study style joins with DAX returns.
+Demo table: **`iceberg.gold.ecb_dax_features`** — one row per ECB rate-change event; event-study style joins with DAX returns. Written via `pyiceberg.overwrite_table`; queryable immediately through Trino's Iceberg connector.
 
-**Path:**
-
-```
-${DATA_BUCKET}/gold/rate_impact_features/ecb_dax_features.parquet
-```
-
-**v2.5:** Gold is also registered as an **Apache Iceberg** table in Trino:
-`iceberg.gold.ecb_dax_features_iceberg`. The Parquet staging file remains the write target; Trino's Iceberg connector exposes it via the `iceberg` catalog. See [ADR-013](decisions/ADR-013-iceberg-gold-trino.md).
+All three medallion layers share the same write abstraction (`ingestion/iceberg_io.py`) and are bootstrapped at startup by `scripts/init-iceberg-namespaces.py`. See [ADR-020](decisions/ADR-020-iceberg-all-layers.md).
 
 | Column | Description |
 |--------|-------------|
@@ -72,21 +59,14 @@ See [ADR-003](decisions/ADR-003-parquet-vs-delta.md). For single-user, batch, ap
 
 ```sql
 SELECT COUNT(*), MIN(observation_date), MAX(observation_date)
-FROM hive.bronze.ecb_rates;
+FROM iceberg.bronze.ecb_rates;
 
 SELECT observation_date, rate_pct, rate_change_bps
-FROM hive.silver.ecb_rates_cleaned
+FROM iceberg.silver.ecb_rates_cleaned
 WHERE rate_change_bps != 0
 ORDER BY observation_date;
 
 SELECT event_date, rate_change_bps, dax_return_1d, dax_return_5d
-FROM hive.gold.ecb_dax_features
-ORDER BY event_date;
-
--- v2.5: same data via Iceberg catalog
-SELECT event_date, rate_change_bps, dax_return_1d, dax_return_5d
-FROM iceberg.gold.ecb_dax_features_iceberg
+FROM iceberg.gold.ecb_dax_features
 ORDER BY event_date;
 ```
-
-Schema names may match your Hive registration — adjust `hive.*` if your catalog differs.

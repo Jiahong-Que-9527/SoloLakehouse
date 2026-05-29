@@ -16,8 +16,7 @@ import trino  # noqa: E402
 from runtime_identity import get_trino_user  # noqa: E402
 
 DEMO_QUERIES = {
-    "Hive Gold": "SELECT count(*) AS total_rows FROM hive.gold.ecb_dax_features",
-    "Iceberg Gold": "SELECT count(*) AS total_rows FROM iceberg.gold.ecb_dax_features_iceberg",
+    "Iceberg Gold": "SELECT count(*) AS total_rows FROM iceberg.gold.ecb_dax_features",
 }
 
 

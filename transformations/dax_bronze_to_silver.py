@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
-from io import BytesIO
-from typing import Any
+from typing import TYPE_CHECKING
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 
-from storage_config import get_data_bucket
+from ingestion.iceberg_io import overwrite_table, scan_table
+from ingestion.iceberg_schemas import SILVER_DAX_DAILY_SCHEMA
 from transformations.quality_report import run_silver_quality_report
+
+if TYPE_CHECKING:
+    from pyiceberg.catalog import Catalog
 
 
 def transform_dax_bronze_to_silver(df: pd.DataFrame) -> pd.DataFrame:
@@ -45,38 +46,16 @@ def transform_dax_bronze_to_silver(df: pd.DataFrame) -> pd.DataFrame:
     ]
 
 
-def run(minio_client: Any, bucket: str | None = None) -> str:
-    """Read DAX bronze partitions, transform, write silver parquet, and return path."""
-    bucket = bucket or get_data_bucket()
-    prefix = "bronze/dax_daily/"
-    parquet_paths: list[str] = []
-    for obj in minio_client.list_objects(bucket, prefix=prefix, recursive=True):
-        if obj.object_name.endswith(".parquet"):
-            parquet_paths.append(obj.object_name)
+def run(catalog: "Catalog") -> dict[str, object]:
+    """Read DAX bronze Iceberg table, transform, write to silver, return summary."""
+    bronze_df = scan_table(catalog, "bronze", "dax_daily")
 
-    if not parquet_paths:
-        raise ValueError("No DAX bronze parquet partitions found")
+    if bronze_df.empty:
+        raise ValueError("No DAX bronze records found in Iceberg table")
 
-    frames: list[pd.DataFrame] = []
-    for path in parquet_paths:
-        response = minio_client.get_object(bucket, path)
-        try:
-            frames.append(pd.read_parquet(BytesIO(response.read())))
-        finally:
-            response.close()
-            response.release_conn()
-
-    bronze_df = pd.concat(frames, ignore_index=True)
     silver_df = transform_dax_bronze_to_silver(bronze_df)
     run_silver_quality_report(silver_df, "dax_daily_cleaned")
 
-    silver_path = "silver/dax_daily_cleaned/dax_daily_cleaned.parquet"
-    buffer = BytesIO()
-    pq.write_table(
-        pa.Table.from_pandas(silver_df, preserve_index=False),
-        buffer,
-        compression="snappy",
-    )
-    buffer.seek(0)
-    minio_client.put_object(bucket, silver_path, buffer, length=buffer.getbuffer().nbytes)
-    return silver_path
+    overwrite_table(catalog, "silver", "dax_daily_cleaned", silver_df, SILVER_DAX_DAILY_SCHEMA)
+
+    return {"table": "iceberg:silver.dax_daily_cleaned", "row_count": len(silver_df)}

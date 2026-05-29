@@ -68,12 +68,12 @@ Rules:
 | `bronze` | Raw source-shaped records with ingestion metadata. | Source, owner, retention, rejected-record handling, and freshness expectation are known. |
 | `silver` | Cleaned, typed, deduplicated records with stable semantics. | Transformation owner, quality checks, and key columns are known. |
 | `gold` | Business, BI, or ML-ready product output. | Consumers, SLA, quality class, and lineage inputs are known. |
-| `iceberg` | Iceberg-published form of a governed Gold dataset. | Links back to the canonical Gold logical ID and records current Trino/Iceberg table mapping. |
 
-The `iceberg` suffix is reserved for the current v2.5 pattern where Gold Parquet
-is staged first and then exposed through Trino-managed Iceberg. If future
-versions make Iceberg the canonical write target, update the mapping while
-preserving the logical business dataset identity.
+Since v2.5.x (ADR-020) all three medallion layers are written natively as
+Iceberg tables via pyiceberg. The `iceberg` suffix was used in the earlier
+pattern where a separate Iceberg publication step followed a Parquet staging
+write. That two-step path has been removed; do not introduce new `_iceberg`
+suffix dataset IDs.
 
 ## FinLakehouse dataset IDs
 
@@ -82,25 +82,20 @@ The object paths below use entity-level storage variables. `DATA_BUCKET` is the
 active product-level setting for the main data bucket, with `BUCKET_NAME`
 retained as a v2.5 compatibility alias.
 
-| Logical dataset ID | Layer | Current physical object path | Trino mapping | Current Dagster asset | Notes |
-|---|---|---|---|---|---|
-| `fin.ecb_rates_bronze` | Bronze | `s3a://${DATA_BUCKET}/bronze/ecb_rates/ingestion_date=<date>/ecb_rates.parquet` | Reserved as `hive.bronze.ecb_rates` if Bronze is registered | `ecb_bronze` | Raw ECB interest-rate observations. |
-| `fin.dax_daily_bronze` | Bronze | `s3a://${DATA_BUCKET}/bronze/dax_daily/ingestion_date=<date>/dax_daily.parquet` | Reserved as `hive.bronze.dax_daily` if Bronze is registered | `dax_bronze` | Raw DAX daily OHLCV records. |
-| `fin.ecb_rates_silver` | Silver | `s3a://${DATA_BUCKET}/silver/ecb_rates_cleaned/ecb_rates_cleaned.parquet` | Reserved as `hive.silver.ecb_rates_cleaned` if Silver is registered | `ecb_silver` | Typed ECB rate series with derived `rate_change_bps`. |
-| `fin.dax_daily_silver` | Silver | `s3a://${DATA_BUCKET}/silver/dax_daily_cleaned/dax_daily_cleaned.parquet` | Reserved as `hive.silver.dax_daily_cleaned` if Silver is registered | `dax_silver` | Cleaned business-day DAX series with `daily_return`. |
-| `fin.ecb_dax_features_gold` | Gold | `s3a://${DATA_BUCKET}/gold/rate_impact_features/ecb_dax_features.parquet` | `hive.gold.ecb_dax_features` | `gold_features` | Event-study feature table for ECB rate-change events and DAX returns. |
-| `fin.ecb_dax_features_iceberg` | Iceberg publication | `${WAREHOUSE_URI}` plus Trino-managed Iceberg table metadata | `iceberg.gold.ecb_dax_features_iceberg` | `trino_gold_tables` registration path | Iceberg-published form of `fin.ecb_dax_features_gold`. |
+| Logical dataset ID | Layer | Iceberg table (Trino) | Current Dagster asset | Notes |
+|---|---|---|---|---|
+| `fin.ecb_rates_bronze` | Bronze | `iceberg.bronze.ecb_rates` | `ecb_bronze` | Raw ECB interest-rate observations. Day-partitioned on `_ingestion_timestamp`. Append-only. |
+| `fin.dax_daily_bronze` | Bronze | `iceberg.bronze.dax_daily` | `dax_bronze` | Raw DAX daily OHLCV records. Day-partitioned on `_ingestion_timestamp`. Append-only. |
+| `fin.ecb_rates_silver` | Silver | `iceberg.silver.ecb_rates_cleaned` | `ecb_silver` | Typed ECB rate series with derived `rate_change_bps`. Full overwrite per run. |
+| `fin.dax_daily_silver` | Silver | `iceberg.silver.dax_daily_cleaned` | `dax_silver` | Cleaned business-day DAX series with `daily_return`. Full overwrite per run. |
+| `fin.ecb_dax_features_gold` | Gold | `iceberg.gold.ecb_dax_features` | `gold_features` | Event-study feature table for ECB rate-change events and DAX returns. Full overwrite per run. |
 
 Notes:
 
-- `${DATA_BUCKET}` and `${WAREHOUSE_URI}` are deployment details from the product
-  entity contract.
-- The logical `fin.*` IDs stay unchanged if the entity moves from MinIO to
-  another S3-compatible object store.
-- v2.5 registers Gold in Trino by default. Bronze/Silver table names above are
-  reserved names for future registration or governance contracts.
-- If Trino schema or table names change during migration, update the mapping
-  rows and OpenMetadata service configuration; do not rename the logical IDs.
+- `${WAREHOUSE_URI}` is the Iceberg warehouse root from the product entity contract.
+- All six Iceberg tables are bootstrapped at startup by `scripts/init-iceberg-namespaces.py`.
+- The logical `fin.*` IDs stay unchanged if the entity moves from MinIO to another S3-compatible object store.
+- If Trino schema or table names change during migration, update the mapping rows and OpenMetadata service configuration; do not rename the logical IDs.
 
 ## Aviation Lakehouse dataset ID placeholders
 
@@ -150,13 +145,13 @@ quality_class: demo_critical
 freshness_sla: business_day
 logical_description: ECB rate-change event features joined to DAX returns.
 physical_locations:
-  object_store:
-    provider: minio
-    bucket_env: DATA_BUCKET
-    path: gold/rate_impact_features/ecb_dax_features.parquet
+  iceberg:
+    warehouse_env: WAREHOUSE_URI
+    catalog: hive
+    namespace: gold
+    table: ecb_dax_features
   trino:
-    hive_table: hive.gold.ecb_dax_features
-    iceberg_table: iceberg.gold.ecb_dax_features_iceberg
+    iceberg_table: iceberg.gold.ecb_dax_features
   openmetadata:
     service_name_env: OPENMETADATA_TRINO_SERVICE_NAME
     table_fqn: <service>.gold.ecb_dax_features

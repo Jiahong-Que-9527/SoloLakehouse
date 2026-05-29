@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import re
 import time
 from datetime import date, datetime, timezone
-from io import BytesIO
 from typing import Any
 
 import pandas as pd
 import structlog
-from resources import MinioResource, PipelineConfigResource
+from resources import IcebergCatalogResource, PipelineConfigResource
 
 from dagster import (
     AssetCheckResult,
@@ -22,14 +20,13 @@ from dagster import (
     asset_check,
     sensor,
 )
+from ingestion import iceberg_io
 from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
-from ingestion.trino_sql import register_gold_tables_trino
-from ml.evaluate import run_experiment_set
 from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
+from ml.evaluate import run_experiment_set
 
 logger = structlog.get_logger()
-PARTITION_RE = re.compile(r"ingestion_date=(\d{4}-\d{2}-\d{2})")
 
 
 def _emit_metric(step: str, started_at: float) -> None:
@@ -37,36 +34,16 @@ def _emit_metric(step: str, started_at: float) -> None:
     logger.info("pipeline_metric", metric="pipeline.step.duration_ms", step=step, value=duration_ms)
 
 
-def _read_parquet_from_minio(minio_client: Any, bucket: str, path: str) -> pd.DataFrame:
-    response = minio_client.get_object(bucket, path)
-    try:
-        return pd.read_parquet(BytesIO(response.read()))
-    finally:
-        response.close()
-        response.release_conn()
-
-
-def _latest_partition_date(minio_client: Any, bucket: str, prefix: str) -> date | None:
-    latest: date | None = None
-    for obj in minio_client.list_objects(bucket, prefix=prefix, recursive=True):
-        match = PARTITION_RE.search(obj.object_name)
-        if not match:
-            continue
-        candidate = datetime.strptime(match.group(1), "%Y-%m-%d").date()
-        if latest is None or candidate > latest:
-            latest = candidate
-    return latest
-
-
 @asset(group_name="bronze", retry_policy=RetryPolicy(max_retries=3, delay=5))
 def ecb_bronze(
     context,
-    minio: MinioResource,
+    iceberg_catalog: IcebergCatalogResource,
     pipeline_config: PipelineConfigResource,
 ) -> dict[str, Any]:
     started = time.perf_counter()
+    catalog = iceberg_catalog.get_catalog()
     result = ECBCollector(
-        minio_client=minio.get_client(),
+        catalog=catalog,
         bucket=pipeline_config.bucket,
         force=False,
     ).collect()
@@ -87,12 +64,13 @@ def ecb_bronze(
 @asset(group_name="bronze", retry_policy=RetryPolicy(max_retries=3, delay=5))
 def dax_bronze(
     context,
-    minio: MinioResource,
+    iceberg_catalog: IcebergCatalogResource,
     pipeline_config: PipelineConfigResource,
 ) -> dict[str, Any]:
     started = time.perf_counter()
+    catalog = iceberg_catalog.get_catalog()
     result = DAXCollector(
-        minio_client=minio.get_client(),
+        catalog=catalog,
         bucket=pipeline_config.bucket,
         force=False,
     ).collect()
@@ -113,86 +91,64 @@ def dax_bronze(
 @asset(group_name="silver")
 def ecb_silver(
     context,
-    minio: MinioResource,
-    pipeline_config: PipelineConfigResource,
+    iceberg_catalog: IcebergCatalogResource,
     ecb_bronze: dict[str, Any],
 ) -> str:
     _ = ecb_bronze
     started = time.perf_counter()
-    minio_client = minio.get_client()
-    silver_path = ecb_bronze_to_silver.run(
-        minio_client=minio_client,
-        bucket=pipeline_config.bucket,
-    )
-    silver_df = _read_parquet_from_minio(minio_client, pipeline_config.bucket, silver_path)
+    result = ecb_bronze_to_silver.run(iceberg_catalog.get_catalog())
     context.add_output_metadata(
-        {"silver_path": silver_path, "row_count": int(len(silver_df.index))}
+        {"table": result["table"], "row_count": int(result["row_count"])}
     )
     _emit_metric("ecb_silver", started)
-    return silver_path
+    return str(result["table"])
 
 
 @asset(group_name="silver")
 def dax_silver(
     context,
-    minio: MinioResource,
-    pipeline_config: PipelineConfigResource,
+    iceberg_catalog: IcebergCatalogResource,
     dax_bronze: dict[str, Any],
 ) -> str:
     _ = dax_bronze
     started = time.perf_counter()
-    minio_client = minio.get_client()
-    silver_path = dax_bronze_to_silver.run(
-        minio_client=minio_client,
-        bucket=pipeline_config.bucket,
-    )
-    silver_df = _read_parquet_from_minio(minio_client, pipeline_config.bucket, silver_path)
+    result = dax_bronze_to_silver.run(iceberg_catalog.get_catalog())
     context.add_output_metadata(
-        {"silver_path": silver_path, "row_count": int(len(silver_df.index))}
+        {"table": result["table"], "row_count": int(result["row_count"])}
     )
     _emit_metric("dax_silver", started)
-    return silver_path
+    return str(result["table"])
 
 
 @asset(group_name="gold")
 def gold_features(
     context,
-    minio: MinioResource,
-    pipeline_config: PipelineConfigResource,
+    iceberg_catalog: IcebergCatalogResource,
     ecb_silver: str,
     dax_silver: str,
 ) -> str:
     _ = (ecb_silver, dax_silver)
     started = time.perf_counter()
-    minio_client = minio.get_client()
-    gold_path = silver_to_gold_features.run(
-        minio_client=minio_client,
-        bucket=pipeline_config.bucket,
+    result = silver_to_gold_features.run(iceberg_catalog.get_catalog())
+    context.add_output_metadata(
+        {"table": result["table"], "event_count": int(result["row_count"])}
     )
-    gold_df = _read_parquet_from_minio(minio_client, pipeline_config.bucket, gold_path)
-    register_gold_tables_trino(
-        trino_url=pipeline_config.trino_url,
-        bucket=pipeline_config.bucket,
-        warehouse_uri=pipeline_config.warehouse_uri,
-    )
-    context.add_output_metadata({"gold_path": gold_path, "event_count": int(len(gold_df.index))})
     _emit_metric("gold_features", started)
-    return gold_path
+    return str(result["table"])
 
 
 @asset(group_name="ml")
 def ml_experiment(
     context,
-    minio: MinioResource,
+    iceberg_catalog: IcebergCatalogResource,
     pipeline_config: PipelineConfigResource,
     gold_features: str,
 ) -> str:
     _ = gold_features
     started = time.perf_counter()
     best_run_id = run_experiment_set(
-        minio_client=minio.get_client(),
+        catalog=iceberg_catalog.get_catalog(),
         mlflow_tracking_uri=pipeline_config.mlflow_tracking_uri,
-        bucket=pipeline_config.bucket,
         trino_url=pipeline_config.trino_url,
     )
     context.add_output_metadata({"best_run_id": best_run_id})
@@ -201,12 +157,21 @@ def ml_experiment(
 
 
 @sensor(job_name="full_pipeline_job", minimum_interval_seconds=1800)
-def ecb_data_freshness_sensor(minio: MinioResource, pipeline_config: PipelineConfigResource):
-    latest = _latest_partition_date(
-        minio_client=minio.get_client(),
-        bucket=pipeline_config.bucket,
-        prefix="bronze/ecb_rates/",
-    )
+def ecb_data_freshness_sensor(
+    iceberg_catalog: IcebergCatalogResource,
+):
+    from pyiceberg.exceptions import NoSuchTableError
+
+    catalog = iceberg_catalog.get_catalog()
+    latest: date | None = None
+
+    try:
+        df = iceberg_io.scan_table(catalog, "bronze", "ecb_rates")
+        if not df.empty:
+            latest = pd.to_datetime(df["_ingestion_timestamp"], utc=True).max().date()
+    except NoSuchTableError:
+        pass
+
     if latest is None:
         return RunRequest(
             run_key=f"ecb-freshness-init-{datetime.now(timezone.utc).isoformat()}",
@@ -226,15 +191,12 @@ def ecb_data_freshness_sensor(minio: MinioResource, pipeline_config: PipelineCon
 
 @asset_check(asset=gold_features, description="gold_features should contain at least 10 rows")
 def gold_features_min_rows_check(
-    minio: MinioResource,
-    pipeline_config: PipelineConfigResource,
+    iceberg_catalog: IcebergCatalogResource,
     gold_features: str,
 ) -> AssetCheckResult:
-    gold_df = _read_parquet_from_minio(
-        minio_client=minio.get_client(),
-        bucket=pipeline_config.bucket,
-        path=gold_features,
-    )
+    _ = gold_features
+    catalog = iceberg_catalog.get_catalog()
+    gold_df = iceberg_io.scan_table(catalog, "gold", "ecb_dax_features")
     row_count = int(len(gold_df.index))
     passed = row_count >= 10
     return AssetCheckResult(

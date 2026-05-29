@@ -200,7 +200,6 @@ fin.dax_daily_bronze
 fin.ecb_rates_silver
 fin.dax_daily_silver
 fin.ecb_dax_features_gold
-fin.ecb_dax_features_iceberg
 
 aviation.<source>_bronze
 aviation.<cleaned_dataset>_silver

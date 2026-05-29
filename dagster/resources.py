@@ -13,7 +13,7 @@ DEFAULT_STORAGE_CONFIG = get_storage_config()
 
 
 class MinioResource(ConfigurableResource):
-    """Configurable MinIO client resource."""
+    """Configurable MinIO client resource (used by ParquetIOManager and legacy paths)."""
 
     endpoint: str = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
     access_key: str = os.environ.get(
@@ -31,6 +31,29 @@ class MinioResource(ConfigurableResource):
             access_key=self.access_key,
             secret_key=self.secret_key,
             secure=self.secure,
+        )
+
+
+class IcebergCatalogResource(ConfigurableResource):
+    """Configurable pyiceberg HiveCatalog resource for all medallion writes."""
+
+    hive_metastore_uri: str = os.environ.get(
+        "HIVE_METASTORE_URI", "thrift://localhost:9083"
+    )
+    warehouse: str = DEFAULT_STORAGE_CONFIG.warehouse_uri.replace("s3a://", "s3://")
+    s3_endpoint: str = "http://" + os.environ.get("MINIO_ENDPOINT", "localhost:9000")
+    access_key: str = os.environ.get("S3_ACCESS_KEY", "sololakehouse")
+    secret_key: str = os.environ.get("S3_SECRET_KEY", "sololakehouse123")
+
+    def get_catalog(self):  # type: ignore[return]
+        from ingestion.iceberg_io import get_catalog
+
+        return get_catalog(
+            uri=self.hive_metastore_uri,
+            warehouse=self.warehouse,
+            s3_endpoint=self.s3_endpoint,
+            access_key=self.access_key,
+            secret_key=self.secret_key,
         )
 
 

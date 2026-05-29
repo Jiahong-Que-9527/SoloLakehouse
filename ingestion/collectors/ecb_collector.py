@@ -3,34 +3,37 @@
 from __future__ import annotations
 
 import datetime as dt
-import re
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import requests
 import structlog
 from pydantic import ValidationError
 
+from ingestion import iceberg_io
 from ingestion.bronze_writer import BronzeWriter
 from ingestion.exceptions import CollectorUnavailableError
 from ingestion.quality.bronze_checks import run_ecb_bronze_checks
 from ingestion.schema.ecb_schema import ECBRecord
 from storage_config import get_data_bucket
 
+if TYPE_CHECKING:
+    from pyiceberg.catalog import Catalog
+
 logger = structlog.get_logger()
 
 
 class ECBCollector:
-    """Collect, validate, and write ECB data to Bronze."""
+    """Collect, validate, and write ECB data to Bronze (Iceberg)."""
 
     ENDPOINT = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_RT.LEV"
 
-    def __init__(self, minio_client: Any, bucket: str | None = None, force: bool = False):
-        self.minio = minio_client
+    def __init__(self, catalog: "Catalog", bucket: str | None = None, force: bool = False):
+        self.catalog = catalog
         self.bucket = bucket or get_data_bucket()
         self.force = force
-        self.bronze_writer = BronzeWriter(minio_client=minio_client, bucket=self.bucket)
+        self.bronze_writer = BronzeWriter(catalog=catalog, bucket=self.bucket)
 
     def _fetch_data(self) -> list[dict[str, Any]]:
         params = {"format": "jsondata", "startPeriod": "1999-01-01"}
@@ -97,23 +100,17 @@ class ECBCollector:
         return valid, rejected
 
     def _already_ingested_today(self) -> bool:
-        today = dt.date.today().isoformat()
-        pattern = re.compile(r"ingestion_date=(\d{4}-\d{2}-\d{2})/")
-        latest_partition: str | None = None
+        """Return True if Bronze already contains a row ingested today."""
+        from pyiceberg.exceptions import NoSuchTableError
 
-        objects = self.minio.list_objects(
-            self.bucket,
-            prefix="bronze/ecb_rates/",
-            recursive=True,
-        )
-        for obj in objects:
-            match = pattern.search(obj.object_name)
-            if match:
-                date_str = match.group(1)
-                if latest_partition is None or date_str > latest_partition:
-                    latest_partition = date_str
-
-        return latest_partition == today
+        try:
+            df = iceberg_io.scan_table(self.catalog, "bronze", "ecb_rates")
+            if df.empty:
+                return False
+            max_ts = pd.to_datetime(df["_ingestion_timestamp"], utc=True).max()
+            return max_ts.date() == dt.date.today()
+        except NoSuchTableError:
+            return False
 
     def collect(self) -> dict[str, Any]:
         if not self.force and self._already_ingested_today():

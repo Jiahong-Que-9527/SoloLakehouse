@@ -1,39 +1,55 @@
-"""Bronze-layer Parquet writer for MinIO."""
+"""Bronze-layer Iceberg writer for SoloLakehouse."""
 
 from __future__ import annotations
 
-from datetime import date
-from io import BytesIO
-from typing import Any
+import datetime as dt
+import json
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+import structlog
 
+from ingestion import iceberg_io
+from ingestion.iceberg_schemas import (
+    BRONZE_DAX_DAILY_PARTITION,
+    BRONZE_DAX_DAILY_SCHEMA,
+    BRONZE_ECB_RATES_PARTITION,
+    BRONZE_ECB_RATES_SCHEMA,
+    BRONZE_REJECTED_SCHEMA,
+)
 from storage_config import get_data_bucket
+
+if TYPE_CHECKING:
+    from pyiceberg.catalog import Catalog
+
+logger = structlog.get_logger()
+
+# Maps source name → (Iceberg schema, partition spec)
+_BRONZE_TABLE_META = {
+    "ecb_rates": (BRONZE_ECB_RATES_SCHEMA, BRONZE_ECB_RATES_PARTITION),
+    "dax_daily": (BRONZE_DAX_DAILY_SCHEMA, BRONZE_DAX_DAILY_PARTITION),
+}
 
 
 class BronzeWriter:
-    def __init__(self, minio_client: Any, bucket: str | None = None):
-        self.minio = minio_client
-        self.bucket = bucket or get_data_bucket()
+    def __init__(self, catalog: "Catalog", bucket: str | None = None):
+        self.catalog = catalog
+        self.bucket = bucket or get_data_bucket()  # kept for observability logging
 
     def write(self, df: pd.DataFrame, source: str, ingestion_date: str | None = None) -> str:
-        """Write dataframe as snappy parquet and return object path."""
-        partition_date = ingestion_date or date.today().isoformat()
-        path = f"bronze/{source}/ingestion_date={partition_date}/{source}.parquet"
+        """Append *df* to the Bronze Iceberg table for *source* and return a logical path."""
+        schema, partition_spec = _BRONZE_TABLE_META.get(source, (BRONZE_ECB_RATES_SCHEMA, None))
 
-        buffer = BytesIO()
-        table = pa.Table.from_pandas(df, preserve_index=False)
-        pq.write_table(table, buffer, compression="snappy")
-        buffer.seek(0)
-
-        self.minio.put_object(
-            self.bucket,
-            path,
-            buffer,
-            length=buffer.getbuffer().nbytes,
+        iceberg_io.append_table(
+            self.catalog,
+            namespace="bronze",
+            table_name=source,
+            df=df,
+            schema=schema,
+            partition_spec=partition_spec,
         )
+        path = f"iceberg:bronze.{source}"
+        logger.info("bronze_written", source=source, rows=len(df), path=path)
         return path
 
     def write_rejected(
@@ -42,7 +58,7 @@ class BronzeWriter:
         source: str,
         ingestion_date: str | None = None,
     ) -> str | None:
-        """Write rejected records parquet and return object path."""
+        """Append rejected records to the Bronze rejected Iceberg table."""
         if not records:
             return None
 
@@ -51,22 +67,27 @@ class BronzeWriter:
             if not isinstance(reason, str) or not reason.strip():
                 raise ValueError("Each rejected record must include a non-empty rejection_reason")
 
-        partition_date = ingestion_date or date.today().isoformat()
-        path = (
-            f"bronze/rejected/source={source}/"
-            f"ingestion_date={partition_date}/rejected.parquet"
-        )
-        rejected_df = pd.DataFrame(records)
+        now = dt.datetime.now(dt.UTC)
+        rows = []
+        for rec in records:
+            payload_dict = {k: v for k, v in rec.items() if k != "rejection_reason"}
+            rows.append(
+                {
+                    "source": source,
+                    "rejection_reason": rec["rejection_reason"],
+                    "payload": json.dumps(payload_dict, default=str),
+                    "_ingested_at": now,
+                }
+            )
+        rejected_df = pd.DataFrame(rows)
 
-        buffer = BytesIO()
-        table = pa.Table.from_pandas(rejected_df, preserve_index=False)
-        pq.write_table(table, buffer, compression="snappy")
-        buffer.seek(0)
-
-        self.minio.put_object(
-            self.bucket,
-            path,
-            buffer,
-            length=buffer.getbuffer().nbytes,
+        iceberg_io.append_table(
+            self.catalog,
+            namespace="bronze",
+            table_name="rejected_records",
+            df=rejected_df,
+            schema=BRONZE_REJECTED_SCHEMA,
         )
+        path = f"iceberg:bronze.rejected_records[source={source}]"
+        logger.info("bronze_rejected_written", source=source, count=len(records))
         return path

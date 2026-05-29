@@ -85,6 +85,27 @@ Next decision gate (Phase 2):
   keeping MinIO; do not combine with object-store replacement or v2.6
   governance evidence work.
 
+## v2.5.x — Full-stack Iceberg migration (2026-05-29)
+
+Theme:
+- Elevate Bronze and Silver to first-class Iceberg tables; remove the Parquet + Hive-staging write path.
+
+What landed:
+- `ingestion/iceberg_schemas.py` — canonical Iceberg schema + partition spec for all six tables.
+- `ingestion/iceberg_io.py` — thin pyiceberg I/O layer (`append_table`, `overwrite_table`, `scan_table`, `get_catalog`).
+- `BronzeWriter` rewritten to use `iceberg_io.append_table`; `ECBCollector`/`DAXCollector` use `Catalog` instead of `minio_client`.
+- All three transformation `run()` functions read and write Iceberg tables (not MinIO Parquet).
+- `trino_sql.py` stripped to just `execute_trino_sql`; Hive staging and CTAS flow removed.
+- `IcebergCatalogResource` added to Dagster; all assets and sensors use it.
+- `ml/evaluate.py` updated: Trino reads `iceberg.gold.ecb_dax_features` (renamed from `_iceberg` suffix); pyiceberg fallback replaces MinIO Parquet fallback.
+- `scripts/init-iceberg-namespaces.py` bootstraps all namespaces and tables; wired into `make up`.
+- `HIVE_METASTORE_URI` env var added to `.env` (host) and docker-compose (container override).
+- All 69 unit tests pass; tests now mock `iceberg_io.scan_table` / `overwrite_table` instead of MinIO `put_object`.
+- ADR-020 records the decision.
+
+Decision gate:
+- Full E2E verification via `make clean && make up && make pipeline` against live Hive Metastore + MinIO.
+
 ## v3.0.0 - Planned
 
 Theme:

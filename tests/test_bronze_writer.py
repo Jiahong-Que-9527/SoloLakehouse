@@ -1,54 +1,71 @@
 from __future__ import annotations
 
 import datetime as dt
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 
 from ingestion.bronze_writer import BronzeWriter
 
 
+def _make_catalog_mock():
+    """Return a mock Iceberg catalog that captures append calls."""
+    table_mock = MagicMock()
+    catalog = MagicMock()
+    catalog.load_table.return_value = table_mock
+    catalog.table_exists = MagicMock(return_value=True)
+    return catalog, table_mock
+
+
 class TestBronzeWriter:
-    def test_write_calls_put_object_with_expected_path(self) -> None:
-        minio = MagicMock()
-        writer = BronzeWriter(minio, bucket="sololakehouse")
+    def test_write_returns_iceberg_path_for_ecb(self) -> None:
+        catalog, table_mock = _make_catalog_mock()
+        writer = BronzeWriter(catalog, bucket="sololakehouse")
         df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
 
-        path = writer.write(df, source="ecb_rates")
+        with patch("ingestion.iceberg_io.append_table") as mock_append:
+            path = writer.write(df, source="ecb_rates")
 
-        assert path.startswith("bronze/ecb_rates/ingestion_date=")
-        minio.put_object.assert_called_once()
-        called_bucket = minio.put_object.call_args.args[0]
-        called_path = minio.put_object.call_args.args[1]
-        assert called_bucket == "sololakehouse"
-        assert called_path == path
+        assert path == "iceberg:bronze.ecb_rates"
+        mock_append.assert_called_once()
 
-    def test_write_uses_today_partition(self) -> None:
-        minio = MagicMock()
-        writer = BronzeWriter(minio)
+    def test_write_returns_iceberg_path_for_dax(self) -> None:
+        catalog, _ = _make_catalog_mock()
+        writer = BronzeWriter(catalog)
         df = pd.DataFrame({"a": [1]})
 
-        path = writer.write(df, source="dax_daily")
+        with patch("ingestion.iceberg_io.append_table") as mock_append:
+            path = writer.write(df, source="dax_daily")
 
-        today = dt.date.today().isoformat()
-        assert f"ingestion_date={today}" in path
+        assert path == "iceberg:bronze.dax_daily"
+        mock_append.assert_called_once()
 
-    def test_write_rejected_writes_to_rejected_path(self) -> None:
-        minio = MagicMock()
-        writer = BronzeWriter(minio)
+    def test_write_rejected_returns_iceberg_path(self) -> None:
+        catalog, _ = _make_catalog_mock()
+        writer = BronzeWriter(catalog)
         records = [{"bad": "record", "rejection_reason": "invalid schema"}]
 
-        path = writer.write_rejected(records, source="ECB")
+        with patch("ingestion.iceberg_io.append_table") as mock_append:
+            path = writer.write_rejected(records, source="ECB")
 
         assert path is not None
-        assert path.startswith("bronze/rejected/source=ECB/")
-        minio.put_object.assert_called_once()
+        assert "iceberg:bronze.rejected_records" in path
+        mock_append.assert_called_once()
 
     def test_write_rejected_returns_none_for_empty_input(self) -> None:
-        minio = MagicMock()
-        writer = BronzeWriter(minio)
+        catalog, _ = _make_catalog_mock()
+        writer = BronzeWriter(catalog)
 
-        path = writer.write_rejected([], source="DAX")
+        with patch("ingestion.iceberg_io.append_table") as mock_append:
+            path = writer.write_rejected([], source="DAX")
 
         assert path is None
-        minio.put_object.assert_not_called()
+        mock_append.assert_not_called()
+
+    def test_write_rejected_raises_for_missing_rejection_reason(self) -> None:
+        catalog, _ = _make_catalog_mock()
+        writer = BronzeWriter(catalog)
+
+        import pytest
+        with pytest.raises(ValueError, match="rejection_reason"):
+            writer.write_rejected([{"data": "x"}], source="ECB")
