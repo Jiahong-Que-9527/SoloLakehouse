@@ -9,6 +9,8 @@ import pandas as pd
 import pytest
 from minio import Minio
 
+from ingestion.iceberg_io import get_catalog
+
 
 def load_dotenv_if_present() -> None:
     env_path = Path(__file__).resolve().parents[2] / ".env"
@@ -43,6 +45,17 @@ def minio_client() -> Minio:
     except Exception as exc:
         pytest.skip(f"MinIO unreachable for integration tests: {exc}")
     return client
+
+
+@pytest.fixture(scope="session")
+def iceberg_catalog():
+    load_dotenv_if_present()
+    try:
+        catalog = get_catalog()
+        catalog.list_namespaces()
+        return catalog
+    except Exception as exc:
+        pytest.skip(f"Iceberg catalog unreachable for integration tests: {exc}")
 
 
 @pytest.fixture(scope="session")
