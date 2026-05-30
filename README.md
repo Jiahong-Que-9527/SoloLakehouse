@@ -30,9 +30,11 @@
 
 ---
 
-SoloLakehouse is a self-contained, cloud-neutral lakehouse reference platform that shows how the pieces behind a modern, audit-ready data platform fit together without depending on a managed SaaS lakehouse service.
+SoloLakehouse is a self-hosted reference data platform for regulated industries.
 
-It is built end-to-end on Docker Compose — small enough to read in a weekend, complete enough to discuss production trade-offs, and explicit enough to map onto DORA, BaFin BAIT/MaRisk, and EU AI Act Title III obligations.
+It demonstrates how ingestion, orchestration, Iceberg tables, Trino query, MLflow, BI, metadata governance, and audit-oriented documentation can work together in one reproducible Docker Compose runtime.
+
+The goal is not to replace Databricks, but to show the architecture thinking behind owning an open, governed, production-minded lakehouse platform.
 
 ## Architecture
 
