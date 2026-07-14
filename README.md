@@ -138,6 +138,52 @@ Beyond the platform features, this is built with explicit engineering discipline
 - **Observability discipline** — `structlog` JSON events at every step boundary; SLO emit pipeline planned for [v2.9](docs/history/v2.9-planning.md)
 - **CI** — GitHub Actions runs lint + typecheck + tests on every push
 
+## AI-Assisted Platform Workflow
+
+The maintainers use two complementary Codex Skills to keep AI-assisted work
+aligned with product value while limiting the repository context loaded by each
+agent. They guide development work and are not runtime dependencies of
+SoloLakehouse.
+
+| Skill | Responsibility | Use it for |
+|---|---|---|
+| `$slh-platform-owner` | Decides why work matters, its priority and approved scope, and what operational and user evidence defines completion | Roadmap decisions, significant features, architecture changes, deployments, releases, operational readiness, cost, security, and commercial validation |
+| `$slh-context-router` | Selects the smallest authoritative context and recommends the appropriate tool or agent | Backlog questions, code changes, architecture analysis, operations, documentation, GitHub work, and multi-agent delegation |
+
+The intended control flow is:
+
+```text
+slh-platform-owner
+  -> Owner Decision: value, priority, scope, evidence
+  -> slh-context-router
+  -> minimal context for Graphify / Serena / Code / Ops / Review agents
+  -> release and operational evidence
+```
+
+For significant work, invoke both Skills explicitly:
+
+```text
+Use $slh-platform-owner to evaluate the next SoloLakehouse v2.6 work item,
+define its priority, approved scope, operational impact, and evidence of
+completion. Then use $slh-context-router to load the minimum canonical context
+and prepare the implementation brief. Do not modify code until the Owner
+Decision is complete.
+```
+
+For an already-approved implementation task, start directly with the context
+router:
+
+```text
+Use $slh-context-router to implement the v2.6 dataset-contract validator.
+Preserve the v2.5 demo, pipeline, and verification paths, inspect only the
+target modules and matching tests, and report focused validation results.
+```
+
+For multi-agent work, pass the Owner Decision to every delegated agent and use
+the router to define each agent's canonical context, exclusions, baseline
+constraints, and expected output. Small local fixes need only a one-sentence
+`Owner impact` instead of a full strategic review.
+
 ## Evolution Roadmap
 
 The platform evolves along a single narrative: **first make it run, then make every claim provable on the same Compose stack, and only then migrate the runtime to Kubernetes.** v2.5 is the live runtime today (capabilities listed above). Each minor version after that adds **one category of evidence** the platform can produce — without changing the runtime.
