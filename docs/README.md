@@ -8,6 +8,7 @@ Historical version narratives are preserved under `docs/history/`.
 | Document | Purpose |
 |----------|---------|
 | [ONBOARDING_READING_ORDER.md](ONBOARDING_READING_ORDER.md) | Suggested reading order for new maintainers (新接手者文档阅读顺序) |
+| [../TASKS.md](../TASKS.md) | Active execution backlog for the shared repository (v2.6+ canonical task entrypoint) |
 | [roadmap.md](roadmap.md) | Canonical version status and forward roadmap |
 | [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: where this reference implementation is honest about its limits |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
@@ -65,6 +66,7 @@ Historical version narratives are preserved under `docs/history/`.
 | [history/v2-planning.md](history/v2-planning.md) | Delivered v2 planning |
 | [history/v2.5-planning.md](history/v2.5-planning.md) | Delivered v2.5 planning |
 | [history/v2.6-planning.md](history/v2.6-planning.md) | Planned v2.6 governance evidence bedrock |
+| [v2.6-execution-plan.md](v2.6-execution-plan.md) | Practical execution order for implementing v2.6 |
 | [history/v2.7-planning.md](history/v2.7-planning.md) | Planned v2.7 sovereignty & openness evidence |
 | [history/v2.8-planning.md](history/v2.8-planning.md) | Planned v2.8 ML compliance bedrock |
 | [history/v2.9-planning.md](history/v2.9-planning.md) | Planned v2.9 operational readiness |
@@ -74,6 +76,7 @@ Historical version narratives are preserved under `docs/history/`.
 
 | Document | Purpose |
 |----------|---------|
+| [项目现状总览_2026-06-16.md](项目现状总览_2026-06-16.md) | Latest CN snapshot — v2.5 stable, FinLakehouse validation pending, v2.6 not yet started |
 | [项目现状总览_2026-05-30.md](项目现状总览_2026-05-30.md) | Latest CN snapshot — post-ADR-020 FinLakehouse deployment-readiness baseline |
 | [项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md) | CN snapshot — pre-FinLakehouse-split engineering baseline |
 | [项目现状总览_2026-05-09.md](项目现状总览_2026-05-09.md) | CN snapshot — v2.5 acceptance gap analysis |

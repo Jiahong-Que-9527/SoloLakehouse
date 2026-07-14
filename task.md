@@ -1,5 +1,12 @@
 # SoloLakehouse Entity Split and Upgrade Migration Tasks
 
+> This file is the **entity split and migration strategy**, not the active
+> repository backlog.
+>
+> For the current shared-codebase execution backlog, use [`TASKS.md`](TASKS.md).
+> Use this file when the question is about entity deployment topology,
+> side-by-side upgrades, cutover, or rollback.
+
 ## Purpose
 
 This document describes how to turn the SoloLakehouse v2.5 reference runtime into two independently operated product entities:

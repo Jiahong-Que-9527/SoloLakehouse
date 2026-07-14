@@ -50,6 +50,7 @@ v3 focuses on governance and productionization:
 
 ### C. Execution backlog
 
+- `task.md`
 - `TASKS.md`
 - `docs/history/v3-planning.md` for the longer-form planning narrative
 
