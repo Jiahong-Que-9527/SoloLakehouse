@@ -1,0 +1,4 @@
+interface:
+  display_name: "SoloLakehouse Platform Owner"
+  short_description: "Set value, scope, priorities, and proof."
+  default_prompt: "Use $slh-platform-owner to decide the priority, approved scope, and completion evidence for this SoloLakehouse work item."

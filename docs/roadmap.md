@@ -106,6 +106,8 @@ Important framing:
 - `v2.6` is not a general observability or platform expansion release
 - `v2.6` should prepare future purpose-based access and AI/agent consumption by
   making governance metadata executable now
+- the external demonstration goal is defined in
+  [v2.6-demo-goal.md](v2.6-demo-goal.md)
 
 ### v2.7 — Catalog/Control-Plane Openness and Sovereignty Proof
 

@@ -3,6 +3,12 @@
 This documentation set treats **v2.5 as the only active runtime baseline**.
 Historical version narratives are preserved under `docs/history/`.
 
+## 单文档通读
+
+| Document | Purpose |
+|----------|---------|
+| [DOCUMENTATION_COMPENDIUM.md](DOCUMENTATION_COMPENDIUM.md) | **全部文档汇总**（一键通读；由 `scripts/build-documentation-compendium.py` 生成） |
+
 ## Start Here
 
 | Document | Purpose |
