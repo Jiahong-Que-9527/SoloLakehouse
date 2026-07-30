@@ -287,8 +287,8 @@ Scope:
 
 Current v2.6 tasks:
 
-- [ ] `G1` Update release/readiness docs to include v2.6 evidence expectations
-- [ ] `G2` Add a v2.6 limitation note and change summary
+- [x] `G1` Update release/readiness docs to include v2.6 evidence expectations
+- [x] `G2` Add a v2.6 limitation note and change summary
 
 ### Block H — Lineage Evidence and Audit Artifacts
 
