@@ -63,10 +63,12 @@ class OpenMetadataAdapter:
         base_url: str,
         service_name: str,
         session: requests.Session | Any | None = None,
+        auth_token: str | None = None,
         timeout_seconds: float = 10,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.service_name = service_name
+        self.auth_token = auth_token
         self.session = session or requests.Session()
         self.timeout_seconds = timeout_seconds
 
@@ -78,7 +80,10 @@ class OpenMetadataAdapter:
         url = f"{self.base_url}/api/v1/tables/name/{quote(expected_fqn, safe='')}"
         try:
             response = self.session.get(
-                url, params={"fields": "owners,tags"}, timeout=self.timeout_seconds
+                url,
+                params={"fields": "owners,tags"},
+                headers={"Authorization": f"Bearer {self.auth_token}"} if self.auth_token else None,
+                timeout=self.timeout_seconds,
             )
             response.raise_for_status()
             payload = response.json()

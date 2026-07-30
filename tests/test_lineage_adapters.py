@@ -130,6 +130,24 @@ def test_openmetadata_adapter_fails_on_unowned_or_wrong_table() -> None:
         )
 
 
+def test_openmetadata_adapter_sends_configured_bearer_token() -> None:
+    session = _Session(
+        _Response(
+            {
+                "fullyQualifiedName": "finlakehouse-trino.gold.ecb_dax_features",
+                "owners": [{"name": "data-platform"}],
+                "tags": [{"tagFQN": "Tier.Tier1"}],
+            }
+        )
+    )
+
+    OpenMetadataAdapter(
+        "http://openmetadata:8585", "finlakehouse-trino", session, auth_token="token-value"
+    ).collect(_contract())
+
+    assert session.calls[0]["headers"] == {"Authorization": "Bearer token-value"}
+
+
 def test_iceberg_adapter_requires_current_snapshot_and_s3_metadata_location() -> None:
     table = SimpleNamespace(
         current_snapshot=lambda: SimpleNamespace(snapshot_id=1001),

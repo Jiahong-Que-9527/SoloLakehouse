@@ -41,8 +41,13 @@ def generate(dataset_id: str, dagster_run_id: str) -> tuple[EvidenceManifest, st
     service_name = os.environ.get("OPENMETADATA_TRINO_SERVICE_NAME")
     if not service_name:
         raise ValueError("OPENMETADATA_TRINO_SERVICE_NAME is required")
+    auth_token = os.environ.get("OPENMETADATA_AUTH_TOKEN")
+    if not auth_token:
+        raise ValueError("OPENMETADATA_AUTH_TOKEN is required")
     openmetadata = OpenMetadataAdapter(
-        os.environ.get("OPENMETADATA_URL", "http://localhost:8585"), service_name
+        os.environ.get("OPENMETADATA_URL", "http://localhost:8585"),
+        service_name,
+        auth_token=auth_token,
     ).collect(contract)
     iceberg = IcebergSnapshotAdapter(get_catalog(name=contract.physical_location.catalog)).collect(
         contract
