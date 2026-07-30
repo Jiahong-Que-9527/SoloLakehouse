@@ -301,8 +301,8 @@ Scope:
 
 Current v2.6 tasks:
 
-- [ ] `H1` Define `LineageRecord`
-- [ ] `H2` Define evidence output layout under the audit path
+- [x] `H1` Define `LineageRecord`
+- [x] `H2` Define evidence output layout under the audit path
 - [ ] `H3` Implement OpenMetadata adapter
 - [ ] `H4` Implement Iceberg snapshot adapter
 - [ ] `H5` Implement Dagster run adapter
