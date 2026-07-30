@@ -201,15 +201,15 @@ Scope:
 
 Current v2.6 tasks:
 
-- [ ] `A1` Create `governance/datasets/fin.ecb_rates_bronze.yaml`
-- [ ] `A2` Create `governance/datasets/fin.dax_daily_bronze.yaml`
-- [ ] `A3` Create `governance/datasets/fin.ecb_rates_silver.yaml`
-- [ ] `A4` Create `governance/datasets/fin.dax_daily_silver.yaml`
-- [ ] `A5` Create `governance/datasets/fin.ecb_dax_features_gold.yaml`
-- [ ] `A6` Add a Pydantic schema for dataset contracts
-- [ ] `A7` Add a validation command for contracts
-- [ ] `A8` Wire contract validation into CI
-- [ ] `A9` Add the minimum governed-dataset quality gates
+- [x] `A1` Create `governance/datasets/fin.ecb_rates_bronze.yaml`
+- [x] `A2` Create `governance/datasets/fin.dax_daily_bronze.yaml`
+- [x] `A3` Create `governance/datasets/fin.ecb_rates_silver.yaml`
+- [x] `A4` Create `governance/datasets/fin.dax_daily_silver.yaml`
+- [x] `A5` Create `governance/datasets/fin.ecb_dax_features_gold.yaml`
+- [x] `A6` Add a Pydantic schema for dataset contracts
+- [x] `A7` Add a validation command for contracts
+- [x] `A8` Wire contract validation into CI
+- [x] `A9` Add the minimum governed-dataset quality gates
 
 ### Block B — Promotion and Rollback Discipline
 

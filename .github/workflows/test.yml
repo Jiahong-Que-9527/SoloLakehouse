@@ -23,7 +23,8 @@ jobs:
       # dagster/ imports the PyPI dagster package; install it so mypy does not
       # treat the local dagster/ code folder as the dagster module.
       - run: pip install -r requirements.txt -r requirements-dagster.txt
-      - run: mypy ingestion/ transformations/ ml/ scripts/ dagster/
+      - run: python scripts/validate-dataset-contracts.py
+      - run: mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/
 
   test:
     runs-on: ubuntu-latest
