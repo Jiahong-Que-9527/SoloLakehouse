@@ -303,11 +303,11 @@ Current v2.6 tasks:
 
 - [x] `H1` Define `LineageRecord`
 - [x] `H2` Define evidence output layout under the audit path
-- [ ] `H3` Implement OpenMetadata adapter
-- [ ] `H4` Implement Iceberg snapshot adapter
-- [ ] `H5` Implement Dagster run adapter
-- [ ] `H6` Join the three sources by `dataset_id`
-- [ ] `H7` Fail loudly when required source fields are missing
+- [x] `H3` Implement OpenMetadata adapter
+- [x] `H4` Implement Iceberg snapshot adapter
+- [x] `H5` Implement Dagster run adapter
+- [x] `H6` Join the three sources by `dataset_id`
+- [x] `H7` Fail loudly when required source fields are missing
 - [ ] `H8` Add `make lineage-evidence`
 - [ ] `H9` Write manifest and evidence bundle output
 - [ ] `H10` Add tests for evidence generation and failure modes

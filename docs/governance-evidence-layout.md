@@ -14,9 +14,9 @@ as evidence and may change during a storage migration.
 
 Each `LineageRecord` requires the v2.6 evidence tuple from
 [`dataset-governance-naming.md`](dataset-governance-naming.md): runtime,
-Dagster, Trino, object-storage, Iceberg, and timestamp fields. Unknown fields,
-missing required values, unsafe object paths, and timezone-free timestamps are
-rejected.
+Dagster, OpenMetadata table FQN, Trino, object-storage, Iceberg, and timestamp
+fields. Unknown fields, missing required values, unsafe object paths, and
+timezone-free timestamps are rejected.
 
 ## Bundle layout
 

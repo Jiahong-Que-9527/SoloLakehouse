@@ -24,6 +24,7 @@ class LineageRecord(BaseModel):
     environment: str = Field(min_length=1)
     dagster_run_id: str = Field(min_length=1)
     asset_key: str = Field(min_length=1)
+    openmetadata_table_fqn: str = Field(min_length=1)
     trino_catalog: str = Field(min_length=1)
     trino_schema: str = Field(min_length=1)
     trino_table: str = Field(min_length=1)

@@ -16,6 +16,7 @@ def _record(**overrides: object) -> LineageRecord:
         "environment": "local",
         "dagster_run_id": "run-123",
         "asset_key": "gold_features",
+        "openmetadata_table_fqn": "finlakehouse-trino.gold.ecb_dax_features",
         "trino_catalog": "iceberg",
         "trino_schema": "gold",
         "trino_table": "ecb_dax_features",
