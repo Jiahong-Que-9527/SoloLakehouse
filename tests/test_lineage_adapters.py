@@ -158,7 +158,7 @@ def test_dagster_adapter_requires_successful_run_selecting_contract_asset() -> N
                 "runId": "run-1",
                 "status": "SUCCESS",
                 "startTime": 1785369600.0,
-                "assetSelection": [{"path": ["gold_features"]}],
+                "assetMaterializations": [{"assetKey": {"path": ["gold_features"]}}],
             }
         }
     }

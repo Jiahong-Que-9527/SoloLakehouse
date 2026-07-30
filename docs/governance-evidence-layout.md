@@ -31,3 +31,7 @@ The manifest uses schema version `v1`, contains one `LineageRecord`, and stores
 the SHA-256 digest of its canonical JSON. The model rejects a manifest whose
 digest does not match its record. This makes the manifest ready for later
 signing and immutable archival without claiming those capabilities yet.
+
+Use `make lineage-evidence DATASET_ID=<dataset_id> DAGSTER_RUN_ID=<run_id>` to
+collect all three sources and write the manifest. The command emits no object
+when OpenMetadata, Iceberg, Dagster, or the final audit write is incomplete.

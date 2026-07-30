@@ -135,7 +135,7 @@ class IcebergSnapshotAdapter:
 
 
 class DagsterRunAdapter:
-    """Load a successful Dagster run and its selected asset keys through GraphQL."""
+    """Load a successful Dagster run and its materialized assets through GraphQL."""
 
     _QUERY = """
     query LineageEvidenceRun($runId: ID!) {
@@ -145,7 +145,7 @@ class DagsterRunAdapter:
           runId
           status
           startTime
-          assetSelection { path }
+          assetMaterializations { assetKey { path } }
         }
       }
     }
@@ -184,10 +184,10 @@ class DagsterRunAdapter:
             raise EvidenceSourceError(
                 "dagster", f"run status is {run.get('status')!r}, not 'SUCCESS'"
             )
-        asset_keys = _asset_keys(run.get("assetSelection"))
+        asset_keys = _materialized_asset_keys(run.get("assetMaterializations"))
         if contract.dagster_asset_key not in asset_keys:
             raise EvidenceSourceError(
-                "dagster", f"run does not select required asset {contract.dagster_asset_key!r}"
+                "dagster", f"run does not materialize required asset {contract.dagster_asset_key!r}"
             )
         started_at = _timestamp(run.get("startTime"))
         return DagsterRunEvidence(contract.dataset_id, run_id, asset_keys, started_at)
@@ -306,21 +306,22 @@ def _dagster_run_payload(payload: object) -> dict[str, Any]:
     return run
 
 
-def _asset_keys(value: object) -> tuple[str, ...]:
+def _materialized_asset_keys(value: object) -> tuple[str, ...]:
     if not isinstance(value, list):
-        raise EvidenceSourceError("dagster", "run has no asset selection")
+        raise EvidenceSourceError("dagster", "run has no materializations")
     keys = []
-    for asset in value:
+    for materialization in value:
+        asset = materialization.get("assetKey") if isinstance(materialization, dict) else None
         path = asset.get("path") if isinstance(asset, dict) else None
         if (
             not isinstance(path, list)
             or not path
             or not all(isinstance(part, str) for part in path)
         ):
-            raise EvidenceSourceError("dagster", "asset selection has an invalid path")
+            raise EvidenceSourceError("dagster", "materialized asset has an invalid path")
         keys.append("/".join(path))
     if not keys:
-        raise EvidenceSourceError("dagster", "run selects no assets")
+        raise EvidenceSourceError("dagster", "run materialized no assets")
     return tuple(keys)
 
 

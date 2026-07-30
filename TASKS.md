@@ -308,10 +308,10 @@ Current v2.6 tasks:
 - [x] `H5` Implement Dagster run adapter
 - [x] `H6` Join the three sources by `dataset_id`
 - [x] `H7` Fail loudly when required source fields are missing
-- [ ] `H8` Add `make lineage-evidence`
-- [ ] `H9` Write manifest and evidence bundle output
-- [ ] `H10` Add tests for evidence generation and failure modes
-- [ ] `H11` Add stable audit-path naming rules
+- [x] `H8` Add `make lineage-evidence`
+- [x] `H9` Write manifest and evidence bundle output
+- [x] `H10` Add tests for evidence generation and failure modes
+- [x] `H11` Add stable audit-path naming rules
 - [ ] `H12` Record one lineage-evidence drill
 
 ### Block I — Catalog/Control-Plane Openness and Sovereignty Proof
