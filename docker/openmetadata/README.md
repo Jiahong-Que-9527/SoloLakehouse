@@ -12,6 +12,11 @@ from `.env` (default `sololakehouse`; otherwise derived from `PRODUCT_ID` unless
 explicitly set), and catalogs `hive` and `iceberg`. Run metadata ingestion from
 the UI.
 
+For v2.6 lineage evidence, set `OPENMETADATA_TRINO_SERVICE_NAME` to that
+service's name and set a local-only `OPENMETADATA_AUTH_TOKEN` with read access
+to the ingested table. The `make lineage-evidence` command deliberately fails
+without both values or without the cataloged table and owner.
+
 ## Verify
 
 ```bash
