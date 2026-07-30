@@ -1,4 +1,4 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
@@ -76,6 +76,9 @@ pipeline-dagster:
 verify:
 	$(PYTHON) scripts/verify-setup.py
 
+validate-contracts:
+	$(PYTHON) scripts/validate-dataset-contracts.py
+
 demo:
 	$(MAKE) verify
 	$(MAKE) pipeline DAGSTER_JOB=demo_data_flow_job
@@ -109,7 +112,7 @@ lint:
 
 # Requires Dagster on PYTHONPATH (same as CI): pip install -r requirements.txt -r requirements-dagster.txt
 typecheck:
-	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/ dagster/
+	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/
 
 dagster-install:
 	$(PYTHON) -m pip install -r requirements-dagster.txt

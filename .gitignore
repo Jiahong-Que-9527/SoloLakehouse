@@ -5,6 +5,10 @@ __pycache__/
 .env
 .codex
 .codex/
+.codex.disabled
+.claude/
+graphify-out/
+docs/DOCUMENTATION_COMPENDIUM.md
 htmlcov/
 .coverage
 .mypy_cache/

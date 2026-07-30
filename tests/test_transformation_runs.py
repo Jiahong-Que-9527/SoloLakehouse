@@ -83,19 +83,20 @@ class TestTransformationRuns:
 
     def test_gold_run_reads_silver_and_writes_gold(self, monkeypatch) -> None:
         importlib.reload(silver_to_gold_features)
+        dax_dates = pd.date_range("2024-01-02", periods=100, freq="B")
+        event_dates = dax_dates[6:90:7]
         ecb = pd.DataFrame(
             {
-                "observation_date": ["2024-01-10", "2024-01-11"],
-                "rate_pct": [4.0, 4.25],
-                "rate_change_bps": [0.0, 25.0],
+                "observation_date": event_dates.date,
+                "rate_pct": [4.0 + index * 0.25 for index in range(len(event_dates))],
+                "rate_change_bps": [0.0] + [25.0] * (len(event_dates) - 1),
             }
         )
-        dax_dates = pd.date_range("2024-01-02", periods=20, freq="B")
         dax = pd.DataFrame(
             {
                 "observation_date": dax_dates.date,
-                "close_price": [100 + i for i in range(20)],
-                "daily_return": [0.1 + i * 0.01 for i in range(20)],
+                "close_price": [100 + i for i in range(100)],
+                "daily_return": [0.1 + i * 0.01 for i in range(100)],
             }
         )
         scan_returns = iter([ecb, dax])
@@ -121,7 +122,7 @@ class TestTransformationRuns:
         result = silver_to_gold_features.run(_make_catalog())
 
         assert result["table"] == "iceberg:gold.ecb_dax_features"
-        assert quality_calls == [(1, "ecb_dax_features")]
+        assert quality_calls == [(11, "ecb_dax_features")]
         assert written[0].columns.tolist() == [
             "event_date",
             "rate_change_bps",

@@ -1,0 +1,66 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import pandas as pd
+import pytest
+
+from governance.contracts import CONTRACTS_DIRECTORY, load_contract, load_contracts
+from governance.quality import validate_dataset_quality
+
+
+def test_contract_registry_loads_all_governed_financial_datasets() -> None:
+    contracts = load_contracts()
+
+    assert set(contracts) == {
+        "fin.ecb_rates_bronze",
+        "fin.dax_daily_bronze",
+        "fin.ecb_rates_silver",
+        "fin.dax_daily_silver",
+        "fin.ecb_dax_features_gold",
+    }
+    assert contracts["fin.ecb_dax_features_gold"].quality_class == "demo_critical"
+
+
+def test_contract_loader_rejects_unknown_fields(tmp_path: Path) -> None:
+    contract = (CONTRACTS_DIRECTORY / "fin.ecb_rates_bronze.yaml").read_text(encoding="utf-8")
+    invalid_path = tmp_path / "invalid.yaml"
+    invalid_path.write_text(f"{contract}\nunapproved_field: true\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="Invalid contract"):
+        load_contract(invalid_path)
+
+
+def test_runtime_quality_rejects_contract_violation() -> None:
+    contract = load_contract(CONTRACTS_DIRECTORY / "fin.ecb_rates_bronze.yaml")
+    dataframe = pd.DataFrame(
+        {
+            "observation_date": ["2024-01-01"],
+            "rate_pct": [None],
+            "_ingestion_timestamp": ["2024-01-01T00:00:00Z"],
+            "_source": ["ECB"],
+        }
+    )
+
+    with pytest.raises(ValueError, match="null values"):
+        validate_dataset_quality(dataframe, contract)
+
+
+def test_runtime_quality_rejects_too_few_gold_rows() -> None:
+    contract = load_contract(CONTRACTS_DIRECTORY / "fin.ecb_dax_features_gold.yaml")
+    dataframe = pd.DataFrame(
+        {
+            "event_date": ["2024-01-01"],
+            "rate_change_bps": [25.0],
+            "rate_level_pct": [4.0],
+            "is_rate_hike": [True],
+            "is_rate_cut": [False],
+            "dax_pre_close": [17000.0],
+            "dax_return_1d": [1.0],
+            "dax_return_5d": [2.0],
+            "dax_volatility_pre_5d": [0.5],
+        }
+    )
+
+    with pytest.raises(ValueError, match="below minimum 10"):
+        validate_dataset_quality(dataframe, contract)

@@ -1,0 +1,22 @@
+dataset_id: fin.ecb_rates_silver
+owner: Jiahong Que
+business_purpose: Provide cleaned ECB rate levels and rate-change features for downstream analysis.
+refresh_sla: business_day
+quality_class: governed_standard
+consumers: [gold_features]
+retention: 7_years_demo_policy
+classification: internal_demo
+source_of_truth: fin.ecb_rates_bronze
+approved_consumer_class: [internal_analytics]
+access_policy_hint: Restricted to internal analytical and demonstration use.
+layer: silver
+physical_location: {catalog: hive, namespace: silver, table: ecb_rates_cleaned}
+dagster_asset_key: ecb_silver
+upstream_dataset_ids: [fin.ecb_rates_bronze]
+quality_rules:
+  required_columns: [observation_date, rate_pct, rate_change_bps]
+  non_null_columns: [observation_date, rate_pct]
+  min_row_count: 1
+  date_column: observation_date
+  max_gap_days: 180
+  forbid_future_dates: true

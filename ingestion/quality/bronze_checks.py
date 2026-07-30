@@ -6,6 +6,9 @@ import datetime as dt
 
 import pandas as pd
 
+from governance.contracts import contract_path, load_contract
+from governance.quality import validate_dataset_quality
+
 
 def check_no_nulls(df: pd.DataFrame, columns: list[str]) -> None:
     """Raise if any of the specified columns contain nulls."""
@@ -85,6 +88,7 @@ def run_ecb_bronze_checks(df: pd.DataFrame) -> None:
     check_no_future_dates(df, "observation_date")
     check_date_continuity(df, "observation_date", max_gap_days=180)
     check_schema_version(df, expected_columns)
+    validate_dataset_quality(df, load_contract(contract_path("fin.ecb_rates_bronze")))
 
 
 def run_dax_bronze_checks(df: pd.DataFrame) -> None:
@@ -103,3 +107,4 @@ def run_dax_bronze_checks(df: pd.DataFrame) -> None:
     check_no_future_dates(df, "observation_date")
     check_date_continuity(df, "observation_date", max_gap_days=5)
     check_schema_version(df, expected_columns)
+    validate_dataset_quality(df, load_contract(contract_path("fin.dax_daily_bronze")))

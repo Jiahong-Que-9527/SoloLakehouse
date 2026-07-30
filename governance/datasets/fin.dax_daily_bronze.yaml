@@ -1,0 +1,22 @@
+dataset_id: fin.dax_daily_bronze
+owner: Jiahong Que
+business_purpose: Preserve daily DAX market observations for governed analytics.
+refresh_sla: business_day
+quality_class: governed_standard
+consumers: [silver_transforms]
+retention: 7_years_demo_policy
+classification: internal_demo
+source_of_truth: DAX market-data source configured by the collector
+approved_consumer_class: [internal_analytics]
+access_policy_hint: Restricted to internal analytical and demonstration use.
+layer: bronze
+physical_location: {catalog: hive, namespace: bronze, table: dax_daily}
+dagster_asset_key: dax_bronze
+upstream_dataset_ids: []
+quality_rules:
+  required_columns: [observation_date, open_price, high_price, low_price, close_price, volume, _ingestion_timestamp, _source]
+  non_null_columns: [observation_date, open_price, high_price, low_price, close_price, volume]
+  min_row_count: 1
+  date_column: observation_date
+  max_gap_days: 5
+  forbid_future_dates: true

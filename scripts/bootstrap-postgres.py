@@ -6,6 +6,7 @@ import os
 import secrets
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import psycopg2
@@ -13,6 +14,8 @@ from psycopg2 import sql
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REQUIRED_DATABASES = ("hive_metastore", "mlflow", "dagster_storage", "superset_metadata")
+TCP_CONNECT_ATTEMPTS = 6
+TCP_CONNECT_RETRY_SECONDS = 1
 
 
 def _postgres_tcp_endpoint() -> tuple[str, int]:
@@ -58,20 +61,42 @@ def required_databases() -> tuple[str, ...]:
 
 
 def verify_tcp_password(*, user: str, password: str) -> bool:
-    host, port = _postgres_tcp_endpoint()
     try:
-        conn = psycopg2.connect(
-            host=host,
-            port=port,
-            user=user,
-            password=password,
-            dbname="postgres",
-            connect_timeout=5,
-        )
+        conn = connect_tcp(user=user, password=password)
         conn.close()
         return True
     except psycopg2.OperationalError:
         return False
+
+
+def connect_tcp(
+    *,
+    user: str,
+    password: str,
+    attempts: int = TCP_CONNECT_ATTEMPTS,
+    retry_seconds: int = TCP_CONNECT_RETRY_SECONDS,
+):
+    """Connect to Postgres over TCP, tolerating its short startup window."""
+    host, port = _postgres_tcp_endpoint()
+    for attempt in range(1, attempts + 1):
+        try:
+            return psycopg2.connect(
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                dbname="postgres",
+                connect_timeout=5,
+            )
+        except psycopg2.OperationalError:
+            if attempt == attempts:
+                raise
+            print(
+                f"PostgreSQL TCP endpoint is not ready (attempt {attempt}/{attempts}); retrying...",
+                file=sys.stderr,
+            )
+            time.sleep(retry_seconds)
+    raise RuntimeError("unreachable")
 
 
 def align_role_password_via_docker(*, user: str, password: str) -> None:
@@ -196,15 +221,7 @@ def ensure_databases_via_docker(user: str) -> list[str] | None:
 
 
 def ensure_databases_via_tcp(*, user: str, password: str) -> list[str]:
-    host, port = _postgres_tcp_endpoint()
-    conn = psycopg2.connect(
-        host=host,
-        port=port,
-        user=user,
-        password=password,
-        dbname="postgres",
-        connect_timeout=5,
-    )
+    conn = connect_tcp(user=user, password=password)
     conn.autocommit = True
 
     created: list[str] = []

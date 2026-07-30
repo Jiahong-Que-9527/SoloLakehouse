@@ -5,7 +5,8 @@
 **速记锚点**
 
 - **当前运行时基线**：v2.5（单轨 Docker Compose + Dagster + Trino Iceberg Gold + OpenMetadata + Superset）。权威说明见 `docs/roadmap.md`。
-- **日常执行 backlog**：仓库根目录 `task.md`。
+- **日常执行 backlog**：仓库根目录 `TASKS.md`。
+- **实体拆分 / 升级迁移策略**：仓库根目录 `task.md`。
 - **文档总索引**：`docs/README.md`。
 - **给 AI/Agent 的仓库速查**（人类也可扫一眼命令与目录）：`CLAUDE.md`。
 
@@ -75,12 +76,14 @@
 
 | 顺序 | 文档 | 目的 |
 |------|------|------|
-| 19 | [task.md](../task.md) | 当前仓库执行任务板（与 roadmap 配套；包含拉 finlakehouse / aviation-lakehouse 的三阶段计划）。 |
-| 20 | [docs/项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md) | 最新中文工程基线快照（拉 flh 之前的状态）。 |
-| 21 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
-| 22 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
-| 23 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
-| 24 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
+| 19 | [TASKS.md](../TASKS.md) | 当前共享代码库的主执行 backlog；v2.6 起优先看这里。 |
+| 20 | [task.md](../task.md) | 实体拆分、side-by-side upgrade、cutover 与 rollback 策略。 |
+| 21 | [docs/v2.6-execution-plan.md](v2.6-execution-plan.md) | v2.6 从 planning 进入 implementation 的建议顺序。 |
+| 22 | [docs/项目现状总览_2026-06-16.md](项目现状总览_2026-06-16.md) | 最近中文工程快照（注意它反映的是当时判断，不替代当前 backlog）。 |
+| 23 | [docs/history/README.md](history/README.md) | 历史文档导航。 |
+| 24 | [docs/history/timeline.md](history/timeline.md) | 按版本的时间线。 |
+| 25 | [docs/history/architecture-evolution.md](history/architecture-evolution.md) | 架构随时间的演变与取舍摘要。 |
+| 26 | [docs/history/v3-planning.md](history/v3-planning.md) | v3 生产化与治理方向的规划草案（主规划入口）。 |
 
 **可选（更细的版本规划笔记，按需）**
 
@@ -128,7 +131,8 @@
 
 - [docs/项目快照_2026-03-26.md](项目快照_2026-03-26.md)
 - [docs/项目现状总览_2026-05-09.md](项目现状总览_2026-05-09.md)（v2.5 验收缺口分析）
-- [docs/项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md)（**最新**，拉 flh 之前的基线）
+- [docs/项目现状总览_2026-06-16.md](项目现状总览_2026-06-16.md)（**最新**，当前阶段判断与下一步）
+- [docs/项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md)（拉 flh 之前的基线）
 
 ---
 
@@ -144,6 +148,6 @@
 |------|------|
 | 第 1 天 | 阶段 0～1：坐标 + 本地跑通 + Demo Runbook 走一遍。 |
 | 第 2～3 天 | 阶段 2～3：用户指南 + 架构/Medallion + ADR 索引与核心几篇。 |
-| 第 4 天起 | 按角色深入：开发侧重 `TASKS.md` 与代码；平台/治理侧重阶段 5；发版侧重阶段 6。 |
+| 第 4 天起 | 按角色深入：开发先看 `TASKS.md`，涉及实体迁移再看 `task.md`；平台/治理侧重阶段 5；发版侧重阶段 6。 |
 
 读完阶段 0～3 后，你已具备「能运行、能排障、能解释架构」的起点；其余文档作为**按需查阅**的辞典即可。

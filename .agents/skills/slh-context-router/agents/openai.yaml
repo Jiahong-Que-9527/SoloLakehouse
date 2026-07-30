@@ -1,0 +1,4 @@
+interface:
+  display_name: "SoloLakehouse Context Router"
+  short_description: "Route work to minimal canonical context."
+  default_prompt: "Use $slh-context-router to select the smallest authoritative context and implementation route for this SoloLakehouse task."

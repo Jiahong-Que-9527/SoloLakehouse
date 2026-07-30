@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 
+from governance.contracts import contract_path, load_contract
+from governance.quality import validate_dataset_quality
 from ingestion.iceberg_io import overwrite_table, scan_table
 from ingestion.iceberg_schemas import SILVER_DAX_DAILY_SCHEMA
 from transformations.quality_report import run_silver_quality_report
@@ -55,6 +57,7 @@ def run(catalog: "Catalog") -> dict[str, object]:
 
     silver_df = transform_dax_bronze_to_silver(bronze_df)
     run_silver_quality_report(silver_df, "dax_daily_cleaned")
+    validate_dataset_quality(silver_df, load_contract(contract_path("fin.dax_daily_silver")))
 
     overwrite_table(catalog, "silver", "dax_daily_cleaned", silver_df, SILVER_DAX_DAILY_SCHEMA)
 

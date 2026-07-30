@@ -1,0 +1,21 @@
+dataset_id: fin.ecb_dax_features_gold
+owner: Jiahong Que
+business_purpose: Provide ECB rate-change event features joined to DAX returns for event-study modeling.
+refresh_sla: business_day
+quality_class: demo_critical
+consumers: [ml_experiment, internal_analytics]
+retention: 7_years_demo_policy
+classification: internal_demo
+source_of_truth: fin.ecb_rates_silver and fin.dax_daily_silver
+approved_consumer_class: [internal_analytics, internal_ml]
+access_policy_hint: Restricted to internal analytical and demonstration use; not for production decisions.
+layer: gold
+physical_location: {catalog: hive, namespace: gold, table: ecb_dax_features}
+dagster_asset_key: gold_features
+upstream_dataset_ids: [fin.ecb_rates_silver, fin.dax_daily_silver]
+quality_rules:
+  required_columns: [event_date, rate_change_bps, rate_level_pct, is_rate_hike, is_rate_cut, dax_pre_close, dax_return_1d, dax_return_5d, dax_volatility_pre_5d]
+  non_null_columns: [event_date, rate_change_bps, rate_level_pct, is_rate_hike, is_rate_cut, dax_pre_close, dax_return_1d, dax_return_5d]
+  min_row_count: 10
+  date_column: event_date
+  forbid_future_dates: true
