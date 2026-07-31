@@ -39,12 +39,19 @@ class BronzeWriter:
     def write(self, df: pd.DataFrame, source: str, ingestion_date: str | None = None) -> str:
         """Append *df* to the Bronze Iceberg table for *source* and return a logical path."""
         schema, partition_spec = _BRONZE_TABLE_META.get(source, (BRONZE_ECB_RATES_SCHEMA, None))
+        normalized = df.copy()
+        if "observation_date" in normalized:
+            # Iceberg DateType requires Python ``date`` values; callers such as
+            # integration and operational scripts may supply ISO strings.
+            normalized["observation_date"] = pd.to_datetime(
+                normalized["observation_date"], errors="raise"
+            ).dt.date
 
         iceberg_io.append_table(
             self.catalog,
             namespace="bronze",
             table_name=source,
-            df=df,
+            df=normalized,
             schema=schema,
             partition_spec=partition_spec,
         )

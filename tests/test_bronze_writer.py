@@ -39,6 +39,17 @@ class TestBronzeWriter:
         assert path == "iceberg:bronze.dax_daily"
         mock_append.assert_called_once()
 
+    def test_write_normalizes_observation_dates_for_iceberg(self) -> None:
+        catalog, _ = _make_catalog_mock()
+        writer = BronzeWriter(catalog)
+        df = pd.DataFrame({"observation_date": ["2024-01-01"]})
+
+        with patch("ingestion.iceberg_io.append_table") as mock_append:
+            writer.write(df, source="ecb_rates")
+
+        written = mock_append.call_args.kwargs["df"]
+        assert str(written.loc[0, "observation_date"]) == "2024-01-01"
+
     def test_write_rejected_returns_iceberg_path(self) -> None:
         catalog, _ = _make_catalog_mock()
         writer = BronzeWriter(catalog)
