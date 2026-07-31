@@ -53,6 +53,31 @@ Decision gate to v2.6 / Phase 1 of entity split:
 - Treat v2.5.1 as the frozen template baseline; new work goes to v2.6 or the
   entity-template preparation track.
 
+## v2.6.0 (2026-07-31) - Delivered
+
+Theme:
+- Computational governance and evidence plane on the protected v2.5 runtime.
+
+What landed:
+- Machine-validated dataset contracts and governed quality checks for the
+  reference Gold dataset.
+- Typed three-source lineage evidence that joins OpenMetadata metadata,
+  Iceberg snapshots, and a successful Dagster materialization.
+- `make lineage-evidence` writes a canonical SHA-256-bound manifest to the
+  stable audit-bucket layout.
+- A real local release drill recorded a successfully ingested Trino table,
+  assigned owner, current Iceberg snapshot, successful Dagster run, and audit
+  manifest.
+
+Known limits:
+- The release does not claim Object Lock/WORM enforcement, automated catalog
+  ingestion, production RBAC, token lifecycle management, or regulatory
+  compliance. See `docs/v2.6-release-readiness.md`.
+
+Decision gate to v2.7:
+- Keep the runtime unchanged and make catalog/control-plane openness provable
+  through an explicit catalog boundary and minimal interoperability proof.
+
 ## Post-v2.5 entity-template preparation - Phase 1 complete (2026-05-18)
 
 Theme:

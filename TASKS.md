@@ -53,8 +53,8 @@ Future agents should follow these rules by default:
 | Version | Status | Repository focus |
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
-| v2.6 | Active next implementation | Computational governance and evidence plane |
-| v2.7 | Planned | Catalog/control-plane openness and sovereignty proof |
+| v2.6 | Delivered | Computational governance and evidence plane |
+| v2.7 | Active next implementation | Catalog/control-plane openness and sovereignty proof |
 | v2.8 | Planned | AI/ML governance and agent-ready context |
 | v2.9 | Planned | Operational evidence and promotion discipline |
 | v3.0 | Planned | Kubernetes runtime migration |
@@ -339,13 +339,13 @@ Rule:
 
 ## Immediate Next Actions
 
-If implementation resumes now, do these in order:
+With v2.6 delivered, start v2.7 in this order:
 
-1. create the contract schema and first contract files
-2. decide the exact `LineageRecord` and manifest fields
-3. implement adapters and test fixtures before wiring the CLI
-4. add the operator command and audit writes
-5. only then start the `v2.7` catalog-boundary work
+1. define the repository-level catalog abstraction boundary (`I1`)
+2. document the current HiveCatalog path versus an Iceberg REST catalog path (`I2`)
+3. evaluate Apache Polaris as the first reference REST catalog target (`I3`)
+4. produce one minimal interoperability proof (`I4`)
+5. write the sovereignty report and exit playbook (`I5`)
 
 ## Decision Rules
 
