@@ -14,7 +14,7 @@ Version **v2.5.0** was a **reference extension** on top of the v2 Dagster-orches
 
 ### Documentation and learning material
 
-- **User guides** — [`docs/USER_GUIDE_EN.md`](https://github.com/Jiahong-Que-9527/SoloLakehouse/blob/v2.5.0/docs/USER_GUIDE_EN.md) (English), [`docs/USER_GUIDE.md`](https://github.com/Jiahong-Que-9527/SoloLakehouse/blob/v2.5.0/docs/USER_GUIDE.md) (中文); central doc map: [`docs/README.md`](https://github.com/Jiahong-Que-9527/SoloLakehouse/blob/v2.5.0/docs/README.md).
+- **User guides** — [`docs/USER_GUIDE_EN.md`](https://github.com/Jiahong-Que-9527/SoloLakehouse/blob/v2.5.0/docs/USER_GUIDE_EN.md); central doc map: [`docs/README.md`](https://github.com/Jiahong-Que-9527/SoloLakehouse/blob/v2.5.0/docs/README.md).
 - **ADR index** updated for v2.5.
 
 ### Quick start after services are up

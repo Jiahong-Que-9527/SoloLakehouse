@@ -1,358 +1,367 @@
 # SoloLakehouse v3 Spec
 
-## 目标
+> ## Status note — 2026-07-31
+>
+> This spec was written before the v2.6–v2.9 evidence series was defined. Two of
+> its assumptions have since been overtaken:
+>
+> - **Workstream 5 (data governance baseline) is largely delivered.** v2.6 ships
+>   machine-validated contracts in `governance/datasets/*.yaml` carrying `owner`,
+>   `refresh_sla`, `quality_class`, `classification`, `retention`, and lineage
+>   relationships, enforced by `make validate-contracts` in CI. v3 inherits this
+>   rather than building it.
+> - **The "do not force OpenMetadata adoption" constraint is obsolete.**
+>   OpenMetadata has been a mandatory component of the default stack since v2.5,
+>   and v2.6's lineage evidence depends on it.
+>
+> Everything else below still stands. Current authority for version scope is
+> [`roadmap.md`](roadmap.md); v2.9 is the version that prepares the readiness
+> gates this spec assumes.
 
-将 SoloLakehouse 从：
+## Goal
 
-> v2.5：单轨 Dagster 编排 + Iceberg Gold + OpenMetadata + Superset 的本地参考运行时（含实体模板能力，可派生 finlakehouse / aviation-lakehouse）
+Move SoloLakehouse from:
 
-升级为：
+> v2.5 — a local reference runtime: single-track Dagster orchestration + all-layer Iceberg + OpenMetadata + Superset
 
-> v3：具备生产化部署、治理、可观测性与发布控制能力的平台参考实现
+to:
+
+> v3 — a platform reference implementation with production-capable deployment, governance, observability, and release control
 
 ---
 
-## 核心原则
+## Core principle
 
-v3 的重点不是继续扩展数据功能，而是补齐平台能力。
+v3 is not about extending data features; it is about completing platform capabilities.
 
-优先级如下：
+Priorities, in order:
 
-1. 多环境可复现部署
-2. 治理与安全基线
-3. 可观测性与可靠性
-4. 发布、回滚与运维流程
+1. Reproducible multi-environment deployment
+2. Governance and security baseline
+3. Observability and reliability
+4. Release, rollback, and operations process
 
-一句话概括：
+In one line:
 
 > Focus on platform productionization, not feature expansion.
 
 ---
 
-## v3 的范围边界
+## v3 scope boundary
 
-### 应该优先做
+### Should be prioritized
 
-- 基于 Kubernetes / Helm / Terraform 的多环境部署基线
-- `dev -> staging -> production` 的环境晋升与回滚机制
-- secrets lifecycle、least privilege、access auditability
-- SLO 驱动的 metrics、alerting、dashboard、runbook
-- 数据集治理约定：owner、refresh SLA、quality class、lineage responsibility
-- 实验平台层面的 ML 治理与可追踪性增强
+- a Kubernetes / Helm / Terraform multi-environment deployment baseline
+- a `dev -> staging -> production` promotion and rollback mechanism
+- secrets lifecycle, least privilege, and access auditability
+- SLO-driven metrics, alerting, dashboards, and runbooks
+- dataset governance conventions: owner, refresh SLA, quality class, lineage responsibility *(largely delivered in v2.6 — see status note)*
+- ML governance and traceability at the experiment-platform level
 
-### 不应在 v3 里扩张为主线
+### Should not become a main track in v3
 
-- 不把项目做成完整 Databricks / Snowflake 替代品
-- 不优先引入 Kafka、Flink 等复杂分布式系统
-- 不以“新增更多业务数据源/分析功能”为目标
-- 不把完整在线 serving 平台作为 v3 必选项
-- 不把自助式产品化 UI/门户作为 v3 主交付
+- turning the project into a complete Databricks / Snowflake replacement
+- introducing Kafka, Flink, or other complex distributed systems
+- adding more business data sources or analytical features as a goal
+- treating a complete online serving platform as a required v3 deliverable
+- treating a self-service product UI or portal as a primary v3 deliverable
 
 ---
 
-## 必需能力域
+## Required capability areas
 
 ## 1. Infrastructure & Environment Promotion
 
-### 目标
+### Goal
 
-- 支持多环境一致部署
-- 建立可验证的晋升链路
-- 保证发布可回滚
+- support consistent deployment across environments
+- establish a verifiable promotion chain
+- guarantee that releases can be rolled back
 
-### 要求
+### Requirements
 
-- 引入 Kubernetes manifests 或 Helm chart skeleton
-- 引入 Terraform baseline 管理基础设施依赖
-- 明确环境链路：
-  - `dev`
-  - `staging`
-  - `production`
-- 每次环境晋升必须经过：
-  - 部署成功与健康检查
-  - pipeline 执行成功
-  - 测试 / lint / typecheck / runtime quality gate
-  - rollback readiness 验证
+- introduce Kubernetes manifests or a Helm chart skeleton
+- introduce a Terraform baseline for infrastructure dependencies
+- define the environment chain: `dev`, `staging`, `production`
+- every promotion must pass:
+  - successful deployment and health checks
+  - successful pipeline execution
+  - tests / lint / typecheck / runtime quality gates
+  - rollback-readiness verification
 
-### 说明
+### Note
 
-本项目的 v3 环境治理重点是 **promotion model**，不是简单增加 `.env.dev` / `.env.prod` 文件。
+The focus here is the **promotion model**, not simply adding `.env.dev` / `.env.prod` files.
 
 ---
 
 ## 2. Security & Access Governance
 
-### 目标
+### Goal
 
-- 从本地开发风格的凭据管理，升级到生产化治理模型
+- move from local-development credential handling to a production governance model
 
-### 要求
+### Requirements
 
-- 逐步摆脱生产环境对静态 `.env` 的依赖
-- 引入受管理的 secrets 来源与注入方式
-- 定义 least-privilege service credentials
-- 记录 access change 的审计证据
-- 提供 secrets rotation / emergency fallback 的运行说明
+- progressively remove production dependence on static `.env` files
+- introduce a managed secrets source and injection mechanism
+- define least-privilege service credentials
+- record audit evidence for access changes
+- provide operating instructions for secrets rotation and emergency fallback
 
-### 说明
+### Note
 
-v3 的重点是 **服务级别安全治理**，不是先做面向终端用户的完整认证产品。
+v3 focuses on **service-level security governance**, not on building a complete end-user authentication product first.
 
 ---
 
 ## 3. Reliability & Observability
 
-### 目标
+### Goal
 
-- 让系统从“能排查”走向“可量化运营”
+- move the system from "diagnosable" to "quantifiably operable"
 
-### 要求
+### Requirements
 
-- 定义关键 SLO
-- 为关键链路建立指标：
+- define the key SLOs
+- establish metrics for the critical paths:
   - orchestration success rate
   - pipeline freshness
   - ingestion / pipeline latency
   - data quality pass rate
-- 建立 alert rules，并与 SLO breach 对齐
-- 提供 dashboard 作为统一运行视图
-- 补齐 incident runbooks，并至少做基础 drill
+- establish alert rules aligned to SLO breaches
+- provide a dashboard as the unified operational view
+- complete incident runbooks and run at least a basic drill
 
-### 说明
+### Note
 
-Prometheus / Grafana 可以作为实现方案，但本项目 v3 更强调 **SLO-driven operations**，而不是“为了上工具而上工具”。
+Prometheus / Grafana are viable implementations, but v3 emphasizes **SLO-driven operations** rather than adopting tools for their own sake.
 
 ---
 
 ## 4. Data Governance Baseline
 
-### 目标
+> Largely delivered in v2.6 — see the status note at the top of this document.
 
-- 让关键数据集具备可发现、可说明、可负责的治理基线
+### Goal
 
-### 要求
+- give critical datasets a discoverable, explainable, accountable governance baseline
 
-- 保持 **Hive-first catalog strategy**
-- 不在 v3 强制切换到新的 catalog 平台
-- 为关键 Gold 与核心 Silver 数据集补齐治理元数据：
-  - `data_owner`
-  - `refresh_sla`
-  - `quality_class`
+### Requirements
+
+- maintain the Hive-first catalog strategy *(v2.7 will evaluate an Iceberg REST catalog path; see the roadmap)*
+- complete governance metadata for the critical Gold and core Silver datasets:
+  - data owner
+  - refresh SLA
+  - quality class
   - lineage responsibility
-- 定义跨环境的 schema / table / storage prefix naming conventions
+- define cross-environment schema / table / storage-prefix naming conventions
 
-### 说明
+### Note
 
-v3 的数据治理重点是 **标准化和 upgrade-ready**，不是立即集成 OpenMetadata / DataHub 这类更重的目录平台。
+The emphasis is **standardization and upgrade-readiness**.
 
 ---
 
 ## 5. ML Boundary for v3
 
-### 目标
+### Goal
 
-- 保持数据平台到 ML 的叙事连续性
-- 控制范围，避免 serving 方向过早膨胀
+- keep narrative continuity from the data platform through to ML
+- control scope so that serving does not expand prematurely
 
-### 要求
+### Requirements
 
-- 强化训练 / 评估流程的可复现性
-- 强化 experiment metadata、artifact lineage、evaluation contract
-- 保持 MLflow 作为实验追踪核心组件
-- 为未来 serving 留好接口，但不把完整 serving platform 设为 v3 必须项
+- strengthen reproducibility of training and evaluation
+- strengthen experiment metadata, artifact lineage, and the evaluation contract
+- keep MLflow as the core experiment-tracking component
+- leave an interface open for future serving, without making a complete serving platform a v3 requirement
 
-### 说明
+### Note
 
-v3 是 **experiment platform first**，不是 full ML productization。
+v3 is **experiment-platform first**, not full ML productization. See also ADR-011.
 
 ---
 
 ## 6. Release & Operations Model
 
-### 目标
+### Goal
 
-- 让发布从“能发”升级为“可控、可审计、可回滚”
+- move releases from "we can ship" to "controlled, auditable, and reversible"
 
-### 要求
+### Requirements
 
-- CI/CD 持续执行：
-  - tests
-  - lint
-  - type check
-- 建立 release gates
-- 建立 rollback 标准流程
-- 发布记录与变更证据要可追踪
-- 更新 release checklist、history、ADR 索引与版本状态文档
+- CI/CD continuously runs tests, lint, and type checks
+- establish release gates
+- establish a standard rollback procedure
+- make release records and change evidence traceable
+- update the release checklist, history, ADR index, and version status documents
 
 ---
 
-## 现阶段不作为 v3 Required 的内容
+## Explicitly not required for v3
 
-- 完整在线推理 serving 平台
-- Superset / FastAPI 作为核心主线交付
-- Keycloak 级别的完整身份系统
-- OpenMetadata / DataHub 的强制接入
-- 复杂流式架构
+- a complete online inference serving platform
+- Superset / FastAPI as a core deliverable
+- a full identity system at the Keycloak level
+- mandatory DataHub adoption
+- complex streaming architecture
 
-这些内容可以作为：
-
-- later phase
-- v4 候选项
-- 或在明确场景驱动下单独立项
+These may be pursued as a later phase, as v4 candidates, or as separately scoped work driven by a concrete use case.
 
 ---
 
-## v3 预期结果
+## Expected v3 outcome
 
-最终的 SoloLakehouse v3 应该表现为：
+SoloLakehouse v3 should present as:
 
-> 一个面向生产化思维的小型 Lakehouse 平台参考实现
+> a small lakehouse platform reference implementation built with production thinking
 
-它应具备：
+It should have:
 
-- 多环境可复现部署能力
-- 明确的环境晋升与回滚流程
-- 基础的 secrets / access / governance 控制
-- SLO 驱动的可观测性与运维基线
-- 可审计的发布流程
-- 面向实验平台的 ML 治理延续性
-
----
-
-## v3 最终定义
-
-> A production-capable, governance-ready, observable Solo Lakehouse platform with controlled ML experiment integration.
+- reproducible multi-environment deployment
+- an explicit environment promotion and rollback process
+- a baseline of secrets, access, and governance controls
+- SLO-driven observability and an operations baseline
+- an auditable release process
+- continuity of ML governance at the experiment-platform level
 
 ---
 
-## v3 Task Graph
+## v3 definition
 
-下面这部分不是概念说明，而是面向实施的推进顺序。
+> A production-capable, governance-ready, observable SoloLakehouse platform with controlled ML experiment integration.
+
+---
+
+## v3 task graph
+
+This section is an implementation sequence, not a conceptual description.
 
 ### Workstream 1: Infrastructure Baseline
 
-目标：先把 v3 的“骨架”搭出来，让多环境部署从文档目标变成工程对象。
+Goal: build the v3 skeleton so multi-environment deployment becomes an engineering object rather than a documentation goal.
 
-- 建立 Kubernetes manifests 或 Helm chart skeleton
-- 为核心服务与 Dagster 服务设计部署结构
-- 补齐 `dev` 与 `staging` 的环境分层方式
-- 引入 Terraform baseline 管理基础设施依赖
-- 明确本地 Compose 路径与 v3 infra 路径的并存关系
+- create Kubernetes manifests or a Helm chart skeleton
+- design the deployment structure for the core services and Dagster
+- define how `dev` and `staging` are layered
+- introduce a Terraform baseline for infrastructure dependencies
+- clarify how the local Compose path coexists with the v3 infrastructure path
 
-完成标志：
+Done when:
 
-- 同一版本可以在 `dev` 与 `staging` 用一致工件部署
-- 部署步骤可复现、可验证、可回滚
+- the same version deploys to `dev` and `staging` from consistent artifacts
+- deployment steps are reproducible, verifiable, and reversible
 
 ### Workstream 2: Promotion & Release Controls
 
-目标：把“发布”变成有 gate 的流程，而不是一次性操作。
+Goal: turn releasing into a gated process rather than a one-off action.
 
-- 固化 `dev -> staging -> production` promotion flow
-- 定义每次 promotion 的验证项
-- 补齐 rollback checklist 与 release evidence
-- 把 release checklist 与 history / ADR / changelog 更新动作纳入流程
+- formalize the `dev -> staging -> production` promotion flow
+- define the verification items for each promotion
+- complete the rollback checklist and release evidence
+- fold release checklist, history, ADR, and changelog updates into the process
 
-完成标志：
+Done when:
 
-- 至少完成一次端到端 staged release 演练
-- promotion 和 rollback 都有文档和验证记录
+- at least one end-to-end staged release drill has been completed
+- both promotion and rollback have documentation and verification records
 
 ### Workstream 3: Secrets & Access Governance
 
-目标：把 v2 的本地开发型凭据模型升级为最小生产治理基线。
+Goal: upgrade the v2 local-development credential model into a minimum production governance baseline.
 
-- 定义 secrets source 与 runtime injection pattern
-- 识别关键服务的凭据边界
-- 建立 least-privilege service credentials 模型
-- 记录 access change 的审计要求
-- 编写 rotation 与 emergency fallback runbook
+- define the secrets source and runtime injection pattern
+- identify credential boundaries for the critical services
+- establish a least-privilege service credential model
+- record audit requirements for access changes
+- write rotation and emergency-fallback runbooks
 
-完成标志：
+Done when:
 
-- 关键服务不再依赖生产静态 `.env`
-- access change 可以留下审核与执行证据
+- critical services no longer depend on a static production `.env`
+- access changes leave review and execution evidence
 
 ### Workstream 4: Observability & Reliability
 
-目标：从“出问题再查”升级为“主动监控与预警”。
+Goal: move from "investigate after failure" to "monitor and warn proactively".
 
-- 定义关键 SLO
-- 为成功率、freshness、latency、quality pass rate 建立指标
-- 建立 alerts 与 dashboards
-- 补齐 incident 分类和恢复 runbook
-- 至少做基础 drill，验证告警与处置链路
+- define the key SLOs
+- establish metrics for success rate, freshness, latency, and quality pass rate
+- establish alerts and dashboards
+- complete incident classification and recovery runbooks
+- run at least a basic drill to validate the alerting and response chain
 
-完成标志：
+Done when:
 
-- 有最小可用 dashboard
-- 有关键告警
-- 有至少一次 runbook drill 记录
+- a minimum viable dashboard exists
+- key alerts exist
+- at least one runbook drill has been recorded
 
 ### Workstream 5: Data Governance Baseline
 
-目标：先把治理约定立住，而不是急着换目录系统。
+> Largely delivered by v2.6. v3 inherits and extends it across environments.
 
-- 为关键 Gold 与核心 Silver 输出定义治理合同
-- 补齐 `data_owner`、`refresh_sla`、`quality_class`
-- 明确 lineage responsibility
-- 统一环境间 schema、table、storage prefix 命名规则
+Goal: establish the governance conventions rather than rushing to change catalog systems.
 
-完成标志：
+- define governance contracts for the critical Gold and core Silver outputs
+- complete data owner, refresh SLA, and quality class
+- clarify lineage responsibility
+- unify schema, table, and storage-prefix naming across environments
 
-- 核心数据集存在明确治理元数据
-- 命名与 ownership 规则可被团队直接遵循
+Done when:
+
+- core datasets carry explicit governance metadata
+- naming and ownership rules are directly followable by the team
 
 ### Workstream 6: ML Experiment Governance
 
-目标：延续 ML 叙事，但控制在实验平台边界内。
+Goal: continue the ML narrative while staying inside experiment-platform boundaries.
 
-- 强化训练 / 评估流程的可复现性
-- 统一 experiment metadata 与 artifact 路径约定
-- 明确 evaluation contract
-- 为未来 serving 预留接口，但不实现完整 serving 平台
+- strengthen reproducibility of training and evaluation
+- unify experiment metadata and artifact path conventions
+- define the evaluation contract
+- leave an interface for future serving without implementing a serving platform
 
-完成标志：
+Done when:
 
-- MLflow 运行记录更完整、可追踪
-- 模型实验与数据资产之间的关系更可解释
+- MLflow run records are more complete and traceable
+- the relationship between model experiments and data assets is more explainable
 
 ---
 
-## Recommended Execution Order
-
-建议按下面顺序推进：
+## Recommended execution order
 
 1. Infrastructure Baseline
 2. Promotion & Release Controls
 3. Secrets & Access Governance
 4. Observability & Reliability
-5. Data Governance Baseline
+5. Data Governance Baseline *(mostly inherited from v2.6)*
 6. ML Experiment Governance
 
-原因很简单：
+The reasoning is straightforward:
 
-- 先有多环境与部署骨架，后面的治理和运维才有承载面
-- 先把 release / rollback 立起来，后续改动才可控
-- 数据治理和 ML 治理应该建立在稳定的平台骨架之上
+- multi-environment deployment and a deployment skeleton must exist before governance and operations have anything to attach to
+- release and rollback must be established before further change becomes controllable
+- data and ML governance should sit on top of a stable platform skeleton
 
 ---
 
-## For Code Agent
+## For a code agent
 
-下面这段是更短、更适合直接喂给 code agent 的版本。
+A shorter version suitable for handing directly to a coding agent.
 
-### SoloLakehouse v3 Prompt
+### SoloLakehouse v3 prompt
 
 You are working on SoloLakehouse v3.
 
-The project is currently at:
+The project currently stands at:
 
-- v1, v2, v2.5 delivered (v2.5 is the frozen baseline; v2.5.1 closed the freeze checklist)
-- v2.5 entity-template preparation: Phase 1 complete (Fin / Aviation Lakehouse can now be split out without code edits)
+- v1, v2, and v2.5 delivered (v2.5 is the protected runtime baseline)
+- v2.6 delivered the governance and evidence plane
 - v3 planned: production-capable platform hardening
 
-Your job is to improve **platform productionization**, not expand product features.
+Your job is to improve **platform productionization**, not to expand product features.
 
 Priorities:
 
@@ -360,26 +369,25 @@ Priorities:
 2. Promotion and rollback controls
 3. Secrets and access governance
 4. SLO-driven observability and incident operations
-5. Hive-first governance baseline
+5. Extending the v2.6 governance baseline across environments
 6. ML experiment governance, not full serving
 
 Important constraints:
 
-- Do not expand scope into Kafka, Flink, or complex distributed systems
-- Do not treat FastAPI, Superset, or online serving as required v3 deliverables
-- Do not force OpenMetadata or DataHub adoption in v3
-- Do not replace the current Hive-first baseline unless explicitly requested
-- Preserve compatibility with current v2 semantics where possible
+- do not expand scope into Kafka, Flink, or complex distributed systems
+- do not treat FastAPI, Superset, or online serving as required v3 deliverables
+- do not replace the current catalog baseline unless the roadmap says otherwise
+- preserve compatibility with current v2 semantics where possible
 
 Expected v3 outcome:
 
 - reproducible deployment across environments
-- `dev -> staging -> production` promotion flow
+- a `dev -> staging -> production` promotion flow
 - rollback readiness
-- managed secrets direction
-- least-privilege access baseline
-- SLO-backed metrics, alerts, dashboards, runbooks
-- dataset governance contracts for key Gold and critical Silver outputs
+- a managed secrets direction
+- a least-privilege access baseline
+- SLO-backed metrics, alerts, dashboards, and runbooks
+- governance contracts applied consistently across environments
 - stronger ML experiment lineage and reproducibility
 
 When making decisions, prefer:
@@ -391,8 +399,6 @@ When making decisions, prefer:
 
 ---
 
-## 一句话版
+## One-line summary
 
-如果要把 v3 的主线压缩成一句话，可以直接用：
-
-> SoloLakehouse v3 的目标不是“做更多功能”，而是把现有平台升级成一个具备多环境、治理、安全、可观测性与发布控制能力的生产化参考实现。
+> The goal of SoloLakehouse v3 is not to build more features, but to upgrade the existing platform into a production-capable reference implementation with multi-environment deployment, governance, security, observability, and release control.

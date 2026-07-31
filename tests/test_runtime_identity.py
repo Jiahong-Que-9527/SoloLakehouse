@@ -5,7 +5,11 @@ from __future__ import annotations
 import os
 from unittest.mock import patch
 
-from runtime_identity import get_runtime_identity, get_trino_user
+from runtime_identity import (
+    DEFAULT_RUNTIME_VERSION,
+    get_runtime_identity,
+    get_trino_user,
+)
 
 
 def test_none_env_uses_process_environment() -> None:
@@ -41,7 +45,7 @@ def test_empty_env_mapping_does_not_read_process_environment() -> None:
     assert identity.display_name == "SoloLakehouse"
     assert identity.domain == "financial_markets"
     assert identity.environment == "local"
-    assert identity.runtime_version == "slh-v2.5.1"
+    assert identity.runtime_version == DEFAULT_RUNTIME_VERSION
     assert identity.compose_project_name == "sololakehouse"
     assert identity.trino_user == "sololakehouse"
 

@@ -9,10 +9,11 @@ Produce an **Owner Decision** before implementation. Decide; do not implement co
 
 ## Establish the facts
 
-1. Read `docs/roadmap.md` and `TASKS.md` first.
-2. Read the smallest directly relevant canonical source from `references/decision-template.md`; use the roadmap and current release status over dated snapshots.
-3. Preserve the protected v2.5 runtime unless an explicit roadmap change authorizes otherwise.
-4. Distinguish implemented facts from plans. Never upgrade a claim because a document says it is a target.
+1. Read `docs/roadmap.md` and `TASKS.md` first. They are the only two authorities; everything else defers to them.
+2. Check the open decision gates in `docs/roadmap.md` ("Open Decisions", D1/D2/D3). Work behind a live gate cannot be approved — return `needs-user-decision` to resolve the gate first.
+3. Read the smallest directly relevant canonical source from `references/decision-template.md`; use the roadmap and current release status over dated snapshots.
+4. Preserve the protected v2.5 runtime unless an explicit roadmap change authorizes otherwise.
+5. Distinguish implemented facts from plans. Never upgrade a claim because a document says it is a target.
 
 ## Make the decision
 
@@ -21,6 +22,7 @@ Return the following compact format:
 ```markdown
 ## Owner Decision
 - Decision: approve | defer | reject | needs-user-decision
+- Decision gate: <none blocking | D1/D2/D3 — and whether it must be resolved first>
 - Priority: now | next | later
 - Value and audience: <outcome and beneficiary>
 - Approved scope: <bounded deliverables>

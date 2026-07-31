@@ -1,0 +1,63 @@
+---
+description: SoloLakehouse project contract — authority chain, current version state, decision gates, and hard rules. Applies to all work in this repository.
+alwaysApply: true
+---
+
+# SoloLakehouse — read `AGENTS.md` first
+
+**[`AGENTS.md`](../../AGENTS.md) is the shared contract for every agent working
+in this repository** (Cursor, Claude Code, Codex). Read it before making any
+change. It carries the authority chain, current version state, live decision
+gates, hard rules, validation commands, and the repository map.
+
+[`CLAUDE.md`](../../CLAUDE.md) carries the code-level patterns — collector,
+schema, transformation, Iceberg I/O, governance/evidence, logging, testing.
+Follow those when writing code, regardless of which tool you are.
+
+Do not duplicate version state into this file. It is a pointer by design, so
+the three entry points cannot drift apart. `make check-agent-docs` enforces that.
+
+## The five things that most often go wrong
+
+1. **Authority** — `docs/roadmap.md` decides what each version does; `TASKS.md`
+   decides what the next PR does. When any other file disagrees, those two win.
+   Never treat a roadmap *target* as a delivered *capability*.
+
+2. **The runtime is frozen** — v2.5 (Docker Compose + Dagster + all-layer
+   Iceberg + Trino + MLflow + OpenMetadata + Superset) does not change before
+   v3.0. Do not add platform services. Each v2.x version adds one category of
+   *evidence*, not new capability. `make demo` and `make pipeline` must keep
+   working.
+
+3. **Decision gates are live** — see `AGENTS.md` §3. v2.7 (`I1`–`I5`) and v2.8
+   (`E1`–`E4`) implementation is **blocked** pending task `G4`. The entity split
+   in `task.md` is deferred indefinitely. The portal/Keycloak exploration is
+   sandbox-only and must not enter `docker/docker-compose.yml` or `.env.example`.
+   If a task requires crossing a gate, stop and surface the conflict.
+
+4. **Fail loudly, never partially** — quality checks and evidence adapters raise
+   rather than degrade. Never emit an evidence artifact that looks complete but
+   is not. Never claim compliance, WORM/immutability, or regulatory readiness
+   without an implementation and a verification record.
+
+5. **English only** — the published repository contains English documentation
+   only. Chinese working documents live in `docs/local-cn/` and are gitignored.
+   Do not add non-English files to the repository.
+
+## Before claiming done
+
+```bash
+make test               # unit tests, no Docker required
+make lint               # ruff
+make typecheck          # mypy
+make validate-contracts # governance/datasets/*.yaml against the contract schema
+make check-agent-docs   # agent entry points are present and consistent
+```
+
+"Code merged", "document written", or "service running" is not evidence. Runtime
+claims need a reproducible command plus a test; governance claims need a
+machine-readable artifact plus its validation result and stated limits.
+
+If your change alters version status, scope, or a decision gate, update
+`docs/roadmap.md` and `TASKS.md` in the same PR. Stale planning state is the
+failure mode these rules exist to prevent.

@@ -138,7 +138,7 @@ Bad:
 - `update content.`
 - `add docs.`
 - `misc fix`
-- `解决问题`
+- `fix a problem`
 
 ### Commit Body
 

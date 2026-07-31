@@ -1,27 +1,36 @@
 # SoloLakehouse Documentation
 
-This documentation set treats **v2.5 as the only active runtime baseline**.
-Historical version narratives are preserved under `docs/history/`.
+**v2.5 is the protected runtime baseline** — the Docker Compose stack does not
+change until v3.0. **v2.6 is the current version**, adding a governance and
+evidence plane on top of that unchanged runtime. Historical version narratives
+are preserved under `docs/history/`.
 
-## 单文档通读
+Two documents are authoritative:
 
-| Document | Purpose |
-|----------|---------|
-| [DOCUMENTATION_COMPENDIUM.md](DOCUMENTATION_COMPENDIUM.md) | **全部文档汇总**（一键通读；由 `scripts/build-documentation-compendium.py` 生成） |
+- **[roadmap.md](roadmap.md)** — what each version does
+- **[../TASKS.md](../TASKS.md)** — what the next PR does
+
+Where any other document disagrees with those two, those two win. The version
+planning notes for v2.6–v2.9 are superseded 2026-05-05 snapshots kept locally
+and not published; follow the two authoritative documents instead.
+
+> Some documents referenced by maintainers are intentionally local-only and are
+> not part of the public repository (release checklists, dated CN state
+> snapshots, the generated documentation compendium). They are listed under
+> "Local-only documents" at the end of this index rather than linked inline.
 
 ## Start Here
 
 | Document | Purpose |
 |----------|---------|
-| [ONBOARDING_READING_ORDER.md](ONBOARDING_READING_ORDER.md) | Suggested reading order for new maintainers (新接手者文档阅读顺序) |
-| [../TASKS.md](../TASKS.md) | Active execution backlog for the shared repository (v2.6+ canonical task entrypoint) |
-| [roadmap.md](roadmap.md) | Canonical version status and forward roadmap |
+| [ONBOARDING_READING_ORDER.md](ONBOARDING_READING_ORDER.md) | Suggested reading order for new maintainers |
+| [../TASKS.md](../TASKS.md) | Active execution backlog — canonical "what to build next" |
+| [roadmap.md](roadmap.md) | Canonical version status, delivery velocity, and open decisions |
 | [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: where this reference implementation is honest about its limits |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
 | [../DEMO.md](../DEMO.md) | Fixed 20-30 minute v2.5 recording script |
 | [make-demo-guide.md](make-demo-guide.md) | Detailed `make demo` explanation and manual execution guide |
 | [../RUNBOOK.md](../RUNBOOK.md) | Operational runbook for common local-stack scenarios |
-| [DEMO_RUNBOOK.md](DEMO_RUNBOOK.md) | 完整 Demo 执行手册（中文，含验收清单与结论模板） |
 | [DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | Full demo runbook in English (with acceptance checklist) |
 | [deployment.md](deployment.md) | Prerequisites, deployment, operations, troubleshooting |
 | [DAGSTER_GUIDE.md](DAGSTER_GUIDE.md) | Dagster operations and runtime usage |
@@ -31,7 +40,6 @@ Historical version narratives are preserved under `docs/history/`.
 | Document | Purpose |
 |----------|---------|
 | [USER_GUIDE_EN.md](USER_GUIDE_EN.md) | Full user guide in English |
-| [USER_GUIDE.md](USER_GUIDE.md) | 完整用户指导书（中文） |
 
 ## Architecture and Data
 
@@ -53,13 +61,9 @@ Historical version narratives are preserved under `docs/history/`.
 
 | Document | Purpose |
 |----------|---------|
-| [release.md](release.md) | Release runbook |
-| [release-readiness.md](release-readiness.md) | Pre-release readiness checks |
-| [v2.6-release-readiness.md](v2.6-release-readiness.md) | Tracked v2.6 lineage-evidence release gate and limitations |
+| [v2.6-release-readiness.md](v2.6-release-readiness.md) | v2.6 lineage-evidence release gate, recorded drill, and honest limitations |
 | [v2.5-acceptance-criteria.md](v2.5-acceptance-criteria.md) | v2.5 frozen-baseline Definition of Done |
-| [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | v1 release checklist (historical) |
-| [V2_RELEASE_CHECKLIST.md](V2_RELEASE_CHECKLIST.md) | v2.5.x release checklist (active template) |
-| [V3_RELEASE_CHECKLIST.md](V3_RELEASE_CHECKLIST.md) | v3 planning checklist |
+| [../CHANGELOG.md](../CHANGELOG.md) | Version history in Keep a Changelog format |
 
 ## Historical and Legacy Records
 
@@ -72,25 +76,40 @@ Historical version narratives are preserved under `docs/history/`.
 | [history/planning-template.md](history/planning-template.md) | Reusable version-planning template |
 | [history/v2-planning.md](history/v2-planning.md) | Delivered v2 planning |
 | [history/v2.5-planning.md](history/v2.5-planning.md) | Delivered v2.5 planning |
-| [history/v2.6-planning.md](history/v2.6-planning.md) | Planned v2.6 governance evidence bedrock |
-| [v2.6-execution-plan.md](v2.6-execution-plan.md) | Practical execution order for implementing v2.6 |
-| [history/v2.7-planning.md](history/v2.7-planning.md) | Planned v2.7 sovereignty & openness evidence |
-| [history/v2.8-planning.md](history/v2.8-planning.md) | Planned v2.8 ML compliance bedrock |
-| [history/v2.9-planning.md](history/v2.9-planning.md) | Planned v2.9 operational readiness |
 | [history/v3-planning.md](history/v3-planning.md) | Planned v3 production runtime |
+
+### Superseded planning notes (2026-05-05 snapshots)
+
+All four were written on a single day, before v2.6 implementation began. They
+carry a SUPERSEDED banner listing their known deviations. Read them for
+historical context; follow [roadmap.md](roadmap.md) and [../TASKS.md](../TASKS.md)
+for instructions.
+
+| Document | Superseded because |
+|----------|--------------------|
+| `history/v2.6-planning.md` *(local-only)* | Delivered; two dropped items moved to v2.6.1 (`J1`, `J2`) |
+| `history/v2.7-planning.md` *(local-only)* | Its primary gate (4-engine demo) is explicitly rejected by the current roadmap |
+| `history/v2.8-planning.md` *(local-only)* | Its timing rationale (EU AI Act `2026-08-02`) has passed |
+| `history/v2.9-planning.md` *(local-only)* | Assumes the superseded six-month milestone plan |
+| [v2.6-execution-plan.md](v2.6-execution-plan.md) | v2.6 execution order — delivered |
 
 ## Project State Snapshots (dated, do not retroactively edit)
 
 | Document | Purpose |
 |----------|---------|
-| [项目现状总览_2026-06-16.md](项目现状总览_2026-06-16.md) | Latest CN snapshot — v2.5 stable, FinLakehouse validation pending, v2.6 not yet started |
-| [项目现状总览_2026-05-30.md](项目现状总览_2026-05-30.md) | Latest CN snapshot — post-ADR-020 FinLakehouse deployment-readiness baseline |
-| [项目现状总览_2026-05-19.md](项目现状总览_2026-05-19.md) | CN snapshot — pre-FinLakehouse-split engineering baseline |
-| [项目现状总览_2026-05-09.md](项目现状总览_2026-05-09.md) | CN snapshot — v2.5 acceptance gap analysis |
-| [项目现状总览_2026-05-05.md](项目现状总览_2026-05-05.md) | CN snapshot — v2.5 baseline overview |
-| [project-state-overview-2026-05-05.md](project-state-overview-2026-05-05.md) | EN equivalent of the 05-05 CN snapshot |
-| [项目快照_2026-03-26.md](项目快照_2026-03-26.md) | CN snapshot — v1.0 release snapshot |
-| [enterprise-evolution-plan-2026-05-05.md](enterprise-evolution-plan-2026-05-05.md) | EN enterprise evolution plan (05-05) |
-| [企业级演进规划_2026-05-05.md](企业级演进规划_2026-05-05.md) | CN enterprise evolution plan (05-05) |
+| [project-state-overview-2026-05-05.md](project-state-overview-2026-05-05.md) | EN snapshot — v2.5 baseline overview |
+
+## Local-only documents (not in the public repository)
+
+These exist in maintainer working copies and are intentionally excluded from the
+published repository. They are listed here so their absence is not mistaken for
+an oversight:
+
+- `DOCUMENTATION_COMPENDIUM.md` — generated aggregate of all docs
+- `release.md`, `release-readiness.md` — internal release runbooks
+- `V1_RELEASE_CHECKLIST.md`, `V2_RELEASE_CHECKLIST.md`, `V3_RELEASE_CHECKLIST.md`
+- Chinese-language working documents: dated state snapshots, the enterprise
+  evolution note, and the v2.6–v2.9 version planning notes
+- Chinese-language user guide and demo runbook (English equivalents are published)
 
 Diagrams are under [img/](img/README.md).

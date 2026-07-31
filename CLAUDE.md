@@ -1,7 +1,16 @@
 # Agent Guide for SoloLakehouse
 
-This file helps AI coding agents (Cursor, Copilot, etc.)
-understand the project quickly. Read this before making any changes.
+This file carries the **code-level patterns** for this repository: layout,
+architecture patterns, data flow, and the conventions new code must follow.
+
+> **Read [`AGENTS.md`](AGENTS.md) first.** It is the shared, tool-neutral
+> contract for every agent working here: where authority lives, the current
+> version state, the live decision gates (D1/D2/D3), the hard rules, and the
+> validation commands. This file adds the code-level detail on top of it.
+>
+> Both files summarize state. **`docs/roadmap.md` is the single source of truth**
+> — verify against it before relying on any summary, and update it in the same
+> PR whenever your change alters version status or scope.
 
 ## What This Project Is
 
@@ -10,8 +19,11 @@ not a framework or library. It demonstrates how platforms like Databricks and
 Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
-**Current: v2.5 single-track baseline** — orchestrated platform with Dagster assets/schedules/UI, **full-stack Iceberg** (Bronze/Silver/Gold all written via pyiceberg), and mandatory OpenMetadata + Superset in the default stack (see `docs/roadmap.md`).  
-**Next target (v3.0):** production infrastructure and governance hardening (multi-environment deployment, secrets/access governance, SLO/alerting, release promotion controls).
+**Runtime baseline: v2.5 single-track** — orchestrated platform with Dagster assets/schedules/UI, **full-stack Iceberg** (Bronze/Silver/Gold all written via pyiceberg), and mandatory OpenMetadata + Superset in the default stack. This runtime is protected from regression and does **not** change during the v2.x series.
+
+**Current version: v2.6 — computational governance and evidence plane.** Machine-validated dataset contracts (`governance/datasets/*.yaml`), a typed three-source lineage record (OpenMetadata + Iceberg snapshot + Dagster run), and `make lineage-evidence` writing a SHA-256-bound manifest to the audit bucket.
+
+**Next target: v2.6.1 — deepen the evidence plane before adding a new evidence category** (automate evidence emission, WORM audit storage, cover all governed datasets, bind snapshot to run causally). See `docs/roadmap.md` and `TASKS.md`.
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
 
@@ -39,13 +51,21 @@ Compose node.
 ```bash
 make up          # Start all Docker services + init MinIO buckets + create Iceberg namespaces/tables
 make down        # Stop services (data preserved under docker/data/)
-make pipeline    # Run Dagster full_pipeline_job (v2.5 default path)
+make pipeline    # Run Dagster full_pipeline_job (v2.5 runtime path)
+make demo        # Acceptance/demo data flow (gated in CI by the compose-demo job)
 make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
 make lint        # ruff (CI)
-make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
+make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/, governance/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
 make clean       # Stop services + delete docker/data/ + purge legacy named Docker volumes
+
+# v2.6 governance & evidence
+make validate-contracts  # Validate every governance/datasets/*.yaml against the contract schema
+make lineage-evidence DATASET_ID=fin.ecb_dax_features_gold DAGSTER_RUN_ID=<run-id>
+                         # Join three sources and write a SHA-256-bound manifest to the audit bucket.
+                         # Requires OPENMETADATA_TRINO_SERVICE_NAME + OPENMETADATA_AUTH_TOKEN from the
+                         # local environment (never Git). Fails without output if any source is missing.
 ```
 
 ## Project Layout
@@ -69,8 +89,18 @@ ml/
   train_ecb_dax_model.py    # XGBoost/LightGBM with TimeSeriesSplit CV
   evaluate.py               # MLflow experiment runner (multiple hyperparams)
 
+governance/                 # v2.6 governance & evidence plane
+  contracts.py              # DatasetContract pydantic model + YAML loader
+  quality.py                # Contract-driven quality gates
+  lineage.py                # OpenMetadata / Iceberg / Dagster read-only adapters + strict joiner
+  evidence.py               # LineageRecord + EvidenceManifest (canonical JSON, SHA-256 bound)
+  audit.py                  # AuditEvidenceWriter — writes manifests to the audit bucket
+  datasets/*.yaml           # One contract per governed dataset (fin.*)
+
 scripts/
   verify-setup.py           # Service health checks
+  validate-dataset-contracts.py # Contract schema validation (wired into CI)
+  lineage-evidence.py       # v2.6 evidence CLI (make lineage-evidence)
   bootstrap-postgres.py     # Ensure DBs exist; TCP password check + align vs .env after docker-exec bootstrap
   prepare-docker-data-dirs.sh   # mkdir + perms for docker/data bind mounts
   purge-legacy-docker-volumes.sh # Remove pre-bind-mount Docker named volumes (after down)
@@ -190,6 +220,33 @@ overwrite_table(catalog, "silver", "ecb_rates_cleaned", df, SILVER_ECB_RATES_SCH
 df = scan_table(catalog, "gold", "ecb_dax_features")
 ```
 
+### Governance / Evidence Pattern (governance/)
+
+Two rules govern every change in `governance/`:
+
+1. **Fail loudly, never partially.** Every adapter raises `EvidenceSourceError` when a
+   required field is missing. Never emit a manifest that looks complete but is not —
+   a partial evidence bundle is worse than no bundle.
+2. **Evidence records are frozen and hash-bound.** `LineageRecord` and
+   `EvidenceManifest` use `model_config = ConfigDict(extra="forbid", frozen=True)`;
+   the manifest digest is validated against the record on construction.
+
+```python
+from governance.contracts import contract_path, load_contract
+from governance.lineage import LineageEvidenceJoiner, OpenMetadataAdapter
+from governance.evidence import EvidenceManifest
+
+contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
+# each adapter is read-only and raises EvidenceSourceError on any missing field
+record = LineageEvidenceJoiner(product_id, runtime_version, environment).join(
+    contract, openmetadata_evidence, iceberg_evidence, dagster_evidence
+)
+manifest = EvidenceManifest.from_record(record)  # binds record_sha256 to the record
+```
+
+Adding a governed dataset means adding `governance/datasets/<dataset_id>.yaml` —
+`make validate-contracts` (and CI) rejects missing required fields.
+
 ### Testing Pattern (tests/)
 
 - `class TestXxx` grouping, plain pytest (no unittest.TestCase)
@@ -281,16 +338,26 @@ MLflow bucket: `mlflow-artifacts`
 
 ## Roadmap context
 
-Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Active backlog: **`TASKS.md`**. Historical planning: **`docs/history/`**.
+**Version state, decision gates, and hard rules live in [`AGENTS.md`](AGENTS.md)
+— do not duplicate them here.** That file is the shared contract every agent
+reads (Claude Code, Cursor, Codex); this file adds the code-level detail on top
+of it. Keeping the state in one place is what stops the entry points drifting
+apart. `make check-agent-docs` enforces it.
 
-| Version | Theme | Status |
-|---------|-------|--------|
-| **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | delivered |
-| **v2.5** | Orchestrated platform baseline (Dagster + Iceberg + OpenMetadata + Superset) | **current** |
-| **v3.0** | Production Infrastructure + Governance (Kubernetes/Helm, Terraform, environment promotion, secrets/access controls, SLO/alerting) | planned |
-| **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
+The chain of authority, in one line:
 
-Ingestion-hardening and related tasks: see **`TASKS.md`** and **`docs/history/v2-planning.md`**.
+> `docs/roadmap.md` (what each version does) → `TASKS.md` (what the next PR does)
+> → `AGENTS.md` (the agent-facing summary of both) → this file (how to write the code)
+
+Two things worth restating here because they constrain code:
+
+- **The v2.5 runtime does not change before v3.0.** Do not add platform
+  services. Each v2.x version adds one category of *evidence*, not capability.
+- **Decision gates D1/D2/D3 are live** (`AGENTS.md` §3). v2.7 and v2.8
+  implementation is blocked; the entity split in `task.md` is deferred; the
+  portal/Keycloak exploration must not enter compose or `.env.example`.
+
+Ingestion-hardening and related tasks: see **`TASKS.md`**.
 
 ## History maintenance (required)
 

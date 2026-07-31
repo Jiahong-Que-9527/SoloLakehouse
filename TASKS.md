@@ -15,27 +15,33 @@ Use it to answer:
 
 ## Canonical Planning State
 
-As of `2026-07-06`:
+As of `2026-07-31`:
 
-- `finlakehouse` acceptance is treated as complete.
 - `v2.5` is delivered and protected from regression.
-- the shared codebase must now advance `v2.6`.
-- future agents should **not** reopen pre-split entity-template preparation as
-  the main planning track unless a new regression or migration problem appears.
+- `v2.6.0` is **released** (tagged `2026-07-31`), and carries a known defect:
+  it stamps `slh-v2.5.1` into every evidence manifest. Fixed on `main`.
+- the active execution target is **`v2.6.1`**: ship the version-stamp fix, then
+  close the gap between *demonstrable* and *operational* evidence.
+- `v2.7` vs `v2.8` ordering is **provisionally v2.8 first** (`docs/roadmap.md`,
+  D1), pending confirmation from external feedback after the v2.6.0 release.
+- entity-template / entity-split work is **deferred indefinitely**
+  (`docs/roadmap.md`, D2).
 
 ## Canonical Task Documents
 
 | File | Role |
 |---|---|
-| `TASKS.md` | Active repository backlog and execution order |
-| `task.md` | Entity deployment, side-by-side upgrade, and migration strategy |
+| `docs/roadmap.md` | **Authority** for what each version does |
+| `TASKS.md` | **Authority** for what the next PR does |
+| `task.md` | Design reference for entity deployment / migration — **not an active track** |
+| `docs/history/v2.*-planning.md` | Superseded 2026-05-05 snapshots — context only, never instructions |
 
 Rule:
 
 - If the work is about **what the shared repository should implement next**,
   use `TASKS.md`.
-- If the work is about **how a product entity is deployed, upgraded, or
-  migrated**, use `task.md`.
+- If any other document disagrees with `docs/roadmap.md` or `TASKS.md`, those
+  two win.
 
 ## Strategic Execution Rules
 
@@ -53,9 +59,10 @@ Future agents should follow these rules by default:
 | Version | Status | Repository focus |
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
-| v2.6 | Delivered | Computational governance and evidence plane |
-| v2.7 | Active next implementation | Catalog/control-plane openness and sovereignty proof |
-| v2.8 | Planned | AI/ML governance and agent-ready context |
+| v2.6 | Released, with a known version-stamp defect | Computational governance and evidence plane |
+| v2.6.1 | **Active next implementation** | Ship the version-stamp fix, then operationalize the evidence plane |
+| v2.8 | Planned — **provisionally next** after v2.6.1 (D1) | AI/ML governance and agent-ready context |
+| v2.7 | Planned — after v2.8 unless D1 is overturned | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | Planned | Operational evidence and promotion discipline |
 | v3.0 | Planned | Kubernetes runtime migration |
 
@@ -65,127 +72,111 @@ Historical block letters remain the stable map for planning references.
 
 | Block | Theme | Primary versions | Current status |
 |---|---|---|---|
-| A | Dataset contracts and governed quality gates | v2.6 | Next |
+| A | Dataset contracts and governed quality gates | v2.6 | Delivered |
 | B | Promotion and rollback discipline | v2.9 | Planned |
 | C | Observability and incident readiness | v2.9 | Planned |
 | D | Secrets and access governance | v2.9 -> v3.0 | Planned |
 | E | AI/ML governance and agent-ready context | v2.8 | Planned |
 | F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Planned |
-| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | Planned |
-| H | Lineage evidence and audit artifacts | v2.6 | Next |
+| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Active (R1–R4)** |
+| H | Lineage evidence and audit artifacts | v2.6 | Delivered |
+| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Active** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Planned |
 
-## v2.6 Scope Boundary
+## v2.6.1 Scope Boundary
 
-`v2.6` is the current execution target.
+`v2.6.1` is the current execution target.
 
-It succeeds only when the repository can produce a governed evidence bundle for
-at least one critical dataset from a stable operator command.
+It succeeds only when the evidence plane runs **without a human in the loop**,
+on **every** governed dataset, into **write-once** storage — and when a person
+outside this project has verified the release on their own machine.
 
-### v2.6 must deliver
+### v2.6.1 must deliver
 
-1. dataset contracts exist and are machine-validated
-2. critical quality gates are explicit and enforced
-3. lineage evidence can be generated from three sources
-4. evidence lands in a stable audit path with a manifest
-5. governance metadata is ready for future purpose-based and AI/agent-safe use
+1. `v2.6.1` is tagged and published with the corrected version stamp
+2. evidence is emitted automatically on successful materialization
+3. the audit bucket cannot be silently overwritten
+4. all five governed datasets are covered, not one
+5. the three-source join verifies causality, not just name consistency
+6. `governance/` and `dagster/` are inside the CI coverage gate
 
-### v2.6 is explicitly not
+### v2.6.1 is explicitly not
 
-- a Kubernetes release
-- a broad multi-engine demo release
-- a streaming-platform expansion release
-- a chat UI or agent app release
-- a generic observability program
+- a new evidence category (that is v2.7 / v2.8)
+- a Kubernetes, multi-engine, or streaming release
+- a place to introduce policy enforcement (that is a v2.8 design question)
 
-## Recommended v2.6 Implementation Order
+### Block R — Correct the released version stamp (do this first)
 
-The repository should implement `v2.6` in four waves.
+`v2.6.0` shipped on `2026-07-31` with `RUNTIME_VERSION` defaulting to
+`slh-v2.5.1`. Every evidence manifest that release produces misattributes
+itself to the previous runtime — on a release whose entire value proposition
+is trustworthy evidence.
 
-### Wave 1: Contracts First
+- [x] `R1` Fix `RUNTIME_VERSION` in `runtime_identity.py` and `.env.example`
+- [x] `R2` Re-run the lineage-evidence drill and record it in
+      `docs/v2.6-release-readiness.md` (run `43f859de…`, manifest
+      `31e11d59…`, `runtime_version=slh-v2.6.0`)
+- [x] `R3` Disclose the defect in the published `v2.6.0` release notes
+- [ ] `R4` Tag and publish `v2.6.1` carrying the fix
 
-Goal:
+### Block J — Evidence-Plane Operationalization
 
-- make governance metadata executable before evidence generation depends on it
+Tasks `J1` and `J2` were in the original v2.6 plan (at 1 and 2 days) and were
+dropped without being rescheduled. They are the difference between an evidence
+plane that was demonstrated once and one that operates.
 
-Tasks:
+- [ ] `J1` Dagster sensor emits lineage evidence automatically when a governed
+      asset materializes successfully — removes the hand-copied run ID
+      *(originally planned in v2.6 as the automatic Dagster hook, 1 day)*
+- [ ] `J2` Enable MinIO Object Lock on the audit bucket; document the retention
+      mode actually configured and update the CHANGELOG limitation note
+      *(originally v2.6 `E4`, 2 days)*
+- [ ] `J3` Extend evidence coverage to all five governed datasets
+- [ ] `J4` Bind snapshot to run causally: stamp `snapshot_id` into the Dagster
+      asset materialization metadata and verify it in `LineageEvidenceJoiner`
+      — today a stale snapshot plus an unrelated successful run yields a
+      structurally valid record
+- [ ] `J5` Add `--cov=governance --cov=dagster` to the CI coverage gate
+      (`.github/workflows/test.yml` currently covers only
+      `ingestion`/`transformations`/`ml`, leaving the v2.6 centerpiece and the
+      0%-covered Dagster layer unprotected)
+- [ ] `J6` Add unit tests for `dagster/assets.py` (currently 0% — 97 statements
+      on the documented default execution path)
 
-- `A1` create `governance/datasets/*.yaml` for the critical datasets
-- `A2` add schema validation for contract files
-- `A3` define canonical contract fields:
-  - `dataset_id`
-  - `owner`
-  - `business_purpose`
-  - `refresh_sla`
-  - `quality_class`
-  - `consumers`
-  - `retention`
-  - `classification`
-  - `source_of_truth`
-  - `approved_consumer_class`
-  - `access_policy_hint`
-- `A4` add CI validation so missing required fields fail the build
+### Block G — Release Governance (v2.6.1 additions)
 
-Exit:
+- [ ] `G3` Add an **external validation gate** to release readiness: at least one
+      person outside the project runs `make setup` plus the version's core
+      command on their own machine, and friction points are recorded
+- [ ] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
+      using the first round of external feedback, and record the outcome in
+      `docs/roadmap.md`
 
-- the first governed Gold dataset and its critical upstream datasets have
-  contracts
-- the contract schema is machine-validated
+## v2.6 — Delivered Scope (for reference)
 
-### Wave 2: Evidence Model and Join Logic
+`v2.6` implemented Blocks `A` (contracts + quality gates) and `H` (three-source
+lineage evidence + audit manifest) in four waves. All `A1–A9`, `H1–H12`, `G1`,
+and `G2` tasks are closed — see the block details below.
 
-Goal:
+What v2.6 achieved:
 
-- turn distributed lineage signals into one stable in-repo evidence type
+- five machine-validated dataset contracts, enforced in CI
+- a typed `LineageRecord` joining OpenMetadata, Iceberg, and Dagster by
+  `dataset_id`, failing loudly rather than emitting partial evidence
+- `make lineage-evidence` writing a SHA-256-bound manifest to a stable audit path
+- one recorded real-environment drill for `fin.ecb_dax_features_gold`
 
-Tasks:
+What v2.6 did **not** achieve (now Block `J`, v2.6.1):
 
-- `H1` define `LineageRecord`
-- `H2` define evidence manifest shape and audit output layout
-- `H3` build OpenMetadata adapter
-- `H4` build Iceberg snapshot adapter
-- `H5` build Dagster run adapter
-- `H6` join the three sources by stable `dataset_id`
-- `H7` fail loudly when required source fields are missing
+| Original v2.6 task | Estimate | Outcome |
+|---|---|---|
+| Dagster hook auto-writes evidence after the pipeline | 1 day | **Dropped, not rescheduled** → `J1` |
+| `E4` MinIO Object Lock on the audit bucket | 2 days | **Dropped, not rescheduled** → `J2` |
 
-Exit:
-
-- one repository function can produce a complete structured lineage record
-
-### Wave 3: CLI and Audit Writes
-
-Goal:
-
-- make evidence generation operational and repeatable
-
-Tasks:
-
-- `H8` add `make lineage-evidence DATASET=... DATE=...`
-- `H9` write evidence to the configured audit path
-- `H10` add a manifest suitable for signing and archiving
-- `H11` add tests for success and missing-source failure paths
-
-Exit:
-
-- an operator can produce evidence with one command
-- output naming and directory structure are stable
-
-### Wave 4: Hardening and Drill
-
-Goal:
-
-- make the feature releasable rather than merely implemented
-
-Tasks:
-
-- `A5` add the minimum quality checks that governed datasets require
-- `G1` update release/readiness docs for v2.6 evidence expectations
-- `G2` record known limitations honestly
-- `H12` record one lineage-evidence drill
-
-Exit:
-
-- `v2.6` is demonstrably runnable and auditable
+Two further gaps were found during the 2026-07-31 architecture review and are
+also in Block `J`: evidence covers only one of five governed datasets (`J3`),
+and the three-source join verifies name consistency but not causality (`J4`).
 
 ## Block Details
 
@@ -339,30 +330,50 @@ Rule:
 
 ## Immediate Next Actions
 
-With v2.6 delivered, start v2.7 in this order:
+Execute in this order. Do not reorder — `R1–R4` deliver already-completed work
+to an audience that currently cannot see it.
 
-1. define the repository-level catalog abstraction boundary (`I1`)
-2. document the current HiveCatalog path versus an Iceberg REST catalog path (`I2`)
-3. evaluate Apache Polaris as the first reference REST catalog target (`I3`)
-4. produce one minimal interoperability proof (`I4`)
-5. write the sovereignty report and exit playbook (`I5`)
+1. ~~`R1` fix `RUNTIME_VERSION`~~ — done
+2. ~~`R2` re-run the evidence drill~~ — done
+3. ~~`R3` disclose the defect in the `v2.6.0` release notes~~ — done
+4. `R4` tag and publish `v2.6.1` carrying the fix
+5. `J1` automatic evidence emission via Dagster sensor
+6. `J2` MinIO Object Lock on the audit bucket
+7. `J5` extend the CI coverage gate to `governance/` and `dagster/`
+8. `J3` / `J4` full dataset coverage and causal snapshot↔run binding
+9. `J6` unit tests for `dagster/assets.py`
+10. `G3` external validation gate; `G4` record the D1 ordering decision
+
+**Do not start `v2.7` (`I1–I5`) or `v2.8` (`E1–E4`) until `G4` confirms the
+provisional D1 ordering with external input.**
 
 ## Decision Rules
 
-- do not start `v2.7` implementation before `v2.6` has a usable evidence CLI
-- do not widen `v2.6` into a generic observability or platform-expansion track
+- do not start `v2.7` or `v2.8` before `G4` confirms the provisional D1
+  ordering with external input
+- do not add a new evidence category while the current one is manual,
+  single-dataset, or overwritable
 - do not hide missing source fields with best-effort partial outputs
 - do not build chat or agent applications before metadata and policy hooks exist
 - do not reopen entity-template preparation as the primary backlog without a new
-  explicit roadmap decision
+  explicit roadmap decision (D2)
+- do not treat engine count as a success metric
+- do not commit customer-acquisition tooling (migration PoCs, TCO calculators)
+  to this repository
+- do not publish version dates; publish version order and current status
 
-## Definition of "v2.6 Started"
+## Definition of "v2.6.1 Complete"
 
-`v2.6` counts as implementation-started only when all are true:
+`v2.6.1` counts as complete only when all are true:
 
-- at least one contract file exists in `governance/datasets/`
-- a machine-validated contract schema exists
-- `LineageRecord` exists in code
-- there is an active branch or merged commit implementing Block `A` or `H`
-
-Until then, `v2.6` remains planning rather than implementation.
+- `v2.6.1` is tagged on `main` and published as a GitHub release
+- `RUNTIME_VERSION` matches the released version in both `runtime_identity.py`
+  and `.env.example`
+- a successful governed materialization produces evidence with **no** manual
+  command
+- the audit bucket has Object Lock enabled and the CHANGELOG limitation note is
+  updated accordingly
+- all five governed datasets have produced at least one evidence manifest
+- the CI coverage gate includes `governance/` and `dagster/`
+- at least one person outside the project has run `make setup` on their own
+  machine and their friction points are recorded

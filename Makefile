@@ -1,4 +1,4 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts lineage-evidence
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts lineage-evidence check-agent-docs
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
@@ -78,6 +78,9 @@ verify:
 
 validate-contracts:
 	$(PYTHON) scripts/validate-dataset-contracts.py
+
+check-agent-docs:
+	$(PYTHON) scripts/check-agent-docs.py
 
 lineage-evidence:
 	@test -n "$(DATASET_ID)" || (echo "DATASET_ID is required" && exit 2)

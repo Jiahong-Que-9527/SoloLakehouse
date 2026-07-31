@@ -13,7 +13,7 @@ OUTPUT = ROOT / "docs" / "DOCUMENTATION_COMPENDIUM.md"
 # Ordered sections: (title, relative paths from repo root)
 SECTIONS: list[tuple[str, list[str]]] = [
     (
-        "1. 入门与项目概览",
+        "1. Getting Started and Project Overview",
         [
             "README.md",
             "docs/README.md",
@@ -26,29 +26,26 @@ SECTIONS: list[tuple[str, list[str]]] = [
         ],
     ),
     (
-        "2. 快速上手与部署",
+        "2. Quickstart and Deployment",
         [
             "docs/quickstart.md",
             "DEMO.md",
             "docs/make-demo-guide.md",
-            "docs/DEMO_RUNBOOK.md",
             "docs/DEMO_RUNBOOK_EN.md",
             "RUNBOOK.md",
             "docs/deployment.md",
             "docs/finlakehouse-deployment-guide.md",
-            "docs/vps-deployment-runbook.md",
         ],
     ),
     (
-        "3. 用户指南与 Dagster",
+        "3. User Guides and Dagster",
         [
             "docs/DAGSTER_GUIDE.md",
-            "docs/USER_GUIDE.md",
             "docs/USER_GUIDE_EN.md",
         ],
     ),
     (
-        "4. 架构与数据模型",
+        "4. Architecture and Data Model",
         [
             "docs/architecture.md",
             "docs/medallion-model.md",
@@ -66,7 +63,7 @@ SECTIONS: list[tuple[str, list[str]]] = [
         ],
     ),
     (
-        "5. 架构决策记录 (ADR)",
+        "5. Architecture Decision Records (ADR)",
         [
             "docs/decisions/README.md",
             "docs/decisions/ADR-001-docker-compose.md",
@@ -92,7 +89,7 @@ SECTIONS: list[tuple[str, list[str]]] = [
         ],
     ),
     (
-        "6. 合规与治理",
+        "6. Compliance and Governance",
         [
             "docs/compliance/README.md",
             "docs/compliance/dora.md",
@@ -105,16 +102,15 @@ SECTIONS: list[tuple[str, list[str]]] = [
         ],
     ),
     (
-        "7. 任务、Backlog 与规划",
+        "7. Tasks, Backlog, and Planning",
         [
             "TASKS.md",
             "task.md",
             "docs/project-state-overview-2026-05-05.md",
-            "docs/enterprise-evolution-plan-2026-05-05.md",
         ],
     ),
     (
-        "8. 版本历史与演进",
+        "8. Version History and Evolution",
         [
             "docs/history/README.md",
             "docs/history/timeline.md",
@@ -123,15 +119,11 @@ SECTIONS: list[tuple[str, list[str]]] = [
             "docs/history/planning-template.md",
             "docs/history/v2-planning.md",
             "docs/history/v2.5-planning.md",
-            "docs/history/v2.6-planning.md",
-            "docs/history/v2.7-planning.md",
-            "docs/history/v2.8-planning.md",
-            "docs/history/v2.9-planning.md",
             "docs/history/v3-planning.md",
         ],
     ),
     (
-        "9. 发布、质量与贡献",
+        "9. Release, Quality, and Contributing",
         [
             "docs/v2.5-acceptance-criteria.md",
             "docs/contributing.md",
@@ -204,14 +196,15 @@ def main() -> None:
     appendix = collect_remaining_paths(listed)
 
     lines: list[str] = [
-        "# SoloLakehouse 文档全集",
+        "# SoloLakehouse Documentation Compendium",
         "",
-        f"> 自动生成于 {date.today().isoformat()}。"
-        f" 本文档汇总项目内所有 Markdown 文档，便于离线通读。"
-        f" 各节保留原始来源路径；修改请编辑源文件后重新运行 "
+        f"> Generated automatically on {date.today().isoformat()}."
+        f" It aggregates every Markdown document in the repository for offline reading."
+        f" Each section keeps its original source path; to change content, edit the"
+        f" source file and re-run "
         f"`python scripts/build-documentation-compendium.py`。",
         "",
-        "## 目录",
+        "## Table of Contents",
         "",
     ]
 
@@ -225,14 +218,14 @@ def main() -> None:
         for rel in paths:
             doc_anchor = slug(rel)
             doc_entries.append((section_title, rel, doc_anchor))
-            status = "✓" if read_file(rel) else "（缺失）"
+            status = "\u2713" if read_file(rel) else "(missing)"
             lines.append(f"  - [{rel}](#{doc_anchor}) {status}")
 
     if appendix:
-        lines.append("- [附录：其他文档](#appendix-other-docs)")
+        lines.append("- [Appendix: Other Documents](#appendix-other-docs)")
         for rel in appendix:
             doc_anchor = slug(rel)
-            doc_entries.append(("附录：其他文档", rel, doc_anchor))
+            doc_entries.append(("Appendix: Other Documents", rel, doc_anchor))
             lines.append(f"  - [{rel}](#{doc_anchor})")
 
     lines.extend(["", "---", ""])
@@ -241,7 +234,7 @@ def main() -> None:
     for section_title, rel, doc_anchor in doc_entries:
         if section_title != current_section:
             current_section = section_title
-            if section_title == "附录：其他文档":
+            if section_title == "Appendix: Other Documents":
                 sec_anchor = "appendix-other-docs"
             else:
                 sec_anchor = slug(section_title)
@@ -260,7 +253,7 @@ def main() -> None:
             ]
         )
         if content is None:
-            lines.extend(["*（源文件不存在，已跳过）*", "", "---", ""])
+            lines.extend(["*(source file not found, skipped)*", "", "---", ""])
             continue
         lines.append(content)
         if not content.endswith("\n\n"):
