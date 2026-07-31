@@ -34,10 +34,9 @@ a design goal that competes with it.
 As of `2026-07-31`:
 
 - `v2.5` remains the protected baseline runtime and does not change until v3.0.
-- `v2.6.0` is **released** (tagged `2026-07-31`).
-- **`v2.6.0` ships with a known defect**: `RUNTIME_VERSION` defaulted to
-  `slh-v2.5.1`, so every evidence manifest produced by that release records the
-  wrong runtime version. Fixed on `main`; shipping in `v2.6.1`.
+- `v2.6.1` is **released** (tagged `2026-07-31`) and is the current version.
+- `v2.6.0` is **superseded**: it stamped `slh-v2.5.1` into every evidence
+  manifest. Anyone on that tag should upgrade and regenerate their evidence.
 - the next implementation focus is **`v2.6.1`** — deepen the evidence plane
   before adding a new evidence category.
 - `v2.7` vs `v2.8` ordering is an **open decision**; see "Open Decisions" below.
@@ -51,8 +50,9 @@ As of `2026-07-31`:
 | v1.0 | Delivered (historical) | Runnable lakehouse baseline |
 | v2.0 | Delivered (historical) | Dagster orchestration introduction |
 | v2.5 | Delivered / protected baseline | Single-track all-layer Iceberg runtime + Dagster + Trino + MLflow + OpenMetadata + Superset |
-| v2.6 | Released `2026-07-31` — carries a known version-stamp defect | Computational governance and evidence plane |
-| v2.6.1 | **Active next implementation** | Operationalize the evidence plane |
+| v2.6.0 | Superseded — carries a version-stamp defect | Computational governance and evidence plane |
+| v2.6.1 | **Released `2026-07-31` — current** | Corrected version stamp; English-only publication; unified agent entry points |
+| v2.6.1 Block `J` | **Active next implementation** | Operationalize the evidence plane |
 | v2.7 | Planned (order undecided) | Catalog/control-plane openness and sovereignty proof |
 | v2.8 | Planned (order undecided) | AI/ML governance and agent-ready context |
 | v2.9 | Planned | Operational evidence and promotion discipline |
@@ -165,10 +165,8 @@ plane would compound that gap rather than close it.
 
 Core deliverables:
 
-- **Correct the `v2.6.0` version stamp**: `RUNTIME_VERSION` defaulted to
-  `slh-v2.5.1` in the released tag, so evidence manifests produced by `v2.6.0`
-  misattribute themselves to the previous runtime. Fixed on `main`; `v2.6.1` is
-  the release that carries the fix.
+- ~~Correct the `v2.6.0` version stamp~~ — **shipped in `v2.6.1`**. The drill
+  was re-run and the manifest read back to confirm `runtime_version=slh-v2.6.1`.
 - Automatic evidence emission: a Dagster sensor generates evidence when a
   governed asset materializes successfully — no hand-copied run IDs.
   *(Was in the v2.6 plan at 1 day; dropped.)*

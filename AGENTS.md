@@ -28,15 +28,16 @@ Never treat a roadmap *target* as a delivered *capability*.
 - **Runtime baseline: v2.5.** Docker Compose + Dagster + all-layer Iceberg +
   Trino + MLflow + OpenMetadata + Superset. **This runtime does not change
   before v3.0.** Do not add platform services.
-- **Released: v2.6.0** (2026-07-31) — the governance and evidence plane:
+- **Released: v2.6.1** (2026-07-31) — the governance and evidence plane:
   machine-validated dataset contracts, a typed three-source lineage record
   (OpenMetadata + Iceberg snapshot + Dagster run), and `make lineage-evidence`
   writing a SHA-256-bound manifest to the audit bucket.
-  - Known defect in that tag: `RUNTIME_VERSION` defaulted to `slh-v2.5.1`, so
-    evidence manifests generated from `v2.6.0` record the wrong runtime
-    version. Fixed on `main`; ships in `v2.6.1`.
-- **Active target: v2.6.1** — make the evidence plane *operational* rather than
-  merely demonstrable. See `TASKS.md` Block `R` and Block `J`.
+  - `v2.6.0` is superseded: it stamped `slh-v2.5.1` into every evidence
+    manifest. Anyone on that tag should upgrade and regenerate.
+- **Active target: the rest of v2.6.1's Block `J`** — make the evidence plane
+  *operational* rather than merely demonstrable: automatic emission, WORM audit
+  storage, coverage for all five governed datasets, and a causal snapshot↔run
+  binding. See `TASKS.md`.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 

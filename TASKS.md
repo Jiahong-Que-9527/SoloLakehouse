@@ -18,10 +18,10 @@ Use it to answer:
 As of `2026-07-31`:
 
 - `v2.5` is delivered and protected from regression.
-- `v2.6.0` is **released** (tagged `2026-07-31`), and carries a known defect:
-  it stamps `slh-v2.5.1` into every evidence manifest. Fixed on `main`.
-- the active execution target is **`v2.6.1`**: ship the version-stamp fix, then
-  close the gap between *demonstrable* and *operational* evidence.
+- `v2.6.1` is **released** (tagged `2026-07-31`) and carries the corrected
+  version stamp. `v2.6.0` is superseded.
+- the active execution target is the remainder of **v2.6.1 Block `J`**: close
+  the gap between *demonstrable* and *operational* evidence.
 - `v2.7` vs `v2.8` ordering is **provisionally v2.8 first** (`docs/roadmap.md`,
   D1), pending confirmation from external feedback after the v2.6.0 release.
 - entity-template / entity-split work is **deferred indefinitely**
@@ -59,8 +59,8 @@ Future agents should follow these rules by default:
 | Version | Status | Repository focus |
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
-| v2.6 | Released, with a known version-stamp defect | Computational governance and evidence plane |
-| v2.6.1 | **Active next implementation** | Ship the version-stamp fix, then operationalize the evidence plane |
+| v2.6.0 | Superseded (version-stamp defect) | Computational governance and evidence plane |
+| v2.6.1 | **Released — Block `J` still open** | Corrected version stamp; operationalize the evidence plane |
 | v2.8 | Planned — **provisionally next** after v2.6.1 (D1) | AI/ML governance and agent-ready context |
 | v2.7 | Planned — after v2.8 unless D1 is overturned | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | Planned | Operational evidence and promotion discipline |
@@ -93,7 +93,7 @@ outside this project has verified the release on their own machine.
 
 ### v2.6.1 must deliver
 
-1. `v2.6.1` is tagged and published with the corrected version stamp
+1. ~~`v2.6.1` is tagged and published with the corrected version stamp~~ — done
 2. evidence is emitted automatically on successful materialization
 3. the audit bucket cannot be silently overwritten
 4. all five governed datasets are covered, not one
@@ -118,7 +118,7 @@ is trustworthy evidence.
       `docs/v2.6-release-readiness.md` (run `43f859de…`, manifest
       `31e11d59…`, `runtime_version=slh-v2.6.0`)
 - [x] `R3` Disclose the defect in the published `v2.6.0` release notes
-- [ ] `R4` Tag and publish `v2.6.1` carrying the fix
+- [x] `R4` Tag and publish `v2.6.1` carrying the fix
 
 ### Block J — Evidence-Plane Operationalization
 
@@ -336,7 +336,7 @@ to an audience that currently cannot see it.
 1. ~~`R1` fix `RUNTIME_VERSION`~~ — done
 2. ~~`R2` re-run the evidence drill~~ — done
 3. ~~`R3` disclose the defect in the `v2.6.0` release notes~~ — done
-4. `R4` tag and publish `v2.6.1` carrying the fix
+4. ~~`R4` tag and publish `v2.6.1`~~ — done
 5. `J1` automatic evidence emission via Dagster sensor
 6. `J2` MinIO Object Lock on the audit bucket
 7. `J5` extend the CI coverage gate to `governance/` and `dagster/`

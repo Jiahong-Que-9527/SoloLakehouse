@@ -93,7 +93,37 @@ Decision gate to v2.6.1:
   (not merely name-consistent) snapshot↔run binding — before adding a new
   evidence category.
 
-## v2.6.1 - Planned (next)
+## v2.6.1 (2026-07-31) - Delivered
+
+Theme:
+- Correct the released version stamp; unify the agent entry points; make the
+  published repository English-only.
+
+What landed:
+- `RUNTIME_VERSION` now matches the released version. `v2.6.0` defaulted to
+  `slh-v2.5.1`, so every evidence manifest it produced misattributed itself to
+  the previous runtime. The drill was re-run and the manifest read back from the
+  audit bucket to confirm `runtime_version=slh-v2.6.1`
+  (run `3d2ccfad-047e-47a9-9dff-c3285a473f94`, snapshot `8854746967558235959`,
+  `record_sha256=10dc3f911b…`).
+- `docs/roadmap.md` and `TASKS.md` established as the sole planning authorities;
+  four conflicting representations reduced to two.
+- Decisions D1/D2/D3 recorded; external validation added to release readiness.
+- `AGENTS.md` rewritten as the shared agent contract; `.cursor/rules/` added
+  (Cursor previously had no project entry point); `make check-agent-docs` wired
+  into CI so entry-point drift fails the build.
+- Published repository is English-only.
+
+Not yet delivered (Block `J`, still open):
+- automatic evidence emission, WORM audit storage, coverage for all five
+  governed datasets, causal snapshot↔run binding, CI coverage gate for
+  `governance/` and `dagster/`.
+
+Decision gate to v2.7 / v2.8:
+- Unchanged — D1 must be confirmed with external input (task `G4`) before either
+  version starts.
+
+## v2.6.1 Block J - Planned (next)
 
 Theme:
 - Operationalize the evidence plane delivered in v2.6.
