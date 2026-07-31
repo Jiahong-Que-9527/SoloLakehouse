@@ -140,6 +140,22 @@ Iceberg I/O, governance/evidence, logging, testing). Follow them when adding cod
 - **Per-version history maintenance is required** — see the "History
   maintenance" section of `CLAUDE.md`.
 
+### Entry points — all three resolve here
+
+| Tool | Reads first | Role |
+|---|---|---|
+| **Codex** (and any agent following the `AGENTS.md` convention) | `AGENTS.md` | This file — the shared contract |
+| **Claude Code** | `CLAUDE.md` | Points here for state; adds code-level patterns |
+| **Cursor** | `.cursor/rules/sololakehouse.mdc` | Points here; `alwaysApply: true` |
+
+**Version state, decision gates, and hard rules live in this file only.** The
+other two are pointers by design — duplicating state into them is how the three
+tools drift apart and start working from different targets.
+
+`make check-agent-docs` enforces this mechanically: it fails when an entry point
+is missing or unpublished, stops pointing here, or starts duplicating the
+version table. It runs in CI.
+
 Two project skills are available under `.agents/skills/`:
 
 - `$slh-platform-owner` — produce an Owner Decision before implementing

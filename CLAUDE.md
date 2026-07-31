@@ -338,26 +338,26 @@ MLflow bucket: `mlflow-artifacts`
 
 ## Roadmap context
 
-**`docs/roadmap.md` is the single authority for what each version does. `TASKS.md` is the single authority for what the next PR does.** When any other document disagrees with those two, those two win. Historical planning notes under `docs/history/v2.6–v2.9-planning.md` are superseded snapshots from 2026-05-05 — read them for context, never as instructions.
+**Version state, decision gates, and hard rules live in [`AGENTS.md`](AGENTS.md)
+— do not duplicate them here.** That file is the shared contract every agent
+reads (Claude Code, Cursor, Codex); this file adds the code-level detail on top
+of it. Keeping the state in one place is what stops the entry points drifting
+apart. `make check-agent-docs` enforces it.
 
-Each v2.x version delivers **one category of evidence** without changing the runtime:
+The chain of authority, in one line:
 
-| Version | Theme | Status |
-|---------|-------|--------|
-| **v1.0** | Full platform + Effortless Deployment | delivered |
-| **v2.0** | Dagster orchestration introduction | delivered |
-| **v2.5** | Orchestrated platform baseline (Dagster + Iceberg + OpenMetadata + Superset) — **protected runtime baseline** | delivered |
-| **v2.6** | Computational governance and evidence plane (contracts, three-source lineage, audit manifest) | **current** — released `2026-07-31`; the tag stamps the wrong `RUNTIME_VERSION`, fixed on `main` |
-| **v2.6.1** | Deepen the evidence plane: automated emission, WORM, full dataset coverage, causal snapshot↔run binding | **next** |
-| **v2.8** | AI/ML governance and agent-ready context — **provisionally next** after v2.6.1 (decision D1) | planned |
-| **v2.7** | Catalog/control-plane openness and sovereignty proof — after v2.8 unless D1 is overturned | planned |
-| **v2.9** | Operational evidence and promotion discipline | planned |
-| **v3.0** | Production runtime migration (Kubernetes/Helm, Terraform, environment promotion, secrets) | planned |
-| **v4.0** | Self-serve usability and operational clarity | future candidate |
+> `docs/roadmap.md` (what each version does) → `TASKS.md` (what the next PR does)
+> → `AGENTS.md` (the agent-facing summary of both) → this file (how to write the code)
 
-Agents must not start v2.7 or v2.8 work until decision D1 in `docs/roadmap.md` is confirmed with external input (task `G4`).
+Two things worth restating here because they constrain code:
 
-Ingestion-hardening and related tasks: see **`TASKS.md`** and **`docs/history/v2-planning.md`**.
+- **The v2.5 runtime does not change before v3.0.** Do not add platform
+  services. Each v2.x version adds one category of *evidence*, not capability.
+- **Decision gates D1/D2/D3 are live** (`AGENTS.md` §3). v2.7 and v2.8
+  implementation is blocked; the entity split in `task.md` is deferred; the
+  portal/Keycloak exploration must not enter compose or `.env.example`.
+
+Ingestion-hardening and related tasks: see **`TASKS.md`**.
 
 ## History maintenance (required)
 
