@@ -67,7 +67,7 @@ Most lakehouse tutorials show **how to plug components together**. SoloLakehouse
 
 | Problem the platform answers | How SoloLakehouse addresses it |
 |---|---|
-| **"If BaFin asks for end-to-end lineage of this Gold table tomorrow, can we deliver it in 24h?"** | Three-source lineage join (OpenMetadata + Iceberg snapshots + Dagster runs) producing signable evidence packs to a WORM bucket. *([v2.6 — planned](docs/history/v2.6-planning.md))* |
+| **"If BaFin asks for end-to-end lineage of this Gold table tomorrow, can we deliver it in 24h?"** | Three-source lineage join (OpenMetadata + Iceberg snapshots + Dagster runs) producing SHA-256-bound evidence packs to an audit bucket. *([v2.6 — delivered](docs/v2.6-release-readiness.md))* |
 | **"Are we locked into our vendor's table format?"** | Iceberg Gold tables readable by Trino today, with documented multi-engine paths (Spark / DuckDB / Flink) and Hive-Metastore ↔ REST-Catalog switch. *([v2.7 — planned](docs/history/v2.7-planning.md))* |
 | **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *([v2.8 — planned](docs/history/v2.8-planning.md))* |
 | **"Can the same stack run on a laptop and on Kubernetes without rewriting?"** | All services are containerized, configuration-externalized, state-externalized; v3.0 promotes the same images to K8s + Helm + Terraform. *([v2.9](docs/history/v2.9-planning.md) → [v3.0](docs/history/v3-planning.md))* |
@@ -191,7 +191,7 @@ The platform evolves along a single narrative: **first make it run, then make ev
 | Version | Theme | Problem | Focus |
 |---------|-------|---------|-------|
 | **v2.5** *(delivered)* | Platform can run | local-first lakehouse baseline | reproducible Docker Compose stack, Bronze/Silver/Gold flow, Trino, Dagster, MLflow, OpenMetadata, Superset |
-| **v2.6** *(planned)* | Platform can produce evidence | regulatory lineage & audit readiness | Dagster + OpenMetadata + Iceberg three-source lineage join, signable audit evidence pack on WORM storage, **DORA 24h / BaFin-style** traceability, data contracts as the gate |
+| **v2.6** *(delivered)* | Platform can produce evidence | regulatory lineage & audit readiness | Dagster + OpenMetadata + Iceberg three-source lineage join, SHA-256-bound audit evidence pack, and data contracts as the gate; Object Lock/WORM enforcement remains out of scope |
 | **v2.7** *(planned)* | Platform can prove openness | data sovereignty & vendor lock-in | multi-engine Iceberg demo (Trino / Spark / DuckDB / Flink), Hive Metastore ↔ Iceberg REST Catalog switch, signable sovereignty report + exit playbook, Databricks-to-Iceberg migration PoC |
 | **v2.8** *(planned)* | Platform can govern AI | compliant AI / model traceability | MLflow ↔ Iceberg snapshot five-tuple binding (snapshot_id, dagster.run_id, feature_version, code_commit, data_contract_hash), auto **EU AI Act Art.13** model card, ML asset checks for performance regression *(model serving stays out — ADR-011)* |
 | **v2.9** *(planned)* | Platform has production shape | operational readiness | SLO emit + Superset "Platform Health" dashboard, `.env.shared` vs `.env.secrets` discipline, promotion/rollback drill with `make` entrypoints, Iceberg snapshot rollback drill, K8s readiness gate before v3.0 |

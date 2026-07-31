@@ -16,11 +16,12 @@ codebase.
 
 ## Current Strategic Position
 
-As of `2026-07-06`:
+As of `2026-07-31`:
 
 - `finlakehouse` deployment validation is treated as complete.
 - `v2.5` remains the protected baseline runtime.
-- the next implementation focus is `v2.6`.
+- `v2.6` governance-evidence release validation is complete.
+- the next implementation focus is `v2.7`.
 - future planning should prioritize **control plane and evidence value** over
   adding more engines or surface features.
 
@@ -31,8 +32,8 @@ As of `2026-07-06`:
 | v1.0 | Delivered (historical) | Runnable lakehouse baseline |
 | v2.0 | Delivered (historical) | Dagster orchestration introduction |
 | v2.5 | Delivered / protected baseline | Single-track all-layer Iceberg runtime + Dagster + Trino + MLflow + OpenMetadata + Superset |
-| v2.6 | Active next implementation | Computational governance and evidence plane |
-| v2.7 | Planned | Catalog/control-plane openness and sovereignty proof |
+| v2.6 | Delivered | Computational governance and evidence plane |
+| v2.7 | Active next implementation | Catalog/control-plane openness and sovereignty proof |
 | v2.8 | Planned | AI/ML governance and agent-ready context |
 | v2.9 | Planned | Operational evidence and promotion discipline |
 | v3.0 | Planned | Production runtime migration to Kubernetes |
