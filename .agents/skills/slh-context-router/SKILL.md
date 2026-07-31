@@ -9,7 +9,7 @@ Select only the context needed to answer or execute the request. For unapproved 
 
 ## Route the request
 
-1. Classify it using `references/routing-map.md`.
+1. Classify it using `references/routing-map.md`, and confirm the request is not blocked by a decision gate (`AGENTS.md` section 3).
 2. Use `$graphify` as the discovery layer for every question about this project when `graphify-out/graph.json` exists. Query the task in natural language before opening repository files. Use `graphify path` for a relationship or dependency trace, and `graphify explain` for an unfamiliar concept.
 3. Turn the graph result into a minimal source list. Open only the returned canonical documents, target modules, and matching tests; verify claims against those sources because graph edges are navigational evidence, not authority.
 4. State the baseline constraints and exclusions before editing.
@@ -34,6 +34,7 @@ If `graphify-out/graph.json` is absent, use the routing map's canonical entrypoi
 ```markdown
 ## Context Route
 - Task class: <class>
+- Decision gate: <none blocking | D1/D2/D3 and why this work is still in scope>
 - Decision input: <Owner Decision, or why a one-sentence owner impact is enough>
 - Canonical context: <ordered, minimal file list>
 - Exclude: <nearby but non-authoritative or out-of-scope material>
@@ -61,3 +62,5 @@ Do not delegate overlapping ownership. Use independent agents only for separable
 - Do not redefine priority or approve scope; return to `$slh-platform-owner` when that decision is missing or materially changes.
 - Do not load all documentation by default; use Graphify to discover candidates, then prefer `docs/README.md` for navigation and canonical documents for claims.
 - Do not treat historical planning, generated documentation, or a graph result as authoritative over the current roadmap, code, tests, or runbooks.
+- **Check the decision gates in `AGENTS.md` section 3 before routing any implementation.** D1 blocks v2.7 and v2.8 work, D2 defers the entity split, D3 confines portal/Keycloak to a sandbox. Routing work behind a live gate wastes it — surface the conflict to `$slh-platform-owner` instead.
+- Some referenced documents are local-only and absent from a fresh clone; `references/routing-map.md` lists them. Never route to those paths and never report their absence as a defect.

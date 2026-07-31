@@ -5,11 +5,13 @@ Prompts for AI coding agents working on this codebase.
 ## Baseline prompt
 
 ```
-Read CLAUDE.md, docs/roadmap.md, and docs/history/timeline.md.
-Confirm that the runtime baseline is v2.5 single-track (Dagster + OpenMetadata +
-Superset are mandatory, and the runtime does not change before v3.0), and that
-the current version is v2.6 (governance and evidence plane).
-Then perform the task and report the files changed and how you verified them.
+Read AGENTS.md, then docs/roadmap.md and TASKS.md.
+Confirm three things before starting:
+  1. the runtime baseline is v2.5 single-track and does not change before v3.0
+  2. the active target is v2.6.1 (operationalize the evidence plane)
+  3. the task is not blocked by decision gate D1, D2, or D3
+If a gate blocks it, stop and say so instead of proceeding.
+Otherwise perform the task and report the files changed and how you verified them.
 ```
 
 ## Verification prompt
@@ -18,6 +20,15 @@ Then perform the task and report the files changed and how you verified them.
 Run make verify, make demo, make pipeline, make test, make lint, and
 make typecheck in that order.
 Identify and fix any failures, then report the root cause and the fix.
+```
+
+## Decision-gate check
+
+```
+Check AGENTS.md section 3 and the "Open Decisions" section of docs/roadmap.md.
+Report whether this task sits behind D1 (v2.7/v2.8 blocked), D2 (entity split
+deferred), or D3 (portal/Keycloak sandbox only). If it does, do not implement —
+return what would need to be decided first.
 ```
 
 ## Governance prompt

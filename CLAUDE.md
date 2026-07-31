@@ -1,7 +1,16 @@
 # Agent Guide for SoloLakehouse
 
-This file helps AI coding agents (Cursor, Copilot, etc.)
-understand the project quickly. Read this before making any changes.
+This file carries the **code-level patterns** for this repository: layout,
+architecture patterns, data flow, and the conventions new code must follow.
+
+> **Read [`AGENTS.md`](AGENTS.md) first.** It is the shared, tool-neutral
+> contract for every agent working here: where authority lives, the current
+> version state, the live decision gates (D1/D2/D3), the hard rules, and the
+> validation commands. This file adds the code-level detail on top of it.
+>
+> Both files summarize state. **`docs/roadmap.md` is the single source of truth**
+> — verify against it before relying on any summary, and update it in the same
+> PR whenever your change alters version status or scope.
 
 ## What This Project Is
 
