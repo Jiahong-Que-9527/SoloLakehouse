@@ -199,25 +199,55 @@ def ensure_databases_via_docker(user: str) -> list[str] | None:
     for database in required_databases():
         if database in existing:
             continue
-        subprocess.run(
-            [
-                "docker",
-                "exec",
-                "slh-postgres",
-                "psql",
-                "-U",
-                user,
-                "-d",
-                "postgres",
-                "-c",
-                f"CREATE DATABASE {database};",
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        try:
+            subprocess.run(
+                [
+                    "docker",
+                    "exec",
+                    "slh-postgres",
+                    "psql",
+                    "-U",
+                    user,
+                    "-d",
+                    "postgres",
+                    "-v",
+                    "ON_ERROR_STOP=1",
+                    "-c",
+                    f"CREATE DATABASE {database};",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError:
+            if _database_exists_via_docker(user=user, database=database):
+                continue
+            raise
         created.append(database)
     return created
+
+
+def _database_exists_via_docker(*, user: str, database: str) -> bool:
+    """Return whether a concurrent initializer has already created a database."""
+    result = subprocess.run(
+        [
+            "docker",
+            "exec",
+            "slh-postgres",
+            "psql",
+            "-U",
+            user,
+            "-d",
+            "postgres",
+            "-At",
+            "-c",
+            f"SELECT 1 FROM pg_database WHERE datname = '{database}';",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip() == "1"
 
 
 def ensure_databases_via_tcp(*, user: str, password: str) -> list[str]:
