@@ -4,22 +4,46 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
+from pathlib import Path
 from typing import Any
 
 import boto3
 
-from governance.audit import AuditEvidenceWriter
-from governance.contracts import contract_path, load_contract
-from governance.evidence import EvidenceManifest
-from governance.lineage import (
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+
+def load_dotenv_if_present() -> None:
+    """Load local Compose-style environment values without evaluating shell syntax."""
+    env_path = REPO_ROOT / ".env"
+    if not env_path.exists():
+        return
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if key and key not in os.environ:
+            os.environ[key] = value.strip()
+
+
+load_dotenv_if_present()
+
+from governance.audit import AuditEvidenceWriter  # noqa: E402
+from governance.contracts import contract_path, load_contract  # noqa: E402
+from governance.evidence import EvidenceManifest  # noqa: E402
+from governance.lineage import (  # noqa: E402
     DagsterRunAdapter,
     IcebergSnapshotAdapter,
     LineageEvidenceJoiner,
     OpenMetadataAdapter,
 )
-from ingestion.iceberg_io import get_catalog
-from runtime_identity import get_runtime_identity
-from storage_config import get_storage_config
+from ingestion.iceberg_io import get_catalog  # noqa: E402
+from runtime_identity import get_runtime_identity  # noqa: E402
+from storage_config import get_storage_config  # noqa: E402
 
 
 def _s3_client() -> Any:
@@ -48,6 +72,7 @@ def generate(dataset_id: str, dagster_run_id: str) -> tuple[EvidenceManifest, st
         os.environ.get("OPENMETADATA_URL", "http://localhost:8585"),
         service_name,
         auth_token=auth_token,
+        trino_catalog=os.environ.get("TRINO_CATALOG", "iceberg"),
     ).collect(contract)
     iceberg = IcebergSnapshotAdapter(get_catalog(name=contract.physical_location.catalog)).collect(
         contract

@@ -1,3 +1,3 @@
-CREATE DATABASE hive_metastore;
-CREATE DATABASE mlflow;
-CREATE DATABASE dagster_storage;
+-- Database creation is intentionally owned by scripts/bootstrap-postgres.py.
+-- Docker reports PostgreSQL healthy before it has finished init scripts, so
+-- creating databases here races with the explicit bootstrap step in `make up`.

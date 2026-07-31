@@ -55,6 +55,7 @@ Historical version narratives are preserved under `docs/history/`.
 |----------|---------|
 | [release.md](release.md) | Release runbook |
 | [release-readiness.md](release-readiness.md) | Pre-release readiness checks |
+| [v2.6-release-readiness.md](v2.6-release-readiness.md) | Tracked v2.6 lineage-evidence release gate and limitations |
 | [v2.5-acceptance-criteria.md](v2.5-acceptance-criteria.md) | v2.5 frozen-baseline Definition of Done |
 | [V1_RELEASE_CHECKLIST.md](V1_RELEASE_CHECKLIST.md) | v1 release checklist (historical) |
 | [V2_RELEASE_CHECKLIST.md](V2_RELEASE_CHECKLIST.md) | v2.5.x release checklist (active template) |

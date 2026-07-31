@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- v2.6 dataset contracts, governed quality checks, three-source lineage
+  evidence adapters, canonical SHA-256 manifests, and audit-bucket output via
+  `make lineage-evidence`.
+- v2.6 release readiness gate requiring one complete OpenMetadata, Iceberg, and
+  Dagster evidence drill for the governed Gold dataset.
+
+### Known limitations
+- The v2.6 evidence command requires a pre-ingested OpenMetadata Trino table,
+  a local-only read token, a successful Dagster materialization, and a current
+  Iceberg snapshot. It intentionally emits no partial artifact when any source
+  is unavailable.
+- Audit output is a stable object layout and canonical manifest, not an Object
+  Lock/WORM retention implementation, automated catalog ingestion, production
+  RBAC, or a regulatory-compliance claim.
+
 ### Changed
 - Standardized runtime to a single v2.5 execution path (`make pipeline` via Dagster only).
 - Promoted OpenMetadata and Superset from optional profiles to default mandatory stack components.

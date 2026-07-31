@@ -64,18 +64,20 @@ class OpenMetadataAdapter:
         service_name: str,
         session: requests.Session | Any | None = None,
         auth_token: str | None = None,
+        trino_catalog: str = "iceberg",
         timeout_seconds: float = 10,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.service_name = service_name
         self.auth_token = auth_token
+        self.trino_catalog = trino_catalog
         self.session = session or requests.Session()
         self.timeout_seconds = timeout_seconds
 
     def collect(self, contract: DatasetContract) -> OpenMetadataEvidence:
         expected_fqn = (
-            f"{self.service_name}.{contract.physical_location.namespace}."
-            f"{contract.physical_location.table}"
+            f"{self.service_name}.{self.trino_catalog}."
+            f"{contract.physical_location.namespace}.{contract.physical_location.table}"
         )
         url = f"{self.base_url}/api/v1/tables/name/{quote(expected_fqn, safe='')}"
         try:

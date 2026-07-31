@@ -287,8 +287,8 @@ Scope:
 
 Current v2.6 tasks:
 
-- [ ] `G1` Update release/readiness docs to include v2.6 evidence expectations
-- [ ] `G2` Add a v2.6 limitation note and change summary
+- [x] `G1` Update release/readiness docs to include v2.6 evidence expectations
+- [x] `G2` Add a v2.6 limitation note and change summary
 
 ### Block H — Lineage Evidence and Audit Artifacts
 
@@ -312,7 +312,7 @@ Current v2.6 tasks:
 - [x] `H9` Write manifest and evidence bundle output
 - [x] `H10` Add tests for evidence generation and failure modes
 - [x] `H11` Add stable audit-path naming rules
-- [ ] `H12` Record one lineage-evidence drill
+- [x] `H12` Record one lineage-evidence drill
 
 ### Block I — Catalog/Control-Plane Openness and Sovereignty Proof
 

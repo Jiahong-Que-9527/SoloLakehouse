@@ -3,7 +3,8 @@
 - **Compose file:** `docker/docker-compose.openmetadata.yml` (included by default in `make up`).
 - **Start:** `make up` from the repository root.
 - **UI:** http://localhost:8585 (default basic auth per OpenMetadata docs).
-- **Env:** `docker/openmetadata/openmetadata.env` — generated from OpenMetadata 1.5.6 quickstart defaults; hosts patched to `om-mysql` / `om-elasticsearch`; `PIPELINE_SERVICE_CLIENT_ENABLED=false`.
+- **Env:** `docker/openmetadata/openmetadata.env` — generated from OpenMetadata 1.5.6 quickstart defaults; hosts patched to `om-mysql` / `om-elasticsearch`.
+- **Ingestion runner:** `ingestion` is the bundled OpenMetadata 1.5.6 Airflow runner. It is required for the UI's **Test Connection** and metadata-ingestion workflows, and starts with `make up`.
 
 ## Trino connection in OpenMetadata
 

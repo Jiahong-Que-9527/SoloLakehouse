@@ -82,3 +82,41 @@ services:
       timeout: 10s
       retries: 15
       start_period: 120s
+
+  # OpenMetadata submits UI test-connection and ingestion workflows to this
+  # bundled Airflow runner. Keep it on the same Compose network as Trino so the
+  # service hostname `trino:8080` is resolvable from the generated workflow.
+  ingestion:
+    container_name: slh-openmetadata-ingestion
+    image: docker.getcollate.io/openmetadata/ingestion:1.5.6
+    restart: unless-stopped
+    depends_on:
+      om-elasticsearch:
+        condition: service_healthy
+      om-mysql:
+        condition: service_healthy
+      openmetadata-server:
+        condition: service_healthy
+    environment:
+      AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__OPENMETADATA_AIRFLOW_APIS__DAG_GENERATED_CONFIGS: /opt/airflow/dag_generated_configs
+      DB_HOST: om-mysql
+      DB_PORT: 3306
+      AIRFLOW_DB: ${AIRFLOW_DB:-airflow_db}
+      DB_SCHEME: mysql+pymysql
+      DB_USER: ${AIRFLOW_DB_USER:-airflow_user}
+      DB_PASSWORD: ${AIRFLOW_DB_PASSWORD:-airflow_pass}
+    entrypoint: /bin/bash
+    command: ["/opt/airflow/ingestion_dependency.sh"]
+    expose:
+      - "8080"
+    volumes:
+      - ingestion-volume-dag-airflow:/opt/airflow/dag_generated_configs
+      - ingestion-volume-dags:/opt/airflow/dags
+      - ingestion-volume-tmp:/tmp
+
+volumes:
+  ingestion-volume-dag-airflow:
+  ingestion-volume-dags:
+  ingestion-volume-tmp:

@@ -76,7 +76,7 @@ class _Session:
 def _openmetadata_evidence() -> OpenMetadataEvidence:
     return OpenMetadataEvidence(
         "fin.ecb_dax_features_gold",
-        "finlakehouse-trino.gold.ecb_dax_features",
+        "finlakehouse-trino.iceberg.gold.ecb_dax_features",
         ("data-platform",),
         ("Tier.Tier1",),
     )
@@ -104,7 +104,7 @@ def test_openmetadata_adapter_reads_exact_table_and_requires_owner() -> None:
     session = _Session(
         _Response(
             {
-                "fullyQualifiedName": "finlakehouse-trino.gold.ecb_dax_features",
+                "fullyQualifiedName": "finlakehouse-trino.iceberg.gold.ecb_dax_features",
                 "owners": [{"name": "data-platform"}],
                 "tags": [{"tagFQN": "Tier.Tier1"}],
             }
@@ -116,12 +116,12 @@ def test_openmetadata_adapter_reads_exact_table_and_requires_owner() -> None:
     ).collect(_contract())
 
     assert evidence == _openmetadata_evidence()
-    assert session.calls[0]["url"].endswith("finlakehouse-trino.gold.ecb_dax_features")
+    assert session.calls[0]["url"].endswith("finlakehouse-trino.iceberg.gold.ecb_dax_features")
 
 
 def test_openmetadata_adapter_fails_on_unowned_or_wrong_table() -> None:
     session = _Session(
-        _Response({"fullyQualifiedName": "wrong.gold.ecb_dax_features", "owners": []})
+        _Response({"fullyQualifiedName": "wrong.iceberg.gold.ecb_dax_features", "owners": []})
     )
 
     with pytest.raises(EvidenceSourceError, match="expected table"):
@@ -134,7 +134,7 @@ def test_openmetadata_adapter_sends_configured_bearer_token() -> None:
     session = _Session(
         _Response(
             {
-                "fullyQualifiedName": "finlakehouse-trino.gold.ecb_dax_features",
+                "fullyQualifiedName": "finlakehouse-trino.iceberg.gold.ecb_dax_features",
                 "owners": [{"name": "data-platform"}],
                 "tags": [{"tagFQN": "Tier.Tier1"}],
             }
@@ -213,13 +213,13 @@ def test_joiner_joins_exact_dataset_and_physical_evidence() -> None:
     )
 
     assert record.dataset_id == "fin.ecb_dax_features_gold"
-    assert record.openmetadata_table_fqn == "finlakehouse-trino.gold.ecb_dax_features"
+    assert record.openmetadata_table_fqn == "finlakehouse-trino.iceberg.gold.ecb_dax_features"
     assert record.iceberg_snapshot_id == "1001"
 
 
 def test_joiner_rejects_dataset_id_mismatch() -> None:
     wrong = OpenMetadataEvidence(
-        "fin.other", "finlakehouse-trino.gold.ecb_dax_features", ("owner",), ()
+        "fin.other", "finlakehouse-trino.iceberg.gold.ecb_dax_features", ("owner",), ()
     )
 
     with pytest.raises(EvidenceSourceError, match="dataset_id does not match"):
