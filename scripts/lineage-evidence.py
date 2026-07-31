@@ -48,6 +48,7 @@ def generate(dataset_id: str, dagster_run_id: str) -> tuple[EvidenceManifest, st
         os.environ.get("OPENMETADATA_URL", "http://localhost:8585"),
         service_name,
         auth_token=auth_token,
+        trino_catalog=os.environ.get("TRINO_CATALOG", "iceberg"),
     ).collect(contract)
     iceberg = IcebergSnapshotAdapter(get_catalog(name=contract.physical_location.catalog)).collect(
         contract

@@ -5,6 +5,8 @@
 
 **Amendment (v2.5 baseline, 2026-04):** OpenMetadata (and Superset) are merged into the **default** `Makefile` `COMPOSE_STACK`, so `make up` starts them without a Compose profile or `make up-openmetadata`. The sections below record the original “optional overlay” intent; operator commands in the **Decision** bullet list are **obsolete** for current main.
 
+**Amendment (v2.6 readiness, 2026-07):** The default stack also starts the version-matched OpenMetadata ingestion runner and enables the pipeline-service client. This is required for the supported UI workflow: test the Trino connection and run metadata ingestion. It does not change the v2.5 data pipeline or introduce a second orchestration system for SoloLakehouse workloads.
+
 ## Context
 
 v3 planning explicitly avoids **forcing** a unified enterprise catalog (see [roadmap](../roadmap.md)). Teams still want a **reference** deployment of a data catalog UI that can ingest metadata from Trino.
