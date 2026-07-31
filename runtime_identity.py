@@ -11,7 +11,10 @@ DEFAULT_PRODUCT_ID = "sololakehouse"
 DEFAULT_DISPLAY_NAME = "SoloLakehouse"
 DEFAULT_DOMAIN = "financial_markets"
 DEFAULT_ENVIRONMENT = "local"
-DEFAULT_RUNTIME_VERSION = "slh-v2.5.1"
+# Must match the released version. This value is stamped into every
+# governance evidence manifest (`LineageRecord.runtime_version`), so a stale
+# value silently misattributes audit artifacts to the wrong runtime.
+DEFAULT_RUNTIME_VERSION = "slh-v2.6.0"
 
 
 @dataclass(frozen=True)

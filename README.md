@@ -68,9 +68,9 @@ Most lakehouse tutorials show **how to plug components together**. SoloLakehouse
 | Problem the platform answers | How SoloLakehouse addresses it |
 |---|---|
 | **"If BaFin asks for end-to-end lineage of this Gold table tomorrow, can we deliver it in 24h?"** | Three-source lineage join (OpenMetadata + Iceberg snapshots + Dagster runs) producing SHA-256-bound evidence packs to an audit bucket. *([v2.6 — delivered](docs/v2.6-release-readiness.md))* |
-| **"Are we locked into our vendor's table format?"** | Iceberg Gold tables readable by Trino today, with documented multi-engine paths (Spark / DuckDB / Flink) and Hive-Metastore ↔ REST-Catalog switch. *([v2.7 — planned](docs/history/v2.7-planning.md))* |
-| **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *([v2.8 — planned](docs/history/v2.8-planning.md))* |
-| **"Can the same stack run on a laptop and on Kubernetes without rewriting?"** | All services are containerized, configuration-externalized, state-externalized; v3.0 promotes the same images to K8s + Helm + Terraform. *([v2.9](docs/history/v2.9-planning.md) → [v3.0](docs/history/v3-planning.md))* |
+| **"Are we locked into our vendor's table format?"** | Iceberg Gold tables readable by Trino today, with documented multi-engine paths (Spark / DuckDB / Flink) and Hive-Metastore ↔ REST-Catalog switch. *(v2.7 — planned; see [roadmap](docs/roadmap.md))* |
+| **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *(v2.8 — planned; see [roadmap](docs/roadmap.md))* |
+| **"Can the same stack run on a laptop and on Kubernetes without rewriting?"** | All services are containerized, configuration-externalized, state-externalized; v3.0 promotes the same images to K8s + Helm + Terraform. *(v2.9 → [v3.0](docs/history/v3-planning.md); see [roadmap](docs/roadmap.md))* |
 
 
 ## Quick Start
@@ -135,7 +135,7 @@ Beyond the platform features, this is built with explicit engineering discipline
 - **Lint discipline** — `ruff` enforced in CI
 - **Architecture discipline** — every non-trivial decision recorded as an [ADR](docs/decisions/README.md)
 - **Release discipline** — version-tagged release notes, planning note per minor version, evolution timeline at [docs/history/timeline.md](docs/history/timeline.md)
-- **Observability discipline** — `structlog` JSON events at every step boundary; SLO emit pipeline planned for [v2.9](docs/history/v2.9-planning.md)
+- **Observability discipline** — `structlog` JSON events at every step boundary; SLO emit pipeline planned for v2.9 (see [roadmap](docs/roadmap.md))
 - **CI** — GitHub Actions runs lint + typecheck + tests on every push
 
 ## AI-Assisted Platform Workflow
@@ -201,10 +201,7 @@ The platform evolves along a single narrative: **first make it run, then make ev
 Per-version planning notes:
 
 - v2.5 — [docs/history/v2.5-planning.md](docs/history/v2.5-planning.md)
-- v2.6 — [docs/history/v2.6-planning.md](docs/history/v2.6-planning.md)
-- v2.7 — [docs/history/v2.7-planning.md](docs/history/v2.7-planning.md)
-- v2.8 — [docs/history/v2.8-planning.md](docs/history/v2.8-planning.md)
-- v2.9 — [docs/history/v2.9-planning.md](docs/history/v2.9-planning.md)
+- v2.6 onward — [docs/roadmap.md](docs/roadmap.md) is the authority for every version's scope and status
 - v3.0 — [docs/history/v3-planning.md](docs/history/v3-planning.md)
 
 See [docs/roadmap.md](docs/roadmap.md) for the canonical version status table, and [docs/history/timeline.md](docs/history/timeline.md) for the full evolution timeline.

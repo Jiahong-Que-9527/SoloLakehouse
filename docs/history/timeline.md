@@ -74,9 +74,44 @@ Known limits:
   ingestion, production RBAC, token lifecycle management, or regulatory
   compliance. See `docs/v2.6-release-readiness.md`.
 
-Decision gate to v2.7:
-- Keep the runtime unchanged and make catalog/control-plane openness provable
-  through an explicit catalog boundary and minimal interoperability proof.
+Not delivered, moved to v2.6.1 (recorded 2026-07-31):
+- Automatic evidence emission after a successful materialization (planned at
+  1 day; evidence generation is still a manual CLI with a hand-copied run ID).
+- MinIO Object Lock on the audit bucket (planned as `E4` at 2 days).
+- Neither was rescheduled at the time; both are now Block `J` (`J1`, `J2`).
+
+Release status:
+- **Not yet tagged.** The work sits on `agent/v2.6-release-preparation`;
+  `RUNTIME_VERSION` still reports `slh-v2.5.1` and therefore stamps the wrong
+  runtime version into every evidence manifest. Releasing v2.6 is Block `R`.
+
+Decision gate to v2.6.1:
+- Release v2.6, then make the evidence plane operational — automatic emission,
+  write-once audit storage, coverage for all governed datasets, and a causal
+  (not merely name-consistent) snapshot↔run binding — before adding a new
+  evidence category.
+
+## v2.6.1 - Planned (next)
+
+Theme:
+- Operationalize the evidence plane delivered in v2.6.
+
+Why this version exists:
+- v2.6 shipped roughly 80% of its plan. The missing 20% is exactly what
+  separates *demonstrable* from *operational*, and it was never rescheduled.
+  Adding a second evidence category on top of a manually-triggered,
+  single-dataset, overwritable evidence plane would compound that gap.
+
+Planned scope:
+- Block `R` — release v2.6.0 (fix `RUNTIME_VERSION`, re-drill, merge, tag, publish).
+- Block `J` — automatic emission, Object Lock, full dataset coverage, causal
+  snapshot↔run binding, CI coverage gate extended to `governance/` and `dagster/`.
+- Block `G` — external validation gate; record the v2.7/v2.8 ordering decision.
+
+Decision gate to v2.7 / v2.8:
+- The ordering of v2.7 (catalog openness) and v2.8 (AI/ML governance) is
+  **undecided** and is to be resolved with external input rather than by
+  internal planning. See `docs/roadmap.md`, decision D1.
 
 ## Post-v2.5 entity-template preparation - Phase 1 complete (2026-05-18)
 

@@ -10,8 +10,11 @@ not a framework or library. It demonstrates how platforms like Databricks and
 Snowflake work internally, using only open-source tools on a single Docker
 Compose node.
 
-**Current: v2.5 single-track baseline** — orchestrated platform with Dagster assets/schedules/UI, **full-stack Iceberg** (Bronze/Silver/Gold all written via pyiceberg), and mandatory OpenMetadata + Superset in the default stack (see `docs/roadmap.md`).  
-**Next target (v3.0):** production infrastructure and governance hardening (multi-environment deployment, secrets/access governance, SLO/alerting, release promotion controls).
+**Runtime baseline: v2.5 single-track** — orchestrated platform with Dagster assets/schedules/UI, **full-stack Iceberg** (Bronze/Silver/Gold all written via pyiceberg), and mandatory OpenMetadata + Superset in the default stack. This runtime is protected from regression and does **not** change during the v2.x series.
+
+**Current version: v2.6 — computational governance and evidence plane.** Machine-validated dataset contracts (`governance/datasets/*.yaml`), a typed three-source lineage record (OpenMetadata + Iceberg snapshot + Dagster run), and `make lineage-evidence` writing a SHA-256-bound manifest to the audit bucket.
+
+**Next target: v2.6.1 — deepen the evidence plane before adding a new evidence category** (automate evidence emission, WORM audit storage, cover all governed datasets, bind snapshot to run causally). See `docs/roadmap.md` and `TASKS.md`.
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
 
@@ -39,13 +42,21 @@ Compose node.
 ```bash
 make up          # Start all Docker services + init MinIO buckets + create Iceberg namespaces/tables
 make down        # Stop services (data preserved under docker/data/)
-make pipeline    # Run Dagster full_pipeline_job (v2.5 default path)
+make pipeline    # Run Dagster full_pipeline_job (v2.5 runtime path)
+make demo        # Acceptance/demo data flow (gated in CI by the compose-demo job)
 make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
 make lint        # ruff (CI)
-make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
+make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/, governance/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
 make clean       # Stop services + delete docker/data/ + purge legacy named Docker volumes
+
+# v2.6 governance & evidence
+make validate-contracts  # Validate every governance/datasets/*.yaml against the contract schema
+make lineage-evidence DATASET_ID=fin.ecb_dax_features_gold DAGSTER_RUN_ID=<run-id>
+                         # Join three sources and write a SHA-256-bound manifest to the audit bucket.
+                         # Requires OPENMETADATA_TRINO_SERVICE_NAME + OPENMETADATA_AUTH_TOKEN from the
+                         # local environment (never Git). Fails without output if any source is missing.
 ```
 
 ## Project Layout
@@ -69,8 +80,18 @@ ml/
   train_ecb_dax_model.py    # XGBoost/LightGBM with TimeSeriesSplit CV
   evaluate.py               # MLflow experiment runner (multiple hyperparams)
 
+governance/                 # v2.6 governance & evidence plane
+  contracts.py              # DatasetContract pydantic model + YAML loader
+  quality.py                # Contract-driven quality gates
+  lineage.py                # OpenMetadata / Iceberg / Dagster read-only adapters + strict joiner
+  evidence.py               # LineageRecord + EvidenceManifest (canonical JSON, SHA-256 bound)
+  audit.py                  # AuditEvidenceWriter — writes manifests to the audit bucket
+  datasets/*.yaml           # One contract per governed dataset (fin.*)
+
 scripts/
   verify-setup.py           # Service health checks
+  validate-dataset-contracts.py # Contract schema validation (wired into CI)
+  lineage-evidence.py       # v2.6 evidence CLI (make lineage-evidence)
   bootstrap-postgres.py     # Ensure DBs exist; TCP password check + align vs .env after docker-exec bootstrap
   prepare-docker-data-dirs.sh   # mkdir + perms for docker/data bind mounts
   purge-legacy-docker-volumes.sh # Remove pre-bind-mount Docker named volumes (after down)
@@ -190,6 +211,33 @@ overwrite_table(catalog, "silver", "ecb_rates_cleaned", df, SILVER_ECB_RATES_SCH
 df = scan_table(catalog, "gold", "ecb_dax_features")
 ```
 
+### Governance / Evidence Pattern (governance/)
+
+Two rules govern every change in `governance/`:
+
+1. **Fail loudly, never partially.** Every adapter raises `EvidenceSourceError` when a
+   required field is missing. Never emit a manifest that looks complete but is not —
+   a partial evidence bundle is worse than no bundle.
+2. **Evidence records are frozen and hash-bound.** `LineageRecord` and
+   `EvidenceManifest` use `model_config = ConfigDict(extra="forbid", frozen=True)`;
+   the manifest digest is validated against the record on construction.
+
+```python
+from governance.contracts import contract_path, load_contract
+from governance.lineage import LineageEvidenceJoiner, OpenMetadataAdapter
+from governance.evidence import EvidenceManifest
+
+contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
+# each adapter is read-only and raises EvidenceSourceError on any missing field
+record = LineageEvidenceJoiner(product_id, runtime_version, environment).join(
+    contract, openmetadata_evidence, iceberg_evidence, dagster_evidence
+)
+manifest = EvidenceManifest.from_record(record)  # binds record_sha256 to the record
+```
+
+Adding a governed dataset means adding `governance/datasets/<dataset_id>.yaml` —
+`make validate-contracts` (and CI) rejects missing required fields.
+
 ### Testing Pattern (tests/)
 
 - `class TestXxx` grouping, plain pytest (no unittest.TestCase)
@@ -281,14 +329,24 @@ MLflow bucket: `mlflow-artifacts`
 
 ## Roadmap context
 
-Canonical tables and v1+ milestones: **`docs/roadmap.md`**. Active backlog: **`TASKS.md`**. Historical planning: **`docs/history/`**.
+**`docs/roadmap.md` is the single authority for what each version does. `TASKS.md` is the single authority for what the next PR does.** When any other document disagrees with those two, those two win. Historical planning notes under `docs/history/v2.6–v2.9-planning.md` are superseded snapshots from 2026-05-05 — read them for context, never as instructions.
+
+Each v2.x version delivers **one category of evidence** without changing the runtime:
 
 | Version | Theme | Status |
 |---------|-------|--------|
-| **v1.0** | Full platform + Effortless Deployment (8-layer target, one-command setup, health checks, troubleshooting) | delivered |
-| **v2.5** | Orchestrated platform baseline (Dagster + Iceberg + OpenMetadata + Superset) | **current** |
-| **v3.0** | Production Infrastructure + Governance (Kubernetes/Helm, Terraform, environment promotion, secrets/access controls, SLO/alerting) | planned |
-| **v4.0** | Self-Serve Usability (docs-first onboarding, repeatable verification, clearer failure modes) | planned |
+| **v1.0** | Full platform + Effortless Deployment | delivered |
+| **v2.0** | Dagster orchestration introduction | delivered |
+| **v2.5** | Orchestrated platform baseline (Dagster + Iceberg + OpenMetadata + Superset) — **protected runtime baseline** | delivered |
+| **v2.6** | Computational governance and evidence plane (contracts, three-source lineage, audit manifest) | **current** |
+| **v2.6.1** | Deepen the evidence plane: automated emission, WORM, full dataset coverage, causal snapshot↔run binding | **next** |
+| **v2.8** | AI/ML governance and agent-ready context — **provisionally next** after v2.6.1 (decision D1) | planned |
+| **v2.7** | Catalog/control-plane openness and sovereignty proof — after v2.8 unless D1 is overturned | planned |
+| **v2.9** | Operational evidence and promotion discipline | planned |
+| **v3.0** | Production runtime migration (Kubernetes/Helm, Terraform, environment promotion, secrets) | planned |
+| **v4.0** | Self-serve usability and operational clarity | future candidate |
+
+Agents must not start v2.7 or v2.8 work until decision D1 in `docs/roadmap.md` is confirmed with external input (task `G4`).
 
 Ingestion-hardening and related tasks: see **`TASKS.md`** and **`docs/history/v2-planning.md`**.
 

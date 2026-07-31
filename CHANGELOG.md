@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Planned — v2.6.1 (operationalize the evidence plane)
+- Automatic lineage-evidence emission when a governed asset materializes
+  successfully, replacing the manual CLI with a hand-copied Dagster run ID.
+- MinIO Object Lock on the audit bucket, so archived evidence cannot be
+  silently overwritten.
+- Evidence coverage for all five governed datasets, not only
+  `fin.ecb_dax_features_gold`.
+- Causal snapshot↔run binding in the three-source join (today the join verifies
+  name consistency but not causality).
+- CI coverage gate extended to `governance/` and `dagster/`.
+
 ## [v2.6.0] - 2026-07-31
 
 ### Added
@@ -23,6 +34,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Audit output is a stable object layout and canonical manifest, not an Object
   Lock/WORM retention implementation, automated catalog ingestion, production
   RBAC, or a regulatory-compliance claim.
+- Evidence generation is **operator-triggered**, not automatic: it requires a
+  Dagster run ID supplied by hand. Automatic emission is deferred to v2.6.1.
+- One governed dataset (`fin.ecb_dax_features_gold`) has a recorded drill; the
+  other four contracts exist but have not produced evidence. Deferred to v2.6.1.
+- The three-source join verifies that names are consistent across sources, but
+  does **not** verify that the Iceberg snapshot was produced by the referenced
+  Dagster run. Causal binding is deferred to v2.6.1.
 
 ### Changed
 - Standardized runtime to a single v2.5 execution path (`make pipeline` via Dagster only).
@@ -31,6 +49,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Local Compose durable state uses **bind mounts** under `docker/data/` (with `make prepare-data-dirs`) instead of Docker named volumes; `make clean` removes those directories and purges legacy named volumes when present.
 
 ### Fixed
+- `RUNTIME_VERSION` now defaults to `slh-v2.6.0`. It previously defaulted to
+  `slh-v2.5.1` in both `runtime_identity.py` and `.env.example`, which stamped
+  the wrong runtime version into every governance evidence manifest. The release
+  drill was re-run after the fix; see `docs/v2.6-release-readiness.md`.
 - `scripts/bootstrap-postgres.py` verifies TCP PostgreSQL credentials after Docker-exec bootstrap and aligns the DB role password with `.env` when it has drifted from the data directory (avoids recurring Hive Metastore auth failures).
 
 ### Removed

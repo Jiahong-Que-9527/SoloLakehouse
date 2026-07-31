@@ -256,7 +256,7 @@ These gaps are exactly what v3 is meant to address, but **as of 2026-05-05, none
 | Governance | `governance-v3-matrix.md`, `governance-v3-runbook.md`, `v3-governance-navigation.md`, `v3-spec.md` |
 | Release | `V1_RELEASE_CHECKLIST.md`, `V2_RELEASE_CHECKLIST.md`, `V3_RELEASE_CHECKLIST.md`, `release.md`, `release-readiness.md` |
 | Self-assessment | `ASSESSMENT_LAKEHOUSE_DAX_ECB.md` |
-| Chinese snapshots | `项目快照_2026-03-26.md`, `项目现状总览_2026-05-05.md` (this doc's CN sibling) |
+| Chinese snapshots | Maintained locally; not published (see the language policy in `docs/README.md`) |
 
 `CLAUDE.md` is the project-level agent guide and stays in sync with the code.
 
@@ -292,4 +292,4 @@ SoloLakehouse means different things to different readers:
 
 > **As of 2026-05-05, SoloLakehouse has shipped a small-but-complete open-source Lakehouse reference: orchestration, governance UI, BI, ML tracking, Iceberg Gold all in place — local, readable, modifiable. The next step is to evolve from "reference implementation" toward "enterprise-deliverable", and the critical gaps are multi-environment, secrets governance, SLO/alerting, data contracts, and the K8s deployment path.**
 
-For the evolution roadmap, see `enterprise-evolution-plan-2026-05-05.md`.
+For the current evolution roadmap, see [`roadmap.md`](roadmap.md).
