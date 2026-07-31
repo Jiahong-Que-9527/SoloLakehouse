@@ -18,10 +18,10 @@ Use it to answer:
 As of `2026-07-31`:
 
 - `v2.5` is delivered and protected from regression.
-- `v2.6` is **functionally complete but not released** — no `v2.6.0` tag, not
-  merged to `main`, and `RUNTIME_VERSION` still reports `slh-v2.5.1`.
-- the active execution target is **`v2.6.1`**: release v2.6, then close the gap
-  between *demonstrable* and *operational* evidence.
+- `v2.6.0` is **released** (tagged `2026-07-31`), and carries a known defect:
+  it stamps `slh-v2.5.1` into every evidence manifest. Fixed on `main`.
+- the active execution target is **`v2.6.1`**: ship the version-stamp fix, then
+  close the gap between *demonstrable* and *operational* evidence.
 - `v2.7` vs `v2.8` ordering is **provisionally v2.8 first** (`docs/roadmap.md`,
   D1), pending confirmation from external feedback after the v2.6.0 release.
 - entity-template / entity-split work is **deferred indefinitely**
@@ -59,8 +59,8 @@ Future agents should follow these rules by default:
 | Version | Status | Repository focus |
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
-| v2.6 | Complete, **not released** | Computational governance and evidence plane |
-| v2.6.1 | **Active next implementation** | Release v2.6, then operationalize the evidence plane |
+| v2.6 | Released, with a known version-stamp defect | Computational governance and evidence plane |
+| v2.6.1 | **Active next implementation** | Ship the version-stamp fix, then operationalize the evidence plane |
 | v2.8 | Planned — **provisionally next** after v2.6.1 (D1) | AI/ML governance and agent-ready context |
 | v2.7 | Planned — after v2.8 unless D1 is overturned | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | Planned | Operational evidence and promotion discipline |
@@ -93,7 +93,7 @@ outside this project has verified the release on their own machine.
 
 ### v2.6.1 must deliver
 
-1. `v2.6.0` is tagged, merged to `main`, and published
+1. `v2.6.1` is tagged and published with the corrected version stamp
 2. evidence is emitted automatically on successful materialization
 3. the audit bucket cannot be silently overwritten
 4. all five governed datasets are covered, not one
@@ -106,18 +106,19 @@ outside this project has verified the release on their own machine.
 - a Kubernetes, multi-engine, or streaming release
 - a place to introduce policy enforcement (that is a v2.8 design question)
 
-### Block R — Release v2.6 (do this first)
+### Block R — Correct the released version stamp (do this first)
 
-Nothing else in v2.6.1 matters until the completed v2.6 work is visible to the
-55 people already watching this repository.
+`v2.6.0` shipped on `2026-07-31` with `RUNTIME_VERSION` defaulting to
+`slh-v2.5.1`. Every evidence manifest that release produces misattributes
+itself to the previous runtime — on a release whose entire value proposition
+is trustworthy evidence.
 
-- [ ] `R1` Fix `RUNTIME_VERSION` — `runtime_identity.py` and `.env.example` both
-      hard-code `slh-v2.5.1`, so every evidence manifest currently stamps the
-      wrong runtime version into an audit artifact
-- [ ] `R2` Re-run the lineage-evidence drill after `R1` and update the record in
-      `docs/v2.6-release-readiness.md` with the corrected `runtime_version`
-- [ ] `R3` Merge `agent/v2.6-release-preparation` to `main` and tag `v2.6.0`
-- [ ] `R4` Publish `.github/RELEASE_NOTES_v2.6.0.md` as the GitHub release
+- [x] `R1` Fix `RUNTIME_VERSION` in `runtime_identity.py` and `.env.example`
+- [x] `R2` Re-run the lineage-evidence drill and record it in
+      `docs/v2.6-release-readiness.md` (run `43f859de…`, manifest
+      `31e11d59…`, `runtime_version=slh-v2.6.0`)
+- [x] `R3` Disclose the defect in the published `v2.6.0` release notes
+- [ ] `R4` Tag and publish `v2.6.1` carrying the fix
 
 ### Block J — Evidence-Plane Operationalization
 
@@ -332,10 +333,10 @@ Rule:
 Execute in this order. Do not reorder — `R1–R4` deliver already-completed work
 to an audience that currently cannot see it.
 
-1. `R1` fix `RUNTIME_VERSION` (wrong version stamped into every evidence manifest)
-2. `R2` re-run the evidence drill and update the release-readiness record
-3. `R3` merge to `main` and tag `v2.6.0`
-4. `R4` publish the release notes
+1. ~~`R1` fix `RUNTIME_VERSION`~~ — done
+2. ~~`R2` re-run the evidence drill~~ — done
+3. ~~`R3` disclose the defect in the `v2.6.0` release notes~~ — done
+4. `R4` tag and publish `v2.6.1` carrying the fix
 5. `J1` automatic evidence emission via Dagster sensor
 6. `J2` MinIO Object Lock on the audit bucket
 7. `J5` extend the CI coverage gate to `governance/` and `dagster/`
@@ -365,7 +366,7 @@ provisional D1 ordering with external input.**
 
 `v2.6.1` counts as complete only when all are true:
 
-- `v2.6.0` is tagged on `main` and published as a GitHub release
+- `v2.6.1` is tagged on `main` and published as a GitHub release
 - `RUNTIME_VERSION` matches the released version in both `runtime_identity.py`
   and `.env.example`
 - a successful governed materialization produces evidence with **no** manual

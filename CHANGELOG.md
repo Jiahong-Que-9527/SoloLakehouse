@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed — v2.6.1
+- `RUNTIME_VERSION` now defaults to `slh-v2.6.0`. In `v2.6.0` it defaulted to
+  `slh-v2.5.1`, stamping the wrong runtime version into every governance
+  evidence manifest. The release drill was re-run after the fix; see
+  `docs/v2.6-release-readiness.md`.
+
+### Changed — v2.6.1
+- The published repository is now English-only. Chinese working documents are
+  maintained locally and excluded from publication.
+- `docs/roadmap.md` and `TASKS.md` are the sole authorities for version scope
+  and execution order; conflicting planning notes are superseded and unpublished.
+
 ### Planned — v2.6.1 (operationalize the evidence plane)
 - Automatic lineage-evidence emission when a governed asset materializes
   successfully, replacing the manual CLI with a hand-copied Dagster run ID.
@@ -48,11 +60,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Updated verification/bootstrap/release docs to reflect v2.5 single-track operations.
 - Local Compose durable state uses **bind mounts** under `docker/data/` (with `make prepare-data-dirs`) instead of Docker named volumes; `make clean` removes those directories and purges legacy named volumes when present.
 
+### Known defect (fixed in v2.6.1)
+- `RUNTIME_VERSION` defaults to `slh-v2.5.1` in this release, so every evidence
+  manifest produced by `v2.6.0` records the wrong runtime version. Because
+  `runtime_version` is a required field of `LineageRecord`, evidence generated
+  from this tag misattributes itself to the previous runtime. Upgrade to
+  `v2.6.1`, or set `RUNTIME_VERSION` explicitly in the environment.
+
 ### Fixed
-- `RUNTIME_VERSION` now defaults to `slh-v2.6.0`. It previously defaulted to
-  `slh-v2.5.1` in both `runtime_identity.py` and `.env.example`, which stamped
-  the wrong runtime version into every governance evidence manifest. The release
-  drill was re-run after the fix; see `docs/v2.6-release-readiness.md`.
 - `scripts/bootstrap-postgres.py` verifies TCP PostgreSQL credentials after Docker-exec bootstrap and aligns the DB role password with `.env` when it has drifted from the data directory (avoids recurring Hive Metastore auth failures).
 
 ### Removed

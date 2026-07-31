@@ -338,7 +338,7 @@ Each v2.x version delivers **one category of evidence** without changing the run
 | **v1.0** | Full platform + Effortless Deployment | delivered |
 | **v2.0** | Dagster orchestration introduction | delivered |
 | **v2.5** | Orchestrated platform baseline (Dagster + Iceberg + OpenMetadata + Superset) — **protected runtime baseline** | delivered |
-| **v2.6** | Computational governance and evidence plane (contracts, three-source lineage, audit manifest) | **current** |
+| **v2.6** | Computational governance and evidence plane (contracts, three-source lineage, audit manifest) | **current** — released `2026-07-31`; the tag stamps the wrong `RUNTIME_VERSION`, fixed on `main` |
 | **v2.6.1** | Deepen the evidence plane: automated emission, WORM, full dataset coverage, causal snapshot↔run binding | **next** |
 | **v2.8** | AI/ML governance and agent-ready context — **provisionally next** after v2.6.1 (decision D1) | planned |
 | **v2.7** | Catalog/control-plane openness and sovereignty proof — after v2.8 unless D1 is overturned | planned |

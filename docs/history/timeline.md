@@ -81,12 +81,14 @@ Not delivered, moved to v2.6.1 (recorded 2026-07-31):
 - Neither was rescheduled at the time; both are now Block `J` (`J1`, `J2`).
 
 Release status:
-- **Not yet tagged.** The work sits on `agent/v2.6-release-preparation`;
-  `RUNTIME_VERSION` still reports `slh-v2.5.1` and therefore stamps the wrong
-  runtime version into every evidence manifest. Releasing v2.6 is Block `R`.
+- **Tagged and published `2026-07-31`** (PR #44).
+- The published tag carries a defect: `RUNTIME_VERSION` defaulted to
+  `slh-v2.5.1`, so evidence manifests generated from `v2.6.0` record the wrong
+  runtime version. Disclosed in the release notes and in the CHANGELOG; fixed
+  on `main` and shipping in `v2.6.1` (Block `R`).
 
 Decision gate to v2.6.1:
-- Release v2.6, then make the evidence plane operational — automatic emission,
+- Ship the version-stamp fix, then make the evidence plane operational — automatic emission,
   write-once audit storage, coverage for all governed datasets, and a causal
   (not merely name-consistent) snapshot↔run binding — before adding a new
   evidence category.
@@ -103,7 +105,7 @@ Why this version exists:
   single-dataset, overwritable evidence plane would compound that gap.
 
 Planned scope:
-- Block `R` — release v2.6.0 (fix `RUNTIME_VERSION`, re-drill, merge, tag, publish).
+- Block `R` — correct the released version stamp, re-drill, and publish v2.6.1.
 - Block `J` — automatic emission, Object Lock, full dataset coverage, causal
   snapshot↔run binding, CI coverage gate extended to `governance/` and `dagster/`.
 - Block `G` — external validation gate; record the v2.7/v2.8 ordering decision.
