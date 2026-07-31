@@ -247,12 +247,38 @@ def check_dagster_credentials() -> StatusTuple:
 
 
 def check_openmetadata() -> StatusTuple:
-    """Verify OpenMetadata API health."""
+    """Verify OpenMetadata API health and Basic-auth administrator bootstrap."""
     base = os.environ.get("OPENMETADATA_URL", "http://localhost:8585").rstrip("/")
     try:
         response = requests.get(f"{base}/api/v1/system/version", timeout=5)
         if response.status_code == 200:
-            return ("OpenMetadata", "PASS", f"API OK ({base})")
+            administrator = os.environ.get("OPENMETADATA_ADMIN_PRINCIPAL", "admin")
+            identity = f"{administrator}@open-metadata.org"
+            result = subprocess.run(
+                [
+                    "docker",
+                    "exec",
+                    "slh-om-mysql",
+                    "sh",
+                    "-lc",
+                    "mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N -e "
+                    "\"SELECT 1 FROM openmetadata_db.user_entity "
+                    f"WHERE email = '{identity}' AND deleted = 0 LIMIT 1;\"",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if result.returncode == 0 and result.stdout.strip() == "1":
+                return ("OpenMetadata", "PASS", f"API + administrator OK ({base})")
+            if result.returncode == 0:
+                return ("OpenMetadata", "FAIL", "API OK but configured administrator is missing")
+            return (
+                "OpenMetadata",
+                "FAIL",
+                "API OK but administrator bootstrap could not be verified",
+            )
         return ("OpenMetadata", "FAIL", f"HTTP {response.status_code}")
     except requests.Timeout:
         return ("OpenMetadata", "TIMEOUT", "Timed out after 5s")

@@ -60,21 +60,68 @@ services:
       om-elasticsearch:
         condition: service_healthy
 
+  # OpenMetadata 1.5.6 expects this setting while it creates the configured
+  # Basic-auth admin users.  Some migrated or interrupted first-start states
+  # contain the bot records but omit emailConfiguration, which makes that
+  # bootstrap fail silently.  Keep the repair idempotent and before the API
+  # server starts; it neither creates users directly nor stores credentials.
+  om-bootstrap:
+    container_name: slh-om-bootstrap
+    image: docker.getcollate.io/openmetadata/db:1.5.6
+    restart: "no"
+    env_file:
+      - openmetadata/openmetadata.env
+    depends_on:
+      om-mysql:
+        condition: service_healthy
+      om-migrate:
+        condition: service_completed_successfully
+    command:
+      - /bin/sh
+      - -ec
+      - |
+        mysql --host=om-mysql --user="$${DB_USER}" --password="$${DB_USER_PASSWORD}" "$${OM_DATABASE}" <<'SQL'
+        INSERT INTO openmetadata_settings (configType, json)
+        VALUES (
+          'emailConfiguration',
+          JSON_OBJECT(
+            'enableSmtpServer', FALSE,
+            'senderMail', '',
+            'serverEndpoint', '',
+            'serverPort', 0,
+            'username', '',
+            'password', '',
+            'transportationStrategy', 'SMTP_TLS',
+            'templates', 'openmetadata'
+          )
+        )
+        ON DUPLICATE KEY UPDATE configType = VALUES(configType);
+        SQL
+
   openmetadata-server:
     container_name: slh-openmetadata-server
     image: docker.getcollate.io/openmetadata/server:1.5.6
     restart: unless-stopped
     env_file:
       - openmetadata/openmetadata.env
+    environment:
+      # This is a principal name, not a password. OpenMetadata creates the
+      # matching Basic-auth user after om-bootstrap has restored its required
+      # email configuration setting.
+      AUTHORIZER_ADMIN_PRINCIPALS: "[${OPENMETADATA_ADMIN_PRINCIPAL:-admin}]"
     ports:
-      - "8585:8585"
-      - "8586:8586"
+      # Access the admin UI over an SSH tunnel on remote hosts. Do not expose
+      # the initial Basic-auth account directly on the public network.
+      - "127.0.0.1:${OPENMETADATA_PORT:-8585}:8585"
+      - "127.0.0.1:${OPENMETADATA_ADMIN_PORT:-8586}:8586"
     depends_on:
       om-mysql:
         condition: service_healthy
       om-elasticsearch:
         condition: service_healthy
       om-migrate:
+        condition: service_completed_successfully
+      om-bootstrap:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8586/healthcheck"]
