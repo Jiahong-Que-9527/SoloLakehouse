@@ -6,19 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Fixed — v2.6.1
-- `RUNTIME_VERSION` now defaults to `slh-v2.6.0`. In `v2.6.0` it defaulted to
-  `slh-v2.5.1`, stamping the wrong runtime version into every governance
-  evidence manifest. The release drill was re-run after the fix; see
-  `docs/v2.6-release-readiness.md`.
-
-### Changed — v2.6.1
-- The published repository is now English-only. Chinese working documents are
-  maintained locally and excluded from publication.
-- `docs/roadmap.md` and `TASKS.md` are the sole authorities for version scope
-  and execution order; conflicting planning notes are superseded and unpublished.
-
-### Planned — v2.6.1 (operationalize the evidence plane)
+### Planned — v2.6.1 follow-up (operationalize the evidence plane)
 - Automatic lineage-evidence emission when a governed asset materializes
   successfully, replacing the manual CLI with a hand-copied Dagster run ID.
 - MinIO Object Lock on the audit bucket, so archived evidence cannot be
@@ -28,6 +16,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Causal snapshot↔run binding in the three-source join (today the join verifies
   name consistency but not causality).
 - CI coverage gate extended to `governance/` and `dagster/`.
+
+## [v2.6.1] - 2026-07-31
+
+### Fixed
+- `RUNTIME_VERSION` now matches the released version (`slh-v2.6.1`). In
+  `v2.6.0` it defaulted to `slh-v2.5.1`, and because `runtime_version` is a
+  required field of every `LineageRecord`, all governance evidence produced by
+  that release recorded the wrong runtime version. The release drill was re-run
+  and the manifest read back to confirm the corrected value; see
+  `docs/v2.6-release-readiness.md`.
+
+### Changed
+- The published repository is **English-only**. Chinese working documents are
+  maintained locally under `docs/local-cn/` and excluded from publication.
+- `docs/roadmap.md` and `TASKS.md` are the sole authorities for version scope
+  and execution order. Conflicting 2026-05-05 planning notes are superseded and
+  no longer published.
+- Planning now uses measured delivery velocity rather than optimistic estimates,
+  and publishes version **order** rather than dates.
+- Recorded decisions D1 (v2.7/v2.8 ordering, provisionally v2.8 first pending
+  external input), D2 (entity split deferred indefinitely), and D3
+  (portal/Keycloak is sandbox-only).
+- Release readiness now requires **external validation**: at least one person
+  outside the project runs `make setup` and the version's core command on their
+  own machine.
+
+### Added
+- `AGENTS.md` is now the shared, tool-neutral contract for every agent working
+  in this repository: authority chain, current version state, decision gates,
+  hard rules, validation commands, and repository map.
+- `.cursor/rules/sololakehouse.mdc` — Cursor previously had no project entry
+  point and began every session without the roadmap or baseline constraints.
+- `scripts/check-agent-docs.py` and `make check-agent-docs`, wired into CI:
+  fails the build when an agent entry point goes missing, stops pointing at the
+  contract, or starts duplicating version state.
+- v2.6.1 scope defined in `TASKS.md` as Blocks `R` and `J`.
 
 ## [v2.6.0] - 2026-07-31
 
