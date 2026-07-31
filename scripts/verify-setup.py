@@ -274,7 +274,11 @@ def check_openmetadata() -> StatusTuple:
                 return ("OpenMetadata", "PASS", f"API + administrator OK ({base})")
             if result.returncode == 0:
                 return ("OpenMetadata", "FAIL", "API OK but configured administrator is missing")
-            return ("OpenMetadata", "FAIL", "API OK but administrator bootstrap could not be verified")
+            return (
+                "OpenMetadata",
+                "FAIL",
+                "API OK but administrator bootstrap could not be verified",
+            )
         return ("OpenMetadata", "FAIL", f"HTTP {response.status_code}")
     except requests.Timeout:
         return ("OpenMetadata", "TIMEOUT", "Timed out after 5s")
