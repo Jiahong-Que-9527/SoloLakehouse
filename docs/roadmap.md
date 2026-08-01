@@ -31,14 +31,14 @@ a design goal that competes with it.
 
 ## Current Strategic Position
 
-As of `2026-07-31`:
+As of `2026-08-01`:
 
 - `v2.5` remains the protected baseline runtime and does not change until v3.0.
 - `v2.6.1` is **released** (tagged `2026-07-31`) and is the current version.
 - `v2.6.0` is **superseded**: it stamped `slh-v2.5.1` into every evidence
   manifest. Anyone on that tag should upgrade and regenerate their evidence.
-- the next implementation focus is **`v2.6.1`** — deepen the evidence plane
-  before adding a new evidence category.
+- Block `J` implementation is complete; the remaining v2.6.1 acceptance step
+  is independent external validation before any new evidence category starts.
 - `v2.7` vs `v2.8` ordering is an **open decision**; see "Open Decisions" below.
 - future planning prioritizes **control plane and evidence value** over adding
   more engines or surface features.
@@ -52,7 +52,7 @@ As of `2026-07-31`:
 | v2.5 | Delivered / protected baseline | Single-track all-layer Iceberg runtime + Dagster + Trino + MLflow + OpenMetadata + Superset |
 | v2.6.0 | Superseded — carries a version-stamp defect | Computational governance and evidence plane |
 | v2.6.1 | **Released `2026-07-31` — current** | Corrected version stamp; English-only publication; unified agent entry points |
-| v2.6.1 Block `J` | **Active next implementation** | Operationalize the evidence plane |
+| v2.6.1 Block `J` | **Implementation complete — external validation pending** | Operationalize the evidence plane |
 | v2.7 | Planned (order undecided) | Catalog/control-plane openness and sovereignty proof |
 | v2.8 | Planned (order undecided) | AI/ML governance and agent-ready context |
 | v2.9 | Planned | Operational evidence and promotion discipline |
@@ -305,14 +305,26 @@ not start implementation work that depends on an open decision.
 
 ### D1 — v2.7 before v2.8, or v2.8 before v2.7?
 
-**Status: provisionally decided — v2.8 first. Confirm with external input before
-implementation starts.**
+**Status: G4 recorded 2026-08-01 — provisional v2.8-first retained; implementation
+still blocked pending external confirmation.**
 
 The provisional direction is **v2.8 (AI/ML governance) before v2.7 (catalog
-openness)**, on the dependency argument below. This is recorded so v2.6.1 work
-is not blocked, but it is not final: the first round of external feedback after
-the v2.6.0 release should either confirm it or overturn it. Whichever way it
-lands, record the outcome here and close `G4`.
+openness)**, on the dependency argument below. Task **`G4` is closed** as a
+recording obligation: the first round of external feedback after the v2.6.0
+release produced **no signal to overturn** the provisional order (zero external
+issues, pull requests, or completed validation records before this gate).
+
+**G4 outcome:** keep **v2.8 before v2.7** as the planning default. Do **not**
+start v2.7 (`I1`–`I5`) or v2.8 (`E1`–`E4`) until either:
+
+1. an external validator signs
+   [`docs/external-validation/v2.6.1-external-validation.md`](external-validation/v2.6.1-external-validation.md)
+   and confirms the ordering is acceptable for the project's audience, or
+2. an explicit Owner Decision recorded in this section overturns the provisional
+   order with stated rationale.
+
+Until one of those happens, D1 remains **provisional for implementation start**
+even though G4 is closed.
 
 | | Reuse of v2.6 machinery | Standalone timing pressure | Scope |
 |---|---|---|---|

@@ -5,7 +5,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from governance.contracts import CONTRACTS_DIRECTORY, load_contract, load_contracts
+from governance.contracts import (
+    CONTRACTS_DIRECTORY,
+    governed_pipeline_asset_keys,
+    load_contract,
+    load_contracts,
+)
 from governance.quality import validate_dataset_quality
 
 
@@ -20,6 +25,15 @@ def test_contract_registry_loads_all_governed_financial_datasets() -> None:
         "fin.ecb_dax_features_gold",
     }
     assert contracts["fin.ecb_dax_features_gold"].quality_class == "demo_critical"
+
+
+def test_governed_pipeline_asset_keys_cover_all_contracts() -> None:
+    contracts = load_contracts()
+
+    assert set(governed_pipeline_asset_keys(contracts)) == {
+        contract.dagster_asset_key for contract in contracts.values()
+    }
+    assert len(governed_pipeline_asset_keys(contracts)) == 5
 
 
 def test_contract_loader_rejects_unknown_fields(tmp_path: Path) -> None:

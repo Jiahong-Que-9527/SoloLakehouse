@@ -13,13 +13,19 @@ from resources import IcebergCatalogResource, PipelineConfigResource
 from dagster import (
     AssetCheckResult,
     AssetKey,
+    DagsterRunStatus,
+    DefaultSensorStatus,
     RetryPolicy,
     RunRequest,
+    RunStatusSensorContext,
     SkipReason,
     asset,
     asset_check,
+    run_status_sensor,
     sensor,
 )
+from governance.contracts import contract_for_asset_key
+from governance.emission import emit_pending_lineage_evidence_for_run
 from ingestion import iceberg_io
 from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
@@ -43,6 +49,19 @@ def _metadata_row_count(result: dict[str, Any]) -> int:
     return 0
 
 
+def _governed_asset_metadata(
+    catalog,
+    asset_key: str,
+    metadata: dict[str, Any],
+) -> dict[str, Any]:
+    contract = contract_for_asset_key(asset_key)
+    if contract is None:
+        return metadata
+    location = contract.physical_location
+    snapshot_id = iceberg_io.current_snapshot_id(catalog, location.namespace, location.table)
+    return {**metadata, "iceberg_snapshot_id": snapshot_id}
+
+
 @asset(group_name="bronze", retry_policy=RetryPolicy(max_retries=3, delay=5))
 def ecb_bronze(
     context,
@@ -57,14 +76,18 @@ def ecb_bronze(
         force=False,
     ).collect()
     context.add_output_metadata(
-        {
-            "status": result.get("status", "ok"),
-            "valid_count": int(result.get("valid_count", 0)),
-            "rejected_count": int(result.get("rejected_count", 0)),
-            "partition_date": date.today().isoformat(),
-            "path": result.get("path", ""),
-            "rejected_path": result.get("rejected_path") or "",
-        }
+        _governed_asset_metadata(
+            catalog,
+            "ecb_bronze",
+            {
+                "status": result.get("status", "ok"),
+                "valid_count": int(result.get("valid_count", 0)),
+                "rejected_count": int(result.get("rejected_count", 0)),
+                "partition_date": date.today().isoformat(),
+                "path": result.get("path", ""),
+                "rejected_path": result.get("rejected_path") or "",
+            },
+        )
     )
     _emit_metric("ecb_bronze", started)
     return result
@@ -84,14 +107,18 @@ def dax_bronze(
         force=False,
     ).collect()
     context.add_output_metadata(
-        {
-            "status": result.get("status", "ok"),
-            "valid_count": int(result.get("valid_count", 0)),
-            "rejected_count": int(result.get("rejected_count", 0)),
-            "partition_date": date.today().isoformat(),
-            "path": result.get("path", ""),
-            "rejected_path": result.get("rejected_path") or "",
-        }
+        _governed_asset_metadata(
+            catalog,
+            "dax_bronze",
+            {
+                "status": result.get("status", "ok"),
+                "valid_count": int(result.get("valid_count", 0)),
+                "rejected_count": int(result.get("rejected_count", 0)),
+                "partition_date": date.today().isoformat(),
+                "path": result.get("path", ""),
+                "rejected_path": result.get("rejected_path") or "",
+            },
+        )
     )
     _emit_metric("dax_bronze", started)
     return result
@@ -105,9 +132,14 @@ def ecb_silver(
 ) -> str:
     _ = ecb_bronze
     started = time.perf_counter()
-    result = ecb_bronze_to_silver.run(iceberg_catalog.get_catalog())
+    catalog = iceberg_catalog.get_catalog()
+    result = ecb_bronze_to_silver.run(catalog)
     context.add_output_metadata(
-        {"table": result["table"], "row_count": _metadata_row_count(result)}
+        _governed_asset_metadata(
+            catalog,
+            "ecb_silver",
+            {"table": result["table"], "row_count": _metadata_row_count(result)},
+        )
     )
     _emit_metric("ecb_silver", started)
     return str(result["table"])
@@ -121,9 +153,14 @@ def dax_silver(
 ) -> str:
     _ = dax_bronze
     started = time.perf_counter()
-    result = dax_bronze_to_silver.run(iceberg_catalog.get_catalog())
+    catalog = iceberg_catalog.get_catalog()
+    result = dax_bronze_to_silver.run(catalog)
     context.add_output_metadata(
-        {"table": result["table"], "row_count": _metadata_row_count(result)}
+        _governed_asset_metadata(
+            catalog,
+            "dax_silver",
+            {"table": result["table"], "row_count": _metadata_row_count(result)},
+        )
     )
     _emit_metric("dax_silver", started)
     return str(result["table"])
@@ -138,9 +175,14 @@ def gold_features(
 ) -> str:
     _ = (ecb_silver, dax_silver)
     started = time.perf_counter()
-    result = silver_to_gold_features.run(iceberg_catalog.get_catalog())
+    catalog = iceberg_catalog.get_catalog()
+    result = silver_to_gold_features.run(catalog)
     context.add_output_metadata(
-        {"table": result["table"], "event_count": _metadata_row_count(result)}
+        _governed_asset_metadata(
+            catalog,
+            "gold_features",
+            {"table": result["table"], "event_count": _metadata_row_count(result)},
+        )
     )
     _emit_metric("gold_features", started)
     return str(result["table"])
@@ -195,6 +237,33 @@ def ecb_data_freshness_sensor(
         )
     return SkipReason(
         f"ECB data fresh enough: latest partition {latest.isoformat()} ({lag_hours}h lag)"
+    )
+
+
+@run_status_sensor(
+    run_status=DagsterRunStatus.SUCCESS,
+    minimum_interval_seconds=30,
+    name="lineage_evidence_sensor",
+    default_status=DefaultSensorStatus.RUNNING,
+    monitor_all_code_locations=True,
+)
+def lineage_evidence_sensor(context: RunStatusSensorContext):
+    """Emit lineage evidence for every governed asset materialized in a successful run."""
+    run_id = context.dagster_run.run_id
+    result = emit_pending_lineage_evidence_for_run(run_id)
+    if result.skip_reason is not None:
+        yield SkipReason(result.skip_reason)
+        return
+    for emission in result.emissions:
+        logger.info(
+            "lineage_evidence_emitted",
+            run_id=run_id,
+            dataset_id=emission.dataset_id,
+            object_path=emission.object_path,
+            record_sha256=emission.record_sha256,
+        )
+    yield SkipReason(
+        f"emitted {len(result.emissions)} lineage evidence manifest(s) for run {run_id}"
     )
 
 

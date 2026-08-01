@@ -59,7 +59,7 @@ behind one of these gates is doing work that may be thrown away.
 
 | Gate | Rule |
 |---|---|
-| **D1** | v2.7 (`I1`–`I5`) and v2.8 (`E1`–`E4`) are **blocked**. Ordering is provisionally v2.8 first, pending external input (task `G4`). Do not start either. |
+| **D1** | v2.7 (`I1`–`I5`) and v2.8 (`E1`–`E4`) are **blocked**. G4 recorded 2026-08-01: provisional **v2.8 first** retained (no external signal to overturn). Implementation still requires external confirmation in `docs/external-validation/v2.6.1-external-validation.md` or an explicit Owner Decision. Do not start either version until then. |
 | **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
 | **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
 

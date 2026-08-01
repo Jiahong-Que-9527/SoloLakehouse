@@ -68,7 +68,8 @@ clean:
 
 pipeline:
 	@echo "Running v2.5 Dagster pipeline..."
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver dagster job execute -f /app/dagster/definitions.py -j $(DAGSTER_JOB)
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver dagster job launch -w /app/dagster/workspace.yaml -j $(DAGSTER_JOB)
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver python3 /app/scripts/wait-for-dagster-run.py --job $(DAGSTER_JOB)
 
 pipeline-dagster:
 	$(MAKE) pipeline DAGSTER_JOB="$(DAGSTER_JOB)"
@@ -101,11 +102,13 @@ health-json:
 test:
 	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
 
+TEST_COV_PACKAGES := --cov=ingestion --cov=transformations --cov=ml --cov=governance --cov=dagster
+
 test-cov:
-	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-fail-under=70
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-fail-under=70
 
 test-cov-html:
-	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-report=html --cov-fail-under=70
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-report=html --cov-fail-under=70
 
 test-integration:
 	$(PYTHON) -m pytest tests/integration/ -v --tb=short -m integration

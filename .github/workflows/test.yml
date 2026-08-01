@@ -35,8 +35,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: pip install -r requirements.txt
-      - run: pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov-report=term-missing --cov-fail-under=70
+      - run: pip install -r requirements.txt -r requirements-dagster.txt
+      - run: pytest tests/ -v --tb=short --ignore=tests/integration --cov=ingestion --cov=transformations --cov=ml --cov=governance --cov=dagster --cov-report=term-missing --cov-fail-under=70
 
   compose-demo:
     runs-on: ubuntu-latest

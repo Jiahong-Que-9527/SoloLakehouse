@@ -96,8 +96,31 @@ def _iceberg_evidence() -> IcebergSnapshotEvidence:
 
 def _dagster_evidence() -> DagsterRunEvidence:
     return DagsterRunEvidence(
-        "fin.ecb_dax_features_gold", "run-1", ("gold_features",), datetime(2026, 7, 30, tzinfo=UTC)
+        "fin.ecb_dax_features_gold",
+        "run-1",
+        ("gold_features",),
+        datetime(2026, 7, 30, tzinfo=UTC),
+        "1001",
     )
+
+
+def _run_payload(*, snapshot_id: str | None = "1001") -> dict[str, object]:
+    materialization: dict[str, object] = {"assetKey": {"path": ["gold_features"]}}
+    if snapshot_id is not None:
+        materialization["metadataEntries"] = [
+            {"label": "iceberg_snapshot_id", "text": snapshot_id}
+        ]
+    return {
+        "data": {
+            "runOrError": {
+                "__typename": "Run",
+                "runId": "run-1",
+                "status": "SUCCESS",
+                "startTime": 1785369600.0,
+                "assetMaterializations": [materialization],
+            }
+        }
+    }
 
 
 def test_openmetadata_adapter_reads_exact_table_and_requires_owner() -> None:
@@ -169,24 +192,21 @@ def test_iceberg_adapter_fails_loudly_without_snapshot() -> None:
 
 
 def test_dagster_adapter_requires_successful_run_selecting_contract_asset() -> None:
-    payload = {
-        "data": {
-            "runOrError": {
-                "__typename": "Run",
-                "runId": "run-1",
-                "status": "SUCCESS",
-                "startTime": 1785369600.0,
-                "assetMaterializations": [{"assetKey": {"path": ["gold_features"]}}],
-            }
-        }
-    }
-    session = _Session(_Response(payload))
+    session = _Session(_Response(_run_payload()))
 
     evidence = DagsterRunAdapter("http://dagster:3000", session).collect(_contract(), "run-1")
 
     assert evidence.dataset_id == "fin.ecb_dax_features_gold"
     assert evidence.asset_keys == ("gold_features",)
+    assert evidence.materialized_snapshot_id == "1001"
     assert evidence.started_at.tzinfo is UTC
+
+
+def test_dagster_adapter_requires_materialized_snapshot_metadata() -> None:
+    session = _Session(_Response(_run_payload(snapshot_id=None)))
+
+    with pytest.raises(EvidenceSourceError, match="missing iceberg_snapshot_id metadata"):
+        DagsterRunAdapter("http://dagster:3000", session).collect(_contract(), "run-1")
 
 
 @pytest.mark.parametrize("source", ["openmetadata", "iceberg", "dagster"])
@@ -225,4 +245,19 @@ def test_joiner_rejects_dataset_id_mismatch() -> None:
     with pytest.raises(EvidenceSourceError, match="dataset_id does not match"):
         LineageEvidenceJoiner("sololakehouse", "slh-v2.6", "local").join(
             _contract(), wrong, _iceberg_evidence(), _dagster_evidence()
+        )
+
+
+def test_joiner_rejects_snapshot_id_mismatch() -> None:
+    stale_dagster = DagsterRunEvidence(
+        "fin.ecb_dax_features_gold",
+        "run-1",
+        ("gold_features",),
+        datetime(2026, 7, 30, tzinfo=UTC),
+        "9999",
+    )
+
+    with pytest.raises(EvidenceSourceError, match="does not match the current Iceberg snapshot"):
+        LineageEvidenceJoiner("sololakehouse", "slh-v2.6", "local").join(
+            _contract(), _openmetadata_evidence(), _iceberg_evidence(), stale_dagster
         )

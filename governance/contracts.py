@@ -116,3 +116,23 @@ def load_contracts(directory: Path = CONTRACTS_DIRECTORY) -> dict[str, DatasetCo
     if not contracts:
         raise ValueError(f"No YAML contracts found in {directory}")
     return contracts
+
+
+def contract_for_asset_key(
+    asset_key: str,
+    contracts: dict[str, DatasetContract] | None = None,
+) -> DatasetContract | None:
+    """Return the governed contract for one Dagster asset key, if any."""
+    registry = contracts or load_contracts()
+    for contract in registry.values():
+        if contract.dagster_asset_key == asset_key:
+            return contract
+    return None
+
+
+def governed_pipeline_asset_keys(
+    contracts: dict[str, DatasetContract] | None = None,
+) -> tuple[str, ...]:
+    """Return Dagster asset keys for every governed dataset contract."""
+    registry = contracts or load_contracts()
+    return tuple(sorted(contract.dagster_asset_key for contract in registry.values()))

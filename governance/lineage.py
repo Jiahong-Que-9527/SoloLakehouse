@@ -53,6 +53,7 @@ class DagsterRunEvidence:
     run_id: str
     asset_keys: tuple[str, ...]
     started_at: datetime
+    materialized_snapshot_id: str
 
 
 class OpenMetadataAdapter:
@@ -152,7 +153,13 @@ class DagsterRunAdapter:
           runId
           status
           startTime
-          assetMaterializations { assetKey { path } }
+          assetMaterializations {
+            assetKey { path }
+            metadataEntries {
+              label
+              ... on TextMetadataEntry { text }
+            }
+          }
         }
       }
     }
@@ -168,7 +175,7 @@ class DagsterRunAdapter:
         self.session = session or requests.Session()
         self.timeout_seconds = timeout_seconds
 
-    def collect(self, contract: DatasetContract, run_id: str) -> DagsterRunEvidence:
+    def _fetch_run(self, run_id: str) -> dict[str, Any]:
         if not run_id:
             raise EvidenceSourceError("dagster", "run_id is required")
         try:
@@ -187,6 +194,29 @@ class DagsterRunAdapter:
         run = _dagster_run_payload(payload)
         if run.get("runId") != run_id:
             raise EvidenceSourceError("dagster", "response does not match requested run")
+        return run
+
+    def get_successful_run_materializations(
+        self, run_id: str
+    ) -> tuple[tuple[str, ...], datetime]:
+        """Return materialized asset keys and start time for one successful run."""
+        run = self._fetch_run(run_id)
+        if run.get("status") != "SUCCESS":
+            raise EvidenceSourceError(
+                "dagster", f"run status is {run.get('status')!r}, not 'SUCCESS'"
+            )
+        return (
+            _materialized_asset_keys(run.get("assetMaterializations")),
+            _timestamp(run.get("startTime")),
+        )
+
+    def list_materialized_asset_keys(self, run_id: str) -> tuple[str, ...]:
+        """Return materialized asset keys for one successful Dagster run."""
+        asset_keys, _ = self.get_successful_run_materializations(run_id)
+        return asset_keys
+
+    def collect(self, contract: DatasetContract, run_id: str) -> DagsterRunEvidence:
+        run = self._fetch_run(run_id)
         if run.get("status") != "SUCCESS":
             raise EvidenceSourceError(
                 "dagster", f"run status is {run.get('status')!r}, not 'SUCCESS'"
@@ -196,8 +226,12 @@ class DagsterRunAdapter:
             raise EvidenceSourceError(
                 "dagster", f"run does not materialize required asset {contract.dagster_asset_key!r}"
             )
+        materializations = run.get("assetMaterializations")
+        snapshot_id = _materialized_snapshot_id(materializations, contract.dagster_asset_key)
         started_at = _timestamp(run.get("startTime"))
-        return DagsterRunEvidence(contract.dataset_id, run_id, asset_keys, started_at)
+        return DagsterRunEvidence(
+            contract.dataset_id, run_id, asset_keys, started_at, snapshot_id
+        )
 
 
 class LineageEvidenceJoiner:
@@ -246,6 +280,11 @@ class LineageEvidenceJoiner:
             raise EvidenceSourceError("iceberg", "physical table does not match the contract")
         if contract.dagster_asset_key not in dagster.asset_keys:
             raise EvidenceSourceError("dagster", "asset selection does not match the contract")
+        if dagster.materialized_snapshot_id != iceberg.snapshot_id:
+            raise EvidenceSourceError(
+                "dagster",
+                "materialized iceberg_snapshot_id does not match the current Iceberg snapshot",
+            )
         return LineageRecord(
             dataset_id=contract.dataset_id,
             product_id=self.product_id,
@@ -330,6 +369,43 @@ def _materialized_asset_keys(value: object) -> tuple[str, ...]:
     if not keys:
         raise EvidenceSourceError("dagster", "run materialized no assets")
     return tuple(keys)
+
+
+def _materialized_snapshot_id(materializations: object, asset_key: str) -> str:
+    if not isinstance(materializations, list):
+        raise EvidenceSourceError("dagster", "run has no materializations")
+    for materialization in materializations:
+        if not isinstance(materialization, dict):
+            continue
+        asset = materialization.get("assetKey")
+        path = asset.get("path") if isinstance(asset, dict) else None
+        if not isinstance(path, list) or "/".join(path) != asset_key:
+            continue
+        metadata = _metadata_text_entries(materialization.get("metadataEntries"))
+        snapshot_id = metadata.get("iceberg_snapshot_id")
+        if not snapshot_id:
+            raise EvidenceSourceError(
+                "dagster",
+                f"materialization for {asset_key!r} is missing iceberg_snapshot_id metadata",
+            )
+        return snapshot_id
+    raise EvidenceSourceError(
+        "dagster", f"run has no materialization metadata for asset {asset_key!r}"
+    )
+
+
+def _metadata_text_entries(value: object) -> dict[str, str]:
+    if not isinstance(value, list):
+        return {}
+    entries: dict[str, str] = {}
+    for entry in value:
+        if not isinstance(entry, dict):
+            continue
+        label = entry.get("label")
+        text = entry.get("text")
+        if isinstance(label, str) and isinstance(text, str) and label:
+            entries[label] = text
+    return entries
 
 
 def _timestamp(value: object) -> datetime:

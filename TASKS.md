@@ -20,8 +20,8 @@ As of `2026-07-31`:
 - `v2.5` is delivered and protected from regression.
 - `v2.6.1` is **released** (tagged `2026-07-31`) and carries the corrected
   version stamp. `v2.6.0` is superseded.
-- the active execution target is the remainder of **v2.6.1 Block `J`**: close
-  the gap between *demonstrable* and *operational* evidence.
+- Block `J` implementation is complete; the active v2.6.1 acceptance task is
+  independent external validation of the operational evidence plane.
 - `v2.7` vs `v2.8` ordering is **provisionally v2.8 first** (`docs/roadmap.md`,
   D1), pending confirmation from external feedback after the v2.6.0 release.
 - entity-template / entity-split work is **deferred indefinitely**
@@ -60,7 +60,7 @@ Future agents should follow these rules by default:
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
 | v2.6.0 | Superseded (version-stamp defect) | Computational governance and evidence plane |
-| v2.6.1 | **Released — Block `J` still open** | Corrected version stamp; operationalize the evidence plane |
+| v2.6.1 | **Released — Block `J` implementation complete; external validation pending** | Corrected version stamp; operationalize the evidence plane |
 | v2.8 | Planned — **provisionally next** after v2.6.1 (D1) | AI/ML governance and agent-ready context |
 | v2.7 | Planned — after v2.8 unless D1 is overturned | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | Planned | Operational evidence and promotion discipline |
@@ -78,14 +78,16 @@ Historical block letters remain the stable map for planning references.
 | D | Secrets and access governance | v2.9 -> v3.0 | Planned |
 | E | AI/ML governance and agent-ready context | v2.8 | Planned |
 | F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Planned |
-| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Active (R1–R4)** |
+| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Delivered (G3/G4)** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
-| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Active** |
+| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation pending** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Planned |
 
 ## v2.6.1 Scope Boundary
 
-`v2.6.1` is the current execution target.
+`v2.6.1` is the current acceptance target. Block `J` implementation is
+complete; external validation remains before the version can be treated as
+operationally accepted.
 
 It succeeds only when the evidence plane runs **without a human in the loop**,
 on **every** governed dataset, into **write-once** storage — and when a person
@@ -126,32 +128,36 @@ Tasks `J1` and `J2` were in the original v2.6 plan (at 1 and 2 days) and were
 dropped without being rescheduled. They are the difference between an evidence
 plane that was demonstrated once and one that operates.
 
-- [ ] `J1` Dagster sensor emits lineage evidence automatically when a governed
+- [x] `J1` Dagster sensor emits lineage evidence automatically when a governed
       asset materializes successfully — removes the hand-copied run ID
       *(originally planned in v2.6 as the automatic Dagster hook, 1 day)*
-- [ ] `J2` Enable MinIO Object Lock on the audit bucket; document the retention
+- [x] `J2` Enable MinIO Object Lock on the audit bucket; document the retention
       mode actually configured and update the CHANGELOG limitation note
       *(originally v2.6 `E4`, 2 days)*
-- [ ] `J3` Extend evidence coverage to all five governed datasets
-- [ ] `J4` Bind snapshot to run causally: stamp `snapshot_id` into the Dagster
+- [x] `J3` Extend evidence coverage to all five governed datasets
+- [x] `J4` Bind snapshot to run causally: stamp `snapshot_id` into the Dagster
       asset materialization metadata and verify it in `LineageEvidenceJoiner`
       — today a stale snapshot plus an unrelated successful run yields a
       structurally valid record
-- [ ] `J5` Add `--cov=governance --cov=dagster` to the CI coverage gate
+- [x] `J5` Add `--cov=governance --cov=dagster` to the CI coverage gate
       (`.github/workflows/test.yml` currently covers only
       `ingestion`/`transformations`/`ml`, leaving the v2.6 centerpiece and the
       0%-covered Dagster layer unprotected)
-- [ ] `J6` Add unit tests for `dagster/assets.py` (currently 0% — 97 statements
+- [x] `J6` Add unit tests for `dagster/assets.py` (currently 0% — 97 statements
       on the documented default execution path)
 
 ### Block G — Release Governance (v2.6.1 additions)
 
-- [ ] `G3` Add an **external validation gate** to release readiness: at least one
+- [x] `G3` Add an **external validation gate** to release readiness: at least one
       person outside the project runs `make setup` plus the version's core
       command on their own machine, and friction points are recorded
-- [ ] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
+      *(gate + friction log: `docs/external-validation/`; external sign-off
+      pending for release tag)*
+- [x] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
       using the first round of external feedback, and record the outcome in
       `docs/roadmap.md`
+      *(recorded 2026-08-01: no overturn signal; provisional v2.8-first retained;
+      v2.7/v2.8 implementation still blocked)*
 
 ## v2.6 — Delivered Scope (for reference)
 
@@ -337,12 +343,12 @@ to an audience that currently cannot see it.
 2. ~~`R2` re-run the evidence drill~~ — done
 3. ~~`R3` disclose the defect in the `v2.6.0` release notes~~ — done
 4. ~~`R4` tag and publish `v2.6.1`~~ — done
-5. `J1` automatic evidence emission via Dagster sensor
-6. `J2` MinIO Object Lock on the audit bucket
-7. `J5` extend the CI coverage gate to `governance/` and `dagster/`
-8. `J3` / `J4` full dataset coverage and causal snapshot↔run binding
-9. `J6` unit tests for `dagster/assets.py`
-10. `G3` external validation gate; `G4` record the D1 ordering decision
+5. ~~`J1` automatic evidence emission via Dagster sensor~~ — done
+6. ~~`J2` MinIO Object Lock on the audit bucket~~ — done
+7. ~~`J5` extend the CI coverage gate to `governance/` and `dagster/`~~ — done
+8. ~~`J3` / `J4` full dataset coverage and causal snapshot↔run binding~~ — done
+9. ~~`J6` unit tests for `dagster/assets.py`~~ — done
+10. ~~`G3` external validation gate; `G4` record the D1 ordering decision~~ — done
 
 **Do not start `v2.7` (`I1–I5`) or `v2.8` (`E1–E4`) until `G4` confirms the
 provisional D1 ordering with external input.**
