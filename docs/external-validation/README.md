@@ -8,13 +8,16 @@ Self-certification alone is not a release gate.
 
 1. Pick the validation record for the target version (for example
    [`v2.6.1-external-validation.md`](v2.6.1-external-validation.md)).
-2. On a machine that has **not** been used to develop SoloLakehouse, run the
+2. Check out the record's **acceptance baseline commit** (for Block `J`:
+   `e534c73` or current `main`). Do not test tag `v2.6.1` alone — it predates
+   Block `J`.
+3. On a machine that has **not** been used to develop SoloLakehouse, run the
    commands in the record's **Validator protocol** section.
-3. Fill in environment details, pass/fail results, and every friction point —
+4. Fill in environment details, pass/fail results, and every friction point —
    including steps that eventually worked after a workaround.
-4. Sign the record with validator name, affiliation, and date. Do **not** commit
+5. Sign the record with validator name, affiliation, and date. Do **not** commit
    secrets (`OPENMETADATA_AUTH_TOKEN`, passwords, or tokens).
-5. Link the completed record from [`docs/v2.6-release-readiness.md`](../v2.6-release-readiness.md).
+6. Link the completed record from [`docs/v2.6-release-readiness.md`](../v2.6-release-readiness.md).
 
 ## What counts as friction
 

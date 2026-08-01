@@ -114,31 +114,32 @@ What landed:
   into CI so entry-point drift fails the build.
 - Published repository is English-only.
 
-Not yet delivered (Block `J`, still open):
-- automatic evidence emission, WORM audit storage, coverage for all five
-  governed datasets, causal snapshot↔run binding, CI coverage gate for
-  `governance/` and `dagster/`.
+Release status:
+- **Tagged and published `2026-07-31`** as `v2.6.1` (`6bd138a`).
+- Block `J` shipped later on `main` (`e534c73`, PR #49). See timeline entry below.
 
-Decision gate to v2.7 / v2.8:
-- **G4 recorded 2026-08-01** — provisional v2.8-first retained; no external signal
-  to overturn. v2.7/v2.8 implementation remains blocked until external
-  confirmation or an Owner Decision (`docs/roadmap.md`, D1).
+Decision gate to Block `J` acceptance:
+- External validation against baseline `e534c73`, then a post-Block-`J` tag.
 
 ## v2.6.1 Block J - Implementation Complete; External Validation Pending (2026-08-01)
 
 Theme:
 - Operationalize the evidence plane delivered in v2.6.
 
-Implementation completed:
-- Block `R` — version stamp corrected and v2.6.1 tagged.
+Implementation completed (`main` @ `e534c73`, PR #49, `2026-08-01`):
+- Block `R` — version stamp corrected; tag `v2.6.1` published (`6bd138a`).
 - Block `J` — automatic evidence emission, Object Lock, five-dataset coverage,
   causal snapshot↔run binding, CI coverage for `governance/` and `dagster/`.
 - Block `G` — external validation gate (`docs/external-validation/`) and G4
   D1 ordering record.
 
 Still open for Block `J` acceptance:
-- External validator sign-off in `docs/external-validation/v2.6.1-external-validation.md`.
-- Five-dataset audit manifest release record after a full pipeline run.
+- External validator sign-off in `docs/external-validation/v2.6.1-external-validation.md`
+  against baseline `e534c73`.
+- Post-Block-`J` release tag (proposed `v2.6.2`) after sign-off.
+
+Maintainer rehearsal (`2026-08-01`): `make verify` + `make demo` PASS; automatic
+five-dataset emission confirmed (run `dfe42975…`). Does not satisfy G3.
 
 Decision gate to v2.7 / v2.8:
 - Same as above — D1 provisional; implementation blocked pending external

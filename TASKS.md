@@ -15,13 +15,15 @@ Use it to answer:
 
 ## Canonical Planning State
 
-As of `2026-07-31`:
+As of `2026-08-01`:
 
 - `v2.5` is delivered and protected from regression.
-- `v2.6.1` is **released** (tagged `2026-07-31`) and carries the corrected
-  version stamp. `v2.6.0` is superseded.
-- Block `J` implementation is complete; the active v2.6.1 acceptance task is
-  independent external validation of the operational evidence plane.
+- `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
+  version stamp. `v2.6.0` is superseded. The tag does **not** include Block `J`.
+- Block `J` is **implemented on `main`** (`e534c73`, PR #49). Acceptance baseline
+  for external validation is `e534c73` until a post-Block-`J` tag ships.
+- The active task is **independent external validation** of the operational
+  evidence plane (G3 sign-off).
 - `v2.7` vs `v2.8` ordering is **provisionally v2.8 first** (`docs/roadmap.md`,
   D1), pending confirmation from external feedback after the v2.6.0 release.
 - entity-template / entity-split work is **deferred indefinitely**
@@ -152,7 +154,7 @@ plane that was demonstrated once and one that operates.
       person outside the project runs `make setup` plus the version's core
       command on their own machine, and friction points are recorded
       *(gate + friction log: `docs/external-validation/`; external sign-off
-      pending for release tag)*
+      pending for Block `J` acceptance)*
 - [x] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
       using the first round of external feedback, and record the outcome in
       `docs/roadmap.md`
@@ -336,27 +338,33 @@ Rule:
 
 ## Immediate Next Actions
 
-Execute in this order. Do not reorder — `R1–R4` deliver already-completed work
-to an audience that currently cannot see it.
+Execute in this order.
 
-1. ~~`R1` fix `RUNTIME_VERSION`~~ — done
-2. ~~`R2` re-run the evidence drill~~ — done
-3. ~~`R3` disclose the defect in the `v2.6.0` release notes~~ — done
-4. ~~`R4` tag and publish `v2.6.1`~~ — done
-5. ~~`J1` automatic evidence emission via Dagster sensor~~ — done
-6. ~~`J2` MinIO Object Lock on the audit bucket~~ — done
-7. ~~`J5` extend the CI coverage gate to `governance/` and `dagster/`~~ — done
-8. ~~`J3` / `J4` full dataset coverage and causal snapshot↔run binding~~ — done
-9. ~~`J6` unit tests for `dagster/assets.py`~~ — done
-10. ~~`G3` external validation gate; `G4` record the D1 ordering decision~~ — done
+1. **Recruit an external validator** (outside SoloLakehouse maintainers) to run
+   the protocol in
+   [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md)
+   against acceptance baseline **`e534c73`** (or current `main`).
+2. **Complete the external sign-off table** — all protocol steps pass; friction
+   log updated honestly (including E3 OpenMetadata prerequisites).
+3. **Record Block `J` acceptance** in
+   [`docs/v2.6-release-readiness.md`](docs/v2.6-release-readiness.md) with the
+   validator's run id and five audit object paths from their machine.
+4. **Publish a post-Block-`J` release tag** on the signed commit (proposed
+   `v2.6.2`; do not retag `v2.6.1`) plus GitHub release notes.
+5. **Update planning state** — `docs/roadmap.md`, `TASKS.md`, `AGENTS.md`, and
+   `docs/history/timeline.md` in the same PR as the tag.
 
-**Do not start `v2.7` (`I1–I5`) or `v2.8` (`E1–E4`) until `G4` confirms the
-provisional D1 ordering with external input.**
+**Do not start `v2.7` (`I1–I5`) or `v2.8` (`E1–E4`) until:**
+
+- Block `J` external validation is complete, **and**
+- D1 external confirmation or an explicit Owner Decision lifts the implementation
+  block (`docs/roadmap.md`, gate D1).
 
 ## Decision Rules
 
-- do not start `v2.7` or `v2.8` before `G4` confirms the provisional D1
-  ordering with external input
+- do not start `v2.7` or `v2.8` before Block `J` external validation completes
+  and D1 external confirmation or an Owner Decision lifts the implementation
+  block
 - do not add a new evidence category while the current one is manual,
   single-dataset, or overwritable
 - do not hide missing source fields with best-effort partial outputs
@@ -370,16 +378,21 @@ provisional D1 ordering with external input.**
 
 ## Definition of "v2.6.1 Complete"
 
-`v2.6.1` counts as complete only when all are true:
+Distinguish the **released tag** from **Block `J` acceptance**:
 
-- `v2.6.1` is tagged on `main` and published as a GitHub release
-- `RUNTIME_VERSION` matches the released version in both `runtime_identity.py`
-  and `.env.example`
-- a successful governed materialization produces evidence with **no** manual
-  command
-- the audit bucket has Object Lock enabled and the CHANGELOG limitation note is
-  updated accordingly
-- all five governed datasets have produced at least one evidence manifest
+| Milestone | Status | Evidence |
+|---|---|---|
+| Tag `v2.6.1` (version stamp fix) | **Done** | tag `6bd138a`, GitHub release `2026-07-31` |
+| Block `J` implementation on `main` | **Done** | commit `e534c73`, PR #49, CI green |
+| Block `J` operational acceptance | **Pending** | external sign-off + five-dataset audit record |
+
+Block `J` counts as **accepted** only when all are true:
+
+- acceptance baseline is `e534c73` or later signed `main`
+- a successful governed materialization produces evidence with **no** manual command
+- the audit bucket has Object Lock enabled (fresh deploy or documented upgrade path)
+- all five governed datasets produced audit manifests on the validator's machine
 - the CI coverage gate includes `governance/` and `dagster/`
-- at least one person outside the project has run `make setup` on their own
-  machine and their friction points are recorded
+- at least one person **outside the project** signed
+  `docs/external-validation/v2.6.1-external-validation.md`
+- a **new** post-Block-`J` tag is published (do not rewrite `v2.6.1` history)
