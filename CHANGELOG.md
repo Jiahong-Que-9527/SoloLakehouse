@@ -6,16 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-### Planned — v2.6.1 follow-up (operationalize the evidence plane)
-- Automatic lineage-evidence emission when a governed asset materializes
-  successfully, replacing the manual CLI with a hand-copied Dagster run ID.
-- MinIO Object Lock on the audit bucket, so archived evidence cannot be
-  silently overwritten.
-- Evidence coverage for all five governed datasets, not only
-  `fin.ecb_dax_features_gold`.
-- Causal snapshot↔run binding in the three-source join (today the join verifies
-  name consistency but not causality).
-- CI coverage gate extended to `governance/` and `dagster/`.
+### Fixed
+- Dagster GraphQL adapter no longer references the removed
+  `EventTextMetadataEntry` type (Dagster 1.12), which blocked automatic and
+  manual lineage evidence collection.
+- `lineage_evidence_sensor` defaults to `RUNNING`, yields an explicit skip reason
+  after emission, and monitors all code locations so workspace-launched runs
+  trigger evidence emission.
+- `make pipeline` / `make demo` now launch jobs through the Dagster workspace
+  (with `scripts/wait-for-dagster-run.py`) so runs carry a repository origin.
+- `scripts/init-minio.sh` no longer depends on `grep` inside the MinIO `mc`
+  image and recognizes the actual Object Lock JSON shape from `mc stat --json`.
+
+### Added
+- Dagster `lineage_evidence_sensor` emits lineage evidence automatically when a
+  governed asset materializes in a successful run, replacing the manual CLI with
+  a hand-copied Dagster run ID for the default pipeline path.
+- MinIO Object Lock on the audit bucket (`GOVERNANCE`, default retention
+  `2555d`), verified by `make verify` through the MinIO API.
+- Causal snapshot↔run binding: governed Dagster materializations stamp
+  `iceberg_snapshot_id` metadata, and `LineageEvidenceJoiner` rejects a mismatch
+  with the current Iceberg snapshot.
+- CI and `make test-cov` now include `governance/` and `dagster/` in the
+  coverage gate.
+- Unit tests for `dagster/assets.py` and automatic lineage-evidence emission.
+
+### Remaining v2.6.1 acceptance gate
+- External validator sign-off in
+  `docs/external-validation/v2.6.1-external-validation.md` (gate added; record
+  open).
 
 ## [v2.6.1] - 2026-07-31
 

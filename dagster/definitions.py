@@ -19,6 +19,7 @@ from assets import (  # noqa: E402
     ecb_silver,
     gold_features,
     gold_features_min_rows_check,
+    lineage_evidence_sensor,
     ml_experiment,
 )
 from io_managers import ParquetIOManager  # noqa: E402
@@ -49,7 +50,7 @@ defs = Definitions(
     asset_checks=[gold_features_min_rows_check],
     jobs=[full_pipeline_job, demo_data_flow_job],
     schedules=[daily_pipeline_schedule],
-    sensors=[ecb_data_freshness_sensor],
+    sensors=[ecb_data_freshness_sensor, lineage_evidence_sensor],
     resources={
         "minio": MinioResource(),
         "pipeline_config": PipelineConfigResource(),

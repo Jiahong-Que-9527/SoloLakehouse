@@ -120,10 +120,33 @@ Not yet delivered (Block `J`, still open):
   `governance/` and `dagster/`.
 
 Decision gate to v2.7 / v2.8:
-- Unchanged — D1 must be confirmed with external input (task `G4`) before either
-  version starts.
+- **G4 recorded 2026-08-01** — provisional v2.8-first retained; no external signal
+  to overturn. v2.7/v2.8 implementation remains blocked until external
+  confirmation or an Owner Decision (`docs/roadmap.md`, D1).
 
-## v2.6.1 Block J - Planned (next)
+## v2.6.1 Block J - Implementation Complete; External Validation Pending (2026-08-01)
+
+Theme:
+- Operationalize the evidence plane delivered in v2.6.
+
+Implementation completed:
+- Block `R` — version stamp corrected and v2.6.1 tagged.
+- Block `J` — automatic evidence emission, Object Lock, five-dataset coverage,
+  causal snapshot↔run binding, CI coverage for `governance/` and `dagster/`.
+- Block `G` — external validation gate (`docs/external-validation/`) and G4
+  D1 ordering record.
+
+Still open for Block `J` acceptance:
+- External validator sign-off in `docs/external-validation/v2.6.1-external-validation.md`.
+- Five-dataset audit manifest release record after a full pipeline run.
+
+Decision gate to v2.7 / v2.8:
+- Same as above — D1 provisional; implementation blocked pending external
+  confirmation.
+
+## v2.6.1 Block J - Planned (next) — superseded
+
+_The section below is retained for history only._
 
 Theme:
 - Operationalize the evidence plane delivered in v2.6.

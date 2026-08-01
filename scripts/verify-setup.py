@@ -16,6 +16,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from governance.audit_storage import (  # noqa: E402
+    AuditStorageError,
+    verify_audit_bucket_object_lock,
+)
 from runtime_identity import get_runtime_identity  # noqa: E402
 from storage_config import get_storage_config  # noqa: E402
 
@@ -75,8 +79,20 @@ def check_minio() -> StatusTuple:
         if missing:
             return ("MinIO", "FAIL", f"Missing buckets: {', '.join(missing)}")
 
+        try:
+            lock_config = verify_audit_bucket_object_lock(
+                client,
+                storage_config.audit_bucket,
+            )
+            lock_detail = (
+                f"Object Lock {lock_config.mode} {lock_config.retention} on "
+                f"{storage_config.audit_bucket}"
+            )
+        except AuditStorageError as exc:
+            return ("MinIO", "FAIL", str(exc))
+
         found = ", ".join(sorted(required))
-        return ("MinIO", "PASS", f"Buckets: {found}")
+        return ("MinIO", "PASS", f"Buckets: {found}; {lock_detail}")
     except requests.Timeout:
         return ("MinIO", "TIMEOUT", "Timed out after 5s")
     except Exception as exc:

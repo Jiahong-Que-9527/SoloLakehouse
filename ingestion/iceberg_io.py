@@ -158,3 +158,13 @@ def scan_table(
     """Scan an entire Iceberg table and return as a pandas DataFrame."""
     tbl = catalog.load_table((namespace, table_name))
     return tbl.scan().to_pandas()
+
+
+def current_snapshot_id(catalog: "Catalog", namespace: str, table_name: str) -> str:
+    """Return the current Iceberg snapshot identifier for one table."""
+    tbl = catalog.load_table((namespace, table_name))
+    snapshot = tbl.current_snapshot()
+    snapshot_id = getattr(snapshot, "snapshot_id", None)
+    if snapshot is None or snapshot_id is None:
+        raise ValueError(f"{namespace}.{table_name} has no current snapshot")
+    return str(snapshot_id)
