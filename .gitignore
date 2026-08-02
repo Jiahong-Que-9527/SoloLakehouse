@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 *.pyo
 .env
+.env.shared
+.env.secrets
 .codex
 .codex/
 .codex.disabled
