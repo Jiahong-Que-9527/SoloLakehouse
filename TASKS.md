@@ -264,8 +264,8 @@ Planned v2.8 tasks:
 - [x] `E2` Add AI-governance fields and constraints on top of dataset contracts
 - [x] `E3` Define agent-ready metadata and policy hooks without building a chat
       app (`governance/policy_hooks.py`, `make export-policy-hooks`)
-- [ ] `E4` Generate model/evaluation evidence aligned with the project’s EU AI
-      Act traceability goals
+- [x] `E4` Generate model/evaluation evidence aligned with the project’s EU AI
+      Act traceability goals (`governance/model_evidence.py`, `ml/generate_model_card.py`)
 
 ### Block F — Runtime Productionization and K8s Readiness
 

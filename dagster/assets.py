@@ -213,7 +213,7 @@ def ml_experiment(
         data_contract_hash=contract_content_sha256(contract),
     )
     policy_hook = validate_ml_training_allowed(contract)
-    best_run_id = run_experiment_set(
+    experiment_result = run_experiment_set(
         catalog=catalog,
         mlflow_tracking_uri=pipeline_config.mlflow_tracking_uri,
         lineage=lineage,
@@ -221,14 +221,16 @@ def ml_experiment(
     )
     context.add_output_metadata(
         {
-            "best_run_id": best_run_id,
+            "best_run_id": experiment_result.best_run_id,
             "ml_lineage_sha256": lineage.sha256(),
             "policy_hook_sha256": policy_hook.sha256(),
+            "model_evidence_path": experiment_result.model_evidence_path,
+            "model_evidence_sha256": experiment_result.model_evidence_sha256,
             **lineage.model_dump(mode="json"),
         }
     )
     _emit_metric("ml_experiment", started)
-    return best_run_id
+    return experiment_result.best_run_id
 
 
 @sensor(job_name="full_pipeline_job", minimum_interval_seconds=1800)
