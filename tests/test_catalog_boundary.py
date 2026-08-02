@@ -30,7 +30,16 @@ def test_rest_backend_requires_rest_uri() -> None:
         load_catalog_settings({"ICEBERG_CATALOG_BACKEND": "rest"})
 
 
-def test_build_catalog_rest_backend_fails_loudly() -> None:
+def test_build_catalog_rest_backend_wires_rest_catalog(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, object] = {}
+
+    class _RestCatalog:
+        def __init__(self, name: str, **props: str) -> None:
+            captured["name"] = name
+            captured["props"] = props
+
+    monkeypatch.setattr("pyiceberg.catalog.rest.RestCatalog", _RestCatalog)
+
     settings = CatalogConnectionSettings(
         backend="rest",
         catalog_name="rest",
@@ -39,11 +48,15 @@ def test_build_catalog_rest_backend_fails_loudly() -> None:
         s3_endpoint="http://localhost:9000",
         s3_access_key="key",
         s3_secret_key="secret",
-        rest_uri="http://localhost:8181",
+        rest_uri="http://localhost:8181/api/catalog",
     )
 
-    with pytest.raises(NotImplementedError, match="REST catalog wiring"):
-        build_catalog(settings)
+    build_catalog(settings)
+
+    assert captured["name"] == "rest"
+    props = captured["props"]
+    assert isinstance(props, dict)
+    assert props["uri"] == "http://localhost:8181/api/catalog"
 
 
 def test_get_catalog_from_settings_applies_overrides(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -23,9 +23,9 @@ As of `2026-08-02`:
 - Block `J` is **implemented and internally verified on `main`** (`e534c73`,
   PR #49). Independent external validation is deferred to the integrated
   post-v2.9 release gate.
-- **v2.8 Block `E` is delivered on `main`** (PRs #51–#54). The active task is
-  **v2.7 implementation** (`I1`–`I5`). Development then continues with v2.9
-  before external validation and operational rollout begin.
+- **v2.8 Block `E` is delivered on `main`** (PRs #51–#54). **v2.7 Block `I` is
+  delivered on `main`** (PR #55+). The active task is **v2.9 implementation**.
+  External validation and operational rollout remain deferred until after v2.9.
 - `v2.8` before `v2.7` is an approved Owner Decision (`docs/roadmap.md`, D1).
 - entity-template / entity-split work is **deferred indefinitely**
   (`docs/roadmap.md`, D2).
@@ -65,8 +65,8 @@ Future agents should follow these rules by default:
 | v2.6.0 | Superseded (version-stamp defect) | Computational governance and evidence plane |
 | v2.6.1 | **Released — Block `J` implementation complete; external validation deferred until after v2.9** | Corrected version stamp; operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
-| v2.7 | **Active next development version** | Catalog/control-plane openness and sovereignty proof |
-| v2.9 | Planned | Operational evidence and promotion discipline |
+| v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
+| v2.9 | **Active next development version** | Operational evidence and promotion discipline |
 | v3.0 | Planned | Kubernetes runtime migration |
 
 ## Work Blocks
@@ -84,7 +84,7 @@ Historical block letters remain the stable map for planning references.
 | G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **External gate deferred to post-v2.9** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
 | **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation deferred to post-v2.9** |
-| I | Catalog/control-plane openness and sovereignty proof | v2.7 | **In progress** |
+| I | Catalog/control-plane openness and sovereignty proof | v2.7 | Delivered |
 
 ## v2.6.1 Scope Boundary
 
@@ -332,10 +332,12 @@ Planned v2.7 tasks:
       (`ingestion/catalog_boundary.py`, ADR-017)
 - [x] `I2` Document the current HiveCatalog path versus Iceberg REST catalog path
       (`docs/catalog-boundary.md`)
-- [ ] `I3` Evaluate Apache Polaris as the first reference REST catalog target
-- [ ] `I4` Produce one minimal interoperability proof after the catalog boundary
-      is explicit
-- [ ] `I5` Write the sovereignty report and exit playbook
+- [x] `I3` Evaluate Apache Polaris as the first reference REST catalog target
+      (`docs/polaris-evaluation.md`, optional `make polaris-up` profile)
+- [x] `I4` Produce one minimal interoperability proof after the catalog boundary
+      is explicit (`governance/interoperability.py`, `make interoperability-proof`)
+- [x] `I5` Write the sovereignty report and exit playbook
+      (`governance/sovereignty.py`, `make sovereignty-report`, `docs/exit-playbook.md`)
 
 Rule:
 
@@ -345,12 +347,11 @@ Rule:
 
 Execute in this order.
 
-1. **Implement v2.7** (`I3`–`I5`) with internal automated validation.
-2. **Implement v2.9** operational and promotion evidence.
-3. **After v2.9 is complete, recruit an external validator** for the integrated
+1. **Implement v2.9** operational and promotion evidence.
+2. **After v2.9 is complete, recruit an external validator** for the integrated
    v2.6.1–v2.9 candidate, retain the Block J protocol as a required evidence
    section, and record friction honestly.
-4. **Start operational rollout only after that integrated sign-off**, then tag
+3. **Start operational rollout only after that integrated sign-off**, then tag
    and publish the signed candidate and update planning state in the same PR.
 
 ## Decision Rules

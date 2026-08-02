@@ -61,8 +61,8 @@ As of `2026-08-01`:
 | v2.6.1 (tag) | **Released `2026-07-31`** | Corrected version stamp; English-only publication; unified agent entry points |
 | v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete — external validation deferred until after v2.9** | Operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
-| v2.7 | **Active next development version** | Catalog/control-plane openness and sovereignty proof |
-| v2.9 | Planned | Operational evidence and promotion discipline |
+| v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
+| v2.9 | **Active next development version** | Operational evidence and promotion discipline |
 | v3.0 | Planned | Production runtime migration to Kubernetes |
 | v4.0 | Future candidate | Self-serve usability and operational clarity |
 

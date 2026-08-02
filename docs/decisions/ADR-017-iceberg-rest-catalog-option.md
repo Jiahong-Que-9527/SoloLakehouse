@@ -1,7 +1,7 @@
 # ADR-017: Iceberg REST Catalog Option
 
-**Status:** Accepted (catalog boundary — I1/I2); REST implementation deferred to I3/I4
-**Date:** 2026-08-02
+**Status:** Accepted (I1–I4 delivered); Polaris optional profile for REST drills  
+**Date:** 2026-08-02  
 **Version:** v2.7
 
 ## Context
@@ -21,9 +21,10 @@ codebase needs an explicit backend-selection seam rather than a hard-coded
    resources.
 3. Default backend remains **`hive`** via `ICEBERG_CATALOG_BACKEND=hive`
    (unchanged v2.5 behavior).
-4. Add **`rest`** as a selectable backend that **fails loudly** until v2.7 tasks
-   `I3`/`I4` wire a reference REST implementation and interoperability proof.
-5. Document the Hive vs REST paths in [`docs/catalog-boundary.md`](../catalog-boundary.md).
+4. Add **`rest`** as a selectable backend wired to pyiceberg `RestCatalog` with shared
+   S3/warehouse settings and optional OAuth env vars for Polaris.
+5. Document the Hive vs REST paths in [`docs/catalog-boundary.md`](../catalog-boundary.md)
+   and evaluate Polaris in [`docs/polaris-evaluation.md`](../polaris-evaluation.md).
 
 Environment variables:
 
@@ -32,6 +33,9 @@ Environment variables:
 | `ICEBERG_CATALOG_BACKEND` | `hive` | Backend selector (`hive` or `rest`) |
 | `ICEBERG_CATALOG_NAME` | `hive` | pyiceberg catalog name |
 | `ICEBERG_REST_URI` | unset | Required when backend is `rest` |
+| `ICEBERG_REST_CREDENTIAL` | unset | OAuth client credentials (`client_id:client_secret`) |
+| `ICEBERG_REST_OAUTH2_URI` | unset | Optional OAuth token endpoint override |
+| `ICEBERG_REST_SCOPE` | unset | Optional OAuth scope |
 | Existing Hive/S3 settings | unchanged | Warehouse + credentials |
 
 ## Consequences
@@ -39,8 +43,8 @@ Environment variables:
 - v2.7 interoperability work can swap backends without touching collectors,
   transforms, or governance modules.
 - The default `make up` / `make demo` path is unchanged.
-- REST Catalog does **not** enter `docker-compose.yml` until I3/I4 explicitly add
-  an optional profile or reference path.
+- REST Catalog does **not** enter the default `COMPOSE_STACK`; optional profile
+  `make polaris-up` starts a reference Polaris container only.
 
 ## Alternatives Considered
 
@@ -53,4 +57,6 @@ Environment variables:
 ## Related
 
 - [`docs/catalog-boundary.md`](../catalog-boundary.md)
-- v2.7 tasks `I3` (Polaris evaluation) and `I4` (minimal interoperability proof)
+- [`docs/polaris-evaluation.md`](../polaris-evaluation.md)
+- [`docs/exit-playbook.md`](../exit-playbook.md)
+- `make interoperability-proof` / `make sovereignty-report`

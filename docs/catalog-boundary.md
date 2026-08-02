@@ -32,9 +32,13 @@ enabled in the default Compose stack.
 | `ICEBERG_REST_URI` | Base URI for the REST catalog service |
 | Shared warehouse + S3 settings | Same object-store layout as the Hive path |
 
-Selecting `rest` today fails loudly with `NotImplementedError` until tasks
-`I3`/`I4` wire a reference REST implementation (Apache Polaris evaluation) and
-produce the minimal interoperability proof.
+Selecting `rest` constructs a pyiceberg `RestCatalog` through `ingestion/catalog_boundary.py`.
+Live namespace listing requires a bootstrapped REST catalog (see
+[`docs/polaris-evaluation.md`](polaris-evaluation.md)) and:
+
+```bash
+make interoperability-proof LIVE_REST=1
+```
 
 ## Why this boundary exists
 
