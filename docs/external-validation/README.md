@@ -25,6 +25,8 @@ Self-certification remains insufficient for the integrated release gate.
    **not** commit secrets (`OPENMETADATA_AUTH_TOKEN`, passwords, or tokens).
 8. Link the completed record from [`docs/v2.6-release-readiness.md`](../v2.6-release-readiness.md).
 
+Maintainer outreach guidance: [`outreach.md`](outreach.md)
+
 ## What counts as friction
 
 Record anything that blocked, confused, or required undocumented knowledge:

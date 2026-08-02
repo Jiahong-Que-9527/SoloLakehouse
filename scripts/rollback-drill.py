@@ -57,11 +57,11 @@ def main() -> int:
     args = parser.parse_args()
 
     identity = get_runtime_identity()
+    service_results, missing_env = run_verification_checks()
     rollback_tag = resolve_rollback_target_tag()
     rollback_commit = resolve_tag_commit(rollback_tag)
     current_commit = resolve_git_commit()
 
-    service_results, missing_env = run_verification_checks()
     gates = list(gates_from_service_checks(service_results))
     gates.append(_contract_gate())
     if missing_env:

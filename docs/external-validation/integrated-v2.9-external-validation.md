@@ -59,6 +59,15 @@ make verify
 Do **not** use `cp .env.example .env` — that bypasses the v2.9 secrets split and
 skips `make init-env`.
 
+**Cold clone:** the example templates are sufficient; `make setup` creates fresh
+bind-mounted state with the default local credentials.
+
+**Upgrade / maintainer machine with existing `docker/data/`:** before running
+`make init-env`, copy any customized secrets and `COMPOSE_PROJECT_NAME` from your
+previous `.env` into `.env.secrets` / `.env.shared`. Template defaults will not
+match persisted MinIO credentials or an already-running Compose project name, and
+`make verify` / `make demo` will fail until they align (see friction log E7–E8).
+
 ### 2. OpenMetadata token (required before demo / Block `J`)
 
 After the stack is healthy:
@@ -187,27 +196,30 @@ Link the completed record from [`docs/v2.6-release-readiness.md`](../v2.6-releas
 | E4 | `make setup` | medium | Cold clone takes several minutes; `make wait` timeout is 5 minutes which can be tight on slow hosts | Retry `make verify`; increase wait locally if needed | _open — monitor external runs_ |
 | E5 | Evidence | info | Automatic emission requires `dagster-daemon` healthy and OM token present; sensor tick may lag ~30s after run success | Wait for daemon log `lineage_evidence_emitted` | fixed: sensor defaults RUNNING |
 | E6 | Bootstrap | high | Prior protocol used `cp .env.example .env`, which skipped the v2.9 split and contradicted Block `D` | Use `make init-env` instead | fixed in this record (2026-08-02) |
+| E7 | `make init-env` / upgrade | high | Template `.env.secrets` resets MinIO/S3 passwords; persisted MinIO data keeps the old root password → `SignatureDoesNotMatch` on `make verify` | Copy live MinIO credentials into `.env.secrets` before merge, or `make clean && make setup` on a cold clone | documented in bootstrap notes (2026-08-02 rehearsal) |
+| E8 | `COMPOSE_PROJECT_NAME` | medium | Template sets `sololakehouse` but an existing dev stack may run under a different Compose project (for example `docker`) → `make demo` / `make pipeline` exec fails | Preserve the project name that owns the running containers in `.env.shared` | documented in bootstrap notes (2026-08-02 rehearsal) |
+| E9 | `make rollback-drill` | high | Script read `ROLLBACK_TARGET_TAG` before loading `.env`, so the command failed on a merged-env-only setup | Fixed: load verify-setup dotenv before resolving rollback tag (`scripts/rollback-drill.py`) | fixed on `main` (2026-08-02 rehearsal) |
 
 Add rows during your run. Do not delete maintainer-identified rows — append new
 IDs or mark validator-specific follow-ups.
 
 ---
 
-## Maintainer integrated rehearsal (template)
+## Maintainer integrated rehearsal (2026-08-02)
 
 Maintainer rehearsals help fix docs before outreach. They **do not** satisfy the
 external-validation gate.
 
 | Field | Value |
 |---|---|
-| Environment | maintainer rehearsal (not external) |
-| Git commit tested | _pending_ (target: signed post-v2.9 candidate on `main`) |
-| Bootstrap | _pending_ (`make init-env`, not `cp .env.example .env`) |
-| `make verify` | _pending_ |
-| `make demo` | _pending_ |
-| Block `J` five datasets | _pending_ |
-| Block `E` / `I` / `B`/`C`/`D`/`F` commands | _pending_ |
-| Friction found | _pending_ |
+| Environment | maintainer rehearsal (not external) — existing dev machine with bind-mounted state |
+| Git commit tested | `f5dc53d` (`main`, PRs #61 + #62 merged) |
+| Bootstrap | PASS after copying live MinIO secrets into `.env.secrets` and using `COMPOSE_PROJECT_NAME=docker` to match the running stack |
+| `make verify` | PASS (9/9 services, Object Lock GOVERNANCE 2555d on `sololakehouse-audit`) |
+| `make demo` | PASS (Gold 53 rows); Dagster run `7f4113b8-4da0-43cc-a753-e9178b1b8e1e` with `COMPOSE_PROJECT_NAME=docker` |
+| Block `J` five datasets | PASS — automatic emission for all five governed datasets on the demo run |
+| Block `E` / `I` / `B`/`C`/`D`/`F` commands | PASS — all integrated evidence commands exited `0` after rollback-drill dotenv fix |
+| Friction found | E7 (MinIO credential mismatch after template init-env), E8 (Compose project name), E9 (rollback-drill dotenv order — fixed in repo) |
 
 Historical Block `J`-only rehearsal (2026-08-01): see
 [`v2.6.1-external-validation.md`](v2.6.1-external-validation.md#maintainer-block-j-rehearsal-2026-08-01).

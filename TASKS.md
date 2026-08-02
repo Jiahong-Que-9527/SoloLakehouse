@@ -360,7 +360,8 @@ Execute in this order.
    [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md)
    (Block `J` detail in
    [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md));
-   record friction honestly.
+   onboarding checklist in
+   [`docs/external-validation/outreach.md`](docs/external-validation/outreach.md).
 3. **Start operational rollout only after that integrated sign-off**, then tag
    and publish the signed candidate and update planning state in the same PR.
 
