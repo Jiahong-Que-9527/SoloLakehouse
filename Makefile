@@ -5,6 +5,7 @@ COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetad
 ENV_FILE ?= .env
 GIT_COMMIT ?= $(shell git rev-parse HEAD 2>/dev/null)
 export GIT_COMMIT
+LINEAGE_BUILD_INPUTS := ingestion governance transformations ml scripts dagster data requirements.txt requirements-dagster.txt runtime_identity.py storage_config.py docker/dagster
 DOCKER_COMPOSE := docker compose --env-file $(ENV_FILE)
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 VENV_PYTHON := .venv/bin/python
@@ -31,7 +32,15 @@ wait-postgres-ready:
 init-iceberg:
 	$(PYTHON) scripts/init-iceberg-namespaces.py
 
-up: prepare-data-dirs
+check-git-lineage:
+	@test -n "$(GIT_COMMIT)" || (echo "GIT_COMMIT could not be resolved; run from a git checkout." && exit 1)
+	@if ! git diff --quiet -- $(LINEAGE_BUILD_INPUTS) || test -n "$$(git ls-files --others --exclude-standard -- $(LINEAGE_BUILD_INPUTS))"; then \
+		echo "Refusing to build lineage-bearing Dagster images from dirty inputs."; \
+		git status --short -- $(LINEAGE_BUILD_INPUTS); \
+		exit 1; \
+	fi
+
+up: check-git-lineage prepare-data-dirs
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d postgres minio
 	$(MAKE) wait-postgres-ready
 	$(MAKE) bootstrap-db

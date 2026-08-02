@@ -137,6 +137,21 @@ split) is the next decision gate; it has not yet begun.
 - Secrets/access model and auditability
 - SLO/alerting and incident readiness
 
+## v2.8 E1 ML Lineage Choice (2026-08-02)
+
+1) Five-way ML evidence binding (implemented on PR #51, pending merge)
+- Selected: bind each MLflow run to `iceberg_snapshot_id`, `dagster_run_id`,
+  `feature_version`, `code_commit`, and `data_contract_hash`, plus a canonical
+  SHA-256 digest.
+- Selected: train through PyIceberg pinned to the tuple's snapshot ID.
+- Rejected: an unversioned Trino read after recording the current snapshot;
+  concurrent Gold rewrites could otherwise make the evidence describe data that
+  the experiment did not consume.
+- Rejected: stamping `git rev-parse HEAD` without a clean-build check; a Docker
+  image can contain dirty source while claiming the clean commit.
+- Compatibility: no service is added and the v2.5 runtime remains unchanged.
+- ADR-018 records the tuple; ADR-021 defines the metadata-first policy boundary.
+
 ## Release-gate sequencing decision (2026-08-02)
 
 - Selected: continue internal development through **v2.8, v2.7, and v2.9**;

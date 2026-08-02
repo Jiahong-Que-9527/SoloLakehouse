@@ -149,6 +149,26 @@ Owner Decision (2026-08-02):
 - Independent external validation and operational rollout begin only after
   v2.9 completes; they do not block implementation or internal validation.
 
+## v2.8 E1 - ML Lineage Five-Tuple (2026-08-02) - Implemented; PR #51 Pending
+
+Theme:
+- Bind every governed MLflow experiment to the exact data snapshot, Dagster
+  run, feature definition, source revision, and dataset contract in force.
+
+What landed on PR #51:
+- `MLLineageTuple` with five required fields and a canonical SHA-256 digest.
+- MLflow `slh.*` tags and Dagster `ml_experiment` metadata carrying the tuple.
+- Snapshot-pinned PyIceberg training reads, so the evidence snapshot is the data
+  consumed by training rather than a contemporaneous table head.
+- A dirty-input guard before Dagster image builds, preventing `HEAD` from being
+  stamped when copied application code differs from that commit.
+- ADR-018 finalized; ADR-021 records metadata-first policy hooks and defers
+  query-time enforcement.
+
+Decision gate to E2:
+- Merge PR #51 only after its CI and review fixes pass. E2 then extends dataset
+  contracts with AI-governance fields and constraints.
+
 ## v2.6.1 Block J - Planned (next) — superseded
 
 _Superseded by the 2026-08-02 Owner Decision (continuous development through

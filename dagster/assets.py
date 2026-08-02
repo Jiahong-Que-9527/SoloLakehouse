@@ -215,7 +215,6 @@ def ml_experiment(
         catalog=catalog,
         mlflow_tracking_uri=pipeline_config.mlflow_tracking_uri,
         lineage=lineage,
-        trino_url=pipeline_config.trino_url,
     )
     context.add_output_metadata(
         {

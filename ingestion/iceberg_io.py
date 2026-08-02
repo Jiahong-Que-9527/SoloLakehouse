@@ -154,10 +154,13 @@ def scan_table(
     catalog: "Catalog",
     namespace: str,
     table_name: str,
+    *,
+    snapshot_id: str | None = None,
 ) -> pd.DataFrame:
-    """Scan an entire Iceberg table and return as a pandas DataFrame."""
+    """Scan an entire Iceberg table, optionally pinned to one snapshot."""
     tbl = catalog.load_table((namespace, table_name))
-    return tbl.scan().to_pandas()
+    resolved_snapshot_id = int(snapshot_id) if snapshot_id is not None else None
+    return tbl.scan(snapshot_id=resolved_snapshot_id).to_pandas()
 
 
 def current_snapshot_id(catalog: "Catalog", namespace: str, table_name: str) -> str:

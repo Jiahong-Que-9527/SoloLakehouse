@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -82,6 +83,15 @@ def test_bind_mlflow_run_uses_run_set_tag_when_available() -> None:
     bind_mlflow_run(run, lineage)
 
     assert run.set_tag.call_count == len(mlflow_tags_for_tuple(lineage))
+
+
+def test_makefile_rejects_dirty_dagster_build_inputs() -> None:
+    makefile = Path("Makefile").read_text(encoding="utf-8")
+
+    assert "check-git-lineage:" in makefile
+    assert "git diff --quiet -- $(LINEAGE_BUILD_INPUTS)" in makefile
+    assert "git ls-files --others --exclude-standard -- $(LINEAGE_BUILD_INPUTS)" in makefile
+    assert "up: check-git-lineage prepare-data-dirs" in makefile
 
 
 @pytest.mark.parametrize(
