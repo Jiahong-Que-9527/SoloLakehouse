@@ -1,30 +1,56 @@
 # ADR-017: Iceberg REST Catalog Option
 
-**Status:** Placeholder
-**Target version:** v2.7
-**Related work:** E15, Block I4
+**Status:** Accepted (catalog boundary — I1/I2); REST implementation deferred to I3/I4  
+**Date:** 2026-08-02  
+**Version:** v2.7
 
 ## Context
 
-SoloLakehouse currently uses Hive Metastore as the catalog backend for Iceberg Gold tables. v2.7 needs a documented comparison between Hive Metastore, Iceberg REST Catalog, and AWS Glue so the project can demonstrate catalog portability without replacing the default local stack.
+SoloLakehouse uses Hive Metastore as the default Iceberg catalog backend. v2.7
+must demonstrate catalog portability without replacing the protected v2.5
+Compose stack. Before comparing REST Catalog or managed alternatives, the
+codebase needs an explicit backend-selection seam rather than a hard-coded
+`HiveCatalog` constructor in `ingestion/iceberg_io.py`.
 
-## Decision To Make
+## Decision
 
-Decide whether v2.7 should add an optional Iceberg REST Catalog compose profile, and document when a customer should stay with Hive Metastore versus switch to REST Catalog or a managed catalog such as AWS Glue.
+1. Introduce `ingestion/catalog_boundary.py` as the **only** place that chooses
+   and constructs a pyiceberg catalog backend.
+2. Keep `ingestion.iceberg_io.get_catalog()` as the public pipeline entry point,
+   delegating to the boundary with optional overrides for tests and Dagster
+   resources.
+3. Default backend remains **`hive`** via `ICEBERG_CATALOG_BACKEND=hive`
+   (unchanged v2.5 behavior).
+4. Add **`rest`** as a selectable backend that **fails loudly** until v2.7 tasks
+   `I3`/`I4` wire a reference REST implementation and interoperability proof.
+5. Document the Hive vs REST paths in [`docs/catalog-boundary.md`](../catalog-boundary.md).
 
-## Evidence Required
+Environment variables:
 
-- Same Gold Iceberg table readable through the current Hive Metastore path.
-- Same or equivalent table readable through the optional REST Catalog path.
-- Documented behavior differences for schema evolution, auth, metadata location, and engine compatibility.
-- Clear statement that REST Catalog is optional and does not enter the default `make up` stack.
+| Variable | Default | Purpose |
+|---|---|---|
+| `ICEBERG_CATALOG_BACKEND` | `hive` | Backend selector (`hive` or `rest`) |
+| `ICEBERG_CATALOG_NAME` | `hive` | pyiceberg catalog name |
+| `ICEBERG_REST_URI` | unset | Required when backend is `rest` |
+| Existing Hive/S3 settings | unchanged | Warehouse + credentials |
 
-## Alternatives To Compare
+## Consequences
 
-- Hive Metastore as the default local/reference catalog.
-- Iceberg REST Catalog as the open, engine-neutral upgrade path.
-- AWS Glue or equivalent managed catalog for cloud deployments where customer policy allows managed services.
+- v2.7 interoperability work can swap backends without touching collectors,
+  transforms, or governance modules.
+- The default `make up` / `make demo` path is unchanged.
+- REST Catalog does **not** enter `docker-compose.yml` until I3/I4 explicitly add
+  an optional profile or reference path.
 
-## Follow-Up
+## Alternatives Considered
 
-Replace this placeholder with a full ADR when v2.7 E15 implementation starts.
+- **Document-only portability claim** — rejected; roadmap requires a code seam.
+- **Immediate REST Catalog in default Compose** — rejected; violates v2.5 runtime
+  freeze and ADR scope reduction.
+- **Glue as default local backend** — rejected; managed catalog is a deployment
+  choice, not the reference stack.
+
+## Related
+
+- [`docs/catalog-boundary.md`](../catalog-boundary.md)
+- v2.7 tasks `I3` (Polaris evaluation) and `I4` (minimal interoperability proof)

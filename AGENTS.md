@@ -38,8 +38,12 @@ Never treat a roadmap *target* as a delivered *capability*.
   emission, Object Lock, five-dataset coverage, causal snapshot↔run binding,
   and CI coverage for `governance/` + `dagster/`. **Implementation complete;
   independent external validation deferred until after v2.9.**
-- **Active development order:** v2.8, then v2.7, then v2.9. The integrated
-  external-validation and operational-rollout gate follows v2.9; see `TASKS.md`.
+- **v2.8 Block `E` delivered on `main`** (2026-08-02, PRs #51–#54) — ML lineage
+  five-tuple, AI-governance contract fields, policy hooks, model evaluation
+  evidence and model card.
+- **Active development:** v2.7 catalog/control-plane openness (`I1`–`I5`), then
+  v2.9. The integrated external-validation and operational-rollout gate follows
+  v2.9; see `TASKS.md`.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 
