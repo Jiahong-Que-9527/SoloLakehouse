@@ -42,6 +42,14 @@ def _contract() -> DatasetContract:
             "dagster_asset_key": "gold_features",
             "upstream_dataset_ids": ["fin.ecb_rates_silver"],
             "quality_rules": {"required_columns": ["date"], "min_row_count": 1},
+            "ai_governance": {
+                "ai_use_allowed": True,
+                "risk_tier": "limited_risk",
+                "intended_uses": ["model_training"],
+                "prohibited_uses": ["automated_decision_making"],
+                "human_oversight_required": True,
+                "model_lineage_required": True,
+            },
         }
     )
 
