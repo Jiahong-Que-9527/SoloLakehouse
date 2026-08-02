@@ -43,7 +43,7 @@ def _downcast_ns_timestamps(table: pa.Table) -> pa.Table:
 
 
 def get_catalog(
-    name: str = "hive",
+    name: str | None = None,
     uri: str | None = None,
     warehouse: str | None = None,
     s3_endpoint: str | None = None,

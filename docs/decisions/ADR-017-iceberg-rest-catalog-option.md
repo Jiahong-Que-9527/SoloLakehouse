@@ -1,7 +1,7 @@
 # ADR-017: Iceberg REST Catalog Option
 
-**Status:** Accepted (catalog boundary — I1/I2); REST implementation deferred to I3/I4  
-**Date:** 2026-08-02  
+**Status:** Accepted (catalog boundary — I1/I2); REST implementation deferred to I3/I4
+**Date:** 2026-08-02
 **Version:** v2.7
 
 ## Context

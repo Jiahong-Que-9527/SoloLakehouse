@@ -61,3 +61,20 @@ def test_get_catalog_from_settings_applies_overrides(monkeypatch: pytest.MonkeyP
 
     assert captured["name"] == "custom"
     assert captured["props"]["uri"] == "thrift://override:9083"
+
+
+def test_get_catalog_honors_configured_catalog_name(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, object] = {}
+
+    class _HiveCatalog:
+        def __init__(self, name: str, **props: object) -> None:
+            captured["name"] = name
+
+    monkeypatch.setattr("pyiceberg.catalog.hive.HiveCatalog", _HiveCatalog)
+    monkeypatch.setenv("ICEBERG_CATALOG_NAME", "configured-hive")
+
+    from ingestion.iceberg_io import get_catalog
+
+    get_catalog()
+
+    assert captured["name"] == "configured-hive"
