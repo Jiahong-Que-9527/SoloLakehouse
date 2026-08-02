@@ -3,6 +3,8 @@
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
 ENV_FILE ?= .env
+GIT_COMMIT ?= $(shell git rev-parse HEAD 2>/dev/null)
+export GIT_COMMIT
 DOCKER_COMPOSE := docker compose --env-file $(ENV_FILE)
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 VENV_PYTHON := .venv/bin/python

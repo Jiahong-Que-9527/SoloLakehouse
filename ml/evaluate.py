@@ -13,6 +13,7 @@ import mlflow
 import pandas as pd
 import structlog
 
+from governance.ml_lineage import MLLineageTuple, bind_mlflow_run
 from ingestion import iceberg_io
 from ml.train_ecb_dax_model import train
 from runtime_identity import get_trino_user
@@ -57,6 +58,7 @@ def _gold_dataframe_from_iceberg(catalog: "Catalog") -> pd.DataFrame:
 def run_experiment_set(
     catalog: "Catalog",
     mlflow_tracking_uri: str,
+    lineage: MLLineageTuple,
     trino_url: str | None = None,
 ) -> str:
     """Run all configured experiment combinations and return the best run_id."""
@@ -80,6 +82,7 @@ def run_experiment_set(
                     "max_depth": max_depth,
                 }
                 with mlflow.start_run() as run:
+                    bind_mlflow_run(run, lineage)
                     model, metrics = train(df=df, model_type=model_type, params=params)
 
                     mlflow.log_param("model_type", model_type)
