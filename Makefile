@@ -1,4 +1,4 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
@@ -121,6 +121,21 @@ rollback-drill:
 operational-evidence:
 	$(PYTHON) scripts/operational-evidence.py $(if $(ALLOW_SLO_FAILURE),--allow-slo-failure,)
 
+init-env:
+	@test -f .env.shared || cp .env.shared.example .env.shared
+	@test -f .env.secrets || cp .env.secrets.example .env.secrets
+	$(PYTHON) scripts/merge-env-files.py
+
+secrets-discipline:
+	$(PYTHON) scripts/secrets-discipline.py $(if $(ALLOW_SECRETS_WARN),--allow-warn,)
+
+secrets-rotation-drill:
+	@test -n "$(ROTATED_KEYS)" || (echo "ROTATED_KEYS is required" && exit 2)
+	$(PYTHON) scripts/secrets-rotation-drill.py --keys "$(ROTATED_KEYS)" $(if $(ROTATION_NOTES),--notes "$(ROTATION_NOTES)",)
+
+k8s-readiness:
+	$(PYTHON) scripts/k8s-readiness.py
+
 demo:
 	$(MAKE) verify
 	$(MAKE) pipeline DAGSTER_JOB=demo_data_flow_job
@@ -167,8 +182,8 @@ dagster-ui:
 setup:
 	@echo "[1/4] Checking Docker daemon..."
 	@docker info >/dev/null 2>&1 || (echo "Docker is not running. Please start Docker and retry." && exit 1)
-	@echo "[2/4] Ensuring .env and Python environment exist..."
-	@test -f .env || cp .env.example .env
+	@echo "[2/4] Ensuring env files and Python environment exist..."
+	@test -f .env || $(MAKE) init-env
 	@test -x $(VENV_PYTHON) || python3 -m venv .venv
 	$(VENV_PYTHON) -m pip install -r requirements.txt
 	@echo "[3/4] Pulling container images..."
