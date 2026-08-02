@@ -33,7 +33,7 @@ a design goal that competes with it.
 
 ## Current Strategic Position
 
-As of `2026-08-01`:
+As of `2026-08-02`:
 
 - `v2.5` remains the protected baseline runtime and does not change until v3.0.
 - `v2.6.1` is **released** as tag `v2.6.1` (`6bd138a`, `2026-07-31`) — version
@@ -43,8 +43,8 @@ As of `2026-08-01`:
 - Block `J` is **implemented on `main`** (`e534c73`, PR #49, `2026-08-01`). The
   tag predates Block `J`; do not treat `v2.6.1` as the Block `J` release.
 - Block `J` is internally verified against `e534c73`; its independent external
-  validation and operational rollout are deliberately deferred until v2.9 is
-  complete.
+  validation and operational rollout are the **active integrated gate** now that
+  v2.9 is delivered on `main`.
 - The approved development order is **v2.8, then v2.7, then v2.9**; see
   "Open Decisions" below.
 - future planning prioritizes **control plane and evidence value** over adding
@@ -62,8 +62,8 @@ As of `2026-08-01`:
 | v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete — external validation deferred until after v2.9** | Operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
-| v2.9 | **Active next development version** | Operational evidence and promotion discipline |
-| v3.0 | Planned | Production runtime migration to Kubernetes |
+| v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
+| v3.0 | **Next after external gate** | Production runtime migration to Kubernetes |
 | v4.0 | Future candidate | Self-serve usability and operational clarity |
 
 ## Delivery Velocity (measured, not estimated)
@@ -282,6 +282,10 @@ Core deliverables:
 - rollback and drill artifacts
 - secrets/access discipline documentation and checks
 - readiness gates for the runtime migration
+
+**Status: delivered on `main` (`71c2c89`, PRs #57, #59).** Internal validation
+passes; the integrated external validation gate is the next milestone before
+operational rollout or a post-v2.9 tag.
 
 ### v3.0 — Production Runtime Migration
 

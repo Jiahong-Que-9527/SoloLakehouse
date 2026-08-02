@@ -149,6 +149,24 @@ Owner Decision (2026-08-02):
 - Independent external validation and operational rollout begin only after
   v2.9 completes; they do not block implementation or internal validation.
 
+## v2.9 — Operational and Promotion Evidence (2026-08-02) - Delivered
+
+Theme:
+- Repeatable operations, rollback readiness, and promotion discipline on the
+  existing v2.5 runtime.
+
+What landed on `main` @ `71c2c89`:
+- Block `B`/`C` (PR #57) — promotion chain evidence, rollback drill manifests,
+  SLO evaluation from verify-setup checks, incident runbook bindings.
+- Block `D`/`F` (PR #59) — `.env.shared`/`.env.secrets` split, secrets discipline
+  and rotation drill evidence, K8s migration readiness gate (no Helm/Terraform).
+- ADR-022 and ADR-023; 167 unit tests on `main`.
+
+Decision gate to integrated external validation:
+- Recruit at least one external validator for the v2.6.1–v2.9 candidate per
+  `docs/external-validation/v2.6.1-external-validation.md`. Do not start v3.0
+  or operational rollout until that gate completes.
+
 ## v2.8 E1 - ML Lineage Five-Tuple (2026-08-02) - Implemented; PR #51 Pending
 
 Theme:

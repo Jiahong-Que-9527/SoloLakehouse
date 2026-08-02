@@ -41,9 +41,14 @@ Never treat a roadmap *target* as a delivered *capability*.
 - **v2.8 Block `E` delivered on `main`** (2026-08-02, PRs #51–#54) — ML lineage
   five-tuple, AI-governance contract fields, policy hooks, model evaluation
   evidence and model card.
-- **Active development:** v2.9 operational and promotion evidence (`Blocks B/C/D/F`).
-  v2.7 catalog/control-plane openness is delivered on `main`. External validation
-  and operational rollout remain deferred until after v2.9; see `TASKS.md`.
+- **v2.7 Block `I` delivered on `main`** (2026-08-02, PRs #55–#56) — catalog
+  boundary, Polaris evaluation, interoperability proof, sovereignty report.
+- **v2.9 Blocks `B`/`C`/`D`/`F` delivered on `main`** (2026-08-02, PRs #57,
+  #59) — promotion/rollback evidence, operational SLO evidence, secrets
+  discipline, and K8s readiness gate.
+- **Active task:** integrated external validation and operational rollout gate
+  (Block `G`). Do not start v3.0 implementation until that gate completes; see
+  `TASKS.md`.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 
@@ -68,7 +73,7 @@ doing work that may be thrown away.
 
 | Gate | Rule |
 |---|---|
-| **D1** | **Resolved 2026-08-02 by Owner Decision:** implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9. Do not begin independent external validation or operational rollout until v2.9 is complete; this does not block development or internal automated validation. |
+| **D1** | **Resolved 2026-08-02 by Owner Decision:** implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9. v2.9 is complete on `main`; begin independent external validation and operational rollout against the integrated candidate. Do not start v3.0 until that gate completes. |
 | **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
 | **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
 
