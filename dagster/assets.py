@@ -26,10 +26,12 @@ from dagster import (
 )
 from governance.contracts import contract_for_asset_key
 from governance.emission import emit_pending_lineage_evidence_for_run
+from governance.ml_lineage import build_ml_lineage_tuple, contract_content_sha256
 from ingestion import iceberg_io
 from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
 from ml.evaluate import run_experiment_set
+from ml.train_ecb_dax_model import FEATURE_VERSION
 from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
 
 logger = structlog.get_logger()
@@ -197,12 +199,30 @@ def ml_experiment(
 ) -> str:
     _ = gold_features
     started = time.perf_counter()
-    best_run_id = run_experiment_set(
-        catalog=iceberg_catalog.get_catalog(),
-        mlflow_tracking_uri=pipeline_config.mlflow_tracking_uri,
-        trino_url=pipeline_config.trino_url,
+    catalog = iceberg_catalog.get_catalog()
+    contract = contract_for_asset_key("gold_features")
+    if contract is None:
+        raise ValueError("gold_features is not covered by a governed dataset contract")
+    location = contract.physical_location
+    snapshot_id = iceberg_io.current_snapshot_id(catalog, location.namespace, location.table)
+    lineage = build_ml_lineage_tuple(
+        iceberg_snapshot_id=snapshot_id,
+        dagster_run_id=context.run_id,
+        feature_version=FEATURE_VERSION,
+        data_contract_hash=contract_content_sha256(contract),
     )
-    context.add_output_metadata({"best_run_id": best_run_id})
+    best_run_id = run_experiment_set(
+        catalog=catalog,
+        mlflow_tracking_uri=pipeline_config.mlflow_tracking_uri,
+        lineage=lineage,
+    )
+    context.add_output_metadata(
+        {
+            "best_run_id": best_run_id,
+            "ml_lineage_sha256": lineage.sha256(),
+            **lineage.model_dump(mode="json"),
+        }
+    )
     _emit_metric("ml_experiment", started)
     return best_run_id
 

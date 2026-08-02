@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import os
 import pickle
 import tempfile
-import urllib.parse
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -13,9 +11,9 @@ import mlflow
 import pandas as pd
 import structlog
 
+from governance.ml_lineage import MLLineageTuple, bind_mlflow_run
 from ingestion import iceberg_io
 from ml.train_ecb_dax_model import train
-from runtime_identity import get_trino_user
 
 if TYPE_CHECKING:
     from pyiceberg.catalog import Catalog
@@ -23,48 +21,23 @@ if TYPE_CHECKING:
 logger = structlog.get_logger()
 
 
-def _gold_dataframe_from_trino(trino_url: str) -> pd.DataFrame:
-    import trino as trino_mod
-
-    parsed = urllib.parse.urlparse(trino_url)
-    host = parsed.hostname or "localhost"
-    port = parsed.port or 8080
-    user = get_trino_user()
-    conn = trino_mod.dbapi.connect(
-        host=host,
-        port=port,
-        user=user,
-        catalog="iceberg",
-        schema="gold",
-        http_scheme="http",
+def _gold_dataframe_from_iceberg(catalog: "Catalog", snapshot_id: str) -> pd.DataFrame:
+    """Read exactly the Gold snapshot bound into governed ML lineage."""
+    return iceberg_io.scan_table(
+        catalog,
+        "gold",
+        "ecb_dax_features",
+        snapshot_id=snapshot_id,
     )
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM ecb_dax_features")
-    rows = cur.fetchall()
-    if cur.description is None:
-        raise ValueError("Trino returned no column description for Gold Iceberg table")
-    columns = [d[0] for d in cur.description]
-    df = pd.DataFrame(rows, columns=columns)
-    cur.close()
-    conn.close()
-    return df
-
-
-def _gold_dataframe_from_iceberg(catalog: "Catalog") -> pd.DataFrame:
-    return iceberg_io.scan_table(catalog, "gold", "ecb_dax_features")
 
 
 def run_experiment_set(
     catalog: "Catalog",
     mlflow_tracking_uri: str,
-    trino_url: str | None = None,
+    lineage: MLLineageTuple,
 ) -> str:
     """Run all configured experiment combinations and return the best run_id."""
-    resolved_trino = trino_url or os.environ.get("TRINO_URL")
-    if resolved_trino:
-        df = _gold_dataframe_from_trino(resolved_trino)
-    else:
-        df = _gold_dataframe_from_iceberg(catalog)
+    df = _gold_dataframe_from_iceberg(catalog, lineage.iceberg_snapshot_id)
 
     mlflow.set_tracking_uri(mlflow_tracking_uri)
     mlflow.set_experiment("ecb_dax_impact")
@@ -80,6 +53,7 @@ def run_experiment_set(
                     "max_depth": max_depth,
                 }
                 with mlflow.start_run() as run:
+                    bind_mlflow_run(run, lineage)
                     model, metrics = train(df=df, model_type=model_type, params=params)
 
                     mlflow.log_param("model_type", model_type)

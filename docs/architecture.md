@@ -158,5 +158,5 @@ The repository currently carries **19 ADRs**. See [decisions/README.md](decision
 | [ADR-015](decisions/ADR-015-v3-observability-tooling.md) | v3 observability tooling: Prometheus + Grafana + Alertmanager |
 | [ADR-016](decisions/ADR-016-compute-engine-migration.md) | Compute engine migration to Spark + dbt-spark with Trino as query-only (proposed) |
 | [ADR-017](decisions/ADR-017-iceberg-rest-catalog-option.md) | Hive Metastore vs Iceberg REST Catalog vs AWS Glue (v2.7 placeholder) |
-| [ADR-018](decisions/ADR-018-ml-lineage-five-tuple.md) | ML lineage five-tuple (v2.8 placeholder) |
+| [ADR-018](decisions/ADR-018-ml-lineage-five-tuple.md) | ML lineage five-tuple for governed MLflow runs (v2.8 E1) |
 | [ADR-019](decisions/ADR-019-minio-seaweedfs-deferral.md) | MinIO to SeaweedFS migration deferral |

@@ -25,7 +25,8 @@ The active runtime baseline is **v2.5 single-track**; older ADRs remain valuable
 ## v2.7-v2.8 decisions (planned evidence arc)
 
 - [ADR-017-iceberg-rest-catalog-option.md](ADR-017-iceberg-rest-catalog-option.md): placeholder for Hive Metastore vs Iceberg REST Catalog vs AWS Glue decision (v2.7)
-- [ADR-018-ml-lineage-five-tuple.md](ADR-018-ml-lineage-five-tuple.md): placeholder for the required ML lineage five-tuple (v2.8)
+- [ADR-018-ml-lineage-five-tuple.md](ADR-018-ml-lineage-five-tuple.md): ML lineage five-tuple for governed MLflow runs (v2.8 E1)
+- [ADR-021-agent-policy-hooks-metadata-first.md](ADR-021-agent-policy-hooks-metadata-first.md): metadata-first agent policy hooks; runtime enforcement deferred (v2.8 E2/E3)
 
 ## v3 decisions (planned)
 

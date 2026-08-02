@@ -391,11 +391,33 @@ class TestEvaluate:
         monkeypatch.setattr(evaluate.mlflow, "log_param", lambda *args, **kwargs: None)
         monkeypatch.setattr(evaluate.mlflow, "log_metrics", lambda *args, **kwargs: None)
         monkeypatch.setattr(evaluate.mlflow, "log_artifact", lambda *args, **kwargs: None)
+        monkeypatch.setattr(evaluate.mlflow, "set_tag", lambda *args, **kwargs: None)
         monkeypatch.delenv("TRINO_URL", raising=False)
         # Mock iceberg scan so no real catalog connection is made
-        monkeypatch.setattr(evaluate.iceberg_io, "scan_table", lambda cat, ns, tbl: df)
+        scanned_snapshots: list[str | None] = []
 
-        best_run_id = evaluate.run_experiment_set(catalog, "http://localhost:5000")
+        def fake_scan_table(cat, ns, tbl, *, snapshot_id=None):
+            assert (cat, ns, tbl) == (catalog, "gold", "ecb_dax_features")
+            scanned_snapshots.append(snapshot_id)
+            return df
+
+        monkeypatch.setattr(evaluate.iceberg_io, "scan_table", fake_scan_table)
+
+        from governance.ml_lineage import MLLineageTuple
+
+        lineage = MLLineageTuple(
+            iceberg_snapshot_id="123456789",
+            dagster_run_id="dagster-run-1",
+            feature_version="fin.ecb_dax_features_gold/v1",
+            code_commit="abc1234",
+            data_contract_hash="0" * 64,
+        )
+        best_run_id = evaluate.run_experiment_set(
+            catalog,
+            "http://localhost:5000",
+            lineage,
+        )
 
         assert best_run_id == "run-7"
         assert len(train_calls) == 12
+        assert scanned_snapshots == ["123456789"]
