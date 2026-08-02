@@ -367,8 +367,11 @@ Therefore, after v2.9 is complete:
   the project** to run `make setup` plus the relevant core commands on their
   own machine, with friction points recorded. This is the external
   release-readiness gate for the accumulated v2.6.1–v2.9 scope. Retain the Block
-  `J` protocol in `docs/external-validation/v2.6.1-external-validation.md` as
-  one required evidence section; publish a new post-v2.9 tag — do not rewrite
+  `J` protocol in
+  [`docs/external-validation/integrated-v2.9-external-validation.md`](external-validation/integrated-v2.9-external-validation.md)
+  with Block `J` detail in
+  [`docs/external-validation/v2.6.1-external-validation.md`](external-validation/v2.6.1-external-validation.md);
+  publish a new post-v2.9 tag — do not rewrite
   tag `v2.6.1`.
 - **Until that integrated gate completes, internal validation remains mandatory**
   for every version (`make test`, `make lint`, `make typecheck`,

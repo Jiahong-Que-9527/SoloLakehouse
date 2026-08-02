@@ -152,14 +152,15 @@ plane that was demonstrated once and one that operates.
 - [x] `J6` Add unit tests for `dagster/assets.py` (currently 0% — 97 statements
       on the documented default execution path)
 
-### Block G — Release Governance (deferred external gate)
+### Block G — Release Governance (active external gate)
 
 - [x] `G3` Add an **external validation gate** to release readiness: at least one
       person outside the project runs `make setup` plus the integrated
       candidate's core commands on their own machine, and friction points are
       recorded
-      *(gate + friction log: `docs/external-validation/`; execution deferred to
-      the integrated post-v2.9 candidate)*
+      *(protocol:
+      [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md);
+      execution active now that v2.9 is delivered)*
 - [x] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
       using the first round of external feedback, and record the outcome in
       `docs/roadmap.md`
@@ -354,9 +355,11 @@ Execute in this order.
 
 1. ~~**Implement v2.9** operational and promotion evidence.~~ — done on `main`
    @ `71c2c89` (PRs #57, #59).
-2. **Recruit an external validator** for the integrated v2.6.1–v2.9 candidate,
-   retain the Block J protocol as a required evidence section, and record
-   friction honestly (`docs/external-validation/v2.6.1-external-validation.md`).
+2. **Recruit an external validator** for the integrated v2.6.1–v2.9 candidate using
+   [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md)
+   (Block `J` detail in
+   [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md));
+   record friction honestly.
 3. **Start operational rollout only after that integrated sign-off**, then tag
    and publish the signed candidate and update planning state in the same PR.
 
@@ -395,5 +398,7 @@ gate only when all are true:
 - all five governed datasets produced audit manifests on the validator's machine
 - the CI coverage gate includes `governance/` and `dagster/`
 - at least one person **outside the project** signed
-  `docs/external-validation/v2.6.1-external-validation.md`
+  [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md)
+  (Block `J` appendix:
+  [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md))
 - a **new** post-v2.9 tag is published (do not rewrite `v2.6.1` history)
