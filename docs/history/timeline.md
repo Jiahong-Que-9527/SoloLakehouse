@@ -118,10 +118,12 @@ Release status:
 - **Tagged and published `2026-07-31`** as `v2.6.1` (`6bd138a`).
 - Block `J` shipped later on `main` (`e534c73`, PR #49). See timeline entry below.
 
-Decision gate to Block `J` acceptance:
+Historical decision gate to Block `J` acceptance:
 - External validation against baseline `e534c73`, then a post-Block-`J` tag.
+  This was superseded on 2026-08-02 by the continuous-development Owner
+  Decision recorded below.
 
-## v2.6.1 Block J - Implementation Complete; External Validation Pending (2026-08-01)
+## v2.6.1 Block J - Implementation Complete; External Validation Deferred (2026-08-01, updated 2026-08-02)
 
 Theme:
 - Operationalize the evidence plane delivered in v2.6.
@@ -133,21 +135,25 @@ Implementation completed (`main` @ `e534c73`, PR #49, `2026-08-01`):
 - Block `G` — external validation gate (`docs/external-validation/`) and G4
   D1 ordering record.
 
-Still open for Block `J` acceptance:
-- External validator sign-off in `docs/external-validation/v2.6.1-external-validation.md`
-  against baseline `e534c73`.
-- Post-Block-`J` release tag (proposed `v2.6.2`) after sign-off.
+Deferred for the integrated post-v2.9 gate:
+- External validator sign-off retains the Block `J` protocol in
+  `docs/external-validation/v2.6.1-external-validation.md`.
+- Operational rollout and the signed post-v2.9 release tag follow that
+  integrated sign-off.
 
 Maintainer rehearsal (`2026-08-01`): `make verify` + `make demo` PASS; automatic
 five-dataset emission confirmed (run `dfe42975…`). Does not satisfy G3.
 
-Decision gate to v2.7 / v2.8:
-- Same as above — D1 provisional; implementation blocked pending external
-  confirmation.
+Owner Decision (2026-08-02):
+- Development proceeds continuously in the order **v2.8, v2.7, v2.9**.
+- Independent external validation and operational rollout begin only after
+  v2.9 completes; they do not block implementation or internal validation.
 
 ## v2.6.1 Block J - Planned (next) — superseded
 
-_The section below is retained for history only._
+_Superseded by the 2026-08-02 Owner Decision (continuous development through
+v2.9; external validation deferred to the integrated post-v2.9 gate). The
+section below is retained for history only._
 
 Theme:
 - Operationalize the evidence plane delivered in v2.6.

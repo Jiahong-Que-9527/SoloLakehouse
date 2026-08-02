@@ -1,16 +1,20 @@
 # External Validation
 
-Every release from v2.6 onward requires at least one person **outside the
-project** to run the stack on their own machine and record friction honestly.
-Self-certification alone is not a release gate.
+The integrated release candidate after v2.9 requires at least one person
+**outside the project** to run the stack on their own machine and record
+friction honestly. Until v2.9 is complete, external validation is deliberately
+deferred and does not pause internal development; self-certification remains
+insufficient for the integrated release gate.
 
 ## Process
 
-1. Pick the validation record for the target version (for example
-   [`v2.6.1-external-validation.md`](v2.6.1-external-validation.md)).
-2. Check out the record's **acceptance baseline commit** (for Block `J`:
-   `e534c73` or current `main`). Do not test tag `v2.6.1` alone — it predates
-   Block `J`.
+1. After v2.9 is complete, assemble the integrated validation record, retaining
+   the Block J protocol in
+   [`v2.6.1-external-validation.md`](v2.6.1-external-validation.md) as one
+   required evidence section.
+2. Check out the signed integrated candidate. It must include Block `J`
+   baseline `e534c73`; do not test tag `v2.6.1` alone because it predates Block
+   `J`.
 3. On a machine that has **not** been used to develop SoloLakehouse, run the
    commands in the record's **Validator protocol** section.
 4. Fill in environment details, pass/fail results, and every friction point —
@@ -36,4 +40,4 @@ Silence is not evidence. If the run was smooth, say so explicitly.
 Maintainers may run a **cold-clone rehearsal** on a clean VM or container and
 log friction in the same file under a separate heading. That rehearsal helps
 fix docs before outreach, but it **does not** satisfy the external-validation
-gate for a release tag.
+gate for the integrated release candidate.

@@ -31,10 +31,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   coverage gate.
 - Unit tests for `dagster/assets.py` and automatic lineage-evidence emission.
 
-### Remaining v2.6.1 acceptance gate
-- External validator sign-off in
-  `docs/external-validation/v2.6.1-external-validation.md` (gate added; record
-  open).
+### Deferred external-validation gate
+- External validation of Block J is deferred to the integrated post-v2.9
+  candidate; it does not pause v2.8, v2.7, or v2.9 development.
 
 ## [v2.6.1] - 2026-07-31
 

@@ -137,6 +137,19 @@ split) is the next decision gate; it has not yet begun.
 - Secrets/access model and auditability
 - SLO/alerting and incident readiness
 
+## Release-gate sequencing decision (2026-08-02)
+
+- Selected: continue internal development through **v2.8, v2.7, and v2.9**;
+  perform independent external validation and begin operational rollout only
+  after v2.9 completes.
+- Why: the integrated candidate gives validators one stable governance and
+  operations surface, without pausing development between evidence categories.
+- Retained controls: local CI, contract validation, `make verify`, and
+  `make demo` remain required during every version; this decision defers only
+  the independent external gate and operational rollout.
+- No ADR: this changes release sequencing, not the v2.5 runtime architecture
+  or a technical boundary.
+
 ## Legacy Record
 
 Historical migration and compatibility details remain documented for reference only:

@@ -353,9 +353,10 @@ Two things worth restating here because they constrain code:
 
 - **The v2.5 runtime does not change before v3.0.** Do not add platform
   services. Each v2.x version adds one category of *evidence*, not capability.
-- **Decision gates D1/D2/D3 are live** (`AGENTS.md` §3). v2.7 and v2.8
-  implementation is blocked; the entity split in `task.md` is deferred; the
-  portal/Keycloak exploration must not enter compose or `.env.example`.
+- **Decision gates** (`AGENTS.md` §3). **D1 resolved (2026-08-02):** develop
+  v2.8, then v2.7, then v2.9; external validation and operational rollout
+  follow v2.9. **D2:** entity split in `task.md` is deferred indefinitely.
+  **D3:** portal/Keycloak exploration must not enter compose or `.env.example`.
 
 Ingestion-hardening and related tasks: see **`TASKS.md`**.
 
