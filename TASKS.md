@@ -78,9 +78,9 @@ Historical block letters remain the stable map for planning references.
 | A | Dataset contracts and governed quality gates | v2.6 | Delivered |
 | B | Promotion and rollback discipline | v2.9 | **In progress** |
 | C | Observability and incident readiness | v2.9 | **In progress** |
-| D | Secrets and access governance | v2.9 -> v3.0 | Planned |
+| D | Secrets and access governance | v2.9 -> v3.0 | **In progress** |
 | E | AI/ML governance and agent-ready context | v2.8 | Delivered |
-| F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Planned |
+| F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | **In progress** |
 | G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **External gate deferred to post-v2.9** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
 | **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation deferred to post-v2.9** |
@@ -249,7 +249,8 @@ Scope:
 
 Status:
 
-- deferred to `v2.9 -> v3.0`
+- **In progress on `main`** — `.env.shared`/`.env.secrets` split, `make secrets-discipline`,
+  `make secrets-rotation-drill`, ADR-023
 
 ### Block E — AI/ML Governance and Agent-Ready Context
 
@@ -279,7 +280,7 @@ Scope:
 
 Status:
 
-- deferred to `v2.9 -> v3.0`
+- **In progress on `main`** — `make k8s-readiness`, ADR-023; Helm/Terraform deferred to v3.0
 
 ### Block G — Release Governance and Evidence Packaging
 
