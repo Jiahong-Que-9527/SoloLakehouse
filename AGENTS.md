@@ -28,16 +28,18 @@ Never treat a roadmap *target* as a delivered *capability*.
 - **Runtime baseline: v2.5.** Docker Compose + Dagster + all-layer Iceberg +
   Trino + MLflow + OpenMetadata + Superset. **This runtime does not change
   before v3.0.** Do not add platform services.
-- **Released: v2.6.1** (2026-07-31) — the governance and evidence plane:
-  machine-validated dataset contracts, a typed three-source lineage record
-  (OpenMetadata + Iceberg snapshot + Dagster run), and `make lineage-evidence`
-  writing a SHA-256-bound manifest to the audit bucket.
+- **Released tag: `v2.6.1`** (2026-07-31, commit `6bd138a`) — corrects the
+  version stamp and ships the v2.6 governance/evidence plane (contracts,
+  three-source lineage join, manual `make lineage-evidence`). It does **not**
+  include Block `J`.
   - `v2.6.0` is superseded: it stamped `slh-v2.5.1` into every evidence
     manifest. Anyone on that tag should upgrade and regenerate.
-- **Active target: the rest of v2.6.1's Block `J`** — make the evidence plane
-  *operational* rather than merely demonstrable: automatic emission, WORM audit
-  storage, coverage for all five governed datasets, and a causal snapshot↔run
-  binding. See `TASKS.md`.
+- **Block `J` on `main`** (2026-08-01, commit `e534c73`, PR #49) — automatic
+  emission, Object Lock, five-dataset coverage, causal snapshot↔run binding,
+  and CI coverage for `governance/` + `dagster/`. **Implementation complete;
+  independent external validation deferred until after v2.9.**
+- **Active development order:** v2.8, then v2.7, then v2.9. The integrated
+  external-validation and operational-rollout gate follows v2.9; see `TASKS.md`.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 
@@ -45,21 +47,24 @@ Each v2.x version adds **one category of evidence** without changing the runtime
 v2.5  the platform runs
   -> v2.6   the platform produces evidence
      -> v2.6.1  that evidence is operational, not just demonstrable
-        -> v2.8 / v2.7  auditable-AI evidence  OR  openness evidence
-           -> v2.9  operational and promotion evidence
-              -> v3.0  the runtime migrates to Kubernetes
+        -> v2.8  auditable-AI evidence
+           -> v2.7  openness evidence
+              -> v2.9  operational and promotion evidence
+                 -> integrated external validation and operational rollout
+                    -> v3.0  the runtime migrates to Kubernetes
 ```
 
 ---
 
-## 3. Decision gates — do not cross these without an explicit decision
+## 3. Decision gates
 
-Recorded in `docs/roadmap.md` under "Open Decisions". An agent that starts work
-behind one of these gates is doing work that may be thrown away.
+Recorded in `docs/roadmap.md` under "Open Decisions". **D1 is resolved.**
+**D2 and D3 remain live** — an agent that starts work behind either gate is
+doing work that may be thrown away.
 
 | Gate | Rule |
 |---|---|
-| **D1** | v2.7 (`I1`–`I5`) and v2.8 (`E1`–`E4`) are **blocked**. G4 recorded 2026-08-01: provisional **v2.8 first** retained (no external signal to overturn). Implementation still requires external confirmation in `docs/external-validation/v2.6.1-external-validation.md` or an explicit Owner Decision. Do not start either version until then. |
+| **D1** | **Resolved 2026-08-02 by Owner Decision:** implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9. Do not begin independent external validation or operational rollout until v2.9 is complete; this does not block development or internal automated validation. |
 | **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
 | **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
 

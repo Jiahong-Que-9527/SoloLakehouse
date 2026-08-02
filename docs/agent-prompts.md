@@ -8,7 +8,7 @@ Prompts for AI coding agents working on this codebase.
 Read AGENTS.md, then docs/roadmap.md and TASKS.md.
 Confirm three things before starting:
   1. the runtime baseline is v2.5 single-track and does not change before v3.0
-  2. the active target is v2.6.1 (operationalize the evidence plane)
+  2. the active development order is v2.8, then v2.7, then v2.9
   3. the task is not blocked by decision gate D1, D2, or D3
 If a gate blocks it, stop and say so instead of proceeding.
 Otherwise perform the task and report the files changed and how you verified them.
@@ -26,8 +26,10 @@ Identify and fix any failures, then report the root cause and the fix.
 
 ```
 Check AGENTS.md section 3 and the "Open Decisions" section of docs/roadmap.md.
-Report whether this task sits behind D1 (v2.7/v2.8 blocked), D2 (entity split
-deferred), or D3 (portal/Keycloak sandbox only). If it does, do not implement —
+Report whether this task sits behind D1 (resolved development order: v2.8,
+v2.7, v2.9), D2 (entity split deferred), or D3 (portal/Keycloak sandbox only).
+D1 does not block development; external validation and operational rollout are
+deferred until v2.9 completes. If D2 or D3 blocks the task, do not implement —
 return what would need to be decided first.
 ```
 

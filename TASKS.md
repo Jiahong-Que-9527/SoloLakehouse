@@ -15,15 +15,17 @@ Use it to answer:
 
 ## Canonical Planning State
 
-As of `2026-07-31`:
+As of `2026-08-01`:
 
 - `v2.5` is delivered and protected from regression.
-- `v2.6.1` is **released** (tagged `2026-07-31`) and carries the corrected
-  version stamp. `v2.6.0` is superseded.
-- Block `J` implementation is complete; the active v2.6.1 acceptance task is
-  independent external validation of the operational evidence plane.
-- `v2.7` vs `v2.8` ordering is **provisionally v2.8 first** (`docs/roadmap.md`,
-  D1), pending confirmation from external feedback after the v2.6.0 release.
+- `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
+  version stamp. `v2.6.0` is superseded. The tag does **not** include Block `J`.
+- Block `J` is **implemented and internally verified on `main`** (`e534c73`,
+  PR #49). Independent external validation is deferred to the integrated
+  post-v2.9 release gate.
+- The active task is **v2.8 implementation**. Development then continues with
+  v2.7 and v2.9 before external validation and operational rollout begin.
+- `v2.8` before `v2.7` is an approved Owner Decision (`docs/roadmap.md`, D1).
 - entity-template / entity-split work is **deferred indefinitely**
   (`docs/roadmap.md`, D2).
 
@@ -60,9 +62,9 @@ Future agents should follow these rules by default:
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
 | v2.6.0 | Superseded (version-stamp defect) | Computational governance and evidence plane |
-| v2.6.1 | **Released — Block `J` implementation complete; external validation pending** | Corrected version stamp; operationalize the evidence plane |
-| v2.8 | Planned — **provisionally next** after v2.6.1 (D1) | AI/ML governance and agent-ready context |
-| v2.7 | Planned — after v2.8 unless D1 is overturned | Catalog/control-plane openness and sovereignty proof |
+| v2.6.1 | **Released — Block `J` implementation complete; external validation deferred until after v2.9** | Corrected version stamp; operationalize the evidence plane |
+| v2.8 | **Active next development version** | AI/ML governance and agent-ready context |
+| v2.7 | Planned — after v2.8 | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | Planned | Operational evidence and promotion discipline |
 | v3.0 | Planned | Kubernetes runtime migration |
 
@@ -78,20 +80,21 @@ Historical block letters remain the stable map for planning references.
 | D | Secrets and access governance | v2.9 -> v3.0 | Planned |
 | E | AI/ML governance and agent-ready context | v2.8 | Planned |
 | F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Planned |
-| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Delivered (G3/G4)** |
+| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **External gate deferred to post-v2.9** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
-| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation pending** |
+| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation deferred to post-v2.9** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Planned |
 
 ## v2.6.1 Scope Boundary
 
-`v2.6.1` is the current acceptance target. Block `J` implementation is
-complete; external validation remains before the version can be treated as
-operationally accepted.
+`v2.6.1` Block `J` implementation is complete and internally verified.
+Independent external validation and operational acceptance are deferred until
+the integrated v2.9 release candidate; they do not pause v2.8, v2.7, or v2.9
+development.
 
-It succeeds only when the evidence plane runs **without a human in the loop**,
-on **every** governed dataset, into **write-once** storage — and when a person
-outside this project has verified the release on their own machine.
+Its internal delivery succeeds when the evidence plane runs **without a human
+in the loop**, on **every** governed dataset, into **write-once** storage.
+Independent external verification is deferred to the post-v2.9 integrated gate.
 
 ### v2.6.1 must deliver
 
@@ -146,18 +149,19 @@ plane that was demonstrated once and one that operates.
 - [x] `J6` Add unit tests for `dagster/assets.py` (currently 0% — 97 statements
       on the documented default execution path)
 
-### Block G — Release Governance (v2.6.1 additions)
+### Block G — Release Governance (deferred external gate)
 
 - [x] `G3` Add an **external validation gate** to release readiness: at least one
-      person outside the project runs `make setup` plus the version's core
-      command on their own machine, and friction points are recorded
-      *(gate + friction log: `docs/external-validation/`; external sign-off
-      pending for release tag)*
+      person outside the project runs `make setup` plus the integrated
+      candidate's core commands on their own machine, and friction points are
+      recorded
+      *(gate + friction log: `docs/external-validation/`; execution deferred to
+      the integrated post-v2.9 candidate)*
 - [x] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
       using the first round of external feedback, and record the outcome in
       `docs/roadmap.md`
-      *(recorded 2026-08-01: no overturn signal; provisional v2.8-first retained;
-      v2.7/v2.8 implementation still blocked)*
+      *(superseded by the 2026-08-02 Owner Decision: v2.8 first, then v2.7;
+      external confirmation is deferred until after v2.9)*
 
 ## v2.6 — Delivered Scope (for reference)
 
@@ -336,27 +340,22 @@ Rule:
 
 ## Immediate Next Actions
 
-Execute in this order. Do not reorder — `R1–R4` deliver already-completed work
-to an audience that currently cannot see it.
+Execute in this order.
 
-1. ~~`R1` fix `RUNTIME_VERSION`~~ — done
-2. ~~`R2` re-run the evidence drill~~ — done
-3. ~~`R3` disclose the defect in the `v2.6.0` release notes~~ — done
-4. ~~`R4` tag and publish `v2.6.1`~~ — done
-5. ~~`J1` automatic evidence emission via Dagster sensor~~ — done
-6. ~~`J2` MinIO Object Lock on the audit bucket~~ — done
-7. ~~`J5` extend the CI coverage gate to `governance/` and `dagster/`~~ — done
-8. ~~`J3` / `J4` full dataset coverage and causal snapshot↔run binding~~ — done
-9. ~~`J6` unit tests for `dagster/assets.py`~~ — done
-10. ~~`G3` external validation gate; `G4` record the D1 ordering decision~~ — done
-
-**Do not start `v2.7` (`I1–I5`) or `v2.8` (`E1–E4`) until `G4` confirms the
-provisional D1 ordering with external input.**
+1. **Implement v2.8** (`E1`–`E4`) with internal automated validation.
+2. **Implement v2.7** (`I1`–`I5`) with internal automated validation.
+3. **Implement v2.9** operational and promotion evidence.
+4. **After v2.9 is complete, recruit an external validator** for the integrated
+   v2.6.1–v2.9 candidate, retain the Block J protocol as a required evidence
+   section, and record friction honestly.
+5. **Start operational rollout only after that integrated sign-off**, then tag
+   and publish the signed candidate and update planning state in the same PR.
 
 ## Decision Rules
 
-- do not start `v2.7` or `v2.8` before `G4` confirms the provisional D1
-  ordering with external input
+- v2.8, v2.7, and v2.9 require their internal automated validation but are not
+  blocked by external validation; external validation and operational rollout
+  start after v2.9 completes
 - do not add a new evidence category while the current one is manual,
   single-dataset, or overwritable
 - do not hide missing source fields with best-effort partial outputs
@@ -370,16 +369,22 @@ provisional D1 ordering with external input.**
 
 ## Definition of "v2.6.1 Complete"
 
-`v2.6.1` counts as complete only when all are true:
+Distinguish the **released tag** from **Block `J` acceptance**:
 
-- `v2.6.1` is tagged on `main` and published as a GitHub release
-- `RUNTIME_VERSION` matches the released version in both `runtime_identity.py`
-  and `.env.example`
-- a successful governed materialization produces evidence with **no** manual
-  command
-- the audit bucket has Object Lock enabled and the CHANGELOG limitation note is
-  updated accordingly
-- all five governed datasets have produced at least one evidence manifest
+| Milestone | Status | Evidence |
+|---|---|---|
+| Tag `v2.6.1` (version stamp fix) | **Done** | tag `6bd138a`, GitHub release `2026-07-31` |
+| Block `J` implementation on `main` | **Done** | commit `e534c73`, PR #49, CI green |
+| Block `J` operational acceptance | **Deferred to post-v2.9 integrated gate** | external sign-off + five-dataset audit record |
+
+Block `J` counts as **externally accepted** as part of the post-v2.9 integrated
+gate only when all are true:
+
+- acceptance baseline is `e534c73` or later signed `main`
+- a successful governed materialization produces evidence with **no** manual command
+- the audit bucket has Object Lock enabled (fresh deploy or documented upgrade path)
+- all five governed datasets produced audit manifests on the validator's machine
 - the CI coverage gate includes `governance/` and `dagster/`
-- at least one person outside the project has run `make setup` on their own
-  machine and their friction points are recorded
+- at least one person **outside the project** signed
+  `docs/external-validation/v2.6.1-external-validation.md`
+- a **new** post-v2.9 tag is published (do not rewrite `v2.6.1` history)

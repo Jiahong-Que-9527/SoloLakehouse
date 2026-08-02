@@ -17,9 +17,11 @@ Use the smallest set needed for the decision.
   v3.0.
 - **v2.6.0 is released**; **v2.6.1 is the active target** — operationalize the
   evidence plane rather than adding a new evidence category.
-- **Decision gates D1/D2/D3 are live** (`docs/roadmap.md`, "Open Decisions").
-  v2.7 and v2.8 implementation is blocked pending `G4`. Approving work behind a
-  gate requires resolving the gate first, which is a `needs-user-decision`.
+- **Decision gates** (`docs/roadmap.md`, "Open Decisions"; `AGENTS.md` §3).
+  **D1 resolved (2026-08-02):** v2.8, then v2.7, then v2.9; independent external
+  validation and operational rollout follow v2.9. **D2/D3** still block work
+  behind the entity split or portal/Keycloak in compose — those require an Owner
+  Decision (`needs-user-decision`).
 - Each v2.x version delivers **one category of evidence**. Adding a new category
   while the previous one is manual, single-dataset, or overwritable is
   explicitly out of scope.

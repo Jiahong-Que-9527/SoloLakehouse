@@ -12,9 +12,11 @@ until v3.0, and each v2.x version adds **one category of evidence**:
 ```text
 v2.5  the platform runs
   -> v2.6   the platform produces evidence
-     -> v2.6.1  that evidence is operational, not just demonstrable
-        -> v2.7 / v2.8  openness evidence  OR  auditable-AI evidence  (order undecided)
+     -> v2.6.1  that evidence is operational, not just demonstrable (internally verified)
+        -> v2.8  auditable-AI evidence
+           -> v2.7  openness evidence
            -> v2.9  operational and promotion evidence
+              -> consolidated external validation and operational rollout
               -> v3.0  the runtime migrates to Kubernetes
 ```
 
@@ -34,12 +36,17 @@ a design goal that competes with it.
 As of `2026-08-01`:
 
 - `v2.5` remains the protected baseline runtime and does not change until v3.0.
-- `v2.6.1` is **released** (tagged `2026-07-31`) and is the current version.
+- `v2.6.1` is **released** as tag `v2.6.1` (`6bd138a`, `2026-07-31`) — version
+  stamp fix and v2.6 evidence plane only.
 - `v2.6.0` is **superseded**: it stamped `slh-v2.5.1` into every evidence
   manifest. Anyone on that tag should upgrade and regenerate their evidence.
-- Block `J` implementation is complete; the remaining v2.6.1 acceptance step
-  is independent external validation before any new evidence category starts.
-- `v2.7` vs `v2.8` ordering is an **open decision**; see "Open Decisions" below.
+- Block `J` is **implemented on `main`** (`e534c73`, PR #49, `2026-08-01`). The
+  tag predates Block `J`; do not treat `v2.6.1` as the Block `J` release.
+- Block `J` is internally verified against `e534c73`; its independent external
+  validation and operational rollout are deliberately deferred until v2.9 is
+  complete.
+- The approved development order is **v2.8, then v2.7, then v2.9**; see
+  "Open Decisions" below.
 - future planning prioritizes **control plane and evidence value** over adding
   more engines or surface features.
 
@@ -51,10 +58,10 @@ As of `2026-08-01`:
 | v2.0 | Delivered (historical) | Dagster orchestration introduction |
 | v2.5 | Delivered / protected baseline | Single-track all-layer Iceberg runtime + Dagster + Trino + MLflow + OpenMetadata + Superset |
 | v2.6.0 | Superseded — carries a version-stamp defect | Computational governance and evidence plane |
-| v2.6.1 | **Released `2026-07-31` — current** | Corrected version stamp; English-only publication; unified agent entry points |
-| v2.6.1 Block `J` | **Implementation complete — external validation pending** | Operationalize the evidence plane |
-| v2.7 | Planned (order undecided) | Catalog/control-plane openness and sovereignty proof |
-| v2.8 | Planned (order undecided) | AI/ML governance and agent-ready context |
+| v2.6.1 (tag) | **Released `2026-07-31`** | Corrected version stamp; English-only publication; unified agent entry points |
+| v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete — external validation deferred until after v2.9** | Operationalize the evidence plane |
+| v2.8 | **Active next development version** | AI/ML governance and agent-ready context |
+| v2.7 | Planned — follows v2.8 | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | Planned | Operational evidence and promotion discipline |
 | v3.0 | Planned | Production runtime migration to Kubernetes |
 | v4.0 | Future candidate | Self-serve usability and operational clarity |
@@ -300,31 +307,17 @@ Important framing:
 
 ## Open Decisions
 
-Decisions recorded here are open until this section says otherwise. Agents must
-not start implementation work that depends on an open decision.
+**D1 is resolved (2026-08-02).** **D2 and D3 remain open.** Agents must not
+start implementation work that depends on an unresolved D2 or D3 decision.
 
-### D1 — v2.7 before v2.8, or v2.8 before v2.7?
+### D1 — v2.8 before v2.7 (resolved 2026-08-02)
 
-**Status: G4 recorded 2026-08-01 — provisional v2.8-first retained; implementation
-still blocked pending external confirmation.**
+**Status: decided — v2.8 first, then v2.7, then v2.9.**
 
-The provisional direction is **v2.8 (AI/ML governance) before v2.7 (catalog
-openness)**, on the dependency argument below. Task **`G4` is closed** as a
-recording obligation: the first round of external feedback after the v2.6.0
-release produced **no signal to overturn** the provisional order (zero external
-issues, pull requests, or completed validation records before this gate).
-
-**G4 outcome:** keep **v2.8 before v2.7** as the planning default. Do **not**
-start v2.7 (`I1`–`I5`) or v2.8 (`E1`–`E4`) until either:
-
-1. an external validator signs
-   [`docs/external-validation/v2.6.1-external-validation.md`](external-validation/v2.6.1-external-validation.md)
-   and confirms the ordering is acceptable for the project's audience, or
-2. an explicit Owner Decision recorded in this section overturns the provisional
-   order with stated rationale.
-
-Until one of those happens, D1 remains **provisional for implementation start**
-even though G4 is closed.
+An explicit Owner Decision authorizes continuous internal development through
+v2.9. Independent external validation and operational rollout move to the
+post-v2.9 integrated release gate; they are not a precondition for starting
+v2.8 or v2.7.
 
 | | Reuse of v2.6 machinery | Standalone timing pressure | Scope |
 |---|---|---|---|
@@ -336,10 +329,9 @@ deepening one governance mechanism, with the ML lineage tuple extending the
 contracts, lineage join, and audit bucket that v2.6.1 will have just made
 operational. The lower-cost argument favors **v2.7 first**.
 
-The provisional decision follows the dependency argument. What would overturn
-it: external readers consistently asking about vendor lock-in and catalog
-portability rather than model traceability. That signal is worth more than this
-reasoning — collect it before committing.
+The decision follows the dependency argument. External feedback is still
+valuable, but will be collected against the integrated v2.9 candidate rather
+than pausing development between evidence categories.
 
 ### D2 — Entity split (`task.md`)
 
@@ -365,19 +357,23 @@ zero external issues, pull requests, or discussions — meaning people find it
 credible enough to bookmark but have not crossed the threshold to run it. That
 is an activation problem, not an awareness problem.
 
-Therefore, from v2.6.0 onward:
+Therefore, after v2.9 is complete:
 
-- **Every release requires at least one person outside the project** to run
-  `make setup` plus that version's core command on their own machine, with
-  friction points recorded. This is a release-readiness gate, not a nice-to-have.
-- **Releases are the outreach cadence.** Ship the release, publish one short
-  technical note about the single most differentiated thing in it, and ask a
-  specific question of 8–10 target readers. Budget ~2 days per version, not a
-  separate "operations phase".
-- **There is no version at which outreach begins.** Waiting for v3.0 would mean
-  ~19 months of compounding unvalidated assumptions before the first external
-  signal. The evidence plane delivered in v2.6 is already the most
-  differentiated claim this project has.
+- **The integrated v2.9 release candidate requires at least one person outside
+  the project** to run `make setup` plus the relevant core commands on their
+  own machine, with friction points recorded. This is the external
+  release-readiness gate for the accumulated v2.6.1–v2.9 scope. Retain the Block
+  `J` protocol in `docs/external-validation/v2.6.1-external-validation.md` as
+  one required evidence section; publish a new post-v2.9 tag — do not rewrite
+  tag `v2.6.1`.
+- **Until that integrated gate completes, internal validation remains mandatory**
+  for every version (`make test`, `make lint`, `make typecheck`,
+  `make validate-contracts`, and `make verify` / `make demo` where applicable).
+  Self-certification does not satisfy the integrated external gate.
+- **Outreach follows the integrated sign-off**, not each intermediate version.
+  After external validation completes, ship the signed candidate, publish one
+  short technical note about the most differentiated claim, and ask a specific
+  question of 8–10 target readers.
 
 ## What Is Explicitly Deprioritized
 
