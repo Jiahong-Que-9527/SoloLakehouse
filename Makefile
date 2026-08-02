@@ -1,4 +1,4 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
@@ -32,6 +32,20 @@ wait-postgres-ready:
 
 init-iceberg:
 	$(PYTHON) scripts/init-iceberg-namespaces.py
+
+# Build one image at a time. Compose's default bake path builds every buildable
+# target concurrently, which OOMs BuildKit on small runners (GitHub Actions gave
+# "failed to receive status: rpc error: code = Unavailable ... EOF"). The service
+# list is derived from the merged compose config so it cannot go stale.
+# `up -d --build` afterwards is a cache hit and stays cheap.
+build-images-serial: check-git-lineage
+	@services=$$($(DOCKER_COMPOSE) $(COMPOSE_STACK) config --format json \
+		| $(PYTHON) -c "import json,sys; print(' '.join(k for k,v in sorted(json.load(sys.stdin)['services'].items()) if 'build' in v))"); \
+	test -n "$$services" || (echo "No buildable services found in the compose stack." && exit 1); \
+	for svc in $$services; do \
+		echo "==> building $$svc"; \
+		$(DOCKER_COMPOSE) $(COMPOSE_STACK) build $$svc || exit 1; \
+	done
 
 check-git-lineage:
 	@test -n "$(GIT_COMMIT)" || (echo "GIT_COMMIT could not be resolved; run from a git checkout." && exit 1)

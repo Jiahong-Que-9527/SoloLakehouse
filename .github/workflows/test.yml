@@ -54,6 +54,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      # Prebuild serially: `make setup` ends in `up -d --build`, whose bake path
+      # builds all five images at once and OOMs BuildKit on a 4-core runner.
+      # With the cache warm, that build step becomes a no-op.
+      - name: Build images serially
+        run: make build-images-serial
       - name: Run full v2.5 demo path
         run: |
           make setup
