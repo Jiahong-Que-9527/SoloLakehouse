@@ -136,8 +136,10 @@ Implementation completed (`main` @ `e534c73`, PR #49, `2026-08-01`):
   D1 ordering record.
 
 Deferred for the integrated post-v2.9 gate:
-- External validator sign-off retains the Block `J` protocol in
-  `docs/external-validation/v2.6.1-external-validation.md`.
+- External validator sign-off uses
+  [`docs/external-validation/integrated-v2.9-external-validation.md`](../external-validation/integrated-v2.9-external-validation.md)
+  with Block `J` detail in
+  [`docs/external-validation/v2.6.1-external-validation.md`](../external-validation/v2.6.1-external-validation.md).
 - Operational rollout and the signed post-v2.9 release tag follow that
   integrated sign-off.
 
@@ -163,8 +165,9 @@ What landed on `main` @ `71c2c89`:
 - ADR-022 and ADR-023; 167 unit tests on `main`.
 
 Decision gate to integrated external validation:
-- Recruit at least one external validator for the v2.6.1–v2.9 candidate per
-  `docs/external-validation/v2.6.1-external-validation.md`. Do not start v3.0
+- Recruit at least one external validator per
+  [`docs/external-validation/integrated-v2.9-external-validation.md`](../external-validation/integrated-v2.9-external-validation.md).
+  Bootstrap with `make init-env` (not `cp .env.example .env`). Do not start v3.0
   or operational rollout until that gate completes.
 
 ## v2.8 E1 - ML Lineage Five-Tuple (2026-08-02) - Implemented; PR #51 Pending

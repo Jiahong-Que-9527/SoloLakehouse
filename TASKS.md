@@ -21,8 +21,8 @@ As of `2026-08-02`:
 - `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
   version stamp. `v2.6.0` is superseded. The tag does **not** include Block `J`.
 - Block `J` is **implemented and internally verified on `main`** (`e534c73`,
-  PR #49). Independent external validation is deferred to the integrated
-  post-v2.9 release gate.
+  PR #49). Independent external validation is **active** as a required section
+  of the integrated post-v2.9 release gate.
 - **v2.8 Block `E` is delivered on `main`** (PRs #51–#54). **v2.7 Block `I` is
   delivered on `main`** (PRs #55–#56). **v2.9 Blocks `B`/`C`/`D`/`F` are
   delivered on `main`** (PRs #57, #59). The active task is the **integrated
@@ -65,7 +65,7 @@ Future agents should follow these rules by default:
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
 | v2.6.0 | Superseded (version-stamp defect) | Computational governance and evidence plane |
-| v2.6.1 | **Released — Block `J` implementation complete; external validation deferred until after v2.9** | Corrected version stamp; operationalize the evidence plane |
+| v2.6.1 | **Released — Block `J` implementation complete; external validation active (integrated post-v2.9 gate)** | Corrected version stamp; operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
@@ -85,15 +85,16 @@ Historical block letters remain the stable map for planning references.
 | F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Delivered (readiness gate; Helm/Terraform in v3.0) |
 | G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Active — integrated external validation gate** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
-| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation deferred to post-v2.9** |
+| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation active as part of the integrated post-v2.9 gate** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Delivered |
 
 ## v2.6.1 Scope Boundary
 
-`v2.6.1` Block `J` implementation is complete and internally verified.
-Independent external validation and operational acceptance are deferred until
-the integrated v2.9 release candidate; they do not pause v2.8, v2.7, or v2.9
-development.
+`v2.6.1` Block `J` implementation is complete and internally verified. v2.8,
+v2.7, and v2.9 are all delivered on `main`, so independent external validation
+and operational acceptance are no longer deferred: they are the **active**
+integrated gate (Block `G`), and they now block operational rollout, the
+post-v2.9 tag, and v3.0 implementation.
 
 Its internal delivery succeeds when the evidence plane runs **without a human
 in the loop**, on **every** governed dataset, into **write-once** storage.
@@ -152,14 +153,15 @@ plane that was demonstrated once and one that operates.
 - [x] `J6` Add unit tests for `dagster/assets.py` (currently 0% — 97 statements
       on the documented default execution path)
 
-### Block G — Release Governance (deferred external gate)
+### Block G — Release Governance (active external gate)
 
 - [x] `G3` Add an **external validation gate** to release readiness: at least one
       person outside the project runs `make setup` plus the integrated
       candidate's core commands on their own machine, and friction points are
       recorded
-      *(gate + friction log: `docs/external-validation/`; execution deferred to
-      the integrated post-v2.9 candidate)*
+      *(protocol:
+      [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md);
+      execution active now that v2.9 is delivered)*
 - [x] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
       using the first round of external feedback, and record the outcome in
       `docs/roadmap.md`
@@ -354,9 +356,11 @@ Execute in this order.
 
 1. ~~**Implement v2.9** operational and promotion evidence.~~ — done on `main`
    @ `71c2c89` (PRs #57, #59).
-2. **Recruit an external validator** for the integrated v2.6.1–v2.9 candidate,
-   retain the Block J protocol as a required evidence section, and record
-   friction honestly (`docs/external-validation/v2.6.1-external-validation.md`).
+2. **Recruit an external validator** for the integrated v2.6.1–v2.9 candidate using
+   [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md)
+   (Block `J` detail in
+   [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md));
+   record friction honestly.
 3. **Start operational rollout only after that integrated sign-off**, then tag
    and publish the signed candidate and update planning state in the same PR.
 
@@ -395,5 +399,7 @@ gate only when all are true:
 - all five governed datasets produced audit manifests on the validator's machine
 - the CI coverage gate includes `governance/` and `dagster/`
 - at least one person **outside the project** signed
-  `docs/external-validation/v2.6.1-external-validation.md`
+  [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md)
+  (Block `J` appendix:
+  [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md))
 - a **new** post-v2.9 tag is published (do not rewrite `v2.6.1` history)
