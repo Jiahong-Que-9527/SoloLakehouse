@@ -37,7 +37,8 @@ Never treat a roadmap *target* as a delivered *capability*.
 - **Block `J` on `main`** (2026-08-01, commit `e534c73`, PR #49) — automatic
   emission, Object Lock, five-dataset coverage, causal snapshot↔run binding,
   and CI coverage for `governance/` + `dagster/`. **Implementation complete;
-  independent external validation deferred until after v2.9.**
+  independent external validation is now the active integrated gate (v2.9 is
+  delivered).**
 - **v2.8 Block `E` delivered on `main`** (2026-08-02, PRs #51–#54) — ML lineage
   five-tuple, AI-governance contract fields, policy hooks, model evaluation
   evidence and model card.

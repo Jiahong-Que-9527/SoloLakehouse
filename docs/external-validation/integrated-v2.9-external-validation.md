@@ -133,8 +133,11 @@ make operational-evidence
 ```
 
 Each command must exit `0` and emit a SHA-256-bound JSON manifest on stdout.
-If a gate fails, record the failing gate id — do not use `--allow-slo-failure` or
-`--allow-unhealthy-runtime` unless you are documenting a known limitation.
+If a gate fails, record the failing gate id — do not set `ALLOW_SLO_FAILURE=1`
+(for `make operational-evidence`) or `ALLOW_UNHEALTHY=1` (for
+`make rollback-drill`) unless you are documenting a known limitation. Note the
+variable is `ALLOW_UNHEALTHY`, not `ALLOW_UNHEALTHY_RUNTIME`; `make` silently
+ignores unknown variables, so a typo looks like a genuine failure.
 
 ### 8. Blocks `D`/`F` — secrets and K8s readiness (v2.9)
 

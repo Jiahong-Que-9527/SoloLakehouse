@@ -21,8 +21,8 @@ As of `2026-08-02`:
 - `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
   version stamp. `v2.6.0` is superseded. The tag does **not** include Block `J`.
 - Block `J` is **implemented and internally verified on `main`** (`e534c73`,
-  PR #49). Independent external validation is deferred to the integrated
-  post-v2.9 release gate.
+  PR #49). Independent external validation is **active** as a required section
+  of the integrated post-v2.9 release gate.
 - **v2.8 Block `E` is delivered on `main`** (PRs #51–#54). **v2.7 Block `I` is
   delivered on `main`** (PRs #55–#56). **v2.9 Blocks `B`/`C`/`D`/`F` are
   delivered on `main`** (PRs #57, #59). The active task is the **integrated
@@ -65,7 +65,7 @@ Future agents should follow these rules by default:
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
 | v2.6.0 | Superseded (version-stamp defect) | Computational governance and evidence plane |
-| v2.6.1 | **Released — Block `J` implementation complete; external validation deferred until after v2.9** | Corrected version stamp; operationalize the evidence plane |
+| v2.6.1 | **Released — Block `J` implementation complete; external validation active (integrated post-v2.9 gate)** | Corrected version stamp; operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
@@ -85,15 +85,16 @@ Historical block letters remain the stable map for planning references.
 | F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Delivered (readiness gate; Helm/Terraform in v3.0) |
 | G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Active — integrated external validation gate** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
-| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation deferred to post-v2.9** |
+| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation active as part of the integrated post-v2.9 gate** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Delivered |
 
 ## v2.6.1 Scope Boundary
 
-`v2.6.1` Block `J` implementation is complete and internally verified.
-Independent external validation and operational acceptance are deferred until
-the integrated v2.9 release candidate; they do not pause v2.8, v2.7, or v2.9
-development.
+`v2.6.1` Block `J` implementation is complete and internally verified. v2.8,
+v2.7, and v2.9 are all delivered on `main`, so independent external validation
+and operational acceptance are no longer deferred: they are the **active**
+integrated gate (Block `G`), and they now block operational rollout, the
+post-v2.9 tag, and v3.0 implementation.
 
 Its internal delivery succeeds when the evidence plane runs **without a human
 in the loop**, on **every** governed dataset, into **write-once** storage.

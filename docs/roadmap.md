@@ -59,7 +59,7 @@ As of `2026-08-02`:
 | v2.5 | Delivered / protected baseline | Single-track all-layer Iceberg runtime + Dagster + Trino + MLflow + OpenMetadata + Superset |
 | v2.6.0 | Superseded — carries a version-stamp defect | Computational governance and evidence plane |
 | v2.6.1 (tag) | **Released `2026-07-31`** | Corrected version stamp; English-only publication; unified agent entry points |
-| v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete — external validation deferred until after v2.9** | Operationalize the evidence plane |
+| v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete — external validation active (integrated post-v2.9 gate)** | Operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
