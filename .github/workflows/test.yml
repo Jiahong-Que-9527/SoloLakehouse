@@ -1,5 +1,12 @@
 name: CI
-on: [push, pull_request]
+# `on: [push, pull_request]` ran the whole suite twice for every PR-branch push:
+# once per trigger, on two separate runners, each building the full Compose stack.
+# That doubled CI cost and doubled exposure to the flaky compose-demo job.
+# Scope push to main so a PR branch runs once, and main still runs post-merge.
+on:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   lint:
