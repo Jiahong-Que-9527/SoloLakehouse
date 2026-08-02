@@ -24,6 +24,9 @@ class CatalogConnectionSettings:
     s3_access_key: str
     s3_secret_key: str
     rest_uri: str | None = None
+    rest_credential: str | None = None
+    rest_oauth2_uri: str | None = None
+    rest_scope: str | None = None
 
 
 def _normalize_warehouse_uri(raw_warehouse: str) -> str:
@@ -44,6 +47,9 @@ def load_catalog_settings(environ: Mapping[str, str] | None = None) -> CatalogCo
     data_bucket = env.get("DATA_BUCKET", env.get("BUCKET_NAME", "sololakehouse"))
     raw_warehouse = env.get("WAREHOUSE_URI", f"s3://{data_bucket}/warehouse/")
     rest_uri = env.get("ICEBERG_REST_URI", "").strip() or None
+    rest_credential = env.get("ICEBERG_REST_CREDENTIAL", "").strip() or None
+    rest_oauth2_uri = env.get("ICEBERG_REST_OAUTH2_URI", "").strip() or None
+    rest_scope = env.get("ICEBERG_REST_SCOPE", "").strip() or None
     if backend == "rest" and rest_uri is None:
         raise ValueError("ICEBERG_REST_URI is required when ICEBERG_CATALOG_BACKEND=rest")
 
@@ -56,6 +62,9 @@ def load_catalog_settings(environ: Mapping[str, str] | None = None) -> CatalogCo
         s3_access_key=env.get("S3_ACCESS_KEY", "sololakehouse"),
         s3_secret_key=env.get("S3_SECRET_KEY", "sololakehouse123"),
         rest_uri=rest_uri,
+        rest_credential=rest_credential,
+        rest_oauth2_uri=rest_oauth2_uri,
+        rest_scope=rest_scope,
     )
 
 
@@ -63,10 +72,7 @@ def build_catalog(settings: CatalogConnectionSettings) -> Catalog:
     """Construct a pyiceberg catalog for the selected backend."""
     if settings.backend == "hive":
         return _build_hive_catalog(settings)
-    raise NotImplementedError(
-        "Iceberg REST catalog wiring is planned for v2.7 tasks I3/I4. "
-        "Use ICEBERG_CATALOG_BACKEND=hive for the default v2.5 stack."
-    )
+    return _build_rest_catalog(settings)
 
 
 def _build_hive_catalog(settings: CatalogConnectionSettings) -> Catalog:
@@ -81,6 +87,29 @@ def _build_hive_catalog(settings: CatalogConnectionSettings) -> Catalog:
         "s3.path-style-access": "true",
     }
     return HiveCatalog(settings.catalog_name, **props)
+
+
+def _build_rest_catalog(settings: CatalogConnectionSettings) -> Catalog:
+    from pyiceberg.catalog.rest import RestCatalog
+
+    if settings.rest_uri is None:
+        raise ValueError("rest_uri is required for REST catalog construction")
+
+    props = {
+        "uri": settings.rest_uri,
+        "warehouse": settings.warehouse_uri,
+        "s3.endpoint": settings.s3_endpoint,
+        "s3.access-key-id": settings.s3_access_key,
+        "s3.secret-access-key": settings.s3_secret_key,
+        "s3.path-style-access": "true",
+    }
+    if settings.rest_credential is not None:
+        props["credential"] = settings.rest_credential
+    if settings.rest_oauth2_uri is not None:
+        props["oauth2-server-uri"] = settings.rest_oauth2_uri
+    if settings.rest_scope is not None:
+        props["scope"] = settings.rest_scope
+    return RestCatalog(settings.catalog_name, **props)
 
 
 def get_catalog_from_settings(

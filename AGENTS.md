@@ -41,9 +41,9 @@ Never treat a roadmap *target* as a delivered *capability*.
 - **v2.8 Block `E` delivered on `main`** (2026-08-02, PRs #51–#54) — ML lineage
   five-tuple, AI-governance contract fields, policy hooks, model evaluation
   evidence and model card.
-- **Active development:** v2.7 catalog/control-plane openness (`I1`–`I5`), then
-  v2.9. The integrated external-validation and operational-rollout gate follows
-  v2.9; see `TASKS.md`.
+- **Active development:** v2.9 operational and promotion evidence (`Blocks B/C/D/F`).
+  v2.7 catalog/control-plane openness is delivered on `main`. External validation
+  and operational rollout remain deferred until after v2.9; see `TASKS.md`.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 

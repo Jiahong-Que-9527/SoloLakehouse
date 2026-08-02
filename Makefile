@@ -1,7 +1,8 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts export-policy-hooks lineage-evidence check-agent-docs
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
+POLARIS_COMPOSE := -f docker/docker-compose.yml -f docker/docker-compose.polaris.yml
 ENV_FILE ?= .env
 GIT_COMMIT ?= $(shell git rev-parse HEAD 2>/dev/null)
 export GIT_COMMIT
@@ -101,6 +102,15 @@ lineage-evidence:
 	@test -n "$(DATASET_ID)" || (echo "DATASET_ID is required" && exit 2)
 	@test -n "$(DAGSTER_RUN_ID)" || (echo "DAGSTER_RUN_ID is required" && exit 2)
 	$(PYTHON) scripts/lineage-evidence.py --dataset-id "$(DATASET_ID)" --dagster-run-id "$(DAGSTER_RUN_ID)"
+
+polaris-up:
+	$(DOCKER_COMPOSE) $(POLARIS_COMPOSE) --profile polaris up -d polaris
+
+interoperability-proof:
+	$(PYTHON) scripts/interoperability-proof.py $(if $(LIVE_REST),--live-rest,)
+
+sovereignty-report:
+	$(PYTHON) scripts/generate-sovereignty-report.py $(if $(FORMAT),--format $(FORMAT),)
 
 demo:
 	$(MAKE) verify

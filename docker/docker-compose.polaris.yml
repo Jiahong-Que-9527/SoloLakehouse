@@ -1,0 +1,22 @@
+# Optional Apache Polaris REST catalog — NOT part of the default v2.5 stack.
+#
+# Start only after the core platform is healthy:
+#   make up
+#   make polaris-up
+#
+# See docs/polaris-evaluation.md for bootstrap and interoperability steps.
+
+services:
+  polaris:
+    profiles: ["polaris"]
+    image: apache/polaris:latest
+    container_name: slh-polaris
+    ports:
+      - "8181:8181"
+      - "8182:8182"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/healthcheck"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
