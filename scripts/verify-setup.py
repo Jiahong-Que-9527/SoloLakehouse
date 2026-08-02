@@ -365,14 +365,9 @@ def print_status_table(results: list[StatusTuple]) -> None:
         print(f"{service:<16} {status_display:<7} {detail}")
 
 
-def main() -> int:
-    load_dotenv_if_present()
-    identity = get_runtime_identity()
-
+def run_verification_checks() -> tuple[list[StatusTuple], list[str]]:
+    """Run all runtime health checks and return results plus missing env vars."""
     missing_env = validate_required_env_vars()
-    if missing_env:
-        print(f"Missing required env vars: {', '.join(missing_env)}")
-
     checks: list = [
         check_minio,
         check_postgres,
@@ -385,6 +380,16 @@ def main() -> int:
         check_superset,
     ]
     results = [check() for check in checks]
+    return results, missing_env
+
+
+def main() -> int:
+    load_dotenv_if_present()
+    identity = get_runtime_identity()
+
+    results, missing_env = run_verification_checks()
+    if missing_env:
+        print(f"Missing required env vars: {', '.join(missing_env)}")
     print(
         "Runtime identity: "
         f"{identity.display_name} ({identity.product_id}, {identity.environment}, "

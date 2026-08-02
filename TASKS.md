@@ -76,8 +76,8 @@ Historical block letters remain the stable map for planning references.
 | Block | Theme | Primary versions | Current status |
 |---|---|---|---|
 | A | Dataset contracts and governed quality gates | v2.6 | Delivered |
-| B | Promotion and rollback discipline | v2.9 | Planned |
-| C | Observability and incident readiness | v2.9 | Planned |
+| B | Promotion and rollback discipline | v2.9 | **In progress** |
+| C | Observability and incident readiness | v2.9 | **In progress** |
 | D | Secrets and access governance | v2.9 -> v3.0 | Planned |
 | E | AI/ML governance and agent-ready context | v2.8 | Delivered |
 | F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Planned |
@@ -223,7 +223,8 @@ Scope:
 
 Status:
 
-- deferred to `v2.9`
+- **In progress on `main`** — `governance/promotion.py`, `make promotion-evidence`,
+  `make rollback-drill`, ADR-022
 
 ### Block C — Observability and Incident Readiness
 
@@ -235,7 +236,8 @@ Scope:
 
 Status:
 
-- deferred to `v2.9`
+- **In progress on `main`** — `governance/operations.py`, `make operational-evidence`,
+  ADR-022
 
 ### Block D — Secrets and Access Governance
 
