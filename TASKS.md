@@ -24,8 +24,10 @@ As of `2026-08-02`:
   PR #49). Independent external validation is deferred to the integrated
   post-v2.9 release gate.
 - **v2.8 Block `E` is delivered on `main`** (PRs #51–#54). **v2.7 Block `I` is
-  delivered on `main`** (PR #55+). The active task is **v2.9 implementation**.
-  External validation and operational rollout remain deferred until after v2.9.
+  delivered on `main`** (PRs #55–#56). **v2.9 Blocks `B`/`C`/`D`/`F` are
+  delivered on `main`** (PRs #57, #59). The active task is the **integrated
+  external validation and operational rollout gate** (Block `G`); do not start
+  v3.0 implementation until that gate completes.
 - `v2.8` before `v2.7` is an approved Owner Decision (`docs/roadmap.md`, D1).
 - entity-template / entity-split work is **deferred indefinitely**
   (`docs/roadmap.md`, D2).
@@ -66,8 +68,8 @@ Future agents should follow these rules by default:
 | v2.6.1 | **Released — Block `J` implementation complete; external validation deferred until after v2.9** | Corrected version stamp; operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
-| v2.9 | **Active next development version** | Operational evidence and promotion discipline |
-| v3.0 | Planned | Kubernetes runtime migration |
+| v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
+| v3.0 | **Next after external gate** | Kubernetes runtime migration |
 
 ## Work Blocks
 
@@ -76,12 +78,12 @@ Historical block letters remain the stable map for planning references.
 | Block | Theme | Primary versions | Current status |
 |---|---|---|---|
 | A | Dataset contracts and governed quality gates | v2.6 | Delivered |
-| B | Promotion and rollback discipline | v2.9 | **In progress** |
-| C | Observability and incident readiness | v2.9 | **In progress** |
-| D | Secrets and access governance | v2.9 -> v3.0 | **In progress** |
+| B | Promotion and rollback discipline | v2.9 | Delivered |
+| C | Observability and incident readiness | v2.9 | Delivered |
+| D | Secrets and access governance | v2.9 -> v3.0 | Delivered (v2.9 scope; v3.0 carries managed secrets) |
 | E | AI/ML governance and agent-ready context | v2.8 | Delivered |
-| F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | **In progress** |
-| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **External gate deferred to post-v2.9** |
+| F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Delivered (readiness gate; Helm/Terraform in v3.0) |
+| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Active — integrated external validation gate** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
 | **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation deferred to post-v2.9** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Delivered |
@@ -223,7 +225,7 @@ Scope:
 
 Status:
 
-- **In progress on `main`** — `governance/promotion.py`, `make promotion-evidence`,
+- **Delivered on `main`** (PR #57) — `governance/promotion.py`, `make promotion-evidence`,
   `make rollback-drill`, ADR-022
 
 ### Block C — Observability and Incident Readiness
@@ -236,7 +238,7 @@ Scope:
 
 Status:
 
-- **In progress on `main`** — `governance/operations.py`, `make operational-evidence`,
+- **Delivered on `main`** (PR #57) — `governance/operations.py`, `make operational-evidence`,
   ADR-022
 
 ### Block D — Secrets and Access Governance
@@ -249,7 +251,7 @@ Scope:
 
 Status:
 
-- **In progress on `main`** — `.env.shared`/`.env.secrets` split, `make secrets-discipline`,
+- **Delivered on `main`** (PR #59) — `.env.shared`/`.env.secrets` split, `make secrets-discipline`,
   `make secrets-rotation-drill`, ADR-023
 
 ### Block E — AI/ML Governance and Agent-Ready Context
@@ -280,7 +282,7 @@ Scope:
 
 Status:
 
-- **In progress on `main`** — `make k8s-readiness`, ADR-023; Helm/Terraform deferred to v3.0
+- **Delivered on `main`** (PR #59) — `make k8s-readiness`, ADR-023; Helm/Terraform deferred to v3.0
 
 ### Block G — Release Governance and Evidence Packaging
 
@@ -350,10 +352,11 @@ Rule:
 
 Execute in this order.
 
-1. **Implement v2.9** operational and promotion evidence.
-2. **After v2.9 is complete, recruit an external validator** for the integrated
-   v2.6.1–v2.9 candidate, retain the Block J protocol as a required evidence
-   section, and record friction honestly.
+1. ~~**Implement v2.9** operational and promotion evidence.~~ — done on `main`
+   @ `71c2c89` (PRs #57, #59).
+2. **Recruit an external validator** for the integrated v2.6.1–v2.9 candidate,
+   retain the Block J protocol as a required evidence section, and record
+   friction honestly (`docs/external-validation/v2.6.1-external-validation.md`).
 3. **Start operational rollout only after that integrated sign-off**, then tag
    and publish the signed candidate and update planning state in the same PR.
 
