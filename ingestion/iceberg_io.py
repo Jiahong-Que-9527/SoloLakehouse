@@ -8,7 +8,6 @@ Hive Metastore or MinIO.
 
 from __future__ import annotations
 
-import os
 from typing import TYPE_CHECKING, Any
 
 import pandas as pd
@@ -44,35 +43,26 @@ def _downcast_ns_timestamps(table: pa.Table) -> pa.Table:
 
 
 def get_catalog(
-    name: str = "hive",
+    name: str | None = None,
     uri: str | None = None,
     warehouse: str | None = None,
     s3_endpoint: str | None = None,
     access_key: str | None = None,
     secret_key: str | None = None,
 ) -> "Catalog":
-    """Create a HiveCatalog backed by Hive Metastore and MinIO (S3-compatible).
+    """Create a configured Iceberg catalog through the v2.7 catalog boundary."""
+    from ingestion.catalog_boundary import get_catalog_from_settings, load_catalog_settings
 
-    All parameters fall back to environment variables so Docker and local-dev
-    environments work without extra configuration.
-    """
-    from pyiceberg.catalog.hive import HiveCatalog
-
-    minio_ep = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
-    data_bucket = os.environ.get("DATA_BUCKET", os.environ.get("BUCKET_NAME", "sololakehouse"))
-    # WAREHOUSE_URI is s3a:// for Hadoop; pyiceberg uses s3://
-    raw_warehouse = os.environ.get("WAREHOUSE_URI", f"s3://{data_bucket}/warehouse/")
-    effective_warehouse = raw_warehouse.replace("s3a://", "s3://")
-
-    props: dict[str, str] = {
-        "uri": uri or os.environ.get("HIVE_METASTORE_URI", "thrift://localhost:9083"),
-        "warehouse": warehouse or effective_warehouse,
-        "s3.endpoint": s3_endpoint or f"http://{minio_ep}",
-        "s3.access-key-id": access_key or os.environ.get("S3_ACCESS_KEY", "sololakehouse"),
-        "s3.secret-access-key": secret_key or os.environ.get("S3_SECRET_KEY", "sololakehouse123"),
-        "s3.path-style-access": "true",
-    }
-    return HiveCatalog(name, **props)
+    settings = load_catalog_settings()
+    return get_catalog_from_settings(
+        settings,
+        name=name,
+        uri=uri,
+        warehouse=warehouse,
+        s3_endpoint=s3_endpoint,
+        access_key=access_key,
+        secret_key=secret_key,
+    )
 
 
 # ── namespace helpers ─────────────────────────────────────────────────────────
