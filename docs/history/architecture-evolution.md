@@ -152,6 +152,19 @@ split) is the next decision gate; it has not yet begun.
 - Compatibility: no service is added and the v2.5 runtime remains unchanged.
 - ADR-018 records the tuple; ADR-021 defines the metadata-first policy boundary.
 
+## v2.8 E2 AI-Governance Contract Choice (2026-08-02)
+
+- Selected: require a declarative `ai_governance` section on every governed
+  dataset contract, covering allowed AI use, risk tier, intended and prohibited
+  uses, human oversight, and model-lineage requirements.
+- Selected: keep Bronze and Silver datasets outside the model-training boundary;
+  allow the Gold feature dataset only for model training and evaluation, with
+  human oversight and lineage required.
+- Rejected: implicit policy inferred from layer, owner, or free-text purpose;
+  it cannot be validated or safely reused by future agents.
+- Deferred: Trino enforcement, RBAC changes, and a chat application. ADR-021
+  keeps those operational controls outside this metadata-and-evidence release.
+
 ## Release-gate sequencing decision (2026-08-02)
 
 - Selected: continue internal development through **v2.8, v2.7, and v2.9**;

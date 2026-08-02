@@ -19,3 +19,10 @@ quality_rules:
   min_row_count: 10
   date_column: event_date
   forbid_future_dates: true
+ai_governance:
+  ai_use_allowed: true
+  risk_tier: limited_risk
+  intended_uses: [model_training, model_evaluation]
+  prohibited_uses: [automated_decision_making, external_distribution]
+  human_oversight_required: true
+  model_lineage_required: true

@@ -7,6 +7,7 @@ import pytest
 
 from governance.contracts import (
     CONTRACTS_DIRECTORY,
+    DatasetContract,
     governed_pipeline_asset_keys,
     load_contract,
     load_contracts,
@@ -43,6 +44,28 @@ def test_contract_loader_rejects_unknown_fields(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="Invalid contract"):
         load_contract(invalid_path)
+
+
+def test_ai_governance_metadata_distinguishes_training_dataset() -> None:
+    contracts = load_contracts()
+
+    gold = contracts["fin.ecb_dax_features_gold"].ai_governance
+    bronze = contracts["fin.ecb_rates_bronze"].ai_governance
+
+    assert gold.ai_use_allowed is True
+    assert gold.model_lineage_required is True
+    assert gold.human_oversight_required is True
+    assert bronze.ai_use_allowed is False
+    assert bronze.risk_tier == "not_applicable"
+
+
+def test_ai_governance_rejects_inconsistent_ai_boundary() -> None:
+    contract = load_contract(CONTRACTS_DIRECTORY / "fin.ecb_dax_features_gold.yaml")
+    payload = contract.model_dump(mode="json")
+    payload["ai_governance"]["model_lineage_required"] = False
+
+    with pytest.raises(ValueError, match="require model lineage"):
+        DatasetContract.model_validate(payload)
 
 
 def test_runtime_quality_rejects_contract_violation() -> None:

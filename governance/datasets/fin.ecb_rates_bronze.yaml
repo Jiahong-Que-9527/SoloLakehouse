@@ -20,3 +20,10 @@ quality_rules:
   date_column: observation_date
   max_gap_days: 180
   forbid_future_dates: true
+ai_governance:
+  ai_use_allowed: false
+  risk_tier: not_applicable
+  intended_uses: []
+  prohibited_uses: [model_training, automated_decision_making]
+  human_oversight_required: false
+  model_lineage_required: false

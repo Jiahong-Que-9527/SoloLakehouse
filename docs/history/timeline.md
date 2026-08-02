@@ -169,6 +169,21 @@ Decision gate to E2:
 - Merge PR #51 only after its CI and review fixes pass. E2 then extends dataset
   contracts with AI-governance fields and constraints.
 
+## v2.8 E2 - AI-Governance Contract Boundaries (2026-08-02) - Implemented Locally
+
+What changed:
+- Every governed dataset contract now declares an `ai_governance` boundary:
+  whether AI use is allowed, risk tier, intended and prohibited uses, human
+  oversight, and whether ML lineage is required.
+- Bronze and Silver datasets explicitly prohibit model training; the Gold
+  feature dataset permits model training and evaluation only, with human
+  oversight and the E1 lineage tuple required.
+- Contract validation rejects missing metadata and contradictory declarations.
+
+Decision gate to E3:
+- Surface the approved contract metadata through agent-ready policy hooks only;
+  do not add a chat application or query-time enforcement.
+
 ## v2.6.1 Block J - Planned (next) — superseded
 
 _Superseded by the 2026-08-02 Owner Decision (continuous development through

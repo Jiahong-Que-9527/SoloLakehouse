@@ -261,7 +261,7 @@ Planned v2.8 tasks:
 
 - [x] `E1` Extend ML lineage beyond the current run metadata to a governed
       multi-part evidence tuple (`governance/ml_lineage.py`, ADR-018)
-- [ ] `E2` Add AI-governance fields and constraints on top of dataset contracts
+- [x] `E2` Add AI-governance fields and constraints on top of dataset contracts
 - [ ] `E3` Define agent-ready metadata and policy hooks without building a chat
       app
 - [ ] `E4` Generate model/evaluation evidence aligned with the project’s EU AI

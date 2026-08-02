@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 import yaml  # type: ignore[import-untyped]
 from pydantic import (
@@ -48,6 +49,43 @@ class PhysicalLocation(BaseModel):
     table: str
 
 
+class AIGovernance(BaseModel):
+    """Declarative AI-use boundary for a governed dataset contract."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ai_use_allowed: bool
+    risk_tier: Literal["not_applicable", "limited_risk", "high_risk"]
+    intended_uses: list[str]
+    prohibited_uses: list[str] = Field(min_length=1)
+    human_oversight_required: bool
+    model_lineage_required: bool
+
+    @field_validator("intended_uses", "prohibited_uses")
+    @classmethod
+    def unique_use_values(cls, values: list[str]) -> list[str]:
+        if len(values) != len(set(values)):
+            raise ValueError("AI use values must be unique")
+        return values
+
+    @model_validator(mode="after")
+    def validate_ai_use_boundary(self) -> "AIGovernance":
+        if not self.ai_use_allowed:
+            if self.risk_tier != "not_applicable":
+                raise ValueError("AI-disallowed datasets require risk_tier=not_applicable")
+            if self.intended_uses:
+                raise ValueError("AI-disallowed datasets cannot declare intended_uses")
+            if self.model_lineage_required:
+                raise ValueError("AI-disallowed datasets cannot require model lineage")
+        elif self.risk_tier == "not_applicable":
+            raise ValueError("AI-allowed datasets require an applicable risk_tier")
+        elif not self.intended_uses:
+            raise ValueError("AI-allowed datasets require at least one intended_use")
+        elif not self.model_lineage_required:
+            raise ValueError("AI-allowed datasets require model lineage")
+        return self
+
+
 class DatasetContract(BaseModel):
     """The minimum governance contract required for a v2.6 dataset."""
 
@@ -69,6 +107,7 @@ class DatasetContract(BaseModel):
     dagster_asset_key: str = Field(min_length=1)
     upstream_dataset_ids: list[str] = Field(default_factory=list)
     quality_rules: QualityRules
+    ai_governance: AIGovernance
 
     @field_validator("consumers", "approved_consumer_class", "upstream_dataset_ids")
     @classmethod
