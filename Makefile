@@ -1,4 +1,4 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report
+.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
@@ -111,6 +111,15 @@ interoperability-proof:
 
 sovereignty-report:
 	$(PYTHON) scripts/generate-sovereignty-report.py $(if $(FORMAT),--format $(FORMAT),)
+
+promotion-evidence:
+	$(PYTHON) scripts/promotion-evidence.py $(if $(TARGET_STAGE),--target-stage $(TARGET_STAGE),)
+
+rollback-drill:
+	$(PYTHON) scripts/rollback-drill.py $(if $(ALLOW_UNHEALTHY),--allow-unhealthy-runtime,)
+
+operational-evidence:
+	$(PYTHON) scripts/operational-evidence.py $(if $(ALLOW_SLO_FAILURE),--allow-slo-failure,)
 
 demo:
 	$(MAKE) verify
