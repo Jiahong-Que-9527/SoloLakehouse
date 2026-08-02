@@ -38,13 +38,20 @@ init-iceberg:
 # "failed to receive status: rpc error: code = Unavailable ... EOF"). The service
 # list is derived from the merged compose config so it cannot go stale.
 # `up -d --build` afterwards is a cache hit and stays cheap.
+# `config` needs $(ENV_FILE); without it compose emits no JSON and this target
+# would silently build nothing. Mirror what `setup` does.
 build-images-serial: check-git-lineage
-	@services=$$($(DOCKER_COMPOSE) $(COMPOSE_STACK) config --format json \
+	@test -f $(ENV_FILE) || $(MAKE) init-env
+	@set -e; \
+	services=$$($(DOCKER_COMPOSE) $(COMPOSE_STACK) config --format json \
 		| $(PYTHON) -c "import json,sys; print(' '.join(k for k,v in sorted(json.load(sys.stdin)['services'].items()) if 'build' in v))"); \
-	test -n "$$services" || (echo "No buildable services found in the compose stack." && exit 1); \
+	if test -z "$$services"; then \
+		echo "No buildable services found in the compose stack."; \
+		exit 1; \
+	fi; \
 	for svc in $$services; do \
 		echo "==> building $$svc"; \
-		$(DOCKER_COMPOSE) $(COMPOSE_STACK) build $$svc || exit 1; \
+		$(DOCKER_COMPOSE) $(COMPOSE_STACK) build "$$svc"; \
 	done
 
 check-git-lineage:
