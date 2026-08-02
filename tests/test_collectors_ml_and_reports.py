@@ -392,6 +392,20 @@ class TestEvaluate:
         monkeypatch.setattr(evaluate.mlflow, "log_metrics", lambda *args, **kwargs: None)
         monkeypatch.setattr(evaluate.mlflow, "log_artifact", lambda *args, **kwargs: None)
         monkeypatch.setattr(evaluate.mlflow, "set_tag", lambda *args, **kwargs: None)
+        def fake_write_manifest(manifest):
+            _ = manifest
+            return (
+                "lineage/fin.ecb_dax_features_gold/2026-08-02/dagster-run-1/"
+                "model-evidence/run-7.json"
+            )
+
+        monkeypatch.setattr(evaluate, "write_model_evaluation_manifest", fake_write_manifest)
+
+        class _MlflowClient:
+            def log_artifact(self, run_id: str, local_path: str, artifact_path: str) -> None:
+                _ = (run_id, local_path, artifact_path)
+
+        monkeypatch.setattr(evaluate.mlflow.tracking, "MlflowClient", _MlflowClient)
         monkeypatch.delenv("TRINO_URL", raising=False)
         # Mock iceberg scan so no real catalog connection is made
         scanned_snapshots: list[str | None] = []
@@ -405,6 +419,7 @@ class TestEvaluate:
 
         from governance.contracts import contract_path, load_contract
         from governance.ml_lineage import MLLineageTuple
+        from governance.policy_hooks import policy_hook_from_contract
 
         lineage = MLLineageTuple(
             iceberg_snapshot_id="123456789",
@@ -414,13 +429,17 @@ class TestEvaluate:
             data_contract_hash="0" * 64,
         )
         training_contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
-        best_run_id = evaluate.run_experiment_set(
+        contract_hash = policy_hook_from_contract(training_contract).contract_sha256
+        lineage = lineage.model_copy(update={"data_contract_hash": contract_hash})
+        result = evaluate.run_experiment_set(
             catalog,
             "http://localhost:5000",
             lineage,
             training_contract,
         )
 
-        assert best_run_id == "run-7"
+        assert result.best_run_id == "run-7"
+        assert result.model_evidence_path.endswith("run-7.json")
+        assert len(result.model_evidence_sha256) == 64
         assert len(train_calls) == 12
         assert scanned_snapshots == ["123456789"]
