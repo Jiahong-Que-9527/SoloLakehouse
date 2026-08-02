@@ -403,6 +403,7 @@ class TestEvaluate:
 
         monkeypatch.setattr(evaluate.iceberg_io, "scan_table", fake_scan_table)
 
+        from governance.contracts import contract_path, load_contract
         from governance.ml_lineage import MLLineageTuple
 
         lineage = MLLineageTuple(
@@ -412,10 +413,12 @@ class TestEvaluate:
             code_commit="abc1234",
             data_contract_hash="0" * 64,
         )
+        training_contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
         best_run_id = evaluate.run_experiment_set(
             catalog,
             "http://localhost:5000",
             lineage,
+            training_contract,
         )
 
         assert best_run_id == "run-7"
