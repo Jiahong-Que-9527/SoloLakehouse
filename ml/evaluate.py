@@ -12,11 +12,18 @@ import pandas as pd
 import structlog
 
 from governance.ml_lineage import MLLineageTuple, bind_mlflow_run
+from governance.policy_hooks import (
+    AgentPolicyHook,
+    bind_mlflow_policy_hook,
+    validate_ml_training_allowed,
+)
 from ingestion import iceberg_io
 from ml.train_ecb_dax_model import train
 
 if TYPE_CHECKING:
     from pyiceberg.catalog import Catalog
+
+    from governance.contracts import DatasetContract
 
 logger = structlog.get_logger()
 
@@ -35,8 +42,10 @@ def run_experiment_set(
     catalog: "Catalog",
     mlflow_tracking_uri: str,
     lineage: MLLineageTuple,
+    training_contract: "DatasetContract",
 ) -> str:
     """Run all configured experiment combinations and return the best run_id."""
+    policy_hook: AgentPolicyHook = validate_ml_training_allowed(training_contract)
     df = _gold_dataframe_from_iceberg(catalog, lineage.iceberg_snapshot_id)
 
     mlflow.set_tracking_uri(mlflow_tracking_uri)
@@ -54,6 +63,7 @@ def run_experiment_set(
                 }
                 with mlflow.start_run() as run:
                     bind_mlflow_run(run, lineage)
+                    bind_mlflow_policy_hook(run, policy_hook)
                     model, metrics = train(df=df, model_type=model_type, params=params)
 
                     mlflow.log_param("model_type", model_type)

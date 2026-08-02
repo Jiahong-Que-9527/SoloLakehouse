@@ -27,6 +27,7 @@ from dagster import (
 from governance.contracts import contract_for_asset_key
 from governance.emission import emit_pending_lineage_evidence_for_run
 from governance.ml_lineage import build_ml_lineage_tuple, contract_content_sha256
+from governance.policy_hooks import validate_ml_training_allowed
 from ingestion import iceberg_io
 from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
@@ -211,15 +212,18 @@ def ml_experiment(
         feature_version=FEATURE_VERSION,
         data_contract_hash=contract_content_sha256(contract),
     )
+    policy_hook = validate_ml_training_allowed(contract)
     best_run_id = run_experiment_set(
         catalog=catalog,
         mlflow_tracking_uri=pipeline_config.mlflow_tracking_uri,
         lineage=lineage,
+        training_contract=contract,
     )
     context.add_output_metadata(
         {
             "best_run_id": best_run_id,
             "ml_lineage_sha256": lineage.sha256(),
+            "policy_hook_sha256": policy_hook.sha256(),
             **lineage.model_dump(mode="json"),
         }
     )
