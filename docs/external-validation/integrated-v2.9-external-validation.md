@@ -9,9 +9,13 @@ Record status: **active — v2.9 delivered; external sign-off pending**
 
 Minimum baseline: commit [`e534c73`](https://github.com/Jiahong-Que-9527/SoloLakehouse/commit/e534c73)
 (Block `J`) through the signed integrated candidate. Do **not** test tag `v2.6.1`
-alone — that tag predates Block `J`. Use a ref at or after `0339672`, which
-carries the `rollback-drill` dotenv fix (friction E9); earlier refs reproduce a
-failure already fixed on `main`.
+alone — that tag predates Block `J`.
+
+**Test `main @ 832bf02` or later.** `0339672` is the functional minimum (it
+carries the `rollback-drill` dotenv fix, friction E9), but `832bf02` is the first
+ref whose README, `docs/quickstart.md`, and `docs/deployment.md` match this
+protocol — earlier refs describe the superseded `cp .env.example .env` bootstrap
+and label v2.7–v2.9 as unbuilt.
 
 Block `J` detail and historical friction: [`v2.6.1-external-validation.md`](v2.6.1-external-validation.md)
 
@@ -63,7 +67,7 @@ development checkout**.
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
-git checkout <signed-post-v2.9-candidate>   # current candidate: main @ 0339672
+git checkout <signed-post-v2.9-candidate>   # current candidate: main @ 832bf02
 
 make init-env
 # Creates .env.shared, .env.secrets, and merged .env from the v2.9 split templates.
