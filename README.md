@@ -68,9 +68,9 @@ Most lakehouse tutorials show **how to plug components together**. SoloLakehouse
 | Problem the platform answers | How SoloLakehouse addresses it |
 |---|---|
 | **"If BaFin asks for end-to-end lineage of this Gold table tomorrow, can we deliver it in 24h?"** | Three-source lineage join (OpenMetadata + Iceberg snapshots + Dagster runs) producing SHA-256-bound evidence packs to an audit bucket. *([v2.6 — delivered](docs/v2.6-release-readiness.md))* |
-| **"Are we locked into our vendor's table format?"** | Iceberg Gold tables readable by Trino today, with documented multi-engine paths (Spark / DuckDB / Flink) and Hive-Metastore ↔ REST-Catalog switch. *(v2.7 — planned; see [roadmap](docs/roadmap.md))* |
-| **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *(v2.8 — planned; see [roadmap](docs/roadmap.md))* |
-| **"Can the same stack run on a laptop and on Kubernetes without rewriting?"** | All services are containerized, configuration-externalized, state-externalized; v3.0 promotes the same images to K8s + Helm + Terraform. *(v2.9 → [v3.0](docs/history/v3-planning.md); see [roadmap](docs/roadmap.md))* |
+| **"Are we locked into our vendor's table format?"** | Explicit catalog abstraction boundary, Hive-Metastore ↔ REST-Catalog path, `make interoperability-proof`, and a signable sovereignty report + exit playbook. *(v2.7 — on `main`, pending external validation; see [roadmap](docs/roadmap.md))* |
+| **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *(v2.8 — on `main`, pending external validation; see [roadmap](docs/roadmap.md))* |
+| **"Can the same stack run on a laptop and on Kubernetes without rewriting?"** | All services are containerized, configuration-externalized, state-externalized; `make k8s-readiness` gates the migration and v3.0 promotes the same images to K8s + Helm + Terraform. *(v2.9 on `main` → [v3.0](docs/history/v3-planning.md); see [roadmap](docs/roadmap.md))* |
 
 
 ## Quick Start
@@ -83,7 +83,13 @@ cd SoloLakehouse
 make setup
 ```
 
-`make setup` creates `.env` from `.env.example`, prepares `.venv`, installs Python dependencies, pulls images, starts the Compose stack, bootstraps databases, and waits for service health checks.
+`make setup` runs `make init-env` when `.env` is missing, prepares `.venv`, installs Python dependencies, pulls images, starts the Compose stack, bootstraps databases, and waits for service health checks.
+
+`make init-env` is the supported bootstrap. It seeds `.env.shared` (non-secret
+configuration) and `.env.secrets` (credentials and tokens) from their committed
+`*.example` templates, then merges both into `.env` for Compose and the scripts.
+Do **not** use `cp .env.example .env` — that bypasses the v2.9 secrets split.
+Both `.env.shared` and `.env.secrets` are gitignored; never commit either.
 
 Validate the stack, open the local operator portal, and run the end-to-end demo:
 
@@ -131,11 +137,11 @@ The reference data domain is European financial markets — ECB Statistical Data
 Beyond the platform features, this is built with explicit engineering discipline a hiring panel can audit:
 
 - **Test discipline** — pure-function transforms unit-tested without Docker; Pydantic v2 schema validation on every Bronze record; quality checks fail-fast rather than silent-degrade
-- **Type discipline** — `mypy` over `ingestion/`, `transformations/`, `ml/`, `scripts/`, `dagster/`
+- **Type discipline** — `mypy` over `ingestion/`, `transformations/`, `ml/`, `scripts/`, `dagster/`, `governance/`
 - **Lint discipline** — `ruff` enforced in CI
 - **Architecture discipline** — every non-trivial decision recorded as an [ADR](docs/decisions/README.md)
 - **Release discipline** — version-tagged release notes, planning note per minor version, evolution timeline at [docs/history/timeline.md](docs/history/timeline.md)
-- **Observability discipline** — `structlog` JSON events at every step boundary; SLO emit pipeline planned for v2.9 (see [roadmap](docs/roadmap.md))
+- **Observability discipline** — `structlog` JSON events at every step boundary; `make operational-evidence` emits SHA-256-bound SLO evidence (v2.9, on `main`)
 - **CI** — GitHub Actions runs lint + typecheck + tests on every push
 
 ## AI-Assisted Platform Workflow
@@ -191,12 +197,21 @@ The platform evolves along a single narrative: **first make it run, then make ev
 | Version | Theme | Problem | Focus |
 |---------|-------|---------|-------|
 | **v2.5** *(delivered)* | Platform can run | local-first lakehouse baseline | reproducible Docker Compose stack, Bronze/Silver/Gold flow, Trino, Dagster, MLflow, OpenMetadata, Superset |
-| **v2.6** *(delivered)* | Platform can produce evidence | regulatory lineage & audit readiness | Dagster + OpenMetadata + Iceberg three-source lineage join, SHA-256-bound audit evidence pack, and data contracts as the gate; Object Lock/WORM enforcement remains out of scope |
-| **v2.7** *(planned)* | Platform can prove openness | data sovereignty & vendor lock-in | multi-engine Iceberg demo (Trino / Spark / DuckDB / Flink), Hive Metastore ↔ Iceberg REST Catalog switch, signable sovereignty report + exit playbook, Databricks-to-Iceberg migration PoC |
-| **v2.8** *(planned)* | Platform can govern AI | compliant AI / model traceability | MLflow ↔ Iceberg snapshot five-tuple binding (snapshot_id, dagster.run_id, feature_version, code_commit, data_contract_hash), auto **EU AI Act Art.13** model card, ML asset checks for performance regression *(model serving stays out — ADR-011)* |
-| **v2.9** *(planned)* | Platform has production shape | operational readiness | SLO emit + Superset "Platform Health" dashboard, `.env.shared` vs `.env.secrets` discipline, promotion/rollback drill with `make` entrypoints, Iceberg snapshot rollback drill, K8s readiness gate before v3.0 |
+| **v2.6** *(delivered)* | Platform can produce evidence | regulatory lineage & audit readiness | Dagster + OpenMetadata + Iceberg three-source lineage join, SHA-256-bound audit evidence pack, and data contracts as the gate |
+| **v2.6.1** *(on `main`)* | Evidence is operational, not demonstrable | audit-grade evidence plane | automatic emission on successful materialization, MinIO Object Lock on the audit bucket, all five governed datasets covered, causal snapshot ↔ run binding |
+| **v2.7** *(on `main`)* | Platform can prove openness | data sovereignty & vendor lock-in | explicit catalog abstraction boundary, Hive Metastore ↔ Iceberg REST Catalog path, Apache Polaris evaluation, `make interoperability-proof`, signable sovereignty report + exit playbook *(engine count is not the success metric — Spark/Flink demos and migration PoC tooling are out of scope)* |
+| **v2.8** *(on `main`)* | Platform can govern AI | compliant AI / model traceability | MLflow ↔ Iceberg snapshot five-tuple binding (snapshot_id, dagster.run_id, feature_version, code_commit, data_contract_hash), AI-governance contract fields, exportable policy hooks, auto **EU AI Act Art.13** model card *(policy hooks are metadata — no enforcement point yet; model serving stays out — ADR-011)* |
+| **v2.9** *(on `main`)* | Platform has production shape | operational readiness | operational SLO evidence, promotion/rollback evidence with `make` entrypoints, rollback drill, `.env.shared` vs `.env.secrets` discipline + rotation drill, K8s readiness gate before v3.0 |
 | **v3.0** *(planned)* | Platform can run in production | scalable deployment & environment management | Kubernetes, Helm, Terraform, dev/stage/prod separation, managed secrets, GitOps-ready deployment model |
 | **v4.0** *(planned)* | Self-serve usability | docs-first onboarding | repeatable verification, clearer failure modes, operational polish |
+
+**"On `main`" is not "released."** v2.6.1 Block `J` through v2.9 are implemented,
+internally verified, and CI-green on `main`, but the accumulated v2.6.1–v2.9
+scope is still behind an **integrated external validation gate**: at least one
+person outside the project must run the candidate on their own machine and sign
+[docs/external-validation/integrated-v2.9-external-validation.md](docs/external-validation/integrated-v2.9-external-validation.md)
+before a post-v2.9 tag is published. The latest published tag is `v2.6.1`, which
+predates Block `J`.
 
 Per-version planning notes:
 

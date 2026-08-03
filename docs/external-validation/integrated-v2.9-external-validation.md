@@ -9,7 +9,9 @@ Record status: **active — v2.9 delivered; external sign-off pending**
 
 Minimum baseline: commit [`e534c73`](https://github.com/Jiahong-Que-9527/SoloLakehouse/commit/e534c73)
 (Block `J`) through the signed integrated candidate. Do **not** test tag `v2.6.1`
-alone — that tag predates Block `J`.
+alone — that tag predates Block `J`. Use a ref at or after `0339672`, which
+carries the `rollback-drill` dotenv fix (friction E9); earlier refs reproduce a
+failure already fixed on `main`.
 
 Block `J` detail and historical friction: [`v2.6.1-external-validation.md`](v2.6.1-external-validation.md)
 
@@ -35,6 +37,20 @@ Optional (not required for default-stack sign-off):
 - `make interoperability-proof LIVE_REST=1` — only when a REST catalog (for
   example optional Polaris) is running; see `docs/polaris-evaluation.md`.
 
+### Declared runtime version stamp
+
+Every evidence manifest produced during this validation will carry
+`runtime_version=slh-v2.6.1`, and `make verify` prints the same value in its
+runtime-identity line. **This is declared and expected, not a defect.**
+
+`RUNTIME_VERSION` tracks the last *published* tag (`v2.6.1`), and the integrated
+v2.6.1–v2.9 candidate is deliberately untagged until this gate is signed — so
+there is no later published version for it to name. The stamp is bumped in the
+same PR that publishes the post-v2.9 tag, after sign-off.
+
+Please do record it in the friction log if the stamp misled you anyway; that is
+useful signal about whether the explanation belongs closer to the output.
+
 ---
 
 ## Validator protocol
@@ -47,7 +63,7 @@ development checkout**.
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
-git checkout <signed-post-v2.9-candidate>   # e.g. main @ 0d4ea57 or later signed tag
+git checkout <signed-post-v2.9-candidate>   # current candidate: main @ 0339672
 
 make init-env
 # Creates .env.shared, .env.secrets, and merged .env from the v2.9 split templates.
@@ -213,7 +229,7 @@ external-validation gate.
 | Field | Value |
 |---|---|
 | Environment | maintainer rehearsal (not external) — existing dev machine with bind-mounted state |
-| Git commit tested | `f5dc53d` (`main`, PRs #61 + #62 merged) |
+| Git commit tested | `f5dc53d` (`main`, PRs #61 + #62 merged); the E9 fix found during the rehearsal landed afterwards in `7423f4f` |
 | Bootstrap | PASS after copying live MinIO secrets into `.env.secrets` and using `COMPOSE_PROJECT_NAME=docker` to match the running stack |
 | `make verify` | PASS (9/9 services, Object Lock GOVERNANCE 2555d on `sololakehouse-audit`) |
 | `make demo` | PASS (Gold 53 rows); Dagster run `7f4113b8-4da0-43cc-a753-e9178b1b8e1e` with `COMPOSE_PROJECT_NAME=docker` |

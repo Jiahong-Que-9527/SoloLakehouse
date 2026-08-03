@@ -10,7 +10,12 @@ cd SoloLakehouse
 make setup
 ```
 
-`make setup` creates `.env` if needed, creates `.venv` if needed, installs Python dependencies, pulls images, and starts the full v2.5 stack including OpenMetadata and Superset.
+`make setup` runs `make init-env` if `.env` is missing, creates `.venv` if needed, installs Python dependencies, pulls images, and starts the full v2.5 stack including OpenMetadata and Superset.
+
+`make init-env` seeds `.env.shared` (non-secret configuration) and `.env.secrets`
+(credentials and tokens) from their committed templates and merges both into
+`.env`. Do **not** use `cp .env.example .env` — that bypasses the v2.9 secrets
+split. See [deployment.md](deployment.md#environment-files).
 
 Durable local state (MinIO, PostgreSQL files, Dagster storage, OpenMetadata MySQL/Elasticsearch) is written under **`docker/data/`** in the repo (bind mounts; see [deployment.md](deployment.md)).
 

@@ -23,9 +23,32 @@ This guide covers local deployment for the **v2.5 single-track runtime**.
 make setup
 ```
 
-`make setup` creates `.env` from `.env.example`, creates `.venv`, installs Python dependencies, pulls container images, starts the Compose stack, bootstraps databases, and waits for service health checks.
+`make setup` runs `make init-env` when `.env` is missing, creates `.venv`, installs Python dependencies, pulls container images, starts the Compose stack, bootstraps databases, and waits for service health checks.
 
-The committed `.env.example` values are local-demo defaults only. Change passwords and secret keys before exposing any service beyond your own machine; production-grade secret management is tracked for v3.
+### Environment files
+
+`make init-env` is the supported bootstrap:
+
+```bash
+make init-env
+```
+
+It seeds two files from their committed templates and merges them into `.env`:
+
+| File | Contents | Template | Committed? |
+|------|----------|----------|------------|
+| `.env.shared` | non-secret configuration (endpoints, bucket names, `RUNTIME_VERSION`) | `.env.shared.example` | gitignored |
+| `.env.secrets` | credentials and tokens (`POSTGRES_PASSWORD`, `S3_SECRET_KEY`, `OPENMETADATA_AUTH_TOKEN`) | `.env.secrets.example` | gitignored |
+| `.env` | merged result consumed by Compose and the host-side scripts | generated | gitignored |
+
+Do **not** use `cp .env.example .env`. `.env.example` is retained as a legacy
+single-file reference; copying it bypasses the v2.9 secrets split that
+`make secrets-discipline` enforces. Edit `.env.shared` / `.env.secrets` and
+re-run `make init-env` to regenerate `.env`.
+
+The committed template values are local-demo defaults only. Change passwords and secret keys before exposing any service beyond your own machine; production-grade secret management is tracked for v3.
+
+**Upgrading an existing checkout:** if `docker/data/` already holds state, copy your live credentials and `COMPOSE_PROJECT_NAME` from the previous `.env` into `.env.secrets` / `.env.shared` *before* running `make init-env`. Template defaults will not match persisted MinIO credentials, and `make verify` fails with `SignatureDoesNotMatch` until they align.
 
 ## 3. Start and verify
 
