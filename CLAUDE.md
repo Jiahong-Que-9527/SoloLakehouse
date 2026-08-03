@@ -21,9 +21,16 @@ Compose node.
 
 **Runtime baseline: v2.5 single-track** — orchestrated platform with Dagster assets/schedules/UI, **full-stack Iceberg** (Bronze/Silver/Gold all written via pyiceberg), and mandatory OpenMetadata + Superset in the default stack. This runtime is protected from regression and does **not** change during the v2.x series.
 
-**Current version: v2.6 — computational governance and evidence plane.** Machine-validated dataset contracts (`governance/datasets/*.yaml`), a typed three-source lineage record (OpenMetadata + Iceberg snapshot + Dagster run), and `make lineage-evidence` writing a SHA-256-bound manifest to the audit bucket.
+**Which version is current, what is delivered, and what comes next: see
+[`AGENTS.md` §2](AGENTS.md) — not this file.** That state changes every release;
+duplicating it here is how the entry points drift apart. This file describes the
+code as it stands on `main`.
 
-**Next target: v2.6.1 — deepen the evidence plane before adding a new evidence category** (automate evidence emission, WORM audit storage, cover all governed datasets, bind snapshot to run causally). See `docs/roadmap.md` and `TASKS.md`.
+On top of the v2.5 runtime, `main` carries a **governance and evidence plane**:
+machine-validated dataset contracts, evidence records that join several sources
+into typed, SHA-256-bound manifests, and `make` entrypoints that emit them. Every
+module under `governance/` follows the same two rules — fail loudly, and bind the
+manifest digest to the record. See "Governance / Evidence Pattern" below.
 
 **Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
 
@@ -60,13 +67,39 @@ make lint        # ruff (CI)
 make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/, governance/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
 make clean       # Stop services + delete docker/data/ + purge legacy named Docker volumes
 
-# v2.6 governance & evidence
+make init-env    # Seed .env.shared + .env.secrets from templates, merge into .env
+                 # This is the supported bootstrap — never `cp .env.example .env`
+
+# Contracts & lineage evidence
 make validate-contracts  # Validate every governance/datasets/*.yaml against the contract schema
 make lineage-evidence DATASET_ID=fin.ecb_dax_features_gold DAGSTER_RUN_ID=<run-id>
                          # Join three sources and write a SHA-256-bound manifest to the audit bucket.
                          # Requires OPENMETADATA_TRINO_SERVICE_NAME + OPENMETADATA_AUTH_TOKEN from the
                          # local environment (never Git). Fails without output if any source is missing.
+                         # The happy path is automatic — a Dagster sensor emits on successful
+                         # materialization; this CLI is for backfill and debugging.
+
+# Catalog openness
+make interoperability-proof   # Catalog-boundary interoperability evidence (LIVE_REST=1 needs a REST catalog)
+make sovereignty-report       # Sovereignty / component-origin report (FORMAT=json for machine output)
+make polaris-up               # Optional Polaris REST-catalog profile — not in the default stack
+
+# AI/ML governance
+make export-policy-hooks      # Canonical-JSON policy hooks derived from governed contracts
+
+# Operations, promotion, secrets
+make promotion-evidence       # Promotion gates -> SHA-256-bound manifest
+make rollback-drill           # Rollback drill record (ALLOW_UNHEALTHY=1 only to document a limitation)
+make operational-evidence     # SLO evidence (ALLOW_SLO_FAILURE=1 only to document a limitation)
+make secrets-discipline       # Fails on any secret-handling violation; no --allow-warn on a clean tree
+make secrets-rotation-drill ROTATED_KEYS=POSTGRES_PASSWORD,S3_SECRET_KEY
+make k8s-readiness            # v3.0 migration readiness gate
+
+make check-agent-docs         # Entry points resolve to AGENTS.md and do not duplicate version state
 ```
+
+Every evidence command exits non-zero and writes nothing when a source is
+missing. Do not add a partial-output fallback to any of them.
 
 ## Project Layout
 
@@ -89,19 +122,50 @@ ml/
   train_ecb_dax_model.py    # XGBoost/LightGBM with TimeSeriesSplit CV
   evaluate.py               # MLflow experiment runner (multiple hyperparams)
 
-governance/                 # v2.6 governance & evidence plane
+governance/                 # Governance & evidence plane — every module follows the two rules below
   contracts.py              # DatasetContract pydantic model + YAML loader
   quality.py                # Contract-driven quality gates
+  datasets/*.yaml           # One contract per governed dataset (fin.*)
+  # lineage evidence
   lineage.py                # OpenMetadata / Iceberg / Dagster read-only adapters + strict joiner
   evidence.py               # LineageRecord + EvidenceManifest (canonical JSON, SHA-256 bound)
+  emission.py               # Shared emission path for the CLI and the Dagster sensor
   audit.py                  # AuditEvidenceWriter — writes manifests to the audit bucket
-  datasets/*.yaml           # One contract per governed dataset (fin.*)
+  audit_storage.py          # Audit-bucket Object Lock configuration + verification
+  # catalog openness
+  interoperability.py       # Catalog interoperability evidence
+  sovereignty.py            # Sovereignty / component-origin evidence
+  # AI/ML governance
+  ml_lineage.py             # ML lineage five-tuple types + binding helpers (ADR-018)
+  model_evidence.py         # Model evaluation evidence + audit paths
+  policy_hooks.py           # Agent-ready policy hooks derived from contracts (ADR-021)
+  # operations, promotion, secrets
+  promotion.py              # Promotion and rollback evidence (ADR-022)
+  operations.py             # SLO and incident-readiness evidence (ADR-022)
+  runtime_health.py         # Shared runtime health access used by operational evidence
+  secrets_discipline.py     # Secrets discipline evidence (ADR-023)
+  env_merge.py              # .env.shared / .env.secrets split helpers
+  k8s_readiness.py          # Kubernetes migration readiness evidence (ADR-023)
 
-scripts/
-  verify-setup.py           # Service health checks
+scripts/                    # One CLI per make target; the logic lives in governance/
+  verify-setup.py           # Service health checks (also reports audit-bucket Object Lock)
+  verify-demo.py            # Asserts Gold is queryable via Trino after make demo
   validate-dataset-contracts.py # Contract schema validation (wired into CI)
-  lineage-evidence.py       # v2.6 evidence CLI (make lineage-evidence)
+  lineage-evidence.py       # Lineage evidence CLI (backfill/debug; the sensor is the happy path)
+  export-policy-hooks.py    # make export-policy-hooks
+  interoperability-proof.py # make interoperability-proof
+  generate-sovereignty-report.py # make sovereignty-report
+  promotion-evidence.py     # make promotion-evidence
+  rollback-drill.py         # make rollback-drill
+  operational-evidence.py   # make operational-evidence
+  secrets-discipline.py     # make secrets-discipline
+  secrets-rotation-drill.py # make secrets-rotation-drill
+  k8s-readiness.py          # make k8s-readiness
+  merge-env-files.py        # make init-env — merges the split templates into .env
+  check-agent-docs.py       # make check-agent-docs — entry-point consistency, runs in CI
   bootstrap-postgres.py     # Ensure DBs exist; TCP password check + align vs .env after docker-exec bootstrap
+  wait-for-dagster-run.py   # Block until a Dagster run reaches a terminal state
+  health-server.py          # Operator portal at 127.0.0.1:8090/health
   prepare-docker-data-dirs.sh   # mkdir + perms for docker/data bind mounts
   purge-legacy-docker-volumes.sh # Remove pre-bind-mount Docker named volumes (after down)
   init-minio.sh             # Legacy bucket init (now handled by minio-init container)
@@ -247,6 +311,21 @@ manifest = EvidenceManifest.from_record(record)  # binds record_sha256 to the re
 Adding a governed dataset means adding `governance/datasets/<dataset_id>.yaml` —
 `make validate-contracts` (and CI) rejects missing required fields.
 
+Every other evidence module (`promotion`, `operations`, `secrets_discipline`,
+`k8s_readiness`, `interoperability`, `sovereignty`, `model_evidence`) repeats the
+same shape, so follow it when adding one:
+
+```text
+governance/<topic>.py   frozen record model + gate evaluation + manifest builder
+scripts/<topic>.py      thin CLI: parse args -> build record -> print manifest, exit non-zero on any failed gate
+Makefile                one target, no flags that weaken the gate by default
+tests/test_*.py         one passing case, one failing gate, one digest-binding assertion
+```
+
+Escape hatches (`ALLOW_SLO_FAILURE`, `ALLOW_UNHEALTHY`, `--allow-warn`) exist only
+to *document* a known limitation. Never default them on, and never widen one to
+make a gate pass.
+
 ### Testing Pattern (tests/)
 
 - `class TestXxx` grouping, plain pytest (no unittest.TestCase)
@@ -324,6 +403,11 @@ MLflow bucket: `mlflow-artifacts`
 - **No Prometheus/Grafana until post-core** — meaningful metrics require custom instrumentation (ADR-005)
 - **TimeSeriesSplit** — no random CV on time-series data (look-ahead bias)
 - **Quality checks raise exceptions** — fail-fast, not silent degradation
+- **Catalog access goes through a boundary** — `HiveCatalog` is the default backend, not a hardcoded assumption; REST/Polaris is selectable (ADR-017)
+- **ML lineage is a five-tuple** — snapshot id + Dagster run id + feature version + code commit + contract hash; anything less is not traceable (ADR-018)
+- **Policy hooks are metadata, not enforcement** — contracts carry `approved_consumer_class` / `access_policy_hint`, but there is **no** enforcement point yet; do not describe them as access control (ADR-021)
+- **Promotion and operations produce evidence, not logs** — SHA-256-bound manifests with explicit gates (ADR-022)
+- **Secrets live in `.env.secrets`, config in `.env.shared`** — merged into `.env` by `make init-env`; never `cp .env.example .env` (ADR-023)
 - **v3 governance-first productionization** — environment promotion, secrets/access governance, SLO-driven operations, and auditability are mandatory before claiming production readiness
 
 ## Things to Watch Out For
@@ -335,6 +419,9 @@ MLflow bucket: `mlflow-artifacts`
 - `HIVE_METASTORE_URI=thrift://localhost:9083` in `.env` is for host-side scripts; Docker services override to `thrift://hive-metastore:9083`
 - Tests run without Docker — they mock `iceberg_io.scan_table` / `iceberg_io.overwrite_table`
 - The `version: "3.8"` field was intentionally removed from docker-compose.yml (deprecated in Compose V2)
+- `.env` is **generated** by `make init-env` from `.env.shared` + `.env.secrets` — editing `.env` directly is lost on the next merge; edit the split files. `.env.example` is a legacy single-file reference only
+- `RUNTIME_VERSION` tracks the last **published** tag, so it lags `main` between releases; it is stamped into every evidence manifest, and bumping it is part of tagging, not part of feature work
+- The audit bucket has MinIO Object Lock enabled — a bucket created before that landed cannot be retrofitted in place; `make clean && make up` recreates it
 
 ## Roadmap context
 
@@ -349,14 +436,16 @@ The chain of authority, in one line:
 > `docs/roadmap.md` (what each version does) → `TASKS.md` (what the next PR does)
 > → `AGENTS.md` (the agent-facing summary of both) → this file (how to write the code)
 
-Two things worth restating here because they constrain code:
+Two things worth restating here because they constrain the code you write:
 
 - **The v2.5 runtime does not change before v3.0.** Do not add platform
   services. Each v2.x version adds one category of *evidence*, not capability.
-- **Decision gates** (`AGENTS.md` §3). **D1 resolved (2026-08-02):** develop
-  v2.8, then v2.7, then v2.9; external validation and operational rollout
-  follow v2.9. **D2:** entity split in `task.md` is deferred indefinitely.
-  **D3:** portal/Keycloak exploration must not enter compose or `.env.example`.
+- **Decision gates are read from [`AGENTS.md` §3](AGENTS.md), every time.** Two
+  of them exclude code that would otherwise look reasonable: the entity split in
+  `task.md` is not a work track, and the portal/Keycloak exploration must not
+  enter `docker/docker-compose.yml` or the env templates. Check the current
+  wording there before acting — gate status changes, and this file does not
+  track it.
 
 Ingestion-hardening and related tasks: see **`TASKS.md`**.
 

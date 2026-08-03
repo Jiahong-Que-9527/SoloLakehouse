@@ -47,6 +47,16 @@ CONTRACT_REQUIREMENTS = {
 # three entry points will drift apart.
 VERSION_TABLE = re.compile(r"^\|.*\bv2\.6\.1\b.*\|.*\|", re.MULTILINE)
 
+# Version state also drifts in prose, which the table check above cannot see.
+# CLAUDE.md carried a stale "Current version: v2.6 / Next target: v2.6.1" for
+# four delivered versions because the claim was a sentence, not a table row.
+# Pointers must defer to the contract for status rather than assert it.
+VERSION_CLAIMS = "Current version|Next target|Released tag|Active version|Current release"
+VERSION_PROSE = re.compile(
+    rf"^\W*\**\s*({VERSION_CLAIMS})\s*\**\s*:",
+    re.MULTILINE | re.IGNORECASE,
+)
+
 
 def _published_files() -> set[str]:
     result = subprocess.run(
@@ -82,6 +92,13 @@ def main() -> int:
                 failures.append(
                     f"{path_str} duplicates the version table; keep version state in "
                     f"{CONTRACT} only so the entry points cannot drift"
+                )
+            prose = VERSION_PROSE.search(text)
+            if prose:
+                claim = prose.group(1)
+                failures.append(
+                    f"{path_str} asserts version state in prose ({claim!r}); point at "
+                    f"{CONTRACT} instead — a sentence drifts as easily as a table"
                 )
 
     contract_path = REPO_ROOT / CONTRACT

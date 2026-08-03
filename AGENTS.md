@@ -169,8 +169,15 @@ other two are pointers by design — duplicating state into them is how the thre
 tools drift apart and start working from different targets.
 
 `make check-agent-docs` enforces this mechanically: it fails when an entry point
-is missing or unpublished, stops pointing here, or starts duplicating the
-version table. It runs in CI.
+is missing or unpublished, stops pointing here, duplicates the version table, or
+asserts version state in prose (`Current version:`, `Next target:`,
+`Released tag:`). It runs in CI.
+
+The prose rule exists because `CLAUDE.md` carried a stale `Current version: v2.6`
+line through four delivered versions — the claim was a sentence, so the
+table-shaped check never saw it. A pointer file may describe the **runtime
+baseline** it constrains code against; it may not state which version is current
+or what ships next.
 
 Two project skills are available under `.agents/skills/`:
 
