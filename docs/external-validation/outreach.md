@@ -22,11 +22,12 @@ than reading slides.
 
 ## What to send
 
-1. Link to the repository and the **exact git ref** to test (commit SHA or signed tag on `main`).
+1. Link to the repository and the **exact git ref** to test — currently `main @ 0339672` or later. Send the SHA, not a branch name.
 2. Link to the integrated protocol above — **not** the Block `J` appendix alone.
 3. Explicit scope statement: this is the **v2.6.1–v2.9 integrated candidate**, not tag `v2.6.1` alone.
 4. Reminder: **do not commit** `OPENMETADATA_AUTH_TOKEN` or other secrets; paste into `.env.secrets` only.
-5. Ask them to fill the **Integrated external validator sign-off** table and friction log in the protocol file, then return it (issue, email, or shared doc — maintainer merges a redacted copy into the repo).
+5. Heads-up that evidence manifests will read `runtime_version=slh-v2.6.1` by design — see the protocol's *Declared runtime version stamp* section — so they do not spend time on it as a suspected defect.
+6. Ask them to fill the **Integrated external validator sign-off** table and friction log in the protocol file, then return it (issue, email, or shared doc — maintainer merges a redacted copy into the repo).
 
 ## Onboarding checklist (validator)
 
