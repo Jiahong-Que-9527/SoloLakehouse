@@ -14,11 +14,17 @@ entity identity from physical runtime and storage details. Use
 **[Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)**
 for the current MinIO provider boundary and future storage replacement path.
 
-## Diagram — v2.5 baseline
+## Diagram — current (v2.5 runtime + v2.6–v2.9 evidence plane)
 
-![SoloLakehouse v2.5 architecture](img/SLHv2.5-architecture.jpg)
+![SoloLakehouse architecture through v2.9](img/slh_architecture_v2.9_a.png)
 
-*Image source: `docs/img/SLHv2.5-architecture.jpg` (JPG).*
+*Image source: `docs/img/slh_architecture_v2.9_a.png`.*
+
+The diagram shows the protected **v2.5 Compose runtime** (ingestion → all-layer
+Iceberg medallion → Trino / Dagster → Superset / MLflow / OpenMetadata) plus the
+**evidence and control plane** delivered on `main` through v2.9: lineage audit
+packs, openness proofs, AI/ML governance, promotion/SLO evidence, and secrets
+discipline. Earlier v2.5-only diagrams remain under `docs/img/` as archives.
 
 ## Layers (core)
 
@@ -26,17 +32,23 @@ for the current MinIO provider boundary and future storage replacement path.
 Layer 1 — Data Sources: ECB SDW REST API + DAX daily CSV (sample)
     │
     ▼
-Layer 2 — Ingestion & Validation: Python collectors + Pydantic + structlog
+Layer 2 — Ingestion & Validation: Python collectors + Pydantic + dataset contracts + structlog
     │
     ▼
-Layer 3 — Lakehouse storage (Medallion): MinIO; Bronze/Silver as Parquet files; **Gold** registered as **Apache Iceberg** in Trino (`iceberg` catalog) after Parquet staging (see [ADR-013](decisions/ADR-013-iceberg-gold-trino.md))
+Layer 3 — Lakehouse storage (Medallion): MinIO warehouse; **Bronze / Silver / Gold**
+         as Apache Iceberg via pyiceberg (ADR-020 supersedes Parquet+Hive staging)
     │
     ▼
-Layer 4 — Compute & Query: Trino ↔ Hive Metastore ↔ PostgreSQL
+Layer 4 — Compute & Query: Trino ↔ Hive Metastore catalog ↔ PostgreSQL
+         (REST / Polaris path selectable — ADR-017; not in the default stack)
     │
     ▼
-Layer 5 — ML: MLflow (tracking + artifacts on MinIO + PostgreSQL)
+Layer 5 — ML + apps: MLflow, Superset, OpenMetadata, local operator portal
 ```
+
+On top of those layers, the governance plane emits SHA-256-bound evidence
+(lineage, promotion, operations, secrets, K8s readiness, policy hooks) into the
+audit bucket (Object Lock for fresh deployments).
 
 ## Orchestration Layer (v2)
 
@@ -82,7 +94,7 @@ ecb_silver      dax_silver
 
 | Component | Role | Port |
 |-----------|------|------|
-| **MinIO** | S3-compatible storage for Parquet and MLflow artifacts | 9000 (API), 9001 (Console) |
+| **MinIO** | S3-compatible warehouse, MLflow artifacts, and Object-Lock audit bucket | 9000 (API), 9001 (Console) |
 | **PostgreSQL** | Backend for Hive Metastore and MLflow | 5432 |
 | **Hive Metastore** | Table metadata (schema, partitions, locations) | 9083 |
 | **Trino** | SQL over the lakehouse (Hive + Iceberg catalogs, shared Hive Metastore) | 8080 |
@@ -128,8 +140,9 @@ Details: **[medallion-model.md](medallion-model.md)**.
 
 ## Historical evolution
 
-Current runtime guidance is intentionally limited to the v2.5 baseline.
-Earlier v1/v2 build-out stages and migration decisions remain available as narrative context under:
+The Compose **runtime** stays on the v2.5 baseline until v3.0; v2.6–v2.9 add
+evidence categories without changing that runtime. Earlier v1/v2 build-out
+stages and migration decisions remain available as narrative context under:
 
 - [history/timeline.md](history/timeline.md)
 - [history/architecture-evolution.md](history/architecture-evolution.md)
@@ -137,7 +150,10 @@ Earlier v1/v2 build-out stages and migration decisions remain available as narra
 
 ## Design decisions (ADRs)
 
-The repository currently carries **19 ADRs**. See [decisions/README.md](decisions/README.md) for the grouped index.
+See [decisions/README.md](decisions/README.md) for the ADR index. Key records
+for the current diagram include ADR-017 (catalog boundary), ADR-018 (ML
+five-tuple), ADR-020 (all-layer Iceberg), ADR-022 (promotion/operations), and
+ADR-023 (secrets / K8s readiness).
 
 | ADR | Topic |
 |-----|--------|

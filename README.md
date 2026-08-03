@@ -39,24 +39,24 @@ The goal is not to replace Databricks, but to show the architecture thinking beh
 ## Architecture
 
 <p align="center">
-  <img src="docs/img/SLHv2.5_architecutre.png" alt="SoloLakehouse v2.5 architecture">
+  <img src="docs/img/slh_architecture_v2.9_a.png" alt="SoloLakehouse architecture through v2.9">
 </p>
 
 <p align="center">
-  <em>v2.5 baseline: local-first lakehouse with orchestration, governance, BI, ML tracking, and Iceberg Gold tables.</em>
+  <em>v2.5 runtime + v2.6–v2.9 evidence/control plane: all-layer Iceberg, three-source lineage, AI/ML governance, openness proofs, and operational promotion evidence on Docker Compose.</em>
 </p>
 
-
 ```text
-Data sources
-  -> Python ingestion + validation
-  -> MinIO Bronze/Silver Parquet
-  -> Trino + Hive Metastore
-  -> Iceberg Gold tables
-  -> Superset dashboards + MLflow experiments
+Data sources (ECB / DAX)
+  -> Python ingestion + Pydantic validation + dataset contracts
+  -> Iceberg Bronze / Silver / Gold on MinIO (Hive Metastore catalog)
+  -> Trino query + Dagster assets / schedules / sensors
+  -> Superset · MLflow · OpenMetadata · local operator portal
 
-Platform services:
-  PostgreSQL, Dagster, OpenMetadata, Superset, MLflow
+Evidence & control plane (on the same runtime):
+  lineage join · SHA-256 audit packs · Object Lock
+  interoperability / sovereignty · ML five-tuple · policy hooks
+  promotion / rollback · SLO evidence · secrets discipline · k8s-readiness
 ```
 
 The detailed architecture is in [docs/architecture.md](docs/architecture.md), and the medallion conventions are in [docs/medallion-model.md](docs/medallion-model.md).
@@ -120,17 +120,26 @@ See [docs/quickstart.md](docs/quickstart.md), [docs/deployment.md](docs/deployme
 
 - SLH setup demo (YouTube): [https://www.youtube.com/watch?v=dH0Nwteas7E](https://www.youtube.com/watch?v=dH0Nwteas7E)
 
-## Capabilities Demonstrated (v2.5)
+## Capabilities Demonstrated
 
-- **Medallion architecture** with strict Bronze immutability, Pydantic-v2 schema validation at ingestion, and Iceberg-backed Gold
+**Runtime baseline (v2.5 — protected):**
+
+- **Medallion architecture** with strict Bronze immutability, Pydantic-v2 schema validation at ingestion, and **Iceberg for Bronze / Silver / Gold** via pyiceberg
 - **Asset-aware orchestration** in Dagster — jobs, schedules, sensors, asset checks, and lineage in the UI (not task-based DAGs)
-- **Federated query** across Hive (Bronze/Silver) and Iceberg (Gold) catalogs via a single Trino endpoint
-- **Open table format discipline** — Iceberg Gold tables managed via Trino CTAS, no proprietary engine lock-in
-- **ML governance baseline** — MLflow experiments with object-storage artifacts; `TimeSeriesSplit` CV as a discipline (look-ahead bias is treated as a defect, not a default)
+- **Federated SQL** over Iceberg tables through a single Trino endpoint (Hive Metastore catalog; REST/Polaris path evaluated in v2.7)
+- **Open table format discipline** — no proprietary engine lock-in; warehouse on S3-compatible MinIO
+- **ML tracking baseline** — MLflow experiments with object-storage artifacts; `TimeSeriesSplit` CV as a discipline (look-ahead bias is treated as a defect, not a default)
 - **Catalog & BI integration** — OpenMetadata for lineage and ownership, Superset for SQL-first BI on Trino
 - **Production-minded engineering** — CI gates, type checking, ADRs per non-trivial decision, release notes and planning notes per minor version
 
-The reference data domain is European financial markets — ECB Statistical Data Warehouse interest rates and the DAX equity index — chosen deliberately because it surfaces real-world challenges in temporal joins, look-ahead bias, and regulatory data lineage. The active runtime is **v2.5**; historical v1/v2 material is preserved under [docs/history/](docs/history/).
+**Evidence & control plane (v2.6–v2.9 on `main`):**
+
+- Dataset contracts, automatic three-source lineage emission, and Object Lock on the audit bucket
+- Catalog interoperability proof, sovereignty report, and exit playbook
+- ML lineage five-tuple, AI-governance contract fields, policy hooks, and EU AI Act Art.13 model cards
+- Promotion / rollback / operational SLO evidence, `.env.shared` + `.env.secrets` discipline, and `make k8s-readiness`
+
+The reference data domain is European financial markets — ECB Statistical Data Warehouse interest rates and the DAX equity index — chosen deliberately because it surfaces real-world challenges in temporal joins, look-ahead bias, and regulatory data lineage. The Compose runtime is **v2.5**; historical v1/v2 material is preserved under [docs/history/](docs/history/).
 
 ## Engineering Practices
 
@@ -231,7 +240,7 @@ The platform is built around **replaceable boundaries** — not because every co
 | Runtime | Docker Compose | Kubernetes + Helm + Terraform | multi-environment promotion; HA / SLO requirement *(v3.0)* |
 | Metadata DB | Local PostgreSQL 17 | Managed / HA PostgreSQL | RPO < 24h or production SLO commitment |
 | Catalog | Hive Metastore | Iceberg REST Catalog | multi-engine demand or vendor-neutral catalog requirement *(v2.7)* |
-| Secrets | `.env` files | Vault / cloud KMS | multi-tenant or multi-environment deployment *(v3.0)* |
+| Secrets | `.env.shared` + `.env.secrets` (merged by `make init-env`) | Vault / cloud KMS | multi-tenant or multi-environment deployment *(v3.0)* |
 | BI / Catalog | Superset / OpenMetadata | Enterprise tool (Looker, Atlan, etc.) | enterprise procurement constraints |
 
 Each boundary has a corresponding ADR explaining the current choice and the explicit conditions under which it should change. See the [ADR index](docs/decisions/README.md).
