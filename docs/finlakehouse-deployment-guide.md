@@ -1,8 +1,15 @@
 # FinLakehouse Deployment Guide
 
-Phase 2 of the entity-template preparation: deploy the first independent
-FinLakehouse instance on a dedicated VPS using the v2.5.1 template + ADR-020
-(all-layer Iceberg).
+Deploy the first independent **FinLakehouse** product entity on a dedicated VPS
+using the SoloLakehouse template. This guide covers **deploy-time**
+configuration (identity, buckets, credentials, runtime root). It keeps the
+**finance reference pipeline** (ECB + DAX); domain localization for other
+products happens in the entity clone after deployment — see
+[`task.md`](../task.md) Phase 3 and the
+[product entity contract](product-entity-contract.md).
+
+Entity split is **deferred indefinitely** (roadmap D2); this walkthrough is an
+operator path, not the active shared-repository backlog.
 
 ## Prerequisites
 

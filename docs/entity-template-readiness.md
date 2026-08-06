@@ -43,3 +43,10 @@ Before creating long-running product entities:
    entity before cutover.
 5. Record any entity-specific OpenMetadata re-ingestion steps as restore
    evidence.
+
+**Deploy-time configuration** (steps 1–2 and `.env` fields) isolates identity
+and infrastructure. **Post-deploy localization** — new collectors, transforms,
+Dagster assets, and domain contracts — happens in the entity clone; see
+[`task.md`](../task.md) Phase 3. Entity split is **deferred indefinitely**
+(roadmap D2); this handoff documents the intended operator path, not the active
+repository backlog.

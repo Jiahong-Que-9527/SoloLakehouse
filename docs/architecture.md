@@ -8,10 +8,20 @@ The local/reference deployment runs on one Docker Compose host with **MinIO**, *
 The active architecture centers on five data/runtime layers (sources -> ingestion -> medallion storage -> query -> ML) plus platform services for orchestration, metadata, and BI access.
 Earlier version milestones and migration narratives are preserved in **[history/README.md](history/README.md)**.
 
+SoloLakehouse is an **upstream template** with a built-in **finance reference
+pipeline** (ECB + DAX). Product instances — for example FinLakehouse or
+Aviation Lakehouse — are created by cloning the template and applying the
+entity contract at deploy time; **domain-specific pipeline changes belong in the
+entity clone**, not in the shared upstream repository. See
+[entity-template-readiness.md](entity-template-readiness.md) and the
+[FinLakehouse deployment guide](finlakehouse-deployment-guide.md).
+
 For product instances derived from the v2.5 template, use the
 **[Product Entity Contract](product-entity-contract.md)** to separate stable
-entity identity from physical runtime and storage details. Use
-**[Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)**
+entity identity from physical runtime and storage details. That contract covers
+**deploy-time** isolation (identity, buckets, warehouse URI, service labels) —
+it does **not** replace collectors, transforms, or governed dataset contracts.
+Use **[Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)**
 for the current MinIO provider boundary and future storage replacement path.
 
 ## Diagram — current (v2.5 runtime + v2.6–v2.9 evidence plane)

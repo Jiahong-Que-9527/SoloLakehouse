@@ -5,8 +5,9 @@ This guide gives someone **new to SoloLakehouse** a minimum path to a working me
 **Quick anchors**
 
 - **Runtime baseline**: v2.5 (single-track Docker Compose + Dagster + Trino + Iceberg + OpenMetadata + Superset). This runtime does not change before v3.0.
-- **Current version**: v2.6 — the governance and evidence plane (data contracts + three-source lineage + audit manifest). Next up is v2.6.1.
+- **Version status**: see [`docs/roadmap.md`](roadmap.md) — do not rely on stale version summaries in other docs.
 - **Authoritative planning**: [`docs/roadmap.md`](roadmap.md) for what each version does, [`TASKS.md`](../TASKS.md) for what the next PR does.
+- **Product entities**: SoloLakehouse is an upstream template with a finance reference pipeline; deploy-time `.env` isolates identity and storage; domain pipeline work happens in the entity clone — see [product-entity-contract.md](product-entity-contract.md).
 - **Documentation index**: [`docs/README.md`](README.md).
 - **Repository cheat-sheet for AI agents** (humans can skim it for commands and layout): [`CLAUDE.md`](../CLAUDE.md).
 
@@ -34,6 +35,20 @@ Do this immediately after stage 0 — it is far more effective than continuing t
 | 5 | [docs/quickstart.md](quickstart.md) | Shortest path: clone → setup → verify → demo. |
 | 6 | [docs/DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | Full demo and acceptance checklist. `make demo` is the acceptance entry point; `make pipeline` is the full pipeline including MLflow. |
 | 7 | [docs/deployment.md](deployment.md) | Prerequisites, deployment, operations, and troubleshooting — come back here when something will not start. |
+
+### Stage 1b: product entity template (optional — operators only)
+
+Read when deploying an independent entity (for example FinLakehouse on a VPS),
+not when running the local finance reference demo.
+
+| Order | Document | Purpose |
+|------|------|------|
+| 7b.1 | [docs/product-entity-contract.md](product-entity-contract.md) | Deploy-time identity, storage, and metadata fields — what `.env` can isolate. |
+| 7b.2 | [docs/runtime-state-layout.md](runtime-state-layout.md) | Entity-owned roots (`/opt/<product_id>/`), `.env` location, side-by-side upgrades. |
+| 7b.3 | [docs/entity-template-readiness.md](entity-template-readiness.md) | Phase 1 readiness evidence — what the template already guarantees. |
+| 7b.4 | [docs/finlakehouse-deployment-guide.md](finlakehouse-deployment-guide.md) | End-to-end VPS walkthrough for the first finance entity. |
+| 7b.5 | [docs/dataset-governance-naming.md](dataset-governance-naming.md) | Stable `fin.*` / `aviation.*` IDs when adding or renaming governed datasets in an entity clone. |
+| 7b.6 | [task.md](../task.md) | Full entity split, localization, and cutover design reference (**D2 deferred** — not the active backlog). |
 
 ---
 

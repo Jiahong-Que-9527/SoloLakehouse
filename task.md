@@ -5,7 +5,14 @@
 >
 > For the current shared-codebase execution backlog, use [`TASKS.md`](TASKS.md).
 > Use this file when the question is about entity deployment topology,
-> side-by-side upgrades, cutover, or rollback.
+> side-by-side upgrades, cutover, rollback, or **post-deploy domain
+> localization** in an entity clone.
+>
+> **Deploy-time** changes (`.env`: `PRODUCT_ID`, buckets, credentials) isolate
+> identity and infrastructure. **Post-deploy** changes (collectors, transforms,
+> Dagster assets, governed contracts) turn a clone into a real domain product.
+> Roadmap **D2** (entity split) is deferred indefinitely — this document is a
+> design reference, not scheduled work on `main`.
 
 ## Purpose
 

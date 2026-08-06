@@ -141,6 +141,37 @@ See [docs/quickstart.md](docs/quickstart.md), [docs/deployment.md](docs/deployme
 
 The reference data domain is European financial markets — ECB Statistical Data Warehouse interest rates and the DAX equity index — chosen deliberately because it surfaces real-world challenges in temporal joins, look-ahead bias, and regulatory data lineage. The Compose runtime is **v2.5**; historical v1/v2 material is preserved under [docs/history/](docs/history/).
 
+## Product Entity Template
+
+SoloLakehouse is an **upstream template**, not a single permanent runtime. The
+repository ships one **reference pipeline** (ECB + DAX) plus the platform and
+governance stack. You can turn it into independently operated product entities
+— for example `finlakehouse` or `aviation-lakehouse` — without waiting for a
+domain-neutral plugin architecture.
+
+| Customization | When | What changes | What stays in this repo |
+|---|---|---|---|
+| **Deploy-time** | Clone + `.env` before first `make setup` | `PRODUCT_ID`, buckets, warehouse URI, credentials, service labels, entity-owned runtime root | Finance collectors, transforms, Dagster assets, `fin.*` contracts, `make demo` |
+| **Post-deploy** | In the entity's own clone under `/opt/<product_id>/app` | Collectors, schemas, Iceberg tables, transforms, Dagster jobs, `aviation.*` (or other) contracts, acceptance checks | Generic platform improvements only — merge or cherry-pick upstream |
+
+**Deploy-time configuration** isolates identity and infrastructure: see the
+[Product Entity Contract](docs/product-entity-contract.md) and
+[runtime state layout](docs/runtime-state-layout.md). Changing `.env` alone does
+**not** switch data sources or the medallion pipeline — `make demo` always
+exercises the finance reference path until you change code in the entity clone.
+
+**Post-deploy domain work** happens in the entity instance: fork or clone the
+template, keep entity-specific pipeline code there, and pull platform upgrades
+from upstream through side-by-side migration. The full split, localization, and
+upgrade strategy is documented in [`task.md`](task.md) (design reference;
+entity split is **deferred indefinitely** per [roadmap D2](docs/roadmap.md) — it
+is not the active repository backlog).
+
+Phase 1 template readiness (identity, storage, backup/restore, naming) is
+complete — see [entity-template readiness](docs/entity-template-readiness.md).
+For a dedicated VPS walkthrough of the first finance entity, see
+[FinLakehouse deployment guide](docs/finlakehouse-deployment-guide.md).
+
 ## Engineering Practices
 
 Beyond the platform features, this is built with explicit engineering discipline a hiring panel can audit:
@@ -282,7 +313,13 @@ First run usually takes 10-15 minutes on a typical laptop because Docker pulls O
 - [Architecture](docs/architecture.md)
 - [Quick start](docs/quickstart.md)
 - [Deployment](docs/deployment.md)
+- [Product entity contract](docs/product-entity-contract.md) — deploy-time identity, storage, and metadata fields
+- [Entity template readiness](docs/entity-template-readiness.md) — Phase 1 evidence for using SoloLakehouse as a template
+- [FinLakehouse deployment guide](docs/finlakehouse-deployment-guide.md) — optional VPS path for the first independent entity
+- [Dataset governance naming](docs/dataset-governance-naming.md) — stable `fin.*` / `aviation.*` logical IDs
+- [Runtime state layout](docs/runtime-state-layout.md) — entity-owned roots and side-by-side upgrades
 - [Entity backup and restore runbook](docs/entity-backup-restore-runbook.md)
+- [Entity split design reference](task.md) — localization and cutover strategy (D2 deferred)
 - [Roadmap](docs/roadmap.md)
 - [ADR index](docs/decisions/README.md)
 - [Demo runbook](docs/DEMO_RUNBOOK_EN.md)
