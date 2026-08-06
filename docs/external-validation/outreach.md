@@ -22,7 +22,7 @@ than reading slides.
 
 ## What to send
 
-1. Link to the repository and the **exact git ref** to test — currently `main @ 0339672` or later. Send the SHA, not a branch name.
+1. Link to the repository and the **exact git ref** to test — currently `main @ 832bf02` or later. Send the SHA, not a branch name: `main` moves, and a validator who clones a week later would be reporting friction against different documentation than the one you reviewed.
 2. Link to the integrated protocol above — **not** the Block `J` appendix alone.
 3. Explicit scope statement: this is the **v2.6.1–v2.9 integrated candidate**, not tag `v2.6.1` alone.
 4. Reminder: **do not commit** `OPENMETADATA_AUTH_TOKEN` or other secrets; paste into `.env.secrets` only.
