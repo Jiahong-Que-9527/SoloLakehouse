@@ -10,9 +10,11 @@ and upgrade lifecycle.
 
 ## Status
 
-- Applies to: v2.5 entity-template preparation.
+- Applies to: v2.5 entity-template preparation (Phase 1 complete).
 - Related task: Phase 1, "Define the Entity Contract".
 - Related issue: #3.
+- Entity split (Phase 2+): design reference in [`task.md`](../task.md);
+  **deferred indefinitely** per [roadmap D2](roadmap.md) — not the active backlog.
 - Current storage provider: MinIO, treated as the initial S3-compatible object
   store provider rather than as product identity.
 
@@ -26,12 +28,29 @@ and upgrade lifecycle.
    side-by-side migration without changing the logical product identity.
 3. Logical dataset IDs must survive storage provider changes, bucket renames,
    and v2.6+ governance upgrades.
-4. Entity-specific values must come from environment/configuration, not code
-   edits to the shared SoloLakehouse template.
+4. Entity-specific **identity and storage** values must come from
+   environment/configuration, not from hardcoded edits to the shared SoloLakehouse
+   template. **Domain-specific pipeline code** (collectors, transforms, Dagster
+   assets, governed contracts for a non-finance domain) belongs in the entity
+   clone after deployment — see [`task.md`](../task.md) Phase 3.
 5. The first entity split keeps MinIO. Object-store replacement is a later,
-   separate migration. See
-   [Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)
-   for the provider/configuration boundary.
+  separate migration. See
+  [Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)
+  for the provider/configuration boundary.
+
+## Customization boundaries
+
+| Layer | Configure at deploy time (`.env`) | Customize in entity clone (code) |
+|---|---|---|
+| Product identity | `PRODUCT_ID`, `PRODUCT_DISPLAY_NAME`, `PRODUCT_DOMAIN`, `ENVIRONMENT` | User-facing labels beyond env defaults |
+| Storage and services | Buckets, `WAREHOUSE_URI`, credentials, service URLs, OpenMetadata/Superset labels | — |
+| Data pipeline | — | Collectors, schemas, Iceberg tables, transforms, Dagster assets, ML jobs |
+| Governance | Evidence manifests pick up runtime identity automatically | New `fin.*`, `aviation.*`, or other namespace contracts in the entity clone |
+| Acceptance | `make verify`, upstream `make demo` (finance reference) | Entity-specific demo or pipeline checks after domain localization |
+
+The upstream repository keeps the **finance reference pipeline** so `make demo`
+and CI remain reproducible. An aviation or other domain entity defines its own
+Gold table and acceptance checks after localization.
 
 ## Required fields
 

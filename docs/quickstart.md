@@ -62,3 +62,16 @@ make clean
 ```
 
 For deployment details and troubleshooting, see [deployment.md](deployment.md).
+
+## 6) Product entity deployments (optional)
+
+The steps above run the **local finance reference** (`PRODUCT_ID=sololakehouse`).
+To deploy an independently operated entity (for example FinLakehouse on a VPS),
+use an entity-specific `.env`, follow the
+[product entity contract](product-entity-contract.md), and see
+[deployment.md — product entity deployments](deployment.md#7-product-entity-deployments-optional)
+or the [FinLakehouse deployment guide](finlakehouse-deployment-guide.md).
+
+Changing `.env` isolates identity and storage; switching to another data domain
+requires pipeline changes in the entity clone — see [`task.md`](../task.md)
+(design reference; roadmap D2 deferred).

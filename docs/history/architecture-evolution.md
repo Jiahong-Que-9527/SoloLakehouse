@@ -50,8 +50,10 @@ This file explains major architecture choices over time and why they changed.
 ## Post-v2.5 Entity Template Choices (Phase 1 complete, 2026-05-18)
 
 Phase 1 of the entity-template preparation is closed. Evidence and exit
-criteria are recorded in `docs/entity-template-readiness.md`. Phase 2 (FinLakehouse
-split) is the next decision gate; it has not yet begun.
+criteria are recorded in `docs/entity-template-readiness.md`. Phase 2+
+(FinLakehouse / Aviation Lakehouse as long-running entities) is documented in
+`task.md` but **deferred indefinitely** as roadmap decision D2 — not the active
+repository backlog.
 
 1) Product entity contract before product split (implemented)
 - Selected: define a required entity contract before launching FinLakehouse or
@@ -68,7 +70,9 @@ split) is the next decision gate; it has not yet begun.
   `COMPOSE_PROJECT_NAME`, and `TRINO_USER` from environment via
   `runtime_identity.py` and `.env.example`, with `tests/test_runtime_identity.py`
   as the regression gate.
-- Why: the template must produce isolated entities without code edits.
+- Why: deploy-time configuration must isolate entity identity and storage
+  without forking the template for bucket names or product labels. Domain
+  pipeline localization still requires code changes in the entity clone.
 - Alternative rejected: hardcode `sololakehouse` and grep-replace per entity.
 
 3) Storage location parameterization (implemented)

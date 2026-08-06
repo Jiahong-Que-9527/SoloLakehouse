@@ -48,6 +48,7 @@ and not published; follow the two authoritative documents instead.
 | [architecture.md](architecture.md) | Layered architecture and component relationships |
 | [entity-template-readiness.md](entity-template-readiness.md) | Phase 1 readiness evidence for using SoloLakehouse as the repeatable product-entity template |
 | [product-entity-contract.md](product-entity-contract.md) | Required identity, storage, runtime, and metadata fields for FinLakehouse/Aviation product entities |
+| [finlakehouse-deployment-guide.md](finlakehouse-deployment-guide.md) | Optional VPS walkthrough for the first independent FinLakehouse entity |
 | [dataset-governance-naming.md](dataset-governance-naming.md) | Stable logical dataset IDs and physical mapping rules for entity governance |
 | [object-store-abstraction.md](object-store-abstraction.md) | Object-store configuration boundary and MinIO deferral strategy for entity split |
 | [runtime-state-layout.md](runtime-state-layout.md) | Entity-owned runtime roots, bind mount ownership, `.env`, and side-by-side state layout |

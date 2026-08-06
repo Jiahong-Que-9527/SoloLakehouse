@@ -103,7 +103,26 @@ ownership under an entity root such as `/opt/<product_id>/data/`. See
 [runtime-state-layout.md](runtime-state-layout.md) for the entity-owned host
 layout, `.env` location, and side-by-side upgrade rules.
 
-## 7. Operational cleanup
+## 7. Product entity deployments (optional)
+
+The commands above are the **local reference path** (`PRODUCT_ID=sololakehouse`,
+finance demo pipeline). To run an independently operated entity:
+
+1. **Deploy-time** — clone the template, copy an entity `.env` (see
+   [product-entity-contract.md](product-entity-contract.md) and
+   [finlakehouse-env-template.env](finlakehouse-env-template.env)), set
+   `PRODUCT_ID`, buckets, and credentials, then run `make setup` with
+   `ENV_FILE` pointing at the entity `.env`.
+2. **Post-deploy domain work** — change collectors, transforms, Dagster assets,
+   and governed contracts in the **entity clone** when the target domain is not
+   finance. Upstream SoloLakehouse keeps the finance reference path; entity
+   split and localization strategy live in [`task.md`](../task.md) (design
+   reference; roadmap D2 deferred).
+
+Walkthrough: [finlakehouse-deployment-guide.md](finlakehouse-deployment-guide.md).
+Readiness evidence: [entity-template-readiness.md](entity-template-readiness.md).
+
+## 8. Operational cleanup
 
 ### Safe cleanup (recommended day-to-day)
 
@@ -132,7 +151,7 @@ docker image prune -f
 docker volume prune -f
 ```
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 ### `make up` times out
 - Check Docker resources (CPU/RAM), especially for OpenMetadata + Elasticsearch.
