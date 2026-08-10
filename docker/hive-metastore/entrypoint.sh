@@ -8,8 +8,8 @@ export WAREHOUSE_URI
 envsubst < /opt/hive/conf/metastore-site.xml.template > /opt/hive/conf/metastore-site.xml
 
 DB_HOST="${DB_HOST:-postgres}"
-DB_USER="${DB_USER:-postgres}"
-DB_PASS="${DB_PASS:-postgres}"
+DB_USER="${DB_USER:?DB_USER must be set}"
+DB_PASS="${DB_PASS:?DB_PASS must be set}"
 export PGPASSWORD="${DB_PASS}"
 
 psql_base=(psql -h "${DB_HOST}" -U "${DB_USER}" -d hive_metastore -Atq)

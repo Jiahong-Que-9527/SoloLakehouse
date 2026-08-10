@@ -8,8 +8,7 @@ services:
     command: ["--sort_buffer_size=10M"]
     environment:
       MYSQL_ROOT_PASSWORD: password
-    ports:
-      - "3307:3306"
+    # Internal-only: OpenMetadata services use the Compose network.
     volumes:
       - ./data/om-mysql:/var/lib/mysql
     healthcheck:
@@ -33,9 +32,7 @@ services:
       discovery.type: single-node
       ES_JAVA_OPTS: "-Xms768m -Xmx768m"
       xpack.security.enabled: "false"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+    # Internal-only: OpenMetadata services use the Compose network.
     volumes:
       - ./data/om-elasticsearch:/usr/share/elasticsearch/data
     healthcheck:
