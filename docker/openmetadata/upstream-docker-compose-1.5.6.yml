@@ -1,3 +1,12 @@
+# ---------------------------------------------------------------------------
+# REFERENCE ONLY — vendored copy of the upstream OpenMetadata 1.5.6 quickstart
+# compose file, kept solely to derive docker/openmetadata/openmetadata.env.
+# It is NOT executed by this project (see docker/openmetadata/README.md).
+#
+# WARNING: this upstream file contains the project's known-weak quickstart
+# defaults (e.g. MYSQL_ROOT_PASSWORD=password, AIRFLOW_PASSWORD=admin).
+# Do not deploy it, and do not copy values out of it into a running stack.
+# ---------------------------------------------------------------------------
 # Copyright 2021 Collate
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
