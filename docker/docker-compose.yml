@@ -7,8 +7,8 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     volumes:
       - ./data/minio:/data
     healthcheck:
@@ -42,10 +42,9 @@ services:
     image: postgres:17
     container_name: slh-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "${PG_PORT:-5432}:5432"
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env.secrets}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.secrets}
+    # Internal-only: dependent services resolve `postgres` on the Compose network.
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - ../config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -75,7 +74,7 @@ services:
       BUCKET_NAME: ${BUCKET_NAME:-sololakehouse}
       WAREHOUSE_URI: ${WAREHOUSE_URI:-}
     ports:
-      - "9083:9083"
+      - "127.0.0.1:9083:9083"
     healthcheck:
       test: ["CMD", "bash", "-c", "echo 'status' | nc -w 2 localhost 9083 || exit 1"]
       interval: 15s
@@ -96,7 +95,7 @@ services:
       S3_ACCESS_KEY: ${S3_ACCESS_KEY}
       S3_SECRET_KEY: ${S3_SECRET_KEY}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ../config/trino/config.properties:/etc/trino/config.properties:ro
       - ../config/trino/catalog:/etc/trino/catalog-template:ro
@@ -131,7 +130,7 @@ services:
       AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -187,7 +186,7 @@ services:
       DAGSTER_HOME: /app/dagster
     command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "/app/dagster/workspace.yaml"]
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       - ./data/dagster:/app/dagster/storage
     healthcheck:

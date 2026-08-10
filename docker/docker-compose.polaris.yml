@@ -12,8 +12,8 @@ services:
     image: apache/polaris:latest
     container_name: slh-polaris
     ports:
-      - "8181:8181"
-      - "8182:8182"
+      - "127.0.0.1:8181:8181"
+      - "127.0.0.1:8182:8182"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8181/healthcheck"]
       interval: 15s

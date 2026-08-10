@@ -2,8 +2,8 @@ import os
 
 POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "postgres")
 POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
-POSTGRES_USER = os.environ.get("POSTGRES_USER", "postgres")
-POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "postgres")
+POSTGRES_USER = os.environ["POSTGRES_USER"]
+POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
 SUPERSET_DB_NAME = os.environ.get("SUPERSET_DB_NAME", "superset_metadata")
 
 SECRET_KEY = os.environ["SUPERSET_SECRET_KEY"]
