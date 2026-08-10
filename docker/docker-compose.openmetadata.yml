@@ -7,19 +7,25 @@ services:
     image: docker.getcollate.io/openmetadata/db:1.5.6
     command: ["--sort_buffer_size=10M"]
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${OPENMETADATA_MYSQL_ROOT_PASSWORD:?set OPENMETADATA_MYSQL_ROOT_PASSWORD in .env.secrets}
     # Internal-only: OpenMetadata services use the Compose network.
+    #
+    # NOTE: this image's own /docker-entrypoint-initdb.d/mysql-script.sql
+    # unconditionally creates 'openmetadata_user'/'openmetadata_password' and
+    # 'airflow_user'/'airflow_pass' on first init, regardless of any env var
+    # set here or in openmetadata.env. Only MYSQL_ROOT_PASSWORD is genuinely
+    # controlled by this file (standard MySQL entrypoint behavior). Rotating
+    # the other two requires a live ALTER USER against the running container
+    # plus matching updates to openmetadata.env and this file's ingestion
+    # service block -- tracked as pending credential-rotation work, not a
+    # config-only fix.
     volumes:
       - ./data/om-mysql:/var/lib/mysql
     healthcheck:
       test:
         [
-          "CMD",
-          "mysql",
-          "--user=root",
-          "--password=password",
-          "-e",
-          "use openmetadata_db",
+          "CMD-SHELL",
+          "mysql --user=root --password=\"$$MYSQL_ROOT_PASSWORD\" -e 'use openmetadata_db'",
         ]
       interval: 15s
       timeout: 10s
@@ -149,6 +155,10 @@ services:
       DB_PORT: 3306
       AIRFLOW_DB: ${AIRFLOW_DB:-airflow_db}
       DB_SCHEME: mysql+pymysql
+      # 'airflow_user'/'airflow_pass' below are the om-mysql image's hardcoded
+      # init defaults (see the om-mysql service note above) -- they must match
+      # whatever the database actually has until a live credential rotation
+      # is done, so these are intentionally NOT required-with-no-default.
       DB_USER: ${AIRFLOW_DB_USER:-airflow_user}
       DB_PASSWORD: ${AIRFLOW_DB_PASSWORD:-airflow_pass}
     entrypoint: /bin/bash
