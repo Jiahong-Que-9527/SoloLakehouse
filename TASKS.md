@@ -28,6 +28,14 @@ As of `2026-08-02`:
   delivered on `main`** (PRs #57, #59). The active task is the **integrated
   external validation and operational rollout gate** (Block `G`); do not start
   v3.0 implementation until that gate completes.
+- **Block `K` (new, 2026-08-11) is open.** A read-only architecture and
+  production-readiness review (`docs/architecture-review-2026-08-11.md`) found
+  that most core Compose services have no `restart` policy (container crash
+  or host reboot requires manual `make up`) and that `R1` left a residual gap:
+  `docker-compose.yml`'s `RUNTIME_VERSION` default (`slh-v2.5.1`) still
+  disagrees with `runtime_identity.py`'s (`slh-v2.6.1`). `K1`/`K2` are cheap
+  and directly relevant to Block `G`'s evidence-correctness bar — recommend
+  sequencing them before or alongside the external-validation push, not after.
 - `v2.8` before `v2.7` is an approved Owner Decision (`docs/roadmap.md`, D1).
 - entity-template / entity-split work is **deferred indefinitely**
   (`docs/roadmap.md`, D2).
@@ -87,6 +95,7 @@ Historical block letters remain the stable map for planning references.
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
 | **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation active as part of the integrated post-v2.9 gate** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Delivered |
+| K | Reliability, data-correctness and recovery hardening | v2.6.1 -> v2.9 | **Open — found 2026-08-11, not yet started** |
 
 ## v2.6.1 Scope Boundary
 
@@ -350,6 +359,105 @@ Rule:
 
 - do not treat engine count as the main success metric for `v2.7`
 
+### Block K — Reliability, Data-Correctness and Recovery Hardening
+
+Found during a read-only external-style architecture and production-readiness
+review on 2026-08-11 (`docs/architecture-review-2026-08-11.md`). Every item
+below has a concrete failure scenario behind it — none are generic
+best-practice items. `K1`/`K2` are P0: cheap (well under a day each) and
+directly relevant to Block `G`'s evidence-correctness acceptance bar, so they
+should land before or alongside the external-validation push, not after it.
+
+Scope:
+
+- container self-healing
+- closing the residual `RUNTIME_VERSION` gap left by `R1`
+- Bronze storage growth
+- capacity and freshness observability
+- weak-credential runtime guard
+- backup consistency and one real, recorded restore drill
+- ADRs for decisions this block makes explicit
+
+Tasks:
+
+- [ ] `K1` Add `restart: unless-stopped` to every long-running core service
+      across all four Compose files that currently lacks one — `postgres`,
+      `minio`, `hive-metastore`, `trino`, `dagster-webserver`,
+      `dagster-daemon`, `om-mysql`, `om-elasticsearch`, `om-migrate`,
+      `superset`. Keep one-shot init containers (`minio-init`, `om-bootstrap`)
+      at `restart: "no"`. Verify by `docker kill`-ing each one individually
+      and confirming healthy recovery within 60s.
+- [ ] `K2` Close the residual `RUNTIME_VERSION` mismatch left open by `R1`:
+      single source of truth (e.g. a repo-root `VERSION` file) read by both
+      `runtime_identity.py` and the `docker-compose.yml` default, so a fresh
+      deploy with no explicit `RUNTIME_VERSION` in `.env` cannot stamp two
+      different version strings into governance evidence depending on which
+      code path resolves it.
+- [ ] `K3` Change `BronzeWriter.write()` (`ingestion/bronze_writer.py`) from
+      `iceberg_io.append_table` to `iceberg_io.overwrite_table`. `ecb_collector.py`
+      re-fetches the full ECB series every cycle (`startPeriod=1999-01-01`);
+      `append` on top of that means unbounded Bronze growth. Keep the
+      full-refetch behavior (it is what lets Bronze catch upstream historical
+      restatements) — do not switch to incremental fetch, which would lose
+      that property. Add a regression test asserting Bronze row count is
+      stable across repeated same-day runs.
+- [ ] `K4` Add `run_coordinator: QueuedRunCoordinator` (`max_concurrent_runs`)
+      to `dagster/dagster.yaml` to close the `_already_ingested_today()`
+      TOCTOU window between the freshness sensor and the daily schedule.
+- [ ] `K5` Add a disk-capacity check to `scripts/verify-setup.py` (none of the
+      9 existing checks look at free space on the volumes backing
+      `docker/data/postgres` / `docker/data/minio`).
+- [ ] `K6` Add Silver/Gold freshness sensors mirroring the existing
+      `ecb_data_freshness_sensor` pattern in `dagster/assets.py` — today only
+      Bronze has one, so a stalled Silver/Gold asset produces no automatic
+      signal.
+- [ ] `K7` Add a daily `make verify` wrapper that posts to a webhook/email on
+      failure (documented host cron, not a new service) — the system
+      currently has zero push-based signal of any kind.
+- [ ] `K8` Add a check in `governance/secrets_discipline.py` that flags actual
+      `.env` values matching the known weak example defaults
+      (`sololakehouse123`, `admin`, …) — today the discipline check only
+      inspects the `.example` templates, not the effective `.env`.
+- [ ] `K9` Script the backup procedure in
+      `docs/entity-backup-restore-runbook.md` with an explicit quiesce step
+      (confirm no in-flight Dagster run before backing up Postgres + MinIO,
+      so the two artifacts come from the same still window).
+- [ ] `K10` Execute and record one real end-to-end restore drill on top of
+      `K9`'s script; formally document OpenMetadata "re-ingest only" as the
+      intentional recovery path (the 2026-05-17 drill already found direct
+      MySQL restore fails) rather than leaving it as an unresolved gap.
+- [ ] `K11` ADR (next available: `ADR-024`) for the security-boundary model:
+      loopback-only binding + SSH-tunnel access, no internal TLS/auth planned
+      near-term — make the accepted risk explicit rather than implicit.
+- [ ] `K12` ADR for the container self-healing level chosen in `K1`
+      (`restart: unless-stopped`, not systemd or a K8s liveness migration).
+- [ ] `K13` ADR for the Bronze write semantics decided in `K3` (full refetch +
+      overwrite, not incremental — and why).
+- [ ] `K14` ADR for the backup consistency model from `K9`/`K10`
+      (quiesce-based best effort, not a distributed snapshot; OpenMetadata
+      intentionally excluded from true state restore).
+- [ ] `K15` *(should-do)* Pin and checksum-verify the JDBC driver download in
+      `docker/hive-metastore/Dockerfile`.
+- [ ] `K16` *(should-do)* Add Iceberg `expire_snapshots` plus Dagster
+      run-history retention as a periodic maintenance target.
+- [ ] `K17` *(should-do)* Document that `iceberg_schemas.py` changes do not
+      retroactively apply to existing tables (`_get_or_create_table`'s
+      `schema` parameter is a no-op once a table exists).
+- [ ] `K18` *(should-do)* Remove the unused `ParquetIOManager` registration in
+      `dagster/definitions.py` (never wired to any asset via
+      `io_manager_key`), or document why it is kept; remove or clearly
+      deprecate the stale `docker/.env` (490 bytes, 3月26日, superseded by the
+      root `.env` generated via `make init-env`).
+
+Explicit non-goals for Block `K`: Kubernetes, Kafka, Service Mesh, Vault,
+multi-region/HA, GitOps, complex RBAC, custom operators, a full
+Prometheus/Grafana stack, statistical data-drift detection. These match this
+repository's own ADR-007/009/015 deferrals — Block `K` does not accelerate
+any of them, and does not add a sixth `governance/`-style evidence module
+alongside the five (`k8s_readiness.py`, `sovereignty.py`, `interoperability.py`,
+`promotion.py`, `secrets_discipline.py`) that ADR-017/018/021/022/023 all
+introduced on 2026-08-02, without a specific new failure scenario driving it.
+
 ## Immediate Next Actions
 
 Execute in this order.
@@ -364,6 +472,12 @@ Execute in this order.
    [`docs/external-validation/outreach.md`](docs/external-validation/outreach.md).
 3. **Start operational rollout only after that integrated sign-off**, then tag
    and publish the signed candidate and update planning state in the same PR.
+
+Recommended, not yet an Owner Decision: land Block `K`'s `K1`/`K2` (restart
+policy, `RUNTIME_VERSION` single source of truth) before or during step 2 —
+both are same-day fixes, and `K2` affects the version stamp on every evidence
+manifest an external validator will produce, which is exactly what step 2 is
+trying to validate.
 
 ## Decision Rules
 
