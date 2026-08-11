@@ -44,7 +44,13 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env.secrets}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.secrets}
-    # Internal-only: dependent services resolve `postgres` on the Compose network.
+    # Loopback-only: dependent Compose services resolve `postgres` on the
+    # Compose network, but host-side tooling (make bootstrap-db, CI, local
+    # psql) needs a reachable TCP endpoint too -- POSTGRES_HOST=localhost in
+    # .env.shared.example depends on this. Not reachable from outside the
+    # host, unlike the pre-incident 0.0.0.0 publish.
+    ports:
+      - "127.0.0.1:${PG_PORT:-5432}:5432"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - ../config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
