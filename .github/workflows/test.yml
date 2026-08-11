@@ -54,6 +54,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      # docker-compose.yml/superset.yml/openmetadata.yml require POSTGRES_PASSWORD,
+      # SUPERSET_ADMIN_PASSWORD, and OPENMETADATA_MYSQL_ROOT_PASSWORD with no
+      # fallback default (see .env.secrets.example). CI has no real secrets and
+      # never did; generate throwaway values scoped to this ephemeral runner so
+      # the demo stack can boot. These are not used anywhere outside this job.
+      - name: Generate CI-only secrets
+        run: |
+          cp .env.secrets.example .env.secrets
+          sed -i "s/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
+          sed -i "s/^SUPERSET_ADMIN_PASSWORD=$/SUPERSET_ADMIN_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
+          sed -i "s/^OPENMETADATA_MYSQL_ROOT_PASSWORD=$/OPENMETADATA_MYSQL_ROOT_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
       # Prebuild serially: `make setup` ends in `up -d --build`, whose bake path
       # builds all five images at once and OOMs BuildKit on a 4-core runner.
       # With the cache warm, that build step becomes a no-op.
