@@ -473,11 +473,38 @@ Execute in this order.
 3. **Start operational rollout only after that integrated sign-off**, then tag
    and publish the signed candidate and update planning state in the same PR.
 
-Recommended, not yet an Owner Decision: land Block `K`'s `K1`/`K2` (restart
-policy, `RUNTIME_VERSION` single source of truth) before or during step 2 —
-both are same-day fixes, and `K2` affects the version stamp on every evidence
-manifest an external validator will produce, which is exactly what step 2 is
-trying to validate.
+### Pre-v3.0 sequencing (recommendation, not yet an Owner Decision)
+
+The only thing that **formally** gates `v3.0` per this file's own rule ("do
+not start v3.0 implementation until [Block `G`] completes") is Block `G`
+itself — concretely, all seven bullets in "Definition of `v2.6.1` Complete"
+above, of which only the external sign-off (bullet 6) and the resulting new
+tag (bullet 7) are not yet done. Everything below this line is judgment on
+top of that rule, not a restatement of it — flag it explicitly as
+recommendation if you disagree with the ordering.
+
+1. **Land Block `K`'s `K1`/`K2` before or during step 2 above.** Both are
+   same-day fixes. `K2` changes the version stamp on every evidence manifest
+   the external validator will produce in step 2 — validating a candidate
+   with a known, fixable version-stamp defect and then asking someone
+   external to sign off on it is the wrong order. `K1` reduces the odds that
+   a transient crash on the validator's own machine gets misread as SLH
+   itself being unstable.
+2. **Recruit the external validator (step 2) in parallel** — it does not need
+   to wait on the rest of Block `K`; it is the actual bottleneck on `v3.0`
+   and should start now.
+3. **Land `K9`/`K10` (backup quiesce script + one real, recorded restore
+   drill) before starting `v3.0` implementation**, even though this file does
+   not formally require it. `v3.0` is itself a high-risk stateful-platform
+   migration (Compose → Kubernetes); attempting it without first having
+   proven backup/restore works on the simpler Compose runtime removes the
+   one safety net that migration would need if it goes wrong.
+4. **The rest of Block `K`** (`K3`–`K8`, `K11`–`K18`) is worth finishing
+   before `v3.0` so accumulated debt isn't carried onto the new platform, but
+   none of it blocks starting `v3.0` — in particular the four ADRs
+   (`K11`–`K14`) and the should-do cleanup items (`K15`–`K18`) are
+   documentation/maintenance and can trail behind the `v3.0` kickoff without
+   risk.
 
 ## Decision Rules
 
