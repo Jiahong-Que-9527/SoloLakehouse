@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- Owner Decision `2026-08-15`: independent external sign-off is not a blocking
+  gate. Protocol files under `docs/external-validation/` are retained as
+  historical traces. The active backlog is Block `L` (Layer 1 source research
+  and remediation) in `TASKS.md`. The layer diagram is recorded in
+  `docs/architecture.md` and `TASKS.md`.
+
 ### Fixed
 - Dagster GraphQL adapter no longer references the removed
   `EventTextMetadataEntry` type (Dagster 1.12), which blocked automatic and

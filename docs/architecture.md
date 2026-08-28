@@ -56,6 +56,67 @@ Layer 4 — Compute & Query: Trino ↔ Hive Metastore catalog ↔ PostgreSQL
 Layer 5 — ML + apps: MLflow, Superset, OpenMetadata, local operator portal
 ```
 
+```mermaid
+flowchart TB
+  subgraph L1["Layer 1 · Sources"]
+    ECB["ECB SDW REST API"]
+    DAX["DAX daily CSV"]
+  end
+
+  subgraph L2["Layer 2 · Ingestion and validation"]
+    COL["Collectors"]
+    PYD["Pydantic schemas"]
+    CTR["Dataset contracts"]
+    BW["BronzeWriter"]
+    COL --> PYD --> CTR --> BW
+  end
+
+  subgraph L3["Layer 3 · Medallion Iceberg on MinIO"]
+    BR["Bronze · append"]
+    SV["Silver · overwrite"]
+    GD["Gold · overwrite"]
+    BR --> SV --> GD
+  end
+
+  subgraph L4["Layer 4 · Query"]
+    TRINO["Trino"]
+    HMS["Hive Metastore"]
+    TRINO --- HMS
+  end
+
+  subgraph L5["Layer 5 · Consume"]
+    SUP["Superset"]
+    MLF["MLflow"]
+    OM["OpenMetadata"]
+  end
+
+  subgraph ORCH["Orchestration"]
+    DG["Dagster assets / schedule / sensors"]
+  end
+
+  subgraph GOV["Governance plane"]
+    EV["Lineage join · SHA-256 manifests · audit bucket"]
+  end
+
+  ECB --> COL
+  DAX --> COL
+  BW --> BR
+  GD --> TRINO
+  TRINO --> SUP
+  TRINO --> MLF
+  TRINO --> OM
+  DG -.-> L2
+  DG -.-> L3
+  DG -.-> L5
+  GOV -.-> L2
+  GOV -.-> L3
+  GOV -.-> L5
+```
+
+The **input edge** is Layer 1 plus Layer 2. Active backlog Block `L` in
+`TASKS.md` is Layer 1 (sources) research and remediation; Layer 2 changes only
+as a consequence of that source decision.
+
 On top of those layers, the governance plane emits SHA-256-bound evidence
 (lineage, promotion, operations, secrets, K8s readiness, policy hooks) into the
 audit bucket (Object Lock for fresh deployments).

@@ -29,9 +29,7 @@ the three entry points cannot drift apart. `make check-agent-docs` enforces that
    *evidence*, not new capability. `make demo` and `make pipeline` must keep
    working.
 
-3. **Decision gates** — see `AGENTS.md` §3. **D1 is resolved (2026-08-02):**
-   implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9; independent
-   external validation and operational rollout follow v2.9. **D2** — the entity
+3. **Decision gates** — see `AGENTS.md` §3. **D2** — the entity
    split in `task.md` is deferred indefinitely. **D3** — the portal/Keycloak
    exploration is sandbox-only and must not enter `docker/docker-compose.yml`
    or `.env.example`. If a task requires crossing D2 or D3, stop and surface

@@ -16,7 +16,7 @@ v2.5  the platform runs
         -> v2.8  auditable-AI evidence
            -> v2.7  openness evidence
            -> v2.9  operational and promotion evidence
-              -> consolidated external validation and operational rollout
+              -> source-layer research, then long-term Compose operation
               -> v3.0  the runtime migrates to Kubernetes
 ```
 
@@ -33,7 +33,7 @@ a design goal that competes with it.
 
 ## Current Strategic Position
 
-As of `2026-08-02`:
+As of `2026-08-15`:
 
 - `v2.5` remains the protected baseline runtime and does not change until v3.0.
 - `v2.6.1` is **released** as tag `v2.6.1` (`6bd138a`, `2026-07-31`) — version
@@ -42,11 +42,13 @@ As of `2026-08-02`:
   manifest. Anyone on that tag should upgrade and regenerate their evidence.
 - Block `J` is **implemented on `main`** (`e534c73`, PR #49, `2026-08-01`). The
   tag predates Block `J`; do not treat `v2.6.1` as the Block `J` release.
-- Block `J` is internally verified against `e534c73`; its independent external
-  validation and operational rollout are the **active integrated gate** now that
-  v2.9 is delivered on `main`.
-- The approved development order is **v2.8, then v2.7, then v2.9**; see
-  "Open Decisions" below.
+- **Owner Decision (2026-08-15):** independent external sign-off is **not** a
+  blocking gate. Protocol files under `docs/external-validation/` are retained
+  as historical traces. Internal validation remains mandatory.
+- **Active task:** Block `L` in `TASKS.md` — research and remediate Layer 1
+  sources before long-term operation. No replacement source is chosen yet.
+- The approved development order was **v2.8, then v2.7, then v2.9**; see
+  "Open Decisions" below. Those versions are delivered on `main`.
 - future planning prioritizes **control plane and evidence value** over adding
   more engines or surface features.
 
@@ -59,11 +61,11 @@ As of `2026-08-02`:
 | v2.5 | Delivered / protected baseline | Single-track all-layer Iceberg runtime + Dagster + Trino + MLflow + OpenMetadata + Superset |
 | v2.6.0 | Superseded — carries a version-stamp defect | Computational governance and evidence plane |
 | v2.6.1 (tag) | **Released `2026-07-31`** | Corrected version stamp; English-only publication; unified agent entry points |
-| v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete — external validation active (integrated post-v2.9 gate)** | Operationalize the evidence plane |
+| v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete** | Operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
-| v3.0 | **Next after external gate** | Production runtime migration to Kubernetes |
+| v3.0 | **Later — not started** | Production runtime migration to Kubernetes |
 | v4.0 | Future candidate | Self-serve usability and operational clarity |
 
 ## Delivery Velocity (measured, not estimated)
@@ -284,8 +286,9 @@ Core deliverables:
 - readiness gates for the runtime migration
 
 **Status: delivered on `main` (`71c2c89`, PRs #57, #59).** Internal validation
-passes; the integrated external validation gate is the next milestone before
-operational rollout or a post-v2.9 tag.
+passes. External sign-off is not a blocking gate (Owner Decision 2026-08-15).
+The next execution backlog is Layer 1 source research (Block `L` in
+`TASKS.md`), then long-term Compose operation.
 
 ### v3.0 — Production Runtime Migration
 
@@ -305,9 +308,9 @@ Important framing:
 
 - v3.0 is a runtime migration release, not the place to introduce the core
   governance concepts for the first time
-- v3.0 is an **infrastructure** milestone, not a narrative one. It is explicitly
-  **not** a gate for talking about the project publicly — see "External
-  Validation" below.
+- v3.0 is an **infrastructure** milestone, not a narrative one. Talking about
+  the project publicly is not gated on Kubernetes, and is not gated on an
+  external sign-off (Owner Decision 2026-08-15).
 
 ## Open Decisions
 
@@ -319,9 +322,9 @@ start implementation work that depends on an unresolved D2 or D3 decision.
 **Status: decided — v2.8 first, then v2.7, then v2.9.**
 
 An explicit Owner Decision authorizes continuous internal development through
-v2.9. Independent external validation and operational rollout move to the
-post-v2.9 integrated release gate; they are not a precondition for starting
-v2.8 or v2.7.
+v2.9. A later Owner Decision (`2026-08-15`) cancelled independent external
+sign-off as a blocking gate; the protocol under `docs/external-validation/`
+is retained as history. That cancellation does not start v3.0.
 
 | | Reuse of v2.6 machinery | Standalone timing pressure | Scope |
 |---|---|---|---|
@@ -333,9 +336,8 @@ deepening one governance mechanism, with the ML lineage tuple extending the
 contracts, lineage join, and audit bucket that v2.6.1 will have just made
 operational. The lower-cost argument favors **v2.7 first**.
 
-The decision follows the dependency argument. External feedback is still
-valuable, but will be collected against the integrated v2.9 candidate rather
-than pausing development between evidence categories.
+The decision follows the dependency argument. External feedback remains
+optional; it is not a release gate.
 
 ### D2 — Entity split (`task.md`)
 
@@ -355,32 +357,21 @@ work is a personal sandbox: it must not enter `docker/docker-compose.yml`,
 
 ## External Validation
 
-Every acceptance gate in this project's history has been self-certified. The
-repository has been public since `2026-03-25` and has accumulated 55 stars with
-zero external issues, pull requests, or discussions — meaning people find it
-credible enough to bookmark but have not crossed the threshold to run it. That
-is an activation problem, not an awareness problem.
+**Status (Owner Decision 2026-08-15): cancelled as a blocking gate.** The
+protocol is retained as a historical trace, not as outstanding work:
 
-Therefore, after v2.9 is complete:
+- [`docs/external-validation/integrated-v2.9-external-validation.md`](external-validation/integrated-v2.9-external-validation.md)
+- [`docs/external-validation/v2.6.1-external-validation.md`](external-validation/v2.6.1-external-validation.md)
+- [`docs/external-validation/outreach.md`](external-validation/outreach.md)
 
-- **The integrated v2.9 release candidate requires at least one person outside
-  the project** to run `make setup` plus the relevant core commands on their
-  own machine, with friction points recorded. This is the external
-  release-readiness gate for the accumulated v2.6.1–v2.9 scope. Retain the Block
-  `J` protocol in
-  [`docs/external-validation/integrated-v2.9-external-validation.md`](external-validation/integrated-v2.9-external-validation.md)
-  with Block `J` detail in
-  [`docs/external-validation/v2.6.1-external-validation.md`](external-validation/v2.6.1-external-validation.md);
-  publish a new post-v2.9 tag — do not rewrite
-  tag `v2.6.1`.
-- **Until that integrated gate completes, internal validation remains mandatory**
-  for every version (`make test`, `make lint`, `make typecheck`,
-  `make validate-contracts`, and `make verify` / `make demo` where applicable).
-  Self-certification does not satisfy the integrated external gate.
-- **Outreach follows the integrated sign-off**, not each intermediate version.
-  After external validation completes, ship the signed candidate, publish one
-  short technical note about the most differentiated claim, and ask a specific
-  question of 8–10 target readers.
+Do not delete those files. Do not recruit an external validator as the next
+task. Internal validation remains mandatory for every change (`make test`,
+`make lint`, `make typecheck`, `make validate-contracts`, and `make verify` /
+`make demo` where applicable). Cancelling this gate does not authorize
+production, WORM, or regulatory-readiness claims, and does not start v3.0.
+
+The next execution backlog is Layer 1 source research (Block `L` in
+`TASKS.md`), then long-term Compose operation on the decided sources.
 
 ## What Is Explicitly Deprioritized
 

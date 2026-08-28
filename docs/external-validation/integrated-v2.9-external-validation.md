@@ -5,7 +5,7 @@ Gate owner: release readiness (`docs/v2.6-release-readiness.md`)
 Version under test: **integrated post-v2.9 candidate** on `main` (v2.6.1 Block `J`
 through v2.9 Blocks `B`/`C`/`D`/`F`, plus v2.7 Block `I` and v2.8 Block `E`)
 
-Record status: **active — v2.9 delivered; external sign-off pending**
+Record status: **historical — blocking gate cancelled 2026-08-15; protocol retained**
 
 Minimum baseline: commit [`e534c73`](https://github.com/Jiahong-Que-9527/SoloLakehouse/commit/e534c73)
 (Block `J`) through the signed integrated candidate. Do **not** test tag `v2.6.1`

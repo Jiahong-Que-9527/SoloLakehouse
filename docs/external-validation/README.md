@@ -1,9 +1,11 @@
-# External Validation
+# External Validation (historical)
 
-The integrated release candidate after v2.9 requires at least one person
-**outside the project** to run the stack on their own machine and record
-friction honestly. v2.9 is **delivered on `main`**; this gate is **active**.
-Self-certification remains insufficient for the integrated release gate.
+**Blocking gate cancelled 2026-08-15.** These files are retained as a
+historical protocol, not as an open backlog item. Do not recruit an external
+validator as the next task. See `TASKS.md` Block `L` for the active backlog.
+
+The text below is the original process, kept so the gate can be reconstructed
+if a later Owner Decision restores it.
 
 ## Process
 

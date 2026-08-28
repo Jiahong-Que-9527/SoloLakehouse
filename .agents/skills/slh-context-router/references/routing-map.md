@@ -20,12 +20,8 @@ two. `AGENTS.md` carries the current state, decision gates, and hard rules.
 - When `graphify-out/graph.json` exists, query Graphify before broad repository
   browsing. Graphify finds context; canonical source files establish facts.
 - **v2.5 is the protected runtime baseline** and does not change before v3.0.
-- **v2.6.0 is released** and carries a known `RUNTIME_VERSION` defect fixed on
-  `main`. **v2.6.1 is the active target** — operationalize the evidence plane
-  (Block `R`, Block `J` in `TASKS.md`).
-- **Decision gates** — see `AGENTS.md` section 3. **D1 resolved (2026-08-02):**
-  v2.8, then v2.7, then v2.9; external validation follows v2.9. **D2:** entity
-  split deferred. **D3:** portal/Keycloak is sandbox only.
+- **Decision gates** — see `AGENTS.md` section 3. **D2:** entity split deferred.
+  **D3:** portal/Keycloak is sandbox only. The next PR is in `TASKS.md`.
 - The published repository is **English-only**; `docs/local-cn/` is local.
 
 ## Paths that are local-only

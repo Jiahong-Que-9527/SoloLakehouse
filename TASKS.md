@@ -15,27 +15,28 @@ Use it to answer:
 
 ## Canonical Planning State
 
-As of `2026-08-02`:
+As of `2026-08-15`:
 
 - `v2.5` is delivered and protected from regression.
 - `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
   version stamp. `v2.6.0` is superseded. The tag does **not** include Block `J`.
 - Block `J` is **implemented and internally verified on `main`** (`e534c73`,
-  PR #49). Independent external validation is **active** as a required section
-  of the integrated post-v2.9 release gate.
+  PR #49).
 - **v2.8 Block `E` is delivered on `main`** (PRs #51–#54). **v2.7 Block `I` is
   delivered on `main`** (PRs #55–#56). **v2.9 Blocks `B`/`C`/`D`/`F` are
-  delivered on `main`** (PRs #57, #59). The active task is the **integrated
-  external validation and operational rollout gate** (Block `G`); do not start
-  v3.0 implementation until that gate completes.
-- **Block `K` (new, 2026-08-11) is open.** A read-only architecture and
-  production-readiness review (`docs/architecture-review-2026-08-11.md`) found
-  that most core Compose services have no `restart` policy (container crash
-  or host reboot requires manual `make up`) and that `R1` left a residual gap:
-  `docker-compose.yml`'s `RUNTIME_VERSION` default (`slh-v2.5.1`) still
-  disagrees with `runtime_identity.py`'s (`slh-v2.6.1`). `K1`/`K2` are cheap
-  and directly relevant to Block `G`'s evidence-correctness bar — recommend
-  sequencing them before or alongside the external-validation push, not after.
+  delivered on `main`** (PRs #57, #59).
+- **Owner Decision (2026-08-15):** independent external sign-off is **no longer
+  a blocking gate**. Protocol files under `docs/external-validation/` are
+  **retained as historical traces**, not as an open backlog item. Internal
+  checks (`make test`, `make verify`, `make demo`) remain mandatory. This does
+  not authorize production, WORM, or regulatory-readiness claims, and does not
+  start v3.0.
+- **Active task: Block `L`** — research and remediate Layer 1 sources before
+  long-term operation. No replacement source is chosen yet; do not swap
+  collectors until an Owner Decision names the source.
+- **Block `K` remains open** (reliability / recovery) but is **not** the
+  current execution focus. Long-term operation starts only after the input
+  layer (Layer 1, then the Layer 2 changes that follow) is decided.
 - `v2.8` before `v2.7` is an approved Owner Decision (`docs/roadmap.md`, D1).
 - entity-template / entity-split work is **deferred indefinitely**
   (`docs/roadmap.md`, D2).
@@ -73,11 +74,11 @@ Future agents should follow these rules by default:
 |---|---|---|
 | v2.5 | Delivered / protected baseline | Protect from regression |
 | v2.6.0 | Superseded (version-stamp defect) | Computational governance and evidence plane |
-| v2.6.1 | **Released — Block `J` implementation complete; external validation active (integrated post-v2.9 gate)** | Corrected version stamp; operationalize the evidence plane |
+| v2.6.1 | **Released — Block `J` implementation complete** | Corrected version stamp; operationalize the evidence plane |
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
-| v3.0 | **Next after external gate** | Kubernetes runtime migration |
+| v3.0 | **Later — not started** | Kubernetes runtime migration |
 
 ## Work Blocks
 
@@ -91,23 +92,23 @@ Historical block letters remain the stable map for planning references.
 | D | Secrets and access governance | v2.9 -> v3.0 | Delivered (v2.9 scope; v3.0 carries managed secrets) |
 | E | AI/ML governance and agent-ready context | v2.8 | Delivered |
 | F | Runtime productionization and K8s readiness | v2.9 -> v3.0 | Delivered (readiness gate; Helm/Terraform in v3.0) |
-| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Active — integrated external validation gate** |
+| G | Release governance and cross-version evidence packaging | v2.6 -> v3.0 | **Delivered — external sign-off cancelled as a blocking gate (2026-08-15); protocol retained** |
 | H | Lineage evidence and audit artifacts | v2.6 | Delivered |
-| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete — external validation active as part of the integrated post-v2.9 gate** |
+| **J** | **Evidence-plane operationalization** | **v2.6.1** | **Implementation complete** |
 | I | Catalog/control-plane openness and sovereignty proof | v2.7 | Delivered |
-| K | Reliability, data-correctness and recovery hardening | v2.6.1 -> v2.9 | **Open — found 2026-08-11, not yet started** |
+| K | Reliability, data-correctness and recovery hardening | v2.6.1 -> v2.9 | **Open — not the current execution focus** |
+| **L** | **Layer 1 sources — research and remediate** | **post-v2.9** | **Active** |
 
 ## v2.6.1 Scope Boundary
 
 `v2.6.1` Block `J` implementation is complete and internally verified. v2.8,
-v2.7, and v2.9 are all delivered on `main`, so independent external validation
-and operational acceptance are no longer deferred: they are the **active**
-integrated gate (Block `G`), and they now block operational rollout, the
-post-v2.9 tag, and v3.0 implementation.
+v2.7, and v2.9 are all delivered on `main`. Independent external sign-off is
+**not** a blocking gate (Owner Decision 2026-08-15). The active execution
+backlog is Block `L` (Layer 1 sources). Do not start v3.0 implementation as a
+side effect of cancelling that gate.
 
 Its internal delivery succeeds when the evidence plane runs **without a human
 in the loop**, on **every** governed dataset, into **write-once** storage.
-Independent external verification is deferred to the post-v2.9 integrated gate.
 
 ### v2.6.1 must deliver
 
@@ -162,15 +163,13 @@ plane that was demonstrated once and one that operates.
 - [x] `J6` Add unit tests for `dagster/assets.py` (currently 0% — 97 statements
       on the documented default execution path)
 
-### Block G — Release Governance (active external gate)
+### Block G — Release Governance (external sign-off cancelled as a gate)
 
-- [x] `G3` Add an **external validation gate** to release readiness: at least one
-      person outside the project runs `make setup` plus the integrated
-      candidate's core commands on their own machine, and friction points are
-      recorded
-      *(protocol:
-      [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md);
-      execution active now that v2.9 is delivered)*
+- [x] `G3` Add an **external validation protocol** to release readiness
+      *(protocol retained as history:
+      [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md).
+      Owner Decision 2026-08-15: not a blocking gate; do not recruit a
+      validator as the next task)*
 - [x] `G4` Confirm or overturn the provisional D1 ordering (v2.8 before v2.7)
       using the first round of external feedback, and record the outcome in
       `docs/roadmap.md`
@@ -365,8 +364,8 @@ Found during a read-only external-style architecture and production-readiness
 review on 2026-08-11 (`docs/architecture-review-2026-08-11.md`). Every item
 below has a concrete failure scenario behind it — none are generic
 best-practice items. `K1`/`K2` are P0: cheap (well under a day each) and
-directly relevant to Block `G`'s evidence-correctness acceptance bar, so they
-should land before or alongside the external-validation push, not after it.
+still worth landing before long-term operation, but they are **not** the
+active backlog while Block `L` is open.
 
 Scope:
 
@@ -458,59 +457,144 @@ alongside the five (`k8s_readiness.py`, `sovereignty.py`, `interoperability.py`,
 `promotion.py`, `secrets_discipline.py`) that ADR-017/018/021/022/023 all
 introduced on 2026-08-02, without a specific new failure scenario driving it.
 
+### Block L — Layer 1 sources: research and remediate (active)
+
+Owner Decision `2026-08-15`: long-term operation is the destination, but
+**Layer 1 (sources) must be researched and cleaned up first**. No better
+replacement source is chosen yet. Do not implement a collector swap, a new
+domain, or a streaming engine in this block until an Owner Decision names the
+source.
+
+The input edge is Layer 1 + Layer 2. This block is **Layer 1 first**. Layer 2
+(collectors, Pydantic, contracts, BronzeWriter) changes only as a consequence
+of the source decision. Layers 3–5 are not the starting point.
+
+Layer diagram (same as `docs/architecture.md`):
+
+```mermaid
+flowchart TB
+  subgraph L1["Layer 1 · Sources"]
+    ECB["ECB SDW REST API"]
+    DAX["DAX daily CSV"]
+  end
+
+  subgraph L2["Layer 2 · Ingestion and validation"]
+    COL["Collectors"]
+    PYD["Pydantic schemas"]
+    CTR["Dataset contracts"]
+    BW["BronzeWriter"]
+    COL --> PYD --> CTR --> BW
+  end
+
+  subgraph L3["Layer 3 · Medallion Iceberg on MinIO"]
+    BR["Bronze · append"]
+    SV["Silver · overwrite"]
+    GD["Gold · overwrite"]
+    BR --> SV --> GD
+  end
+
+  subgraph L4["Layer 4 · Query"]
+    TRINO["Trino"]
+    HMS["Hive Metastore"]
+    TRINO --- HMS
+  end
+
+  subgraph L5["Layer 5 · Consume"]
+    SUP["Superset"]
+    MLF["MLflow"]
+    OM["OpenMetadata"]
+  end
+
+  subgraph ORCH["Orchestration"]
+    DG["Dagster assets / schedule / sensors"]
+  end
+
+  subgraph GOV["Governance plane"]
+    EV["Lineage join · SHA-256 manifests · audit bucket"]
+  end
+
+  ECB --> COL
+  DAX --> COL
+  BW --> BR
+  GD --> TRINO
+  TRINO --> SUP
+  TRINO --> MLF
+  TRINO --> OM
+  DG -.-> L2
+  DG -.-> L3
+  DG -.-> L5
+  GOV -.-> L2
+  GOV -.-> L3
+  GOV -.-> L5
+```
+
+Dagster asset path:
+
+```mermaid
+flowchart TB
+  ecb_bronze --> ecb_silver
+  dax_bronze --> dax_silver
+  ecb_silver --> gold_features
+  dax_silver --> gold_features
+  gold_features --> ml_experiment
+```
+
+Current Layer 1 facts (do not treat as the long-term operating sources):
+
+- ECB SDW REST is live but sparse (MRO only).
+- DAX is a bundled sample CSV through `2024-12-31`, not a live feed.
+- ADR-004 remains in force until an Owner Decision replaces it.
+- `make demo` stays on ECB + DAX until that decision.
+
+Tasks:
+
+- [ ] `L1` Write source-selection criteria for long-term operation: durable
+      identity, license clarity, batch-compatible refresh (scheduled API or
+      file ingest — not Kafka), operational value, and whether `make demo`
+      must keep working on the current path.
+- [ ] `L2` Survey candidate sources against `L1`. Research only — no collector
+      implementation, no new Compose service, no D2 entity split.
+- [ ] `L3` Owner Decision: remediate the current ECB/DAX sources in place, or
+      replace Layer 1. Record the choice in `docs/roadmap.md` (and ADR-004 if
+      the domain changes).
+- [ ] `L4` Remediate Layer 1 (and only the Layer 2 collector / schema /
+      contract changes that follow) after `L3`. Keep `make demo` working unless
+      `L3` explicitly retires it.
+
+Explicit non-goals until `L3`: swapping in ADS-B or any other domain,
+streaming ingestion, adding platform services, starting long-term operation,
+starting v3.0.
+
 ## Immediate Next Actions
 
 Execute in this order.
 
 1. ~~**Implement v2.9** operational and promotion evidence.~~ — done on `main`
    @ `71c2c89` (PRs #57, #59).
-2. **Recruit an external validator** for the integrated v2.6.1–v2.9 candidate using
-   [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md)
-   (Block `J` detail in
-   [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md));
-   onboarding checklist in
-   [`docs/external-validation/outreach.md`](docs/external-validation/outreach.md).
-3. **Start operational rollout only after that integrated sign-off**, then tag
-   and publish the signed candidate and update planning state in the same PR.
+2. ~~**Recruit an external validator** as a blocking gate.~~ — cancelled
+   `2026-08-15`; protocol kept under `docs/external-validation/`.
+3. **Block `L`:** research Layer 1 sources (`L1`–`L2`), then an Owner Decision
+   (`L3`), then remediate (`L4`). Do not start long-term operation before that.
+4. After the input layer is decided, bring the v2.5 runtime up for long-term
+   operation. Block `K` (especially `K1`/`K2`, then `K9`/`K10`) is the
+   hardening track during that operation — not a reason to skip Block `L`.
 
 ### Pre-v3.0 sequencing (recommendation, not yet an Owner Decision)
 
-The only thing that **formally** gates `v3.0` per this file's own rule ("do
-not start v3.0 implementation until [Block `G`] completes") is Block `G`
-itself — concretely, all seven bullets in "Definition of `v2.6.1` Complete"
-above, of which only the external sign-off (bullet 6) and the resulting new
-tag (bullet 7) are not yet done. Everything below this line is judgment on
-top of that rule, not a restatement of it — flag it explicitly as
-recommendation if you disagree with the ordering.
+Cancelling the external sign-off gate does **not** start v3.0. v3.0 remains a
+runtime migration after the Compose stack has a decided input layer and a
+recorded backup/restore path (`K9`/`K10`).
 
-1. **Land Block `K`'s `K1`/`K2` before or during step 2 above.** Both are
-   same-day fixes. `K2` changes the version stamp on every evidence manifest
-   the external validator will produce in step 2 — validating a candidate
-   with a known, fixable version-stamp defect and then asking someone
-   external to sign off on it is the wrong order. `K1` reduces the odds that
-   a transient crash on the validator's own machine gets misread as SLH
-   itself being unstable.
-2. **Recruit the external validator (step 2) in parallel** — it does not need
-   to wait on the rest of Block `K`; it is the actual bottleneck on `v3.0`
-   and should start now.
-3. **Land `K9`/`K10` (backup quiesce script + one real, recorded restore
-   drill) before starting `v3.0` implementation**, even though this file does
-   not formally require it. `v3.0` is itself a high-risk stateful-platform
-   migration (Compose → Kubernetes); attempting it without first having
-   proven backup/restore works on the simpler Compose runtime removes the
-   one safety net that migration would need if it goes wrong.
-4. **The rest of Block `K`** (`K3`–`K8`, `K11`–`K18`) is worth finishing
-   before `v3.0` so accumulated debt isn't carried onto the new platform, but
-   none of it blocks starting `v3.0` — in particular the four ADRs
-   (`K11`–`K14`) and the should-do cleanup items (`K15`–`K18`) are
-   documentation/maintenance and can trail behind the `v3.0` kickoff without
-   risk.
+1. Finish Block `L` (source research → decision → Layer 1 remediation).
+2. Operate the Compose runtime on the decided sources; land `K1`/`K2` when
+   the stack is up, and `K9`/`K10` before any Kubernetes migration.
+3. The rest of Block `K` can trail. Do not treat engine count or a second
+   domain as success metrics.
 
 ## Decision Rules
 
-- v2.8, v2.7, and v2.9 require their internal automated validation but are not
-  blocked by external validation; external validation and operational rollout
-  start after v2.9 completes
+- v2.8, v2.7, and v2.9 require their internal automated validation; external
+  sign-off is not a blocking gate (Owner Decision 2026-08-15)
 - do not add a new evidence category while the current one is manual,
   single-dataset, or overwritable
 - do not hide missing source fields with best-effort partial outputs
@@ -530,18 +614,8 @@ Distinguish the **released tag** from **Block `J` acceptance**:
 |---|---|---|
 | Tag `v2.6.1` (version stamp fix) | **Done** | tag `6bd138a`, GitHub release `2026-07-31` |
 | Block `J` implementation on `main` | **Done** | commit `e534c73`, PR #49, CI green |
-| Block `J` operational acceptance | **Deferred to post-v2.9 integrated gate** | external sign-off + five-dataset audit record |
+| Block `J` operational acceptance | **Internal only — external sign-off not required** | Owner Decision 2026-08-15; protocol retained under `docs/external-validation/` |
 
-Block `J` counts as **externally accepted** as part of the post-v2.9 integrated
-gate only when all are true:
-
-- acceptance baseline is `e534c73` or later signed `main`
-- a successful governed materialization produces evidence with **no** manual command
-- the audit bucket has Object Lock enabled (fresh deploy or documented upgrade path)
-- all five governed datasets produced audit manifests on the validator's machine
-- the CI coverage gate includes `governance/` and `dagster/`
-- at least one person **outside the project** signed
-  [`docs/external-validation/integrated-v2.9-external-validation.md`](docs/external-validation/integrated-v2.9-external-validation.md)
-  (Block `J` appendix:
-  [`docs/external-validation/v2.6.1-external-validation.md`](docs/external-validation/v2.6.1-external-validation.md))
-- a **new** post-v2.9 tag is published (do not rewrite `v2.6.1` history)
+Block `J` internal acceptance is already recorded (`e534c73`, PR #49). Do **not**
+treat an external signature as outstanding work. A later post-v2.9 tag is a
+release choice, not a gate on Block `L`.

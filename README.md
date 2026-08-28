@@ -68,8 +68,8 @@ Most lakehouse tutorials show **how to plug components together**. SoloLakehouse
 | Problem the platform answers | How SoloLakehouse addresses it |
 |---|---|
 | **"If BaFin asks for end-to-end lineage of this Gold table tomorrow, can we deliver it in 24h?"** | Three-source lineage join (OpenMetadata + Iceberg snapshots + Dagster runs) producing SHA-256-bound evidence packs to an audit bucket. *([v2.6 — delivered](docs/v2.6-release-readiness.md))* |
-| **"Are we locked into our vendor's table format?"** | Explicit catalog abstraction boundary, Hive-Metastore ↔ REST-Catalog path, `make interoperability-proof`, and a signable sovereignty report + exit playbook. *(v2.7 — on `main`, pending external validation; see [roadmap](docs/roadmap.md))* |
-| **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *(v2.8 — on `main`, pending external validation; see [roadmap](docs/roadmap.md))* |
+| **"Are we locked into our vendor's table format?"** | Explicit catalog abstraction boundary, Hive-Metastore ↔ REST-Catalog path, `make interoperability-proof`, and a signable sovereignty report + exit playbook. *(v2.7 — on `main`; see [roadmap](docs/roadmap.md))* |
+| **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *(v2.8 — on `main`; see [roadmap](docs/roadmap.md))* |
 | **"Can the same stack run on a laptop and on Kubernetes without rewriting?"** | All services are containerized, configuration-externalized, state-externalized; `make k8s-readiness` gates the migration and v3.0 promotes the same images to K8s + Helm + Terraform. *(v2.9 on `main` → [v3.0](docs/history/v3-planning.md); see [roadmap](docs/roadmap.md))* |
 
 
@@ -246,12 +246,12 @@ The platform evolves along a single narrative: **first make it run, then make ev
 | **v4.0** *(planned)* | Self-serve usability | docs-first onboarding | repeatable verification, clearer failure modes, operational polish |
 
 **"On `main`" is not "released."** v2.6.1 Block `J` through v2.9 are implemented,
-internally verified, and CI-green on `main`, but the accumulated v2.6.1–v2.9
-scope is still behind an **integrated external validation gate**: at least one
-person outside the project must run the candidate on their own machine and sign
-[docs/external-validation/integrated-v2.9-external-validation.md](docs/external-validation/integrated-v2.9-external-validation.md)
-before a post-v2.9 tag is published. The latest published tag is `v2.6.1`, which
-predates Block `J`.
+internally verified, and CI-green on `main`. The latest published tag is
+`v2.6.1`, which predates Block `J`. External sign-off is not a blocking gate
+(Owner Decision 2026-08-15); the protocol under
+[docs/external-validation/](docs/external-validation/) is retained as history.
+The active backlog is Layer 1 source research (Block `L` in
+[TASKS.md](TASKS.md)).
 
 Per-version planning notes:
 

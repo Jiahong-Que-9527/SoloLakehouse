@@ -36,9 +36,7 @@ Never treat a roadmap *target* as a delivered *capability*.
     manifest. Anyone on that tag should upgrade and regenerate.
 - **Block `J` on `main`** (2026-08-01, commit `e534c73`, PR #49) — automatic
   emission, Object Lock, five-dataset coverage, causal snapshot↔run binding,
-  and CI coverage for `governance/` + `dagster/`. **Implementation complete;
-  independent external validation is now the active integrated gate (v2.9 is
-  delivered).**
+  and CI coverage for `governance/` + `dagster/`. **Implementation complete.**
 - **v2.8 Block `E` delivered on `main`** (2026-08-02, PRs #51–#54) — ML lineage
   five-tuple, AI-governance contract fields, policy hooks, model evaluation
   evidence and model card.
@@ -47,9 +45,11 @@ Never treat a roadmap *target* as a delivered *capability*.
 - **v2.9 Blocks `B`/`C`/`D`/`F` delivered on `main`** (2026-08-02, PRs #57,
   #59) — promotion/rollback evidence, operational SLO evidence, secrets
   discipline, and K8s readiness gate.
-- **Active task:** integrated external validation and operational rollout gate
-  (Block `G`). Do not start v3.0 implementation until that gate completes; see
-  `TASKS.md`.
+- **Owner Decision (2026-08-15):** independent external sign-off is not a
+  blocking gate; `docs/external-validation/` is retained as history.
+- **Active task:** Block `L` — research and remediate Layer 1 sources before
+  long-term operation. See `TASKS.md`. Do not start v3.0 as a side effect of
+  cancelling the external gate.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 
@@ -60,7 +60,7 @@ v2.5  the platform runs
         -> v2.8  auditable-AI evidence
            -> v2.7  openness evidence
               -> v2.9  operational and promotion evidence
-                 -> integrated external validation and operational rollout
+                 -> source-layer research, then long-term Compose operation
                     -> v3.0  the runtime migrates to Kubernetes
 ```
 
@@ -74,7 +74,7 @@ doing work that may be thrown away.
 
 | Gate | Rule |
 |---|---|
-| **D1** | **Resolved 2026-08-02 by Owner Decision:** implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9. v2.9 is complete on `main`; begin independent external validation and operational rollout against the integrated candidate. Do not start v3.0 until that gate completes. |
+| **D1** | **Resolved 2026-08-02 by Owner Decision:** implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9. Those versions are complete on `main`. A later Owner Decision (`2026-08-15`) cancelled independent external sign-off as a blocking gate. Do not start v3.0 as a side effect of that cancellation; see `TASKS.md` Block `L`. |
 | **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
 | **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
 
