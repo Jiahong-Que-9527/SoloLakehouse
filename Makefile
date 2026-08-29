@@ -145,7 +145,7 @@ operational-evidence:
 init-env:
 	@test -f .env.shared || cp .env.shared.example .env.shared
 	@test -f .env.secrets || cp .env.secrets.example .env.secrets
-	@test -f docker/openmetadata/openmetadata.env || cp docker/openmetadata/openmetadata.env.example docker/openmetadata/openmetadata.env
+	@test -f docker/openmetadata/openmetadata.env || { cp docker/openmetadata/openmetadata.env.example docker/openmetadata/openmetadata.env; $(PYTHON) -c "import base64,os,re,pathlib; p=pathlib.Path('docker/openmetadata/openmetadata.env'); k=base64.urlsafe_b64encode(os.urandom(32)).decode(); s=p.read_text(); s=re.sub(r'(?m)^FERNET_KEY=.*$$', 'FERNET_KEY='+k, s); p.write_text(s)"; }
 	$(PYTHON) scripts/merge-env-files.py
 
 secrets-discipline:
