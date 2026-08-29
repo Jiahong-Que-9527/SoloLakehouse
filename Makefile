@@ -145,6 +145,7 @@ operational-evidence:
 init-env:
 	@test -f .env.shared || cp .env.shared.example .env.shared
 	@test -f .env.secrets || cp .env.secrets.example .env.secrets
+	@test -f docker/openmetadata/openmetadata.env || cp docker/openmetadata/openmetadata.env.example docker/openmetadata/openmetadata.env
 	$(PYTHON) scripts/merge-env-files.py
 
 secrets-discipline:
