@@ -58,3 +58,8 @@ wiki/
 # Backups
 README.bak1
 README.bak2
+
+# OpenMetadata runtime env (contains DB_USER_PASSWORD/FERNET_KEY/etc, rotated 2026-08-29).
+# Was tracked with live credentials before this line; see Change_Log 2026-08-29.
+docker/openmetadata/openmetadata.env
+.pre-rotation-*
