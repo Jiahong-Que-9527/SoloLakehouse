@@ -1,8 +1,9 @@
-.PHONY: up down clean bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness
+.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness
 
 COMPOSE_FILE := docker/docker-compose.yml
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml
 POLARIS_COMPOSE := -f docker/docker-compose.yml -f docker/docker-compose.polaris.yml
+ALL_PROFILES := --profile orchestration --profile catalog --profile bi
 ENV_FILE ?= .env
 GIT_COMMIT ?= $(shell git rev-parse HEAD 2>/dev/null)
 export GIT_COMMIT
@@ -66,7 +67,7 @@ up: check-git-lineage prepare-data-dirs
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d postgres minio
 	$(MAKE) wait-postgres-ready
 	$(MAKE) bootstrap-db
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d --build
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) up -d --build
 	$(MAKE) wait
 	$(MAKE) init-iceberg
 	@echo ""
@@ -91,10 +92,10 @@ reset-mlflow-db:
 	@echo "MLflow metadata database reset complete."
 
 down:
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) down --remove-orphans
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) down --remove-orphans
 
 clean:
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) down --remove-orphans
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) down --remove-orphans
 	rm -rf docker/data/minio docker/data/postgres docker/data/dagster docker/data/om-mysql docker/data/om-elasticsearch
 	$(MAKE) prepare-data-dirs
 	$(MAKE) purge-legacy-docker-volumes
@@ -123,6 +124,33 @@ lineage-evidence:
 	@test -n "$(DATASET_ID)" || (echo "DATASET_ID is required" && exit 2)
 	@test -n "$(DAGSTER_RUN_ID)" || (echo "DAGSTER_RUN_ID is required" && exit 2)
 	$(PYTHON) scripts/lineage-evidence.py --dataset-id "$(DATASET_ID)" --dagster-run-id "$(DAGSTER_RUN_ID)"
+
+# On-demand component groups: core (minio/postgres/hive-metastore/trino/mlflow) always
+# starts with plain `up`/`up-core`. The other three are opt-in via profiles so idle
+# components can sit fully stopped and cost zero CPU/RAM until needed.
+up-core:
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml up -d
+
+up-orchestration:
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml --profile orchestration up -d
+
+up-catalog:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile catalog up -d
+
+up-bi:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile bi up -d
+
+stop-orchestration:
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml --profile orchestration stop dagster-webserver dagster-daemon
+
+stop-catalog:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile catalog stop om-mysql om-elasticsearch openmetadata-server ingestion
+
+stop-bi:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile bi stop superset
+
+status:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) ps
 
 polaris-up:
 	$(DOCKER_COMPOSE) $(POLARIS_COMPOSE) --profile polaris up -d polaris

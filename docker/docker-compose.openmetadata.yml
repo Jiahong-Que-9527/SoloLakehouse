@@ -3,6 +3,7 @@
 
 services:
   om-mysql:
+    profiles: ["catalog"]
     container_name: slh-om-mysql
     image: docker.getcollate.io/openmetadata/db:1.5.6
     command: ["--sort_buffer_size=10M"]
@@ -32,6 +33,7 @@ services:
       retries: 10
 
   om-elasticsearch:
+    profiles: ["catalog"]
     container_name: slh-om-elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
     environment:
@@ -52,6 +54,7 @@ services:
       retries: 10
 
   om-migrate:
+    profiles: ["catalog"]
     container_name: slh-om-migrate
     image: docker.getcollate.io/openmetadata/server:1.5.6
     command: ["./bootstrap/openmetadata-ops.sh", "migrate"]
@@ -69,6 +72,7 @@ services:
   # bootstrap fail silently.  Keep the repair idempotent and before the API
   # server starts; it neither creates users directly nor stores credentials.
   om-bootstrap:
+    profiles: ["catalog"]
     container_name: slh-om-bootstrap
     image: docker.getcollate.io/openmetadata/db:1.5.6
     restart: "no"
@@ -102,6 +106,7 @@ services:
         SQL
 
   openmetadata-server:
+    profiles: ["catalog"]
     container_name: slh-openmetadata-server
     image: docker.getcollate.io/openmetadata/server:1.5.6
     restart: unless-stopped
@@ -137,6 +142,7 @@ services:
   # bundled Airflow runner. Keep it on the same Compose network as Trino so the
   # service hostname `trino:8080` is resolvable from the generated workflow.
   ingestion:
+    profiles: ["catalog"]
     container_name: slh-openmetadata-ingestion
     image: docker.getcollate.io/openmetadata/ingestion:1.5.6
     restart: unless-stopped

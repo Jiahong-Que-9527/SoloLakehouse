@@ -145,6 +145,7 @@ services:
       start_period: 120s
 
   dagster-webserver:
+    profiles: ["orchestration"]
     build:
       context: ..
       dockerfile: docker/dagster/Dockerfile
@@ -203,6 +204,7 @@ services:
       start_period: 60s
 
   dagster-daemon:
+    profiles: ["orchestration"]
     build:
       context: ..
       dockerfile: docker/dagster/Dockerfile
