@@ -2,6 +2,7 @@
 
 services:
   superset:
+    profiles: ["bi"]
     container_name: slh-superset
     build: ./superset
     depends_on:
