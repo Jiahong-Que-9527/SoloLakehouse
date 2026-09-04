@@ -5,27 +5,43 @@ from __future__ import annotations
 import os
 import sys
 
-from dagster import AssetSelection, Definitions, ScheduleDefinition, define_asset_job
+from dagster import (
+    AssetSelection,
+    DefaultScheduleStatus,
+    Definitions,
+    ScheduleDefinition,
+    define_asset_job,
+)
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 if THIS_DIR not in sys.path:
     sys.path.insert(0, THIS_DIR)
 
 from assets import (  # noqa: E402
-    dax_bronze,
-    dax_silver,
     ecb_bronze,
     ecb_data_freshness_sensor,
+    ecb_german_equity_proxy_features,
+    ecb_german_equity_proxy_features_min_rows_check,
     ecb_silver,
-    gold_features,
-    gold_features_min_rows_check,
+    german_equity_proxy_bronze,
+    german_equity_proxy_silver,
     lineage_evidence_sensor,
     ml_experiment,
 )
 from io_managers import ParquetIOManager  # noqa: E402
+from pipeline_notifications import (  # noqa: E402
+    pipeline_failure_email_sensor,
+    pipeline_success_email_sensor,
+)
 from resources import IcebergCatalogResource, MinioResource, PipelineConfigResource  # noqa: E402
 
-data_flow_assets = [ecb_bronze, dax_bronze, ecb_silver, dax_silver, gold_features]
+data_flow_assets = [
+    ecb_bronze,
+    german_equity_proxy_bronze,
+    ecb_silver,
+    german_equity_proxy_silver,
+    ecb_german_equity_proxy_features,
+]
 all_assets = [*data_flow_assets, ml_experiment]
 
 full_pipeline_job = define_asset_job(
@@ -40,17 +56,23 @@ demo_data_flow_job = define_asset_job(
 
 daily_pipeline_schedule = ScheduleDefinition(
     name="daily_pipeline_schedule",
-    job=full_pipeline_job,
+    job=demo_data_flow_job,
     cron_schedule="0 6 * * 1-5",
     execution_timezone="UTC",
+    default_status=DefaultScheduleStatus.RUNNING,
 )
 
 defs = Definitions(
     assets=all_assets,
-    asset_checks=[gold_features_min_rows_check],
+    asset_checks=[ecb_german_equity_proxy_features_min_rows_check],
     jobs=[full_pipeline_job, demo_data_flow_job],
     schedules=[daily_pipeline_schedule],
-    sensors=[ecb_data_freshness_sensor, lineage_evidence_sensor],
+    sensors=[
+        ecb_data_freshness_sensor,
+        lineage_evidence_sensor,
+        pipeline_success_email_sensor,
+        pipeline_failure_email_sensor,
+    ],
     resources={
         "minio": MinioResource(),
         "pipeline_config": PipelineConfigResource(),

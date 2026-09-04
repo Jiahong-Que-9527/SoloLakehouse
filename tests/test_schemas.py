@@ -48,7 +48,14 @@ class TestECBRecord:
     def test_model_dump_keys(self) -> None:
         model = ECBRecord(**make_ecb_record())
         dumped = model.model_dump(by_alias=True)
-        assert {"observation_date", "rate_pct", "_ingestion_timestamp", "_source"} <= set(dumped)
+        expected_keys = {
+            "observation_date",
+            "rate_pct",
+            "rate_type",
+            "_ingestion_timestamp",
+            "_source",
+        }
+        assert expected_keys <= set(dumped)
 
 
 class TestDAXRecord:

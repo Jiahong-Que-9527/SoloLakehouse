@@ -61,10 +61,12 @@ jobs:
       # the demo stack can boot. These are not used anywhere outside this job.
       - name: Generate CI-only secrets
         run: |
+          cp .env.shared.example .env.shared
           cp .env.secrets.example .env.secrets
           sed -i "s/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
           sed -i "s/^SUPERSET_ADMIN_PASSWORD=$/SUPERSET_ADMIN_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
           sed -i "s/^OPENMETADATA_MYSQL_ROOT_PASSWORD=$/OPENMETADATA_MYSQL_ROOT_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
+          echo "DAX_FIXTURE_PATH=tests/fixtures/ewg_historical_bootstrap.json" >> .env.shared
       # Prebuild serially: `make setup` ends in `up -d --build`, whose bake path
       # builds all five images at once and OOMs BuildKit on a 4-core runner.
       # With the cache warm, that build step becomes a no-op.

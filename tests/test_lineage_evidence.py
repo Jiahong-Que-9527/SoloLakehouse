@@ -10,19 +10,21 @@ from governance.evidence import EvidenceManifest, LineageRecord, audit_prefix, m
 
 def _record(**overrides: object) -> LineageRecord:
     payload: dict[str, object] = {
-        "dataset_id": "fin.ecb_dax_features_gold",
+        "dataset_id": "fin.ecb_german_equity_proxy_features_gold",
         "product_id": "sololakehouse",
         "runtime_version": "slh-v2.6",
         "environment": "local",
         "dagster_run_id": "run-123",
-        "asset_key": "gold_features",
-        "openmetadata_table_fqn": "finlakehouse-trino.iceberg.gold.ecb_dax_features",
+        "asset_key": "ecb_german_equity_proxy_features",
+        "openmetadata_table_fqn": (
+            "finlakehouse-trino.iceberg.gold.ecb_german_equity_proxy_features"
+        ),
         "trino_catalog": "iceberg",
         "trino_schema": "gold",
-        "trino_table": "ecb_dax_features",
+        "trino_table": "ecb_german_equity_proxy_features",
         "object_store_provider": "minio",
         "bucket": "sololakehouse-audit",
-        "object_path": "warehouse/gold/ecb_dax_features/metadata.json",
+        "object_path": "warehouse/gold/ecb_german_equity_proxy_features/metadata.json",
         "iceberg_snapshot_id": "987654321",
         "evidence_timestamp": datetime(2026, 7, 30, 17, 0, tzinfo=UTC),
     }
@@ -45,10 +47,10 @@ def test_manifest_path_is_stable_and_bucket_relative() -> None:
     record = _record()
 
     assert audit_prefix(record.dataset_id, date(2026, 7, 30), record.dagster_run_id) == (
-        "lineage/fin.ecb_dax_features_gold/2026-07-30/run-123"
+        "lineage/fin.ecb_german_equity_proxy_features_gold/2026-07-30/run-123"
     )
     assert manifest_object_path(record) == (
-        "lineage/fin.ecb_dax_features_gold/2026-07-30/run-123/manifest.json"
+        "lineage/fin.ecb_german_equity_proxy_features_gold/2026-07-30/run-123/manifest.json"
     )
 
 

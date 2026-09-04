@@ -21,21 +21,26 @@ from governance.lineage import DagsterRunAdapter, EvidenceSourceError
 
 def test_governed_dataset_ids_for_materialized_assets_maps_contract_asset_keys() -> None:
     dataset_ids = governed_dataset_ids_for_materialized_assets(
-        ("ecb_bronze", "dax_silver", "ml_experiment"),
+        ("ecb_bronze", "german_equity_proxy_silver", "ml_experiment"),
         load_contracts(),
     )
 
-    assert dataset_ids == ("fin.ecb_rates_bronze", "fin.dax_daily_silver")
+    assert dataset_ids == (
+        "fin.ecb_rates_bronze",
+        "fin.german_equity_proxy_daily_silver",
+    )
 
 
 def test_evidence_manifest_object_path_uses_run_start_date() -> None:
     path = evidence_manifest_object_path(
-        "fin.ecb_dax_features_gold",
+        "fin.ecb_german_equity_proxy_features_gold",
         "run-1",
         datetime(2026, 7, 30, 17, 0, tzinfo=UTC),
     )
 
-    assert path == "lineage/fin.ecb_dax_features_gold/2026-07-30/run-1/manifest.json"
+    assert path == (
+        "lineage/fin.ecb_german_equity_proxy_features_gold/2026-07-30/run-1/manifest.json"
+    )
 
 
 def test_audit_manifest_exists_returns_true_when_head_object_succeeds() -> None:
@@ -43,7 +48,7 @@ def test_audit_manifest_exists_returns_true_when_head_object_succeeds() -> None:
     client.head_object.return_value = {}
 
     assert audit_manifest_exists(
-        "fin.ecb_dax_features_gold",
+        "fin.ecb_german_equity_proxy_features_gold",
         "run-1",
         datetime(2026, 7, 30, tzinfo=UTC),
         environ={"AUDIT_BUCKET": "sololakehouse-audit"},
@@ -59,7 +64,7 @@ def test_audit_manifest_exists_returns_false_when_object_is_missing() -> None:
     )
 
     assert not audit_manifest_exists(
-        "fin.ecb_dax_features_gold",
+        "fin.ecb_german_equity_proxy_features_gold",
         "run-1",
         datetime(2026, 7, 30, tzinfo=UTC),
         environ={"AUDIT_BUCKET": "sololakehouse-audit"},
@@ -77,7 +82,7 @@ def test_dagster_adapter_lists_materialized_asset_keys_for_successful_run() -> N
                 "startTime": 1785369600.0,
                 "assetMaterializations": [
                     {"assetKey": {"path": ["ecb_bronze"]}},
-                    {"assetKey": {"path": ["gold_features"]}},
+                    {"assetKey": {"path": ["ecb_german_equity_proxy_features"]}},
                 ],
             }
         }
@@ -90,7 +95,7 @@ def test_dagster_adapter_lists_materialized_asset_keys_for_successful_run() -> N
 
     keys = DagsterRunAdapter("http://dagster:3000", session).list_materialized_asset_keys("run-1")
 
-    assert keys == ("ecb_bronze", "gold_features")
+    assert keys == ("ecb_bronze", "ecb_german_equity_proxy_features")
 
 
 def test_dagster_adapter_rejects_non_successful_run_for_asset_key_listing() -> None:
@@ -118,7 +123,7 @@ def test_dagster_adapter_rejects_non_successful_run_for_asset_key_listing() -> N
 def test_emit_lineage_evidence_writes_manifest_with_injected_dependencies(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    contract = load_contracts()["fin.ecb_dax_features_gold"]
+    contract = load_contracts()["fin.ecb_german_equity_proxy_features_gold"]
     manifest_record = LineageRecord.model_validate(
         {
             "dataset_id": contract.dataset_id,
@@ -127,13 +132,15 @@ def test_emit_lineage_evidence_writes_manifest_with_injected_dependencies(
             "environment": "local",
             "dagster_run_id": "run-1",
             "asset_key": contract.dagster_asset_key,
-            "openmetadata_table_fqn": "svc.iceberg.gold.ecb_dax_features",
+            "openmetadata_table_fqn": "svc.iceberg.gold.ecb_german_equity_proxy_features",
             "trino_catalog": "iceberg",
             "trino_schema": "gold",
-            "trino_table": "ecb_dax_features",
+            "trino_table": "ecb_german_equity_proxy_features",
             "object_store_provider": "minio",
             "bucket": "sololakehouse",
-            "object_path": "warehouse/gold/ecb_dax_features/metadata/v1.metadata.json",
+            "object_path": (
+                "warehouse/gold/ecb_german_equity_proxy_features/metadata/v1.metadata.json"
+            ),
             "iceberg_snapshot_id": "1001",
             "evidence_timestamp": datetime(2026, 7, 30, tzinfo=UTC),
         }
@@ -179,7 +186,9 @@ def test_emit_lineage_evidence_writes_manifest_with_injected_dependencies(
 
         def write_manifest(self, manifest: EvidenceManifest) -> str:
             assert manifest.record_sha256 == expected_manifest.record_sha256
-            return "lineage/fin.ecb_dax_features_gold/2026-07-30/run-1/manifest.json"
+            return (
+                "lineage/fin.ecb_german_equity_proxy_features_gold/2026-07-30/run-1/manifest.json"
+            )
 
     monkeypatch.setattr("governance.emission.load_contract", lambda path: contract)
     monkeypatch.setattr("governance.emission.get_runtime_identity", lambda env: SimpleNamespace(

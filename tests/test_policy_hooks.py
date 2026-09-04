@@ -25,7 +25,7 @@ def test_policy_hook_catalog_covers_all_governed_datasets() -> None:
 
 
 def test_gold_policy_hook_exposes_ml_train_action() -> None:
-    contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
+    contract = load_contract(contract_path("fin.ecb_german_equity_proxy_features_gold"))
     hook = policy_hook_from_contract(contract)
 
     action_ids = {action.action_id for action in hook.actions}
@@ -42,7 +42,7 @@ def test_bronze_policy_hook_disallows_ml_training() -> None:
 
 
 def test_validate_policy_action_rejects_unknown_consumer() -> None:
-    contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
+    contract = load_contract(contract_path("fin.ecb_german_equity_proxy_features_gold"))
     hook = policy_hook_from_contract(contract)
 
     with pytest.raises(PolicyHookError, match="not allowed"):

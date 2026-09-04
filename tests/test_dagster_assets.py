@@ -38,12 +38,12 @@ def test_governed_asset_metadata_adds_current_snapshot_id(monkeypatch: pytest.Mo
 
     metadata = _governed_asset_metadata(
         catalog,
-        "gold_features",
-        {"table": "iceberg:gold.ecb_dax_features"},
+        "ecb_german_equity_proxy_features",
+        {"table": "iceberg:gold.ecb_german_equity_proxy_features"},
     )
 
-    assert metadata["iceberg_snapshot_id"] == "gold.ecb_dax_features:1001"
-    assert metadata["table"] == "iceberg:gold.ecb_dax_features"
+    assert metadata["iceberg_snapshot_id"] == "gold.ecb_german_equity_proxy_features:1001"
+    assert metadata["table"] == "iceberg:gold.ecb_german_equity_proxy_features"
 
 
 def test_definitions_register_all_governed_pipeline_assets() -> None:
@@ -71,7 +71,7 @@ def test_emit_pending_lineage_evidence_for_run_emits_pending_datasets(
             run_id: str,
         ) -> tuple[tuple[str, ...], datetime]:
             assert run_id == "run-1"
-            return ("gold_features",), datetime(2026, 7, 30, tzinfo=UTC)
+            return ("ecb_german_equity_proxy_features",), datetime(2026, 7, 30, tzinfo=UTC)
 
     monkeypatch.setattr(
         "governance.emission.audit_manifest_exists",
@@ -95,4 +95,4 @@ def test_emit_pending_lineage_evidence_for_run_emits_pending_datasets(
     assert isinstance(result, PendingLineageEvidenceRunResult)
     assert result.skip_reason is None
     assert len(result.emissions) == 1
-    assert result.emissions[0].dataset_id == "fin.ecb_dax_features_gold"
+    assert result.emissions[0].dataset_id == "fin.ecb_german_equity_proxy_features_gold"

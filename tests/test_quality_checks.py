@@ -10,8 +10,8 @@ from ingestion.quality.bronze_checks import (
     check_no_future_dates,
     check_no_nulls,
     check_schema_version,
-    run_dax_bronze_checks,
     run_ecb_bronze_checks,
+    run_german_equity_proxy_bronze_checks,
 )
 
 
@@ -20,6 +20,7 @@ def _base_ecb_df() -> pd.DataFrame:
         {
             "observation_date": ["2024-01-01", "2024-03-01", "2024-06-01"],
             "rate_pct": [4.0, 4.25, 4.5],
+            "rate_type": ["MRO", "MRO", "MRO"],
             "_ingestion_timestamp": [dt.datetime.now(dt.timezone.utc)] * 3,
             "_source": ["ECB_SDW"] * 3,
         }
@@ -87,11 +88,11 @@ class TestQualityChecks:
         with pytest.raises(ValueError, match="Missing expected columns"):
             run_ecb_bronze_checks(failing)
 
-    def test_run_dax_bronze_checks_pass(self) -> None:
-        run_dax_bronze_checks(_base_dax_df())
+    def test_run_german_equity_proxy_bronze_checks_pass(self) -> None:
+        run_german_equity_proxy_bronze_checks(_base_dax_df())
 
-    def test_run_dax_bronze_checks_fail(self) -> None:
+    def test_run_german_equity_proxy_bronze_checks_fail(self) -> None:
         failing = _base_dax_df().copy()
         failing.loc[1, "observation_date"] = (dt.date.today() + dt.timedelta(days=1)).isoformat()
         with pytest.raises(ValueError, match="Future dates"):
-            run_dax_bronze_checks(failing)
+            run_german_equity_proxy_bronze_checks(failing)

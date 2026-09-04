@@ -46,7 +46,7 @@ def _gold_dataframe_from_iceberg(catalog: "Catalog", snapshot_id: str) -> pd.Dat
     return iceberg_io.scan_table(
         catalog,
         "gold",
-        "ecb_dax_features",
+        "ecb_german_equity_proxy_features",
         snapshot_id=snapshot_id,
     )
 

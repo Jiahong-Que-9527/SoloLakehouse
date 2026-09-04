@@ -22,7 +22,7 @@ def _tuple(**overrides: object) -> MLLineageTuple:
     payload: dict[str, object] = {
         "iceberg_snapshot_id": "987654321",
         "dagster_run_id": "dagster-run-1",
-        "feature_version": "fin.ecb_dax_features_gold/v1",
+        "feature_version": "fin.ecb_german_equity_proxy_features_gold/v1",
         "code_commit": "abc1234",
         "data_contract_hash": "0" * 64,
     }
@@ -59,7 +59,7 @@ def test_resolve_code_commit_raises_when_unavailable(monkeypatch: pytest.MonkeyP
 
 
 def test_contract_content_sha256_is_stable() -> None:
-    contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
+    contract = load_contract(contract_path("fin.ecb_german_equity_proxy_features_gold"))
     first = contract_content_sha256(contract)
     second = contract_content_sha256(contract)
 

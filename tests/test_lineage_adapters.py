@@ -22,7 +22,7 @@ from governance.lineage import (
 def _contract() -> DatasetContract:
     return DatasetContract.model_validate(
         {
-            "dataset_id": "fin.ecb_dax_features_gold",
+            "dataset_id": "fin.ecb_german_equity_proxy_features_gold",
             "owner": "data-platform",
             "business_purpose": "feature output",
             "refresh_sla": "daily",
@@ -37,9 +37,9 @@ def _contract() -> DatasetContract:
             "physical_location": {
                 "catalog": "hive",
                 "namespace": "gold",
-                "table": "ecb_dax_features",
+                "table": "ecb_german_equity_proxy_features",
             },
-            "dagster_asset_key": "gold_features",
+            "dagster_asset_key": "ecb_german_equity_proxy_features",
             "upstream_dataset_ids": ["fin.ecb_rates_silver"],
             "quality_rules": {"required_columns": ["date"], "min_row_count": 1},
             "ai_governance": {
@@ -83,8 +83,8 @@ class _Session:
 
 def _openmetadata_evidence() -> OpenMetadataEvidence:
     return OpenMetadataEvidence(
-        "fin.ecb_dax_features_gold",
-        "finlakehouse-trino.iceberg.gold.ecb_dax_features",
+        "fin.ecb_german_equity_proxy_features_gold",
+        "finlakehouse-trino.iceberg.gold.ecb_german_equity_proxy_features",
         ("data-platform",),
         ("Tier.Tier1",),
     )
@@ -92,28 +92,30 @@ def _openmetadata_evidence() -> OpenMetadataEvidence:
 
 def _iceberg_evidence() -> IcebergSnapshotEvidence:
     return IcebergSnapshotEvidence(
-        "fin.ecb_dax_features_gold",
+        "fin.ecb_german_equity_proxy_features_gold",
         "hive",
         "gold",
-        "ecb_dax_features",
+        "ecb_german_equity_proxy_features",
         "1001",
         "sololakehouse",
-        "warehouse/gold/ecb_dax_features/metadata/v1.metadata.json",
+        "warehouse/gold/ecb_german_equity_proxy_features/metadata/v1.metadata.json",
     )
 
 
 def _dagster_evidence() -> DagsterRunEvidence:
     return DagsterRunEvidence(
-        "fin.ecb_dax_features_gold",
+        "fin.ecb_german_equity_proxy_features_gold",
         "run-1",
-        ("gold_features",),
+        ("ecb_german_equity_proxy_features",),
         datetime(2026, 7, 30, tzinfo=UTC),
         "1001",
     )
 
 
 def _run_payload(*, snapshot_id: str | None = "1001") -> dict[str, object]:
-    materialization: dict[str, object] = {"assetKey": {"path": ["gold_features"]}}
+    materialization: dict[str, object] = {
+        "assetKey": {"path": ["ecb_german_equity_proxy_features"]}
+    }
     if snapshot_id is not None:
         materialization["metadataEntries"] = [
             {"label": "iceberg_snapshot_id", "text": snapshot_id}
@@ -135,7 +137,9 @@ def test_openmetadata_adapter_reads_exact_table_and_requires_owner() -> None:
     session = _Session(
         _Response(
             {
-                "fullyQualifiedName": "finlakehouse-trino.iceberg.gold.ecb_dax_features",
+                "fullyQualifiedName": (
+                    "finlakehouse-trino.iceberg.gold.ecb_german_equity_proxy_features"
+                ),
                 "owners": [{"name": "data-platform"}],
                 "tags": [{"tagFQN": "Tier.Tier1"}],
             }
@@ -147,12 +151,19 @@ def test_openmetadata_adapter_reads_exact_table_and_requires_owner() -> None:
     ).collect(_contract())
 
     assert evidence == _openmetadata_evidence()
-    assert session.calls[0]["url"].endswith("finlakehouse-trino.iceberg.gold.ecb_dax_features")
+    assert session.calls[0]["url"].endswith(
+        "finlakehouse-trino.iceberg.gold.ecb_german_equity_proxy_features"
+    )
 
 
 def test_openmetadata_adapter_fails_on_unowned_or_wrong_table() -> None:
     session = _Session(
-        _Response({"fullyQualifiedName": "wrong.iceberg.gold.ecb_dax_features", "owners": []})
+        _Response(
+            {
+                "fullyQualifiedName": "wrong.iceberg.gold.ecb_german_equity_proxy_features",
+                "owners": [],
+            }
+        )
     )
 
     with pytest.raises(EvidenceSourceError, match="expected table"):
@@ -165,7 +176,9 @@ def test_openmetadata_adapter_sends_configured_bearer_token() -> None:
     session = _Session(
         _Response(
             {
-                "fullyQualifiedName": "finlakehouse-trino.iceberg.gold.ecb_dax_features",
+                "fullyQualifiedName": (
+                    "finlakehouse-trino.iceberg.gold.ecb_german_equity_proxy_features"
+                ),
                 "owners": [{"name": "data-platform"}],
                 "tags": [{"tagFQN": "Tier.Tier1"}],
             }
@@ -182,7 +195,7 @@ def test_openmetadata_adapter_sends_configured_bearer_token() -> None:
 def test_iceberg_adapter_requires_current_snapshot_and_s3_metadata_location() -> None:
     table = SimpleNamespace(
         current_snapshot=lambda: SimpleNamespace(snapshot_id=1001),
-        metadata_location="s3://sololakehouse/warehouse/gold/ecb_dax_features/metadata/v1.metadata.json",
+        metadata_location="s3://sololakehouse/warehouse/gold/ecb_german_equity_proxy_features/metadata/v1.metadata.json",
     )
     catalog = SimpleNamespace(load_table=lambda identifier: table)
 
@@ -204,8 +217,8 @@ def test_dagster_adapter_requires_successful_run_selecting_contract_asset() -> N
 
     evidence = DagsterRunAdapter("http://dagster:3000", session).collect(_contract(), "run-1")
 
-    assert evidence.dataset_id == "fin.ecb_dax_features_gold"
-    assert evidence.asset_keys == ("gold_features",)
+    assert evidence.dataset_id == "fin.ecb_german_equity_proxy_features_gold"
+    assert evidence.asset_keys == ("ecb_german_equity_proxy_features",)
     assert evidence.materialized_snapshot_id == "1001"
     assert evidence.started_at.tzinfo is UTC
 
@@ -240,14 +253,19 @@ def test_joiner_joins_exact_dataset_and_physical_evidence() -> None:
         _contract(), _openmetadata_evidence(), _iceberg_evidence(), _dagster_evidence()
     )
 
-    assert record.dataset_id == "fin.ecb_dax_features_gold"
-    assert record.openmetadata_table_fqn == "finlakehouse-trino.iceberg.gold.ecb_dax_features"
+    assert record.dataset_id == "fin.ecb_german_equity_proxy_features_gold"
+    assert record.openmetadata_table_fqn == (
+        "finlakehouse-trino.iceberg.gold.ecb_german_equity_proxy_features"
+    )
     assert record.iceberg_snapshot_id == "1001"
 
 
 def test_joiner_rejects_dataset_id_mismatch() -> None:
     wrong = OpenMetadataEvidence(
-        "fin.other", "finlakehouse-trino.iceberg.gold.ecb_dax_features", ("owner",), ()
+        "fin.other",
+        "finlakehouse-trino.iceberg.gold.ecb_german_equity_proxy_features",
+        ("owner",),
+        (),
     )
 
     with pytest.raises(EvidenceSourceError, match="dataset_id does not match"):
@@ -258,9 +276,9 @@ def test_joiner_rejects_dataset_id_mismatch() -> None:
 
 def test_joiner_rejects_snapshot_id_mismatch() -> None:
     stale_dagster = DagsterRunEvidence(
-        "fin.ecb_dax_features_gold",
+        "fin.ecb_german_equity_proxy_features_gold",
         "run-1",
-        ("gold_features",),
+        ("ecb_german_equity_proxy_features",),
         datetime(2026, 7, 30, tzinfo=UTC),
         "9999",
     )
