@@ -10,6 +10,7 @@ two. `AGENTS.md` carries the current state, decision gates, and hard rules.
 | Code change or defect | Graphify query; target module; matching tests; `CLAUDE.md` patterns | Code agent; `make test lint typecheck`; run `graphify update .` after edits |
 | Architecture | Graphify query or path; `docs/architecture.md`; `docs/decisions/README.md` | Architecture review; ADR assessment; preserve the v2.5 runtime baseline |
 | Governance, contracts, lineage evidence | Graphify query; `governance/`; `docs/v2.6-demo-goal.md`; `docs/dataset-governance-naming.md`; `docs/v2.6-release-readiness.md` | Governance implementation; `make validate-contracts`; verify fail-fast on every missing source |
+| Data flow / Layer 1 sources | Graphify query; `docs/architecture.md`; `docs/layer1-source-selection-criteria.md`; `docs/roadmap.md` D4; `TASKS.md` Block `L` | Layer 1 route; DAX sample CSV is retired — do not propose keeping it |
 | Operations / deployment | Graphify query; `RUNBOOK.md`; `docs/deployment.md`; `docs/make-demo-guide.md` | Ops route; `make verify`, `make demo` |
 | Release | `docs/v2.6-release-readiness.md`; `CHANGELOG.md`; `docs/history/timeline.md` | Release route; record the drill evidence and disclose limitations |
 | Documentation | Graphify query; `docs/README.md`; the target canonical document | Docs route; verify links resolve **in the published repository**, and that no claim outruns the implementation |
@@ -20,8 +21,13 @@ two. `AGENTS.md` carries the current state, decision gates, and hard rules.
 - When `graphify-out/graph.json` exists, query Graphify before broad repository
   browsing. Graphify finds context; canonical source files establish facts.
 - **v2.5 is the protected runtime baseline** and does not change before v3.0.
-- **Decision gates** — see `AGENTS.md` section 3. **D2:** entity split deferred.
+- **Decision gates** — see `AGENTS.md` section 3. **D4 (resolved):** DAX sample
+  CSV retired; live EWG only. **D2:** entity split deferred.
   **D3:** portal/Keycloak is sandbox only. The next PR is in `TASKS.md`.
+- **Layer 1 / data sources** — `docs/roadmap.md` D4, `docs/layer1-source-selection-criteria.md`,
+  `TASKS.md` Block `L`. **Phase 1 (active):** batch ECB + EWG full pipeline.
+  **Phase 2 (deferred):** streaming crypto. Do not start Phase 2 until Phase 1
+  lands. Do not propose `data/sample/dax_daily_sample.csv` as demo fallback.
 - The published repository is **English-only**; `docs/local-cn/` is local.
 
 ## Paths that are local-only

@@ -54,7 +54,9 @@ In plain terms:
 2. execute `demo_data_flow_job` through Dagster
 3. query the Gold table through Trino and confirm it has data
 
-`make demo` deliberately does not run the full `full_pipeline_job`, because that also trains MLflow experiments. The demo gate exists to prove the core data flow quickly: ECB/DAX → Bronze → Silver → Gold → Trino.
+`make demo` deliberately does not run the full `full_pipeline_job`, because that also trains MLflow experiments. The demo gate exists to prove the core data flow quickly: ECB + market leg → Bronze → Silver → Gold → Trino.
+
+> **Layer 1 target (D4):** the market leg is **live EWG via Alpha Vantage**; `data/sample/dax_daily_sample.csv` is **retired** and must not be documented or implemented as a fallback. Until `L4` lands, asset names and tables may still say `dax_*` and read the legacy CSV — treat that as implementation lag only.
 
 ## 3. One-command execution
 

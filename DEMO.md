@@ -46,9 +46,21 @@ For a step-by-step explanation of `make demo`, including the equivalent manual c
 
 ## Demo Data Rule
 
-ECB data must come from the live ECB collector path. DAX data comes from the checked-in real historical OHLCV sample CSV used by the v2.5 demo path. This keeps the demo deterministic while still using financial-market data rather than generated mock rows.
+**Target (D4, decided 2026-09-03):** ECB from the live collector; market leg from
+**live EWG via Alpha Vantage** (CI uses a committed API fixture — not
+`data/sample/dax_daily_sample.csv`). The DAX sample CSV is **retired** and must
+not be documented or implemented as a demo fallback.
 
-Do not describe the DAX sample as live data. If any source is unavailable or skipped, the recording must explicitly say which source failed and what data path was used instead.
+**Until `L4` lands:** `main` may still read the legacy sample CSV via
+`DAXCollector`. Treat that as implementation lag only — agents must not propose
+keeping or extending the CSV path.
+
+- ECB data must come from the live ECB collector path.
+- Do not describe static sample or legacy CSV market data as live.
+- Do not add new documentation that presents `data/sample/dax_daily_sample.csv`
+  as current, optional, or transitional-by-choice.
+- If any source is unavailable or skipped, the recording must explicitly say which
+  source failed and what data path was used instead.
 
 ## Fallback Branches
 
@@ -67,4 +79,6 @@ Do not describe the DAX sample as live data. If any source is unavailable or ski
 - `make demo` exits 0.
 - Health dashboard shows all services as PASS.
 - Dagster shows a successful `demo_data_flow_job`.
-- Trino returns row count greater than zero for `iceberg.gold.ecb_dax_features`.
+- Trino returns row count greater than zero for `iceberg.gold.ecb_dax_features`
+  (**on `main` today**; target after `L4` Phase 1:
+  `iceberg.gold.ecb_german_equity_proxy_features`).

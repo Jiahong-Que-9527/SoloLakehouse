@@ -196,8 +196,14 @@ dagster/
 
 tests/                      # Unit tests (mocked I/O, no Docker needed)
 docs/                       # See docs/README.md — architecture, ADRs, roadmap, deployment
-data/sample/                # Committed sample CSV for DAX
+data/sample/                # Legacy DAX sample CSV — RETIRED by D4; remove in L4-dax-g
 ```
+
+**Layer 1 market leg (D4):** `data/sample/dax_daily_sample.csv` is not an
+approved source — not for demo, production, or as a documented fallback. Target
+path is live EWG via Alpha Vantage (`ALPHA_VANTAGE_API_KEY`; CI uses
+`tests/fixtures/alpha_vantage_ewg_daily.json`). Do not extend or preserve the
+CSV collector path in new work.
 
 ## Architecture Patterns — Follow These When Adding Code
 

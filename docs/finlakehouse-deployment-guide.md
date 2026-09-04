@@ -2,9 +2,13 @@
 
 Deploy the first independent **FinLakehouse** product entity on a dedicated VPS
 using the SoloLakehouse template. This guide covers **deploy-time**
-configuration (identity, buckets, credentials, runtime root). It keeps the
-**finance reference pipeline** (ECB + DAX); domain localization for other
-products happens in the entity clone after deployment — see
+configuration (identity, buckets, credentials, runtime root). The finance
+reference pipeline target is **ECB + live EWG (Alpha Vantage)** per `docs/roadmap.md`
+D4 (`TASKS.md` Block `L`, Phase 1). Until `L4` lands, code may still use legacy
+`dax_*` asset names and the retired sample CSV — implementation lag only. Set
+`ALPHA_VANTAGE_API_KEY` in the entity `.env` for the market leg. Domain
+localization for other products happens in the entity clone after deployment —
+see
 [`task.md`](../task.md) Phase 3 and the
 [product entity contract](product-entity-contract.md).
 
