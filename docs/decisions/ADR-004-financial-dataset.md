@@ -49,3 +49,26 @@ to demonstrate the pipeline while remaining fast to run on a laptop.
 **Synthetic e-commerce data:** Too generic. Every beginner tutorial uses this data. It doesn't differentiate.
 
 **IoT sensor data:** Interesting for v2's streaming ingestion feature, not the best fit for a batch Lakehouse demonstration.
+
+---
+
+## Amendment (2026-09-03, D4 / `L3`)
+
+**Status:** Accepted decision to amend — DAX sample CSV **retired**.
+
+Owner Decision D4 (`docs/roadmap.md`, `TASKS.md` `L3`/`L4`) overrides the
+v1 demo path that used a repository-bundled simulated DAX CSV:
+
+- **`data/sample/dax_daily_sample.csv` is not an option** on demo, production,
+  CI design, or future planning. Policy P0 (demo frozen on sample DAX) and
+  outcome D (split demo vs operation with sample DAX) are **revoked**.
+- The market leg becomes **live EWG** (iShares MSCI Germany ETF) via Alpha
+  Vantage `TIME_SERIES_DAILY`, with new dataset IDs at all medallion layers.
+  CI uses a committed API response fixture — not the CSV.
+- The ECB + event-study narrative is preserved; the instrument is an ETF proxy,
+  not the literal DAX index.
+- Full implementation and ADR-024 (crypto leg) are tracked in `TASKS.md` `L4`.
+
+Until `L4` lands, code on `main` may still read the legacy CSV. That is
+implementation lag to remove — not a policy agents may extend or document as
+current.

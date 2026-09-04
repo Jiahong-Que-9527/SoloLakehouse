@@ -1,9 +1,11 @@
 # SoloLakehouse Documentation
 
 **v2.5 is the protected runtime baseline** — the Docker Compose stack does not
-change until v3.0. **v2.6 is the current version**, adding a governance and
-evidence plane on top of that unchanged runtime. Historical version narratives
-are preserved under `docs/history/`.
+change until v3.0. **v2.9 is delivered on `main`**; the active backlog is
+**Block `L` / `L4` Phase 1** — live batch sources ECB (DFR/MLF) + EWG (Alpha
+Vantage) through the full medallion path. Phase 2 (streaming/crypto) is
+deferred until Phase 1 lands. Historical version narratives are preserved
+under `docs/history/`.
 
 Two documents are authoritative:
 
@@ -46,6 +48,8 @@ and not published; follow the two authoritative documents instead.
 | Document | Purpose |
 |----------|---------|
 | [architecture.md](architecture.md) | Layered architecture and component relationships |
+| [layer1-source-selection-criteria.md](layer1-source-selection-criteria.md) | Block `L` / `L1` — mandatory gates and scoring rubric for Layer 1 source research |
+| [layer1-source-survey.md](layer1-source-survey.md) | Block `L` / `L2` — research-only candidate survey and `L3` decision checklist |
 | [entity-template-readiness.md](entity-template-readiness.md) | Phase 1 readiness evidence for using SoloLakehouse as the repeatable product-entity template |
 | [product-entity-contract.md](product-entity-contract.md) | Required identity, storage, runtime, and metadata fields for FinLakehouse/Aviation product entities |
 | [finlakehouse-deployment-guide.md](finlakehouse-deployment-guide.md) | Optional VPS walkthrough for the first independent FinLakehouse entity |

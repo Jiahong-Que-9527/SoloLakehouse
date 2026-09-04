@@ -29,11 +29,13 @@ the three entry points cannot drift apart. `make check-agent-docs` enforces that
    *evidence*, not new capability. `make demo` and `make pipeline` must keep
    working.
 
-3. **Decision gates** — see `AGENTS.md` §3. **D2** — the entity
-   split in `task.md` is deferred indefinitely. **D3** — the portal/Keycloak
-   exploration is sandbox-only and must not enter `docker/docker-compose.yml`
-   or `.env.example`. If a task requires crossing D2 or D3, stop and surface
-   the conflict.
+3. **Decision gates** — see `AGENTS.md` §3. **D4 (resolved)** — DAX sample CSV
+   is retired; live EWG via Alpha Vantage is the only approved market leg; do
+   not propose keeping or reviving `data/sample/dax_daily_sample.csv` as demo
+   fallback. **D2** — the entity split in `task.md` is deferred indefinitely.
+   **D3** — the portal/Keycloak exploration is sandbox-only and must not enter
+   `docker/docker-compose.yml` or `.env.example`. If a task requires crossing
+   D2 or D3, stop and surface the conflict.
 
 4. **Fail loudly, never partially** — quality checks and evidence adapters raise
    rather than degrade. Never emit an evidence artifact that looks complete but

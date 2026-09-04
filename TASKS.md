@@ -459,23 +459,29 @@ introduced on 2026-08-02, without a specific new failure scenario driving it.
 
 ### Block L — Layer 1 sources: research and remediate (active)
 
-Owner Decision `2026-08-15`: long-term operation is the destination, but
-**Layer 1 (sources) must be researched and cleaned up first**. No better
-replacement source is chosen yet. Do not implement a collector swap, a new
-domain, or a streaming engine in this block until an Owner Decision names the
-source.
+Owner Decision `2026-08-15`: long-term operation is the destination; Layer 1
+remediation is tracked in `L4`. Owner Decision `2026-09-03` (`D4`) names the
+sources; **Owner Decision `2026-09-04` sequences implementation:**
 
-The input edge is Layer 1 + Layer 2. This block is **Layer 1 first**. Layer 2
-(collectors, Pydantic, contracts, BronzeWriter) changes only as a consequence
-of the source decision. Layers 3–5 are not the starting point.
+**Phase 1 (active now) — batch sources 1 and 2, full pipeline.** Wire ECB SDW
+(extend beyond MRO to DFR, optionally MLF) and live EWG (Alpha Vantage) through
+collectors → Bronze → Silver → Gold → `make demo` / `make pipeline` / lineage
+evidence on the batch path. **Do not start Phase 2 until Phase 1 lands.**
+
+**Phase 2 (deferred) — streaming source 3.** Kraken WS → Redpanda →
+`fin.crypto_trades_bronze` (`L4` PR2 + PR3). Optional isolated profile; not
+required for personal demo, long-term batch operation, or `make demo`.
+
+The input edge is Layer 1 + Layer 2. Layer 2 changes only as a consequence of
+the source decision. Layers 3–5 are not the starting point.
 
 Layer diagram (same as `docs/architecture.md`):
 
 ```mermaid
 flowchart TB
-  subgraph L1["Layer 1 · Sources"]
+  subgraph L1["Layer 1 · Sources (target D4)"]
     ECB["ECB SDW REST API"]
-    DAX["DAX daily CSV"]
+    EWG["EWG · Alpha Vantage"]
   end
 
   subgraph L2["Layer 2 · Ingestion and validation"]
@@ -514,7 +520,7 @@ flowchart TB
   end
 
   ECB --> COL
-  DAX --> COL
+  EWG --> COL
   BW --> BR
   GD --> TRINO
   TRINO --> SUP
@@ -539,31 +545,181 @@ flowchart TB
   gold_features --> ml_experiment
 ```
 
-Current Layer 1 facts (do not treat as the long-term operating sources):
+Current Layer 1 facts:
 
-- ECB SDW REST is live but sparse (MRO only).
-- DAX is a bundled sample CSV through `2024-12-31`, not a live feed.
-- ADR-004 remains in force until an Owner Decision replaces it.
-- `make demo` stays on ECB + DAX until that decision.
+- **Target (D4 / `L3`, decided 2026-09-03):** ECB SDW in place (extend to
+  DFR/MLF); market leg is live **EWG via Alpha Vantage**; optional crypto
+  streaming leg in an isolated profile. **`data/sample/dax_daily_sample.csv` is
+  retired — not an option on any path (demo, production, CI design, or docs).**
+- **Implementation lag (until `L4` lands):** code on `main` may still read the
+  sample CSV via `DAXCollector`; that is debt to remove in `L4`, not a policy
+  to preserve. Agents must not propose keeping, reviving, or documenting the CSV
+  as a fallback.
 
 Tasks:
 
-- [ ] `L1` Write source-selection criteria for long-term operation: durable
+- [x] `L1` Write source-selection criteria for long-term operation: durable
       identity, license clarity, batch-compatible refresh (scheduled API or
       file ingest — not Kafka), operational value, and whether `make demo`
       must keep working on the current path.
-- [ ] `L2` Survey candidate sources against `L1`. Research only — no collector
+      → [`docs/layer1-source-selection-criteria.md`](docs/layer1-source-selection-criteria.md)
+- [x] `L2` Survey candidate sources against `L1`. Research only — no collector
       implementation, no new Compose service, no D2 entity split.
-- [ ] `L3` Owner Decision: remediate the current ECB/DAX sources in place, or
-      replace Layer 1. Record the choice in `docs/roadmap.md` (and ADR-004 if
-      the domain changes).
-- [ ] `L4` Remediate Layer 1 (and only the Layer 2 collector / schema /
-      contract changes that follow) after `L3`. Keep `make demo` working unless
-      `L3` explicitly retires it.
+      → [`docs/layer1-source-survey.md`](docs/layer1-source-survey.md)
+- [x] `L3` Owner Decision `2026-09-03`: **remediate ECB in place (extend to
+      DFR/MLF) + retire the DAX sample CSV entirely, replacing it with a
+      live proxy (EWG, iShares MSCI Germany ETF, via Alpha Vantage) + add a
+      new streaming crypto leg (Redpanda + Kraken/Binance WS) as a
+      genuinely optional, isolated domain pack.** Full design in
+      `docs/roadmap.md` `D4`. This overrides `L2`'s recommendation to keep
+      the DAX CSV under a "P0 demo" policy — the CSV is not acceptable on
+      any path, demo or production. Every non-goal below is superseded by
+      this decision; see `D4` for exactly what's in and out of scope, and
+      the detailed `L4` task list for the full design (dataset renames,
+      pack-boundary rules, delivery-semantics/retention requirements).
+- [ ] `L4` Implement `L3` in **two phases** — see `docs/roadmap.md` `D4` and
+      **"L4 execution phases"** below. **Phase 1 (active):** batch sources 1+2
+      end-to-end. **Phase 2 (deferred):** streaming crypto (PR2 + PR3).
 
-Explicit non-goals until `L3`: swapping in ADS-B or any other domain,
-streaming ingestion, adding platform services, starting long-term operation,
-starting v3.0.
+#### L4 execution phases
+
+| Phase | Scope | Status | Blocks |
+|---|---|---|---|
+| **1 — Batch full pipeline** | Source **1** ECB (DFR/MLF) + source **2** EWG (Alpha Vantage); Bronze → Silver → Gold; `make demo` / `make pipeline` | **Active** | Long-term batch operation; personal demo on live data |
+| **2 — Streaming** | Source **3** crypto (Kraken WS → Redpanda → `crypto_bronze`); PR2 + PR3 | **Deferred** | Nothing in Phase 1 |
+
+**Phase 1 done when:** live ECB + live EWG ingest on schedule; governed
+contracts and lineage evidence cover the batch path; `make demo` and
+`make pipeline` pass without `data/sample/dax_daily_sample.csv` on the
+production path; DAX-named assets/contracts deprecated in place.
+
+**Phase 2 starts only after Phase 1 merges.** Agents must not open PR2/PR3
+workstreams in parallel with Phase 1 unless an Owner Decision explicitly
+reorders this sequence.
+
+  **Phase 1 — Batch full pipeline** (PR1 — no dependency on Phase 2):
+
+  **ECB extension (source 1):**
+  - [ ] `L4-ecb-a` Extend `ECBCollector` beyond MRO — add DFR (and optionally
+        MLF) on the existing ECB SDW REST pattern; same retry/idempotency shape.
+  - [ ] `L4-ecb-b` Update `ingestion/schema/ecb_schema.py`, Bronze contract, and
+        quality checks if a `rate_type` dimension or parallel Bronze tables are
+        needed.
+  - [ ] `L4-ecb-c` Parameterize Gold event anchor to prefer DFR (assessment P7);
+        preserve backward-compatible behaviour until Silver is refreshed.
+  - [ ] `L4-ecb-d` Tests: mocked ECB SDW payloads for MRO/DFR/(MLF).
+
+  **EWG migration (source 2):**
+  - [ ] `L4-dax-a` `governance/contracts.py`: add `deprecated: bool = False`,
+        `superseded_by: str | None = None` to `DatasetContract` (additive).
+  - [ ] `L4-dax-b` New `fin.german_equity_proxy_daily_bronze` /
+        `_silver` / `fin.ecb_german_equity_proxy_features_gold` contracts;
+        deprecate `fin.dax_daily_bronze` / `fin.dax_daily_silver` /
+        `fin.ecb_dax_features_gold` in place (`deprecated: true,
+        superseded_by: <new id>`), physical tables frozen as historical
+        record, not deleted. Update `docs/dataset-governance-naming.md`.
+  - [ ] `L4-dax-c` New collector (Alpha Vantage `TIME_SERIES_DAILY` for
+        `EWG`, same retry shape as `ECBCollector`; handle Alpha Vantage's
+        HTTP-200-with-`"Note"` rate-limit quirk). Optional `fixture_path`
+        constructor arg for CI.
+  - [ ] `L4-dax-d` Rename Dagster assets `dax_bronze`/`dax_silver`/
+        `gold_features` → `german_equity_proxy_bronze`/`_silver`/
+        `ecb_german_equity_proxy_features`; update
+        `transformations/dax_bronze_to_silver.py`,
+        `transformations/silver_to_gold_features.py`,
+        `ml/train_ecb_dax_model.py` wiring (transform logic itself
+        unaffected — same OHLCV shape, same event-study derivation).
+  - [ ] `L4-dax-e` `ALPHA_VANTAGE_API_KEY` in `.env.secrets` template.
+  - [ ] `L4-dax-f` CI fixture: `DAX_FIXTURE_PATH` env override read by the
+        collector; `compose-demo` in CI sets it to a committed
+        `tests/fixtures/alpha_vantage_ewg_daily.json` — **CI never calls
+        Alpha Vantage live or needs a real key**; production always does.
+  - [ ] `L4-dax-g` Retire `data/sample/dax_daily_sample.csv` from the
+        production path (test-only fixture, if any, clearly labeled as such).
+
+  **Phase 2 — Streaming (deferred; do not start until Phase 1 lands):**
+
+  **PR2 — Crypto path** (depends only on `L4-dax-a`'s additive contract
+  fields from Phase 1; otherwise independent of Phase 1 completion):
+  - [ ] `L4a` `docker/docker-compose.crypto.yml`: Redpanda single-node
+        dev-container, `profiles: ["crypto"]`, shaped like
+        `docker/docker-compose.polaris.yml`. New `make crypto-up` /
+        `make crypto-down` targets. Never added to `COMPOSE_STACK`/
+        `ALL_PROFILES`.
+  - [ ] `L4b` `ingestion/bronze_writer.py::BronzeWriter.write()` — add
+        explicit `schema`/`partition_spec` override params (the one
+        Core-side change; makes true pack isolation possible).
+  - [ ] `L4c`–`L4f` Everything crypto-specific lives in a new
+        `dagster_crypto/` package, **not** in `ingestion/`/`governance/`:
+        `ws_producer.py` (WS relay, idempotent Kafka producer), `schema.py`
+        (`CryptoTradeRecord`), `iceberg_schema.py`
+        (`BRONZE_CRYPTO_TRADES_SCHEMA`/`_PARTITION`), `quality.py`
+        (`run_crypto_bronze_checks()`, calling Core's generic
+        `governance.quality.validate_dataset_quality()`). **Core's
+        `_BRONZE_TABLE_META` is never touched** — the pack calls
+        `BronzeWriter.write(..., schema=..., partition_spec=...)` directly.
+  - [ ] `L4g` `governance/contracts.py`: add `ingestion_mode`,
+        `delivery_semantics`, `timestamp_column`/`max_staleness_minutes`
+        (all optional, backward compatible — Core, shared by every pack).
+        New `fin.crypto_trades_bronze.yaml` (`consumers: []` — relax
+        `DatasetContract.consumers` to allow empty for Bronze only, via
+        `validate_lineage_shape`; no placeholder consumer name).
+        `retention: 30_days_streaming_governance_probe` (not 7 years — this
+        is a governance probe, not a price archive).
+        `delivery_semantics: at_least_once` — stated explicitly, since the
+        idempotent Kafka producer only prevents producer-side duplicates,
+        not end-to-end exactly-once (consumer offset-commit-after-append
+        can still duplicate on a crash; dedup is deferred to a future
+        `crypto_bronze_to_silver`).
+  - [ ] `L4h` `dagster_crypto/assets.py`/`definitions.py`: `crypto_bronze`
+        asset (bounded drain from Redpanda → validate → append, commit
+        offset only after the Iceberg append succeeds),
+        `crypto_stream_sensor` (`minimum_interval_seconds=30-60`, default
+        `STOPPED`), `crypto_bronze_freshness_check`.
+  - [ ] `L4i` `docker/dagster-crypto/Dockerfile` +
+        `requirements-dagster-crypto.txt` (adds `confluent-kafka` +
+        `websockets` — **never** added to Core's `docker/dagster/Dockerfile`
+        or `requirements-dagster.txt`). New `dagster-crypto-code-server`
+        service in the crypto compose profile.
+  - [ ] `L4i2` `dagster/workspace.crypto.yaml` (Core + crypto code
+        location) alongside the unchanged default `dagster/workspace.yaml`
+        (Core only). `make crypto-up`/`crypto-down` swap which workspace
+        file `dagster-webserver`/`dagster-daemon` mount (Compose override),
+        so the default deployment never shows an unreachable code location.
+  - [ ] `L4j` `make crypto-init`: creates `bronze.crypto_trades` explicitly
+        — **not** added to `scripts/init-iceberg-namespaces.py`'s
+        unconditional table list.
+  - [ ] `L4k` Tests: mocked WS/Kafka client, recorded trade-message
+        fixtures; one reachability-skipped integration test, not run by CI.
+
+  **PR3 — Operation hardening** (depends on PR2 landing):
+  - [ ] `L4-crypto-retention` Daily Dagster job in `dagster_crypto/`
+        deleting `bronze.crypto_trades` rows older than 30 days
+        (`_ingestion_timestamp` cutoff) — makes the stated retention policy
+        enforced, not just declared. State precisely in the ADR: Bronze
+        stays append-only/immutable *within* the 30-day window; rows
+        outside it are physically expired per policy, not mutated.
+  - [ ] `L4l` `docs/decisions/ADR-024-crypto-streaming-leg.md` (new,
+        includes a dedicated delivery-semantics subsection) + dated
+        amendment paragraph in `docs/decisions/ADR-004-financial-dataset.md`
+        (ADR-014-style in-place amendment, not a rewrite).
+  - [ ] `L4m` Dated amendment note in
+        `docs/layer1-source-selection-criteria.md`'s G3 text (a durable
+        Redpanda buffer + bounded idempotent Dagster drain satisfies G3's
+        intent even though the upstream transport is a WebSocket).
+  - [ ] `L4n` Update `docs/roadmap.md` (`D4` → mark fully implemented),
+        `CHANGELOG.md`. Do not touch `AGENTS.md`/`CLAUDE.md` version-state
+        prose (`make check-agent-docs` enforces this).
+  - [ ] `L4o` ~~Fix `docs/README.md`'s stale "v2.6 is the current version"~~
+        header — done 2026-09-04 (doc consistency pass).
+  - [ ] `L4p` Confirm `make demo`/`make pipeline`/CI `compose-demo` are
+        unaffected by the crypto leg with the `crypto` profile not started.
+        Measure actual Redpanda dev-mode RAM against the README's
+        8GB/12GB budget; record it in ADR-024.
+
+Explicit non-goals, still in force even after `L3`: the D2 entity split,
+starting v3.0, any domain beyond ECB/German-equity-proxy/crypto, and any
+platform service outside the `crypto` optional profile.
 
 ## Immediate Next Actions
 
@@ -573,11 +729,19 @@ Execute in this order.
    @ `71c2c89` (PRs #57, #59).
 2. ~~**Recruit an external validator** as a blocking gate.~~ — cancelled
    `2026-08-15`; protocol kept under `docs/external-validation/`.
-3. **Block `L`:** research Layer 1 sources (`L1`–`L2`), then an Owner Decision
-   (`L3`), then remediate (`L4`). Do not start long-term operation before that.
-4. After the input layer is decided, bring the v2.5 runtime up for long-term
+3. ~~**Block `L` research and decision** (`L1`–`L3`).~~ — done; Owner
+   Decision `2026-09-03` recorded (`docs/roadmap.md` `D4`).
+4. **Implement `L4` Phase 1** — batch sources **1** (ECB DFR/MLF) and **2**
+   (EWG live) through the full medallion path; `make demo` / `make pipeline`
+   on live data; retire the DAX sample CSV (`L4-dax-g`). See Block `L`
+   "L4 execution phases". **Do not start Phase 2 (streaming/crypto) until
+   Phase 1 lands.**
+5. **Implement `L4` Phase 2** (deferred) — crypto streaming leg (PR2 + PR3)
+   after Phase 1 merges.
+6. After the batch input layer is live, bring the v2.5 runtime up for long-term
    operation. Block `K` (especially `K1`/`K2`, then `K9`/`K10`) is the
-   hardening track during that operation — not a reason to skip Block `L`.
+   hardening track during that operation — not a reason to skip Block `L`
+   Phase 1.
 
 ### Pre-v3.0 sequencing (recommendation, not yet an Owner Decision)
 
@@ -585,10 +749,12 @@ Cancelling the external sign-off gate does **not** start v3.0. v3.0 remains a
 runtime migration after the Compose stack has a decided input layer and a
 recorded backup/restore path (`K9`/`K10`).
 
-1. Finish Block `L` (source research → decision → Layer 1 remediation).
-2. Operate the Compose runtime on the decided sources; land `K1`/`K2` when
+1. Finish Block `L` **Phase 1** (batch ECB + EWG full pipeline).
+2. Optionally finish Block `L` **Phase 2** (streaming crypto) when batch
+   operation is stable and resources allow.
+3. Operate the Compose runtime on the live batch sources; land `K1`/`K2` when
    the stack is up, and `K9`/`K10` before any Kubernetes migration.
-3. The rest of Block `K` can trail. Do not treat engine count or a second
+4. The rest of Block `K` can trail. Do not treat engine count or a second
    domain as success metrics.
 
 ## Decision Rules

@@ -7,6 +7,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Changed
+- **`L4` execution phases (2026-09-04):** Phase 1 (active) — batch sources 1
+  (ECB DFR/MLF) + 2 (EWG live) through full medallion path; Phase 2 (deferred)
+  — streaming crypto (PR2/PR3). Documented in `TASKS.md`, `docs/roadmap.md` D4,
+  `AGENTS.md`.
+- Agent contract (`AGENTS.md`, `CLAUDE.md`, `.cursor/rules/sololakehouse.mdc`,
+  routing map): **DAX sample CSV is retired by D4** — not an option on demo,
+  production, CI design, or future planning. Policy P0 and outcome D (split demo
+  with sample DAX) are revoked. Updated `layer1-source-selection-criteria.md`,
+  `layer1-source-survey.md`, `DEMO.md`, `architecture.md`, and ADR-004 amendment.
+- Owner Decision `2026-09-03` (`L3`, `docs/roadmap.md` `D4`): overrides
+  `L2`'s recommendation to keep the DAX sample CSV under a demo-only policy
+  — no leg may stay on a static file, in demo or production. ECB remediates
+  in place (extends to DFR/MLF); DAX is retired and replaced by a live
+  proxy, EWG (iShares MSCI Germany ETF) via Alpha Vantage, with new dataset
+  IDs at all three medallion layers (`fin.german_equity_proxy_daily_bronze`
+  / `_silver` / `fin.ecb_german_equity_proxy_features_gold`) and the old
+  DAX-named contracts deprecated in place, not deleted. A new streaming
+  crypto leg (`fin.crypto_trades_bronze`, Kraken/Binance public WebSocket →
+  single-node Redpanda → a genuinely isolated `dagster_crypto` Dagster code
+  location, its own image/workspace file, zero crypto-specific code added
+  to any Core file) carries the streaming half of the platform's governance
+  story, with `retention: 30_days_streaming_governance_probe` and
+  `delivery_semantics: at_least_once` stated explicitly. This lifts two of
+  Block `L`'s non-goals (streaming ingestion, a new optional platform
+  service), scoped only to the crypto leg — the D2 entity split and v3.0
+  remain non-goals. Full task list: `TASKS.md` Block `L`, `L4` (Phase 1 batch
+  pipeline first; Phase 2 streaming/crypto deferred).
 - Owner Decision `2026-08-15`: independent external sign-off is not a blocking
   gate. Protocol files under `docs/external-validation/` are retained as
   historical traces. The active backlog is Block `L` (Layer 1 source research

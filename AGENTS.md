@@ -47,9 +47,18 @@ Never treat a roadmap *target* as a delivered *capability*.
   discipline, and K8s readiness gate.
 - **Owner Decision (2026-08-15):** independent external sign-off is not a
   blocking gate; `docs/external-validation/` is retained as history.
-- **Active task:** Block `L` — research and remediate Layer 1 sources before
-  long-term operation. See `TASKS.md`. Do not start v3.0 as a side effect of
-  cancelling the external gate.
+- **Active task:** Block `L` — **`L4` Phase 1 (batch):** fully wire sources **1**
+  (ECB SDW, extend DFR/MLF) and **2** (live EWG via Alpha Vantage) through
+  Bronze → Silver → Gold → `make demo` / `make pipeline`. **`L4` Phase 2
+  (streaming/crypto) is deferred** — do not start Redpanda, `dagster_crypto/`,
+  or PR2/PR3 until Phase 1 lands. See `TASKS.md` Block `L`, "L4 execution
+  phases".
+- **Layer 1 market leg (D4, resolved 2026-09-03):** `data/sample/dax_daily_sample.csv`
+  and any in-repo static DAX CSV path are **retired — not an option** for demo,
+  production, CI, or future design. The only approved market leg is live
+  **EWG via Alpha Vantage** (CI uses a committed API fixture, not the CSV).
+  Do not propose keeping, reviving, or documenting the sample CSV as a
+  fallback. `L4-dax-g` removes it from the production path.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 
@@ -68,7 +77,7 @@ v2.5  the platform runs
 
 ## 3. Decision gates
 
-Recorded in `docs/roadmap.md` under "Open Decisions". **D1 is resolved.**
+Recorded in `docs/roadmap.md` under "Open Decisions". **D1 and D4 are resolved.**
 **D2 and D3 remain live** — an agent that starts work behind either gate is
 doing work that may be thrown away.
 
@@ -77,6 +86,7 @@ doing work that may be thrown away.
 | **D1** | **Resolved 2026-08-02 by Owner Decision:** implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9. Those versions are complete on `main`. A later Owner Decision (`2026-08-15`) cancelled independent external sign-off as a blocking gate. Do not start v3.0 as a side effect of that cancellation; see `TASKS.md` Block `L`. |
 | **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
 | **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
+| **D4** | **Resolved 2026-09-03 (`L3`); phased execution 2026-09-04:** Layer 1 remediation — ECB extends in place; **DAX sample CSV is retired**; market leg becomes live EWG (Alpha Vantage). **Phase 1 (active):** batch sources 1+2 end-to-end. **Phase 2 (deferred):** optional crypto streaming leg (PR2/PR3). Do not start Phase 2 until Phase 1 lands. See `TASKS.md` Block `L`, "L4 execution phases". |
 
 If a task appears to require crossing a gate, stop and surface the conflict
 rather than proceeding.
@@ -100,6 +110,13 @@ rather than proceeding.
    success metric — see the roadmap's alignment rules.
 6. **Estimate with the measured rate.** v2.6 was planned at 4 weeks and took
    11.7 (≈2.9×). Publish version *order*, not dates.
+7. **No DAX sample CSV — ever again.** Owner Decision D4 (`2026-09-03`) retires
+   `data/sample/dax_daily_sample.csv` and forbids any static in-repo market-leg
+   file as demo fallback, production path, or documented alternative. Agents
+   must not add new references that present the CSV as current, optional, or
+   transitional-by-choice. Until `L4` lands, the file may still exist in code
+   as **implementation lag**; new work must move toward EWG + Alpha Vantage
+   (or CI fixture), not preserve or extend the CSV path.
 
 ---
 

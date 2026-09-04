@@ -9,7 +9,8 @@ The active architecture centers on five data/runtime layers (sources -> ingestio
 Earlier version milestones and migration narratives are preserved in **[history/README.md](history/README.md)**.
 
 SoloLakehouse is an **upstream template** with a built-in **finance reference
-pipeline** (ECB + DAX). Product instances — for example FinLakehouse or
+pipeline** (ECB + German-equity proxy via EWG after `L4` Phase 1; legacy
+`dax_*` names until then). Product instances — for example FinLakehouse or
 Aviation Lakehouse — are created by cloning the template and applying the
 entity contract at deploy time; **domain-specific pipeline changes belong in the
 entity clone**, not in the shared upstream repository. See
@@ -39,8 +40,8 @@ discipline. Earlier v2.5-only diagrams remain under `docs/img/` as archives.
 ## Layers (core)
 
 ```
-Layer 1 — Data Sources: ECB SDW REST API + DAX daily CSV (sample)
-    │
+Layer 1 — Data Sources (target, D4): ECB SDW REST API + live EWG (Alpha Vantage)
+    │                              (legacy: DAX sample CSV until L4 — retired, not optional)
     ▼
 Layer 2 — Ingestion & Validation: Python collectors + Pydantic + dataset contracts + structlog
     │
@@ -58,9 +59,9 @@ Layer 5 — ML + apps: MLflow, Superset, OpenMetadata, local operator portal
 
 ```mermaid
 flowchart TB
-  subgraph L1["Layer 1 · Sources"]
+  subgraph L1["Layer 1 · Sources (target D4)"]
     ECB["ECB SDW REST API"]
-    DAX["DAX daily CSV"]
+    EWG["EWG daily · Alpha Vantage"]
   end
 
   subgraph L2["Layer 2 · Ingestion and validation"]
@@ -99,7 +100,7 @@ flowchart TB
   end
 
   ECB --> COL
-  DAX --> COL
+  EWG --> COL
   BW --> BR
   GD --> TRINO
   TRINO --> SUP
@@ -113,9 +114,11 @@ flowchart TB
   GOV -.-> L5
 ```
 
-The **input edge** is Layer 1 plus Layer 2. Active backlog Block `L` in
-`TASKS.md` is Layer 1 (sources) research and remediation; Layer 2 changes only
-as a consequence of that source decision.
+The **input edge** is Layer 1 plus Layer 2. Block `L` / D4 (`TASKS.md` `L4`)
+implements Layer 1 remediation: ECB in place; **DAX sample CSV retired**; live
+EWG replaces the market leg. `data/sample/dax_daily_sample.csv` is not an
+approved option — agents must not propose keeping it. Source-selection criteria:
+**[layer1-source-selection-criteria.md](layer1-source-selection-criteria.md)**.
 
 On top of those layers, the governance plane emits SHA-256-bound evidence
 (lineage, promotion, operations, secrets, K8s readiness, policy hooks) into the
@@ -127,12 +130,12 @@ v2 introduces Dagster as the default orchestrator for asset-aware execution, ret
 
 ### Dagster assets
 
-- `ecb_bronze`
-- `dax_bronze`
-- `ecb_silver`
-- `dax_silver`
-- `gold_features`
-- `ml_experiment`
+**Target after `L4` Phase 1:** `ecb_bronze`, `german_equity_proxy_bronze`,
+`ecb_silver`, `german_equity_proxy_silver`, `ecb_german_equity_proxy_features`,
+`ml_experiment`.
+
+**On `main` today (implementation lag):** `dax_bronze`, `dax_silver`,
+`gold_features` — same graph shape, legacy names and DAX sample CSV market leg.
 
 ### Asset dependency graph (ASCII)
 

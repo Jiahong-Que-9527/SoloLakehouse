@@ -314,8 +314,8 @@ Important framing:
 
 ## Open Decisions
 
-**D1 is resolved (2026-08-02).** **D2 and D3 remain open.** Agents must not
-start implementation work that depends on an unresolved D2 or D3 decision.
+**D1 and D4 are resolved. D2 and D3 remain open.** Agents must not start
+implementation work that depends on an unresolved D2 or D3 decision.
 
 ### D1 — v2.8 before v2.7 (resolved 2026-08-02)
 
@@ -347,6 +347,93 @@ into `finlakehouse` and `aviation-lakehouse` product entities. That track is a
 any version above. Do not reopen it as a primary backlog without an explicit
 decision recorded here.
 
+### D4 — Layer 1 remediation and a third streaming leg (`L3`, resolved 2026-09-03)
+
+**Status: decided.** `L1`/`L2` research
+(`docs/layer1-source-selection-criteria.md`, `docs/layer1-source-survey.md`)
+found no free/open DAX-equity source that passes gate `G2`, and recommended
+keeping the DAX sample CSV under a demo-only policy. **The Owner Decision
+overrides that recommendation: no leg may stay on a static file, in demo or
+production.**
+
+**Scope of the decision:**
+
+1. **ECB** — remediate in place per `L2` Option 1: extend beyond MRO to
+   DFR (and optionally MLF) on the existing ECB SDW API pattern. No change
+   to the source itself.
+2. **DAX → EWG.** The DAX sample CSV is retired from the production path
+   entirely — not kept even as a labeled demo fallback. Since no free,
+   license-clear, *live* source exists for the literal DAX index (STOXX
+   requires a paid license; Stooq/yfinance fail `G2`; Twelve Data's free
+   tier is US-markets-only; the Deutsche Börse AWS Open Data set is real
+   and free but confirmed discontinued/no-longer-updated — just a bigger
+   frozen file, not a live connection), the market leg is replaced with a
+   **live proxy instrument**: **EWG (iShares MSCI Germany ETF, NYSE Arca)**,
+   sourced via Alpha Vantage's free `TIME_SERIES_DAILY` endpoint (Twelve
+   Data documented as fallback). This is a genuine business-entity change
+   (index → ETF, Xetra → NYSE Arca, different currency/hours/liquidity), not
+   a provider swap, so it gets **new dataset IDs at all three medallion
+   layers** — `fin.german_equity_proxy_daily_bronze` / `_silver` /
+   `fin.ecb_german_equity_proxy_features_gold` — with the retired
+   `fin.dax_daily_bronze` / `_silver` / `fin.ecb_dax_features_gold`
+   contracts marked `deprecated: true` in place (physical tables kept as
+   frozen historical record, not deleted).
+3. **Add a third leg: cryptocurrency spot/trade data**, carrying the
+   streaming-ingestion half of the platform's governance story (contracts,
+   lineage evidence, quality gates covering **both** batch and streaming,
+   not batch alone) — the concrete "governed use case" that scopes the
+   "broad streaming expansion" line in "What Is Explicitly Deprioritized"
+   below without reversing it generally. Sourced from Kraken's free,
+   unauthenticated public trade WebSocket (`wss://ws.kraken.com/`; Binance
+   documented fallback), buffered through a **single-node Redpanda
+   dev-container**, consumed into `fin.crypto_trades_bronze` by a Dagster
+   asset on a bounded ~30–60s micro-batch cadence — a real Dagster run each
+   time, so lineage evidence flows through the *existing*
+   `DagsterRunAdapter`/`lineage_evidence_sensor` machinery automatically,
+   with no new lineage primitive invented for streaming.
+   `retention: 30_days_streaming_governance_probe` (not a long-term
+   archive) and `delivery_semantics: at_least_once` (the idempotent Kafka
+   producer prevents producer-side duplicates only; consumer
+   offset-commit-after-append can still duplicate on a crash — dedup is
+   deferred to a future Silver transform) are both stated explicitly in the
+   contract and ADR, not left implicit.
+
+**Non-goals explicitly lifted, scoped only as stated:** adding a streaming
+engine and a new platform service — but strictly as a **genuinely optional,
+isolated domain pack** (Redpanda + a separate `dagster_crypto` Dagster code
+location, its own image/requirements/workspace file), never merged into
+`COMPOSE_STACK`/`ALL_PROFILES`, and with **zero crypto-specific knowledge
+added to any Core file** (`ingestion/`, `governance/`, `dagster/`) — Core
+gains only one generic, backward-compatible extension point
+(`BronzeWriter.write()` accepting an explicit `schema`/`partition_spec`) so
+a future domain pack never needs to edit Core again. Redpanda follows the
+`docker-compose.polaris.yml`/ADR-017 optional-profile precedent rather than
+ADR-019's rejection of an optional profile for SeaweedFS — the
+distinguishing argument (recorded in full in ADR-024): SeaweedFS proposed
+*replacing* the already-frozen v2.5 object-storage path; Redpanda is wholly
+additive, touching no existing ECB/DAX/EWG write path.
+
+**Non-goals NOT lifted:** the D2 entity split, starting v3.0, any domain
+beyond ECB/German-equity-proxy/crypto.
+
+**Implementation sequencing (Owner Decision 2026-09-04):**
+
+| Phase | What | When |
+|---|---|---|
+| **Phase 1 — Batch (active)** | Sources **1** (ECB, extend DFR/MLF) and **2** (live EWG via Alpha Vantage); full medallion path; `make demo` / `make pipeline` on live batch data; retire DAX sample CSV | **Now** |
+| **Phase 2 — Streaming (deferred)** | Source **3** (Kraken WS → Redpanda → `crypto_bronze`); PR2 + PR3 | **After Phase 1 lands** |
+
+Phase 1 does **not** require Redpanda, a streaming engine, or the crypto
+profile. Personal demo and long-term batch operation are satisfied by Phase 1
+alone. Agents must not start Phase 2 in parallel with Phase 1 unless an Owner
+Decision reorders this sequence.
+
+Full task-level implementation plan: `TASKS.md` Block `L`, `L4` ("L4 execution
+phases"). ADR record for Phase 2:
+`docs/decisions/ADR-024-crypto-streaming-leg.md` (pending — `L4l`) plus a
+dated amendment paragraph in
+`docs/decisions/ADR-004-financial-dataset.md` (pending — `L4l`).
+
 ### D3 — Portal / Keycloak exploration
 
 **Status: sandbox only.** Local `.env` carries `KEYCLOAK_*` and `PORTAL_OIDC_*`
@@ -370,8 +457,10 @@ task. Internal validation remains mandatory for every change (`make test`,
 `make demo` where applicable). Cancelling this gate does not authorize
 production, WORM, or regulatory-readiness claims, and does not start v3.0.
 
-The next execution backlog is Layer 1 source research (Block `L` in
-`TASKS.md`), then long-term Compose operation on the decided sources.
+The next execution backlog is **`L4` Phase 1** — batch sources ECB + EWG through
+the full medallion path (`TASKS.md` Block `L`, "L4 execution phases"). **Phase 2
+(streaming/crypto) is deferred** until Phase 1 lands, then long-term Compose
+operation on the live batch sources.
 
 ## What Is Explicitly Deprioritized
 
