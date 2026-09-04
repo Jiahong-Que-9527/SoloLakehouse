@@ -13,7 +13,6 @@ COPY transformations ./transformations
 COPY ml ./ml
 COPY scripts ./scripts
 COPY dagster ./dagster
-COPY data ./data
 COPY tests/fixtures ./tests/fixtures
 COPY runtime_identity.py ./runtime_identity.py
 COPY storage_config.py ./storage_config.py
