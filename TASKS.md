@@ -600,41 +600,41 @@ reorders this sequence.
   **Phase 1 — Batch full pipeline** (PR1 — no dependency on Phase 2):
 
   **ECB extension (source 1):**
-  - [ ] `L4-ecb-a` Extend `ECBCollector` beyond MRO — add DFR (and optionally
+  - [x] `L4-ecb-a` Extend `ECBCollector` beyond MRO — add DFR (and optionally
         MLF) on the existing ECB SDW REST pattern; same retry/idempotency shape.
-  - [ ] `L4-ecb-b` Update `ingestion/schema/ecb_schema.py`, Bronze contract, and
+  - [x] `L4-ecb-b` Update `ingestion/schema/ecb_schema.py`, Bronze contract, and
         quality checks if a `rate_type` dimension or parallel Bronze tables are
         needed.
-  - [ ] `L4-ecb-c` Parameterize Gold event anchor to prefer DFR (assessment P7);
+  - [x] `L4-ecb-c` Parameterize Gold event anchor to prefer DFR (assessment P7);
         preserve backward-compatible behaviour until Silver is refreshed.
-  - [ ] `L4-ecb-d` Tests: mocked ECB SDW payloads for MRO/DFR/(MLF).
+  - [x] `L4-ecb-d` Tests: mocked ECB SDW payloads for MRO/DFR/(MLF).
 
   **EWG migration (source 2):**
-  - [ ] `L4-dax-a` `governance/contracts.py`: add `deprecated: bool = False`,
+  - [x] `L4-dax-a` `governance/contracts.py`: add `deprecated: bool = False`,
         `superseded_by: str | None = None` to `DatasetContract` (additive).
-  - [ ] `L4-dax-b` New `fin.german_equity_proxy_daily_bronze` /
+  - [x] `L4-dax-b` New `fin.german_equity_proxy_daily_bronze` /
         `_silver` / `fin.ecb_german_equity_proxy_features_gold` contracts;
         deprecate `fin.dax_daily_bronze` / `fin.dax_daily_silver` /
         `fin.ecb_dax_features_gold` in place (`deprecated: true,
         superseded_by: <new id>`), physical tables frozen as historical
         record, not deleted. Update `docs/dataset-governance-naming.md`.
-  - [ ] `L4-dax-c` New collector (Alpha Vantage `TIME_SERIES_DAILY` for
+  - [x] `L4-dax-c` New collector (Alpha Vantage `TIME_SERIES_DAILY` for
         `EWG`, same retry shape as `ECBCollector`; handle Alpha Vantage's
         HTTP-200-with-`"Note"` rate-limit quirk). Optional `fixture_path`
         constructor arg for CI.
-  - [ ] `L4-dax-d` Rename Dagster assets `dax_bronze`/`dax_silver`/
+  - [x] `L4-dax-d` Rename Dagster assets `dax_bronze`/`dax_silver`/
         `gold_features` → `german_equity_proxy_bronze`/`_silver`/
         `ecb_german_equity_proxy_features`; update
         `transformations/dax_bronze_to_silver.py`,
         `transformations/silver_to_gold_features.py`,
         `ml/train_ecb_dax_model.py` wiring (transform logic itself
         unaffected — same OHLCV shape, same event-study derivation).
-  - [ ] `L4-dax-e` `ALPHA_VANTAGE_API_KEY` in `.env.secrets` template.
-  - [ ] `L4-dax-f` CI fixture: `DAX_FIXTURE_PATH` env override read by the
+  - [x] `L4-dax-e` `ALPHA_VANTAGE_API_KEY` in `.env.secrets` template.
+  - [x] `L4-dax-f` CI fixture: `DAX_FIXTURE_PATH` env override read by the
         collector; `compose-demo` in CI sets it to a committed
         `tests/fixtures/alpha_vantage_ewg_daily.json` — **CI never calls
         Alpha Vantage live or needs a real key**; production always does.
-  - [ ] `L4-dax-g` Retire `data/sample/dax_daily_sample.csv` from the
+  - [x] `L4-dax-g` Retire `data/sample/dax_daily_sample.csv` from the
         production path (test-only fixture, if any, clearly labeled as such).
 
   **Phase 2 — Streaming (deferred; do not start until Phase 1 lands):**

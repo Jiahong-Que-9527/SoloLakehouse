@@ -32,6 +32,23 @@ class TestECBTransform:
         ].item()
         assert rate_change == 25.0
 
+    def test_transform_ecb_prefers_dfr_when_present(self) -> None:
+        df = pd.DataFrame(
+            {
+                "observation_date": ["2024-01-01", "2024-01-01", "2024-01-02", "2024-01-02"],
+                "rate_pct": [4.0, 3.5, 4.25, 3.75],
+                "rate_type": ["MRO", "DFR", "MRO", "DFR"],
+                "_ingestion_timestamp": [dt.datetime.now(dt.timezone.utc)] * 4,
+                "_source": ["ECB_SDW"] * 4,
+            }
+        )
+
+        out = transform_ecb_bronze_to_silver(df)
+
+        assert len(out) == 2
+        assert out.iloc[0]["rate_pct"] == 3.5
+        assert out.iloc[1]["rate_pct"] == 3.75
+
 
 class TestDAXTransform:
     def test_transform_dax_weekend_removed_and_daily_return(self) -> None:

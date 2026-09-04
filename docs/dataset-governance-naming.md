@@ -84,11 +84,19 @@ retained as a v2.5 compatibility alias.
 
 | Logical dataset ID | Layer | Iceberg table (Trino) | Current Dagster asset | Notes |
 |---|---|---|---|---|
-| `fin.ecb_rates_bronze` | Bronze | `iceberg.bronze.ecb_rates` | `ecb_bronze` | Raw ECB interest-rate observations. Day-partitioned on `_ingestion_timestamp`. Append-only. |
-| `fin.dax_daily_bronze` | Bronze | `iceberg.bronze.dax_daily` | `dax_bronze` | Raw DAX daily OHLCV records. Day-partitioned on `_ingestion_timestamp`. Append-only. |
-| `fin.ecb_rates_silver` | Silver | `iceberg.silver.ecb_rates_cleaned` | `ecb_silver` | Typed ECB rate series with derived `rate_change_bps`. Full overwrite per run. |
-| `fin.dax_daily_silver` | Silver | `iceberg.silver.dax_daily_cleaned` | `dax_silver` | Cleaned business-day DAX series with `daily_return`. Full overwrite per run. |
-| `fin.ecb_dax_features_gold` | Gold | `iceberg.gold.ecb_dax_features` | `gold_features` | Event-study feature table for ECB rate-change events and DAX returns. Full overwrite per run. |
+| `fin.ecb_rates_bronze` | Bronze | `iceberg.bronze.ecb_rates` | `ecb_bronze` | Raw ECB MRO/DFR/MLF observations (`rate_type` column). Day-partitioned on `_ingestion_timestamp`. Append-only. |
+| `fin.german_equity_proxy_daily_bronze` | Bronze | `iceberg.bronze.german_equity_proxy_daily` | `german_equity_proxy_bronze` | Raw EWG daily OHLCV via Alpha Vantage. Day-partitioned on `_ingestion_timestamp`. Append-only. |
+| `fin.ecb_rates_silver` | Silver | `iceberg.silver.ecb_rates_cleaned` | `ecb_silver` | Typed ECB rate series (DFR-preferred event anchor) with derived `rate_change_bps`. Full overwrite per run. |
+| `fin.german_equity_proxy_daily_silver` | Silver | `iceberg.silver.german_equity_proxy_daily_cleaned` | `german_equity_proxy_silver` | Cleaned business-day EWG series with `daily_return`. Full overwrite per run. |
+| `fin.ecb_german_equity_proxy_features_gold` | Gold | `iceberg.gold.ecb_german_equity_proxy_features` | `ecb_german_equity_proxy_features` | Event-study feature table for ECB rate-change events and EWG returns. Full overwrite per run. |
+
+**Deprecated (frozen physical tables, `deprecated: true` in contract YAML):**
+
+| Logical dataset ID | Superseded by |
+|---|---|
+| `fin.dax_daily_bronze` | `fin.german_equity_proxy_daily_bronze` |
+| `fin.dax_daily_silver` | `fin.german_equity_proxy_daily_silver` |
+| `fin.ecb_dax_features_gold` | `fin.ecb_german_equity_proxy_features_gold` |
 
 Notes:
 

@@ -48,19 +48,35 @@ def main() -> None:
         BRONZE_DAX_DAILY_SCHEMA,
         BRONZE_ECB_RATES_PARTITION,
         BRONZE_ECB_RATES_SCHEMA,
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
         BRONZE_REJECTED_SCHEMA,
         GOLD_FEATURES_SCHEMA,
         SILVER_DAX_DAILY_SCHEMA,
         SILVER_ECB_RATES_SCHEMA,
+        SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
     )
 
     tables = [
         # (namespace, table_name, schema, partition_spec)
         ("bronze", "ecb_rates", BRONZE_ECB_RATES_SCHEMA, BRONZE_ECB_RATES_PARTITION),
+        (
+            "bronze",
+            "german_equity_proxy_daily",
+            BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
+            BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+        ),
         ("bronze", "dax_daily", BRONZE_DAX_DAILY_SCHEMA, BRONZE_DAX_DAILY_PARTITION),
         ("bronze", "rejected_records", BRONZE_REJECTED_SCHEMA, None),
         ("silver", "ecb_rates_cleaned", SILVER_ECB_RATES_SCHEMA, None),
+        (
+            "silver",
+            "german_equity_proxy_daily_cleaned",
+            SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
+            None,
+        ),
         ("silver", "dax_daily_cleaned", SILVER_DAX_DAILY_SCHEMA, None),
+        ("gold", "ecb_german_equity_proxy_features", GOLD_FEATURES_SCHEMA, None),
         ("gold", "ecb_dax_features", GOLD_FEATURES_SCHEMA, None),
     ]
 

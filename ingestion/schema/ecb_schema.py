@@ -1,19 +1,23 @@
-"""Schema definition for ECB MRO observations."""
+"""Schema definition for ECB rate observations (MRO, DFR, MLF)."""
 
 from __future__ import annotations
 
 import datetime as dt
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+ECBRateType = Literal["MRO", "DFR", "MLF"]
+
 
 class ECBRecord(BaseModel):
-    """Single ECB MRO rate observation."""
+    """Single ECB rate observation tagged by facility type."""
 
     model_config = ConfigDict(populate_by_name=True)
 
     observation_date: dt.date
     rate_pct: float
+    rate_type: ECBRateType = "MRO"
     ingestion_timestamp: dt.datetime = Field(
         default_factory=lambda: dt.datetime.now(dt.UTC),
         serialization_alias="_ingestion_timestamp",

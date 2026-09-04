@@ -81,14 +81,36 @@ def run_ecb_bronze_checks(df: pd.DataFrame) -> None:
     expected_columns = [
         "observation_date",
         "rate_pct",
+        "rate_type",
         "_ingestion_timestamp",
         "_source",
     ]
-    check_no_nulls(df, ["observation_date", "rate_pct"])
+    check_no_nulls(df, ["observation_date", "rate_pct", "rate_type"])
     check_no_future_dates(df, "observation_date")
     check_date_continuity(df, "observation_date", max_gap_days=180)
     check_schema_version(df, expected_columns)
     validate_dataset_quality(df, load_contract(contract_path("fin.ecb_rates_bronze")))
+
+
+def run_german_equity_proxy_bronze_checks(df: pd.DataFrame) -> None:
+    """Run EWG / German equity proxy bronze checks."""
+    expected_columns = [
+        "observation_date",
+        "open_price",
+        "high_price",
+        "low_price",
+        "close_price",
+        "volume",
+        "_ingestion_timestamp",
+        "_source",
+    ]
+    check_no_nulls(df, ["open_price", "high_price", "low_price", "close_price", "volume"])
+    check_no_future_dates(df, "observation_date")
+    check_schema_version(df, expected_columns)
+    validate_dataset_quality(
+        df,
+        load_contract(contract_path("fin.german_equity_proxy_daily_bronze")),
+    )
 
 
 def run_dax_bronze_checks(df: pd.DataFrame) -> None:

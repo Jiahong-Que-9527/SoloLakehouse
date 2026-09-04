@@ -11,11 +11,12 @@ from ingestion.iceberg_io import get_catalog, scan_table
 
 @pytest.mark.integration
 def test_pipeline_smoke() -> None:
-    sample_csv = Path("data/sample/dax_daily_sample.csv")
-    if not sample_csv.exists():
-        pytest.skip("Sample DAX CSV not found yet")
+    fixture = Path("tests/fixtures/alpha_vantage_ewg_daily.json")
+    if not fixture.exists():
+        pytest.skip("EWG CI fixture not found")
 
     env = os.environ.copy()
+    env.setdefault("DAX_FIXTURE_PATH", str(fixture))
     result = subprocess.run(
         [
             "docker",
@@ -47,6 +48,6 @@ def test_pipeline_smoke() -> None:
         pytest.skip("Docker daemon unreachable for integration tests")
     assert result.returncode == 0, result.stdout + result.stderr
 
-    gold_df = scan_table(get_catalog(), "gold", "ecb_dax_features")
+    gold_df = scan_table(get_catalog(), "gold", "ecb_german_equity_proxy_features")
 
     assert len(gold_df) > 0

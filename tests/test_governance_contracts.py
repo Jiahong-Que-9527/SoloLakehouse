@@ -20,21 +20,34 @@ def test_contract_registry_loads_all_governed_financial_datasets() -> None:
 
     assert set(contracts) == {
         "fin.ecb_rates_bronze",
-        "fin.dax_daily_bronze",
         "fin.ecb_rates_silver",
+        "fin.german_equity_proxy_daily_bronze",
+        "fin.german_equity_proxy_daily_silver",
+        "fin.ecb_german_equity_proxy_features_gold",
+        "fin.dax_daily_bronze",
         "fin.dax_daily_silver",
         "fin.ecb_dax_features_gold",
     }
-    assert contracts["fin.ecb_dax_features_gold"].quality_class == "demo_critical"
+    assert (
+        contracts["fin.ecb_german_equity_proxy_features_gold"].quality_class == "demo_critical"
+    )
+    assert contracts["fin.dax_daily_bronze"].deprecated is True
+    assert (
+        contracts["fin.dax_daily_bronze"].superseded_by
+        == "fin.german_equity_proxy_daily_bronze"
+    )
 
 
 def test_governed_pipeline_asset_keys_cover_all_contracts() -> None:
     contracts = load_contracts()
 
     assert set(governed_pipeline_asset_keys(contracts)) == {
-        contract.dagster_asset_key for contract in contracts.values()
+        "ecb_bronze",
+        "ecb_silver",
+        "german_equity_proxy_bronze",
+        "german_equity_proxy_silver",
+        "ecb_german_equity_proxy_features",
     }
-    assert len(governed_pipeline_asset_keys(contracts)) == 5
 
 
 def test_contract_loader_rejects_unknown_fields(tmp_path: Path) -> None:
@@ -49,7 +62,7 @@ def test_contract_loader_rejects_unknown_fields(tmp_path: Path) -> None:
 def test_ai_governance_metadata_distinguishes_training_dataset() -> None:
     contracts = load_contracts()
 
-    gold = contracts["fin.ecb_dax_features_gold"].ai_governance
+    gold = contracts["fin.ecb_german_equity_proxy_features_gold"].ai_governance
     bronze = contracts["fin.ecb_rates_bronze"].ai_governance
 
     assert gold.ai_use_allowed is True
@@ -60,7 +73,9 @@ def test_ai_governance_metadata_distinguishes_training_dataset() -> None:
 
 
 def test_ai_governance_rejects_inconsistent_ai_boundary() -> None:
-    contract = load_contract(CONTRACTS_DIRECTORY / "fin.ecb_dax_features_gold.yaml")
+    contract = load_contract(
+        CONTRACTS_DIRECTORY / "fin.ecb_german_equity_proxy_features_gold.yaml"
+    )
     payload = contract.model_dump(mode="json")
     payload["ai_governance"]["model_lineage_required"] = False
 
@@ -74,6 +89,7 @@ def test_runtime_quality_rejects_contract_violation() -> None:
         {
             "observation_date": ["2024-01-01"],
             "rate_pct": [None],
+            "rate_type": ["MRO"],
             "_ingestion_timestamp": ["2024-01-01T00:00:00Z"],
             "_source": ["ECB"],
         }
@@ -84,7 +100,9 @@ def test_runtime_quality_rejects_contract_violation() -> None:
 
 
 def test_runtime_quality_rejects_too_few_gold_rows() -> None:
-    contract = load_contract(CONTRACTS_DIRECTORY / "fin.ecb_dax_features_gold.yaml")
+    contract = load_contract(
+        CONTRACTS_DIRECTORY / "fin.ecb_german_equity_proxy_features_gold.yaml"
+    )
     dataframe = pd.DataFrame(
         {
             "event_date": ["2024-01-01"],

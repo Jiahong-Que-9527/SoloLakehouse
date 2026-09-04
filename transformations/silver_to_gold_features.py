@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -42,7 +43,7 @@ def build_gold_features(ecb_df: pd.DataFrame, dax_df: pd.DataFrame) -> pd.DataFr
         event_date = event["observation_date"]
         candidates = dax[
             (dax["observation_date"] >= event_date)
-            & (dax["observation_date"] <= (event_date + pd.Timedelta(days=3).to_pytimedelta()))
+            & (dax["observation_date"] <= event_date + timedelta(days=3))
         ]
         if candidates.empty:
             continue
@@ -106,12 +107,24 @@ def build_gold_features(ecb_df: pd.DataFrame, dax_df: pd.DataFrame) -> pd.DataFr
 def run(catalog: "Catalog") -> dict[str, object]:
     """Read silver ECB/DAX Iceberg tables, build gold features, write to gold, return summary."""
     ecb_df = scan_table(catalog, "silver", "ecb_rates_cleaned")
-    dax_df = scan_table(catalog, "silver", "dax_daily_cleaned")
+    market_df = scan_table(catalog, "silver", "german_equity_proxy_daily_cleaned")
 
-    gold_df = build_gold_features(ecb_df, dax_df)
-    run_silver_quality_report(gold_df, "ecb_dax_features")
-    validate_dataset_quality(gold_df, load_contract(contract_path("fin.ecb_dax_features_gold")))
+    gold_df = build_gold_features(ecb_df, market_df)
+    run_silver_quality_report(gold_df, "ecb_german_equity_proxy_features")
+    validate_dataset_quality(
+        gold_df,
+        load_contract(contract_path("fin.ecb_german_equity_proxy_features_gold")),
+    )
 
-    overwrite_table(catalog, "gold", "ecb_dax_features", gold_df, GOLD_FEATURES_SCHEMA)
+    overwrite_table(
+        catalog,
+        "gold",
+        "ecb_german_equity_proxy_features",
+        gold_df,
+        GOLD_FEATURES_SCHEMA,
+    )
 
-    return {"table": "iceberg:gold.ecb_dax_features", "row_count": len(gold_df)}
+    return {
+        "table": "iceberg:gold.ecb_german_equity_proxy_features",
+        "row_count": len(gold_df),
+    }

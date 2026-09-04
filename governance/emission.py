@@ -84,7 +84,9 @@ def governed_dataset_ids_for_materialized_assets(
     """Return governed dataset IDs for materialized Dagster asset keys."""
     registry = contracts or load_contracts()
     asset_to_dataset = {
-        contract.dagster_asset_key: contract.dataset_id for contract in registry.values()
+        contract.dagster_asset_key: contract.dataset_id
+        for contract in registry.values()
+        if not contract.deprecated
     }
     return tuple(
         dataset_id

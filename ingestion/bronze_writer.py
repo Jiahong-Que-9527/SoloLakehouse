@@ -15,6 +15,8 @@ from ingestion.iceberg_schemas import (
     BRONZE_DAX_DAILY_SCHEMA,
     BRONZE_ECB_RATES_PARTITION,
     BRONZE_ECB_RATES_SCHEMA,
+    BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+    BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
     BRONZE_REJECTED_SCHEMA,
 )
 from storage_config import get_data_bucket
@@ -27,6 +29,10 @@ logger = structlog.get_logger()
 # Maps source name → (Iceberg schema, partition spec)
 _BRONZE_TABLE_META = {
     "ecb_rates": (BRONZE_ECB_RATES_SCHEMA, BRONZE_ECB_RATES_PARTITION),
+    "german_equity_proxy_daily": (
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+    ),
     "dax_daily": (BRONZE_DAX_DAILY_SCHEMA, BRONZE_DAX_DAILY_PARTITION),
 }
 
