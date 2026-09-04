@@ -47,7 +47,7 @@ The goal is not to replace Databricks, but to show the architecture thinking beh
 </p>
 
 ```text
-Data sources (ECB / DAX)
+Data sources (target: ECB / live EWG)
   -> Python ingestion + Pydantic validation + dataset contracts
   -> Iceberg Bronze / Silver / Gold on MinIO (Hive Metastore catalog)
   -> Trino query + Dagster assets / schedules / sensors
@@ -60,6 +60,11 @@ Evidence & control plane (on the same runtime):
 ```
 
 The detailed architecture is in [docs/architecture.md](docs/architecture.md), and the medallion conventions are in [docs/medallion-model.md](docs/medallion-model.md).
+
+**Current source transition:** the approved target is ECB SDW plus live EWG
+(Alpha Vantage). Until Block `L` / `L4` Phase 1 lands, the legacy DAX sample CSV
+path may still exist in code as implementation lag; it is not a supported
+fallback. See [the D4 decision](docs/roadmap.md) and [the active task list](TASKS.md).
 
 ## What It Solves
 
@@ -139,13 +144,22 @@ See [docs/quickstart.md](docs/quickstart.md), [docs/deployment.md](docs/deployme
 - ML lineage five-tuple, AI-governance contract fields, policy hooks, and EU AI Act Art.13 model cards
 - Promotion / rollback / operational SLO evidence, `.env.shared` + `.env.secrets` discipline, and `make k8s-readiness`
 
-The reference data domain is European financial markets — ECB Statistical Data Warehouse interest rates and the DAX equity index — chosen deliberately because it surfaces real-world challenges in temporal joins, look-ahead bias, and regulatory data lineage. The Compose runtime is **v2.5**; historical v1/v2 material is preserved under [docs/history/](docs/history/).
+The reference data domain is European financial markets — ECB Statistical Data
+Warehouse interest rates plus a German-equity proxy. The approved target is
+live EWG (iShares MSCI Germany ETF) through Alpha Vantage; it preserves the
+temporal-join, look-ahead-bias, and regulatory-lineage challenges that make the
+reference pipeline useful. The legacy DAX sample CSV remains in the current code
+only as implementation lag and is being removed in Block `L` / `L4` Phase 1; it
+is not an approved demo, production, CI, or future-design source. The Compose
+runtime is **v2.5**; historical v1/v2 material is preserved under
+[docs/history/](docs/history/).
 
 ## Product Entity Template
 
 SoloLakehouse is an **upstream template**, not a single permanent runtime. The
-repository ships one **reference pipeline** (ECB + DAX) plus the platform and
-governance stack. You can turn it into independently operated product entities
+repository ships one **reference pipeline** (target: ECB + live EWG) plus the
+platform and governance stack. You can turn it into independently operated
+product entities
 — for example `finlakehouse` or `aviation-lakehouse` — without waiting for a
 domain-neutral plugin architecture.
 
@@ -209,20 +223,20 @@ slh-platform-owner
 For significant work, invoke both Skills explicitly:
 
 ```text
-Use $slh-platform-owner to evaluate the next SoloLakehouse v2.6 work item,
-define its priority, approved scope, operational impact, and evidence of
-completion. Then use $slh-context-router to load the minimum canonical context
-and prepare the implementation brief. Do not modify code until the Owner
-Decision is complete.
+Use $slh-platform-owner to evaluate a proposed change after the active Block L
+Phase 1 work, define its priority, approved scope, operational impact, and
+evidence of completion. Then use $slh-context-router to load the minimum
+canonical context and prepare the implementation brief. Do not modify code until
+the Owner Decision is complete.
 ```
 
 For an already-approved implementation task, start directly with the context
 router:
 
 ```text
-Use $slh-context-router to implement the v2.6 dataset-contract validator.
-Preserve the v2.5 demo, pipeline, and verification paths, inspect only the
-target modules and matching tests, and report focused validation results.
+Use $slh-context-router to implement Block L Phase 1's live EWG market leg.
+Preserve the v2.5 runtime baseline, inspect only the target modules and matching
+tests, and report focused validation results.
 ```
 
 For multi-agent work, pass the Owner Decision to every delegated agent and use
@@ -238,10 +252,10 @@ The platform evolves along a single narrative: **first make it run, then make ev
 |---------|-------|---------|-------|
 | **v2.5** *(delivered)* | Platform can run | local-first lakehouse baseline | reproducible Docker Compose stack, Bronze/Silver/Gold flow, Trino, Dagster, MLflow, OpenMetadata, Superset |
 | **v2.6** *(delivered)* | Platform can produce evidence | regulatory lineage & audit readiness | Dagster + OpenMetadata + Iceberg three-source lineage join, SHA-256-bound audit evidence pack, and data contracts as the gate |
-| **v2.6.1** *(on `main`)* | Evidence is operational, not demonstrable | audit-grade evidence plane | automatic emission on successful materialization, MinIO Object Lock on the audit bucket, all five governed datasets covered, causal snapshot ↔ run binding |
-| **v2.7** *(on `main`)* | Platform can prove openness | data sovereignty & vendor lock-in | explicit catalog abstraction boundary, Hive Metastore ↔ Iceberg REST Catalog path, Apache Polaris evaluation, `make interoperability-proof`, signable sovereignty report + exit playbook *(engine count is not the success metric — Spark/Flink demos and migration PoC tooling are out of scope)* |
-| **v2.8** *(on `main`)* | Platform can govern AI | compliant AI / model traceability | MLflow ↔ Iceberg snapshot five-tuple binding (snapshot_id, dagster.run_id, feature_version, code_commit, data_contract_hash), AI-governance contract fields, exportable policy hooks, auto **EU AI Act Art.13** model card *(policy hooks are metadata — no enforcement point yet; model serving stays out — ADR-011)* |
-| **v2.9** *(on `main`)* | Platform has production shape | operational readiness | operational SLO evidence, promotion/rollback evidence with `make` entrypoints, rollback drill, `.env.shared` vs `.env.secrets` discipline + rotation drill, K8s readiness gate before v3.0 |
+| **v2.6.1** *(delivered on `main`)* | Evidence is operational, not demonstrable | audit-grade evidence plane | automatic emission on successful materialization, MinIO Object Lock on the audit bucket, all five governed datasets covered, causal snapshot ↔ run binding |
+| **v2.7** *(delivered on `main`)* | Platform can prove openness | data sovereignty & vendor lock-in | explicit catalog abstraction boundary, Hive Metastore ↔ Iceberg REST Catalog path, Apache Polaris evaluation, `make interoperability-proof`, signable sovereignty report + exit playbook *(engine count is not the success metric — Spark/Flink demos and migration PoC tooling are out of scope)* |
+| **v2.8** *(delivered on `main`)* | Platform can govern AI | compliant AI / model traceability | MLflow ↔ Iceberg snapshot five-tuple binding (snapshot_id, dagster.run_id, feature_version, code_commit, data_contract_hash), AI-governance contract fields, exportable policy hooks, auto **EU AI Act Art.13** model card *(policy hooks are metadata — no enforcement point yet; model serving stays out — ADR-011)* |
+| **v2.9** *(delivered on `main`)* | Platform has production shape | operational readiness | operational SLO evidence, promotion/rollback evidence with `make` entrypoints, rollback drill, `.env.shared` vs `.env.secrets` discipline + rotation drill, K8s readiness gate before v3.0 |
 | **v3.0** *(planned)* | Platform can run in production | scalable deployment & environment management | Kubernetes, Helm, Terraform, dev/stage/prod separation, managed secrets, GitOps-ready deployment model |
 | **v4.0** *(planned)* | Self-serve usability | docs-first onboarding | repeatable verification, clearer failure modes, operational polish |
 
@@ -250,8 +264,11 @@ internally verified, and CI-green on `main`. The latest published tag is
 `v2.6.1`, which predates Block `J`. External sign-off is not a blocking gate
 (Owner Decision 2026-08-15); the protocol under
 [docs/external-validation/](docs/external-validation/) is retained as history.
-The active backlog is Layer 1 source research (Block `L` in
-[TASKS.md](TASKS.md)).
+The active backlog is Block `L` / **`L4` Phase 1**: wire ECB (DFR/MLF) and live
+EWG (Alpha Vantage) through Bronze → Silver → Gold, `make demo`, and
+`make pipeline`; retire the DAX sample CSV from the production path. Phase 2
+(the optional crypto streaming leg) is deferred until Phase 1 lands. See
+[TASKS.md](TASKS.md) and [the roadmap's D4 decision](docs/roadmap.md).
 
 Per-version planning notes:
 
