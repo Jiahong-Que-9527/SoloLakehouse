@@ -61,7 +61,7 @@ jobs:
       # the demo stack can boot. These are not used anywhere outside this job.
       - name: Generate CI-only secrets
         run: |
-          cp .env.secrets.example .env.secrets
+          make init-env
           sed -i "s/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
           sed -i "s/^SUPERSET_ADMIN_PASSWORD=$/SUPERSET_ADMIN_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
           sed -i "s/^OPENMETADATA_MYSQL_ROOT_PASSWORD=$/OPENMETADATA_MYSQL_ROOT_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
