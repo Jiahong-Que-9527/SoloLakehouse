@@ -1,4 +1,4 @@
-.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness
+.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness serve-ui-up serve-ui-down serve-ui-status serve-ui-urls
 
 COMPOSE_FILE := docker/docker-compose.yml
 -include $(ENV_FILE)
@@ -198,6 +198,18 @@ health:
 
 health-json:
 	$(PYTHON) scripts/health-server.py --port 8090
+
+serve-ui-up:
+	@bash scripts/tailscale-serve-ui.sh up
+
+serve-ui-down:
+	@bash scripts/tailscale-serve-ui.sh down
+
+serve-ui-status:
+	@bash scripts/tailscale-serve-ui.sh status
+
+serve-ui-urls:
+	@bash scripts/tailscale-serve-ui.sh urls
 
 test:
 	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration

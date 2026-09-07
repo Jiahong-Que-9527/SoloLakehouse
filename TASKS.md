@@ -379,7 +379,7 @@ Scope:
 
 Tasks:
 
-- [ ] `K1` Add `restart: unless-stopped` to every long-running core service
+- [x] `K1` Add `restart: unless-stopped` to every long-running core service
       across all four Compose files that currently lacks one — `postgres`,
       `minio`, `hive-metastore`, `trino`, `dagster-webserver`,
       `dagster-daemon`, `om-mysql`, `om-elasticsearch`, `om-migrate`,
@@ -392,7 +392,7 @@ Tasks:
       deploy with no explicit `RUNTIME_VERSION` in `.env` cannot stamp two
       different version strings into governance evidence depending on which
       code path resolves it.
-- [ ] `K3` Change `BronzeWriter.write()` (`ingestion/bronze_writer.py`) from
+- [x] `K3` Change `BronzeWriter.write()` (`ingestion/bronze_writer.py`) from
       `iceberg_io.append_table` to `iceberg_io.overwrite_table`. `ecb_collector.py`
       re-fetches the full ECB series every cycle (`startPeriod=1999-01-01`);
       `append` on top of that means unbounded Bronze growth. Keep the
