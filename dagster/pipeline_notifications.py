@@ -144,10 +144,14 @@ def notification_config_from_environ(
 def _format_timestamp(epoch: object) -> str | None:
     if epoch is None:
         return None
-    try:
-        return datetime.fromtimestamp(float(epoch), tz=UTC).isoformat()
-    except (TypeError, ValueError):
-        return str(epoch)
+    if isinstance(epoch, (int, float)):
+        return datetime.fromtimestamp(epoch, tz=UTC).isoformat()
+    if isinstance(epoch, str):
+        try:
+            return datetime.fromtimestamp(float(epoch), tz=UTC).isoformat()
+        except ValueError:
+            return epoch
+    return str(epoch)
 
 
 def _metadata_map(entries: object) -> dict[str, str]:
