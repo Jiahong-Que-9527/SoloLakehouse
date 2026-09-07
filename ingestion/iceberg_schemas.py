@@ -19,15 +19,16 @@ from pyiceberg.types import (
 BRONZE_ECB_RATES_SCHEMA = Schema(
     NestedField(1, "observation_date", DateType(), required=False),
     NestedField(2, "rate_pct", DoubleType(), required=False),
-    NestedField(3, "_ingestion_timestamp", TimestamptzType(), required=False),
-    NestedField(4, "_source", StringType(), required=False),
+    NestedField(3, "rate_type", StringType(), required=False),
+    NestedField(4, "_ingestion_timestamp", TimestamptzType(), required=False),
+    NestedField(5, "_source", StringType(), required=False),
 )
 
 BRONZE_ECB_RATES_PARTITION = PartitionSpec(
-    PartitionField(source_id=3, field_id=1000, transform=DayTransform(), name="ingestion_day"),
+    PartitionField(source_id=4, field_id=1000, transform=DayTransform(), name="ingestion_day"),
 )
 
-BRONZE_DAX_DAILY_SCHEMA = Schema(
+BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA = Schema(
     NestedField(1, "observation_date", DateType(), required=False),
     NestedField(2, "open_price", DoubleType(), required=False),
     NestedField(3, "high_price", DoubleType(), required=False),
@@ -38,9 +39,14 @@ BRONZE_DAX_DAILY_SCHEMA = Schema(
     NestedField(8, "_source", StringType(), required=False),
 )
 
-BRONZE_DAX_DAILY_PARTITION = PartitionSpec(
+BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION = PartitionSpec(
     PartitionField(source_id=7, field_id=1000, transform=DayTransform(), name="ingestion_day"),
 )
+
+# Legacy DAX sample schema — frozen for deprecated fin.dax_daily_bronze tables.
+BRONZE_DAX_DAILY_SCHEMA = BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA
+
+BRONZE_DAX_DAILY_PARTITION = BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION
 
 # Rejected records are serialised to a narrow fixed schema; the original
 # record fields are stored as a JSON string in `payload`.
@@ -59,7 +65,7 @@ SILVER_ECB_RATES_SCHEMA = Schema(
     NestedField(3, "rate_change_bps", DoubleType(), required=False),
 )
 
-SILVER_DAX_DAILY_SCHEMA = Schema(
+SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA = Schema(
     NestedField(1, "observation_date", DateType(), required=False),
     NestedField(2, "open_price", DoubleType(), required=False),
     NestedField(3, "high_price", DoubleType(), required=False),
@@ -68,6 +74,8 @@ SILVER_DAX_DAILY_SCHEMA = Schema(
     NestedField(6, "volume", DoubleType(), required=False),
     NestedField(7, "daily_return", DoubleType(), required=False),
 )
+
+SILVER_DAX_DAILY_SCHEMA = SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA
 
 # ── Gold ─────────────────────────────────────────────────────────────────────
 

@@ -106,6 +106,8 @@ class DatasetContract(BaseModel):
     physical_location: PhysicalLocation
     dagster_asset_key: str = Field(min_length=1)
     upstream_dataset_ids: list[str] = Field(default_factory=list)
+    deprecated: bool = False
+    superseded_by: str | None = None
     quality_rules: QualityRules
     ai_governance: AIGovernance
 
@@ -122,6 +124,10 @@ class DatasetContract(BaseModel):
             raise ValueError("bronze datasets cannot declare upstream_dataset_ids")
         if self.layer in {"silver", "gold"} and not self.upstream_dataset_ids:
             raise ValueError("silver and gold datasets require upstream_dataset_ids")
+        if self.deprecated and not self.superseded_by:
+            raise ValueError("deprecated datasets require superseded_by")
+        if not self.deprecated and self.superseded_by is not None:
+            raise ValueError("superseded_by is only valid when deprecated=true")
         return self
 
 
@@ -161,17 +167,29 @@ def contract_for_asset_key(
     asset_key: str,
     contracts: dict[str, DatasetContract] | None = None,
 ) -> DatasetContract | None:
-    """Return the governed contract for one Dagster asset key, if any."""
+    """Return the active governed contract for one Dagster asset key, if any."""
     registry = contracts or load_contracts()
+    active_match: DatasetContract | None = None
+    deprecated_match: DatasetContract | None = None
     for contract in registry.values():
-        if contract.dagster_asset_key == asset_key:
-            return contract
-    return None
+        if contract.dagster_asset_key != asset_key:
+            continue
+        if contract.deprecated:
+            deprecated_match = contract
+        else:
+            active_match = contract
+    return active_match or deprecated_match
 
 
 def governed_pipeline_asset_keys(
     contracts: dict[str, DatasetContract] | None = None,
 ) -> tuple[str, ...]:
-    """Return Dagster asset keys for every governed dataset contract."""
+    """Return Dagster asset keys for every active governed dataset contract."""
     registry = contracts or load_contracts()
-    return tuple(sorted(contract.dagster_asset_key for contract in registry.values()))
+    return tuple(
+        sorted(
+            contract.dagster_asset_key
+            for contract in registry.values()
+            if not contract.deprecated
+        )
+    )

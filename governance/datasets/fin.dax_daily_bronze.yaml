@@ -13,6 +13,8 @@ layer: bronze
 physical_location: {catalog: hive, namespace: bronze, table: dax_daily}
 dagster_asset_key: dax_bronze
 upstream_dataset_ids: []
+deprecated: true
+superseded_by: fin.german_equity_proxy_daily_bronze
 quality_rules:
   required_columns: [observation_date, open_price, high_price, low_price, close_price, volume, _ingestion_timestamp, _source]
   non_null_columns: [observation_date, open_price, high_price, low_price, close_price, volume]

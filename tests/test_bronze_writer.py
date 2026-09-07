@@ -22,33 +22,47 @@ class TestBronzeWriter:
         writer = BronzeWriter(catalog, bucket="sololakehouse")
         df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
 
-        with patch("ingestion.iceberg_io.append_table") as mock_append:
+        with patch("ingestion.iceberg_io.overwrite_table") as mock_overwrite:
             path = writer.write(df, source="ecb_rates")
 
         assert path == "iceberg:bronze.ecb_rates"
-        mock_append.assert_called_once()
+        mock_overwrite.assert_called_once()
 
-    def test_write_returns_iceberg_path_for_dax(self) -> None:
+    def test_write_returns_iceberg_path_for_german_equity_proxy(self) -> None:
         catalog, _ = _make_catalog_mock()
         writer = BronzeWriter(catalog)
         df = pd.DataFrame({"a": [1]})
 
-        with patch("ingestion.iceberg_io.append_table") as mock_append:
-            path = writer.write(df, source="dax_daily")
+        with patch("ingestion.iceberg_io.overwrite_table") as mock_overwrite:
+            path = writer.write(df, source="german_equity_proxy_daily")
 
-        assert path == "iceberg:bronze.dax_daily"
-        mock_append.assert_called_once()
+        assert path == "iceberg:bronze.german_equity_proxy_daily"
+        mock_overwrite.assert_called_once()
 
     def test_write_normalizes_observation_dates_for_iceberg(self) -> None:
         catalog, _ = _make_catalog_mock()
         writer = BronzeWriter(catalog)
         df = pd.DataFrame({"observation_date": ["2024-01-01"]})
 
-        with patch("ingestion.iceberg_io.append_table") as mock_append:
+        with patch("ingestion.iceberg_io.overwrite_table") as mock_overwrite:
             writer.write(df, source="ecb_rates")
 
-        written = mock_append.call_args.kwargs["df"]
+        written = mock_overwrite.call_args.kwargs["df"]
         assert str(written.loc[0, "observation_date"]) == "2024-01-01"
+
+    def test_write_uses_overwrite_not_append(self) -> None:
+        catalog, _ = _make_catalog_mock()
+        writer = BronzeWriter(catalog)
+        df = pd.DataFrame({"a": [1]})
+
+        with (
+            patch("ingestion.iceberg_io.overwrite_table") as mock_overwrite,
+            patch("ingestion.iceberg_io.append_table") as mock_append,
+        ):
+            writer.write(df, source="ecb_rates")
+
+        mock_overwrite.assert_called_once()
+        mock_append.assert_not_called()
 
     def test_write_rejected_returns_iceberg_path(self) -> None:
         catalog, _ = _make_catalog_mock()

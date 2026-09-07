@@ -20,7 +20,7 @@ FEATURE_COLUMNS = [
 ]
 
 # Stable feature-set identifier stamped into ML lineage evidence (v2.8 E1).
-FEATURE_VERSION = "fin.ecb_dax_features_gold/v1"
+FEATURE_VERSION = "fin.ecb_german_equity_proxy_features_gold/v1"
 
 
 def _make_model(model_type: str, params: dict[str, Any]) -> Any:
