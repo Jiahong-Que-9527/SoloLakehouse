@@ -86,6 +86,7 @@ def test_runtime_quality_rejects_contract_violation() -> None:
         {
             "observation_date": ["2024-01-01"],
             "rate_pct": [None],
+            "rate_type": ["MRO"],
             "_ingestion_timestamp": ["2024-01-01T00:00:00Z"],
             "_source": ["ECB"],
         }

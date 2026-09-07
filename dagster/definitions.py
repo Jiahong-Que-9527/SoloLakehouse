@@ -50,7 +50,7 @@ demo_data_flow_job = define_asset_job(
 
 daily_pipeline_schedule = ScheduleDefinition(
     name="daily_pipeline_schedule",
-    job=demo_data_flow_job,
+    job=full_pipeline_job,
     cron_schedule="0 6 * * 1-5",
     execution_timezone="UTC",
     default_status=DefaultScheduleStatus.RUNNING,

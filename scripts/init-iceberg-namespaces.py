@@ -92,7 +92,28 @@ def main() -> None:
         except TableAlreadyExistsError:
             logger.info("iceberg_table_exists", table=f"{namespace}.{table_name}")
 
+    _ensure_ecb_rate_type_column(catalog)
+
     logger.info("iceberg_init_complete")
+
+
+def _ensure_ecb_rate_type_column(catalog) -> None:
+    """Add rate_type to existing bronze.ecb_rates tables without renumbering field IDs."""
+    from pyiceberg.exceptions import NoSuchTableError
+    from pyiceberg.types import StringType
+
+    identifier = ("bronze", "ecb_rates")
+    try:
+        table = catalog.load_table(identifier)
+    except NoSuchTableError:
+        return
+
+    if any(field.name == "rate_type" for field in table.schema().fields):
+        return
+
+    with table.update_schema() as update:
+        update.add_column("rate_type", StringType(), required=False)
+    logger.info("iceberg_schema_evolved", table="bronze.ecb_rates", column="rate_type")
 
 
 if __name__ == "__main__":

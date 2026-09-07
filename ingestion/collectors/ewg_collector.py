@@ -26,8 +26,9 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger()
 
-DEFAULT_FIXTURE_PATH = Path("tests/fixtures/alpha_vantage_ewg_daily.json")
-DEFAULT_BOOTSTRAP_PATH = Path("tests/fixtures/ewg_historical_bootstrap.json")
+DEFAULT_FIXTURE_PATH = Path("data/fixtures/alpha_vantage_ewg_daily.json")
+DEFAULT_BOOTSTRAP_PATH = Path("data/fixtures/ewg_historical_bootstrap.json")
+EWG_SOURCE = "ALPHA_VANTAGE_EWG"
 
 
 class EWGCollector:
@@ -111,7 +112,18 @@ class EWGCollector:
     def _fetch_data(self) -> list[dict[str, Any]]:
         if self.fixture_path is not None:
             payload = json.loads(self.fixture_path.read_text(encoding="utf-8"))
-            return self._parse_alpha_vantage_payload(payload)
+            live_records = self._parse_alpha_vantage_payload(payload)
+            bootstrap_records = self._load_bootstrap_records()
+            if not bootstrap_records:
+                return live_records
+            merged = self._merge_live_with_bootstrap(live_records, bootstrap_records)
+            logger.info(
+                "ewg_fixture_bootstrap_merged",
+                fixture_count=len(live_records),
+                bootstrap_count=len(bootstrap_records),
+                merged_count=len(merged),
+            )
+            return merged
 
         live_records = self._fetch_live_alpha_vantage()
         bootstrap_records = self._load_bootstrap_records()
@@ -155,7 +167,7 @@ class EWGCollector:
 
         for record in raw_data:
             try:
-                parsed = DAXRecord(**record)
+                parsed = DAXRecord(**record, source=EWG_SOURCE)
                 valid.append(parsed.model_dump(by_alias=True))
             except ValidationError as exc:
                 rejected_record = dict(record)
@@ -182,7 +194,10 @@ class EWGCollector:
             logger.info("ewg_already_ingested_today")
             return {"status": "skipped", "reason": "already_ingested_today"}
 
-        logger.info("ewg_fetch_started", fixture=str(self.fixture_path) if self.fixture_path else None)
+        logger.info(
+            "ewg_fetch_started",
+            fixture=str(self.fixture_path) if self.fixture_path else None,
+        )
         raw_data = self._fetch_data()
         valid, rejected = self._validate_records(raw_data)
         logger.info(

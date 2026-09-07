@@ -14,6 +14,7 @@ from typing import Any, Mapping
 import requests
 import structlog
 import trino
+
 from dagster import (
     DagsterRunStatus,
     DefaultSensorStatus,
@@ -373,7 +374,13 @@ def format_pipeline_run_email_body(summary: PipelineRunSummary) -> str:
                 if key in materialization.metadata:
                     lines.append(f"    {key}: {materialization.metadata[key]}")
     else:
-        lines.extend(["", "== Materialized assets ==", "No asset materializations recorded for this run."])
+        lines.extend(
+            [
+                "",
+                "== Materialized assets ==",
+                "No asset materializations recorded for this run.",
+            ]
+        )
 
     if summary.table_lookup_error:
         lines.extend(["", "== Iceberg tables =="])
@@ -387,7 +394,9 @@ def format_pipeline_run_email_body(summary: PipelineRunSummary) -> str:
                 continue
             lines.append(f"    rows: {table.row_count}")
             if table.min_date or table.max_date:
-                lines.append(f"    date range: {table.min_date or 'n/a'} .. {table.max_date or 'n/a'}")
+                min_date = table.min_date or "n/a"
+                max_date = table.max_date or "n/a"
+                lines.append(f"    date range: {min_date} .. {max_date}")
 
     return "\n".join(lines)
 

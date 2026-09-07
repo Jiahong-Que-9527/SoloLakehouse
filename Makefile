@@ -1,7 +1,8 @@
 .PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness
 
 COMPOSE_FILE := docker/docker-compose.yml
-COMPOSE_PINNED := $(if $(wildcard docker/docker-compose.pinned.yml),-f docker/docker-compose.pinned.yml,)
+-include $(ENV_FILE)
+COMPOSE_PINNED := $(if $(and $(wildcard docker/docker-compose.pinned.yml),$(USE_PINNED_IMAGES)),-f docker/docker-compose.pinned.yml,)
 COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml $(COMPOSE_PINNED)
 POLARIS_COMPOSE := -f docker/docker-compose.yml -f docker/docker-compose.polaris.yml
 ALL_PROFILES := --profile orchestration --profile catalog --profile bi

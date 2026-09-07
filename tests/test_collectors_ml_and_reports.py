@@ -335,7 +335,9 @@ class TestEvaluate:
             code_commit="abc1234",
             data_contract_hash="0" * 64,
         )
-        training_contract = load_contract(contract_path("fin.ecb_german_equity_proxy_features_gold"))
+        training_contract = load_contract(
+            contract_path("fin.ecb_german_equity_proxy_features_gold")
+        )
         contract_hash = policy_hook_from_contract(training_contract).contract_sha256
         lineage = lineage.model_copy(update={"data_contract_hash": contract_hash})
         result = evaluate.run_experiment_set(

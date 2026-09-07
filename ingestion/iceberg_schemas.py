@@ -19,13 +19,13 @@ from pyiceberg.types import (
 BRONZE_ECB_RATES_SCHEMA = Schema(
     NestedField(1, "observation_date", DateType(), required=False),
     NestedField(2, "rate_pct", DoubleType(), required=False),
-    NestedField(3, "rate_type", StringType(), required=False),
-    NestedField(4, "_ingestion_timestamp", TimestamptzType(), required=False),
-    NestedField(5, "_source", StringType(), required=False),
+    NestedField(3, "_ingestion_timestamp", TimestamptzType(), required=False),
+    NestedField(4, "_source", StringType(), required=False),
+    NestedField(5, "rate_type", StringType(), required=False),
 )
 
 BRONZE_ECB_RATES_PARTITION = PartitionSpec(
-    PartitionField(source_id=4, field_id=1000, transform=DayTransform(), name="ingestion_day"),
+    PartitionField(source_id=3, field_id=1000, transform=DayTransform(), name="ingestion_day"),
 )
 
 BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA = Schema(

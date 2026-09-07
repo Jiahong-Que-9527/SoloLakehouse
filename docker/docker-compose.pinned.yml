@@ -1,5 +1,5 @@
-# FinLakehouse runtime pin — prevents accidental `docker compose up --build`
-# from replacing the L4 EWG pipeline image with stale main-branch code.
+# FinLakehouse runtime pin — opt in with USE_PINNED_IMAGES=1 in .env (see .env.example).
+# Prevents accidental `docker compose up --build` from replacing a validated Dagster image.
 #
 # Tagged: 2026-09-07 (full_pipeline_job SUCCESS run d0412f55)
 # Recreate pins after intentional image upgrades:

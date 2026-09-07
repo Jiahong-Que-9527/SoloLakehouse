@@ -14,8 +14,8 @@ physical_location: {catalog: hive, namespace: bronze, table: ecb_rates}
 dagster_asset_key: ecb_bronze
 upstream_dataset_ids: []
 quality_rules:
-  required_columns: [observation_date, rate_pct, _ingestion_timestamp, _source]
-  non_null_columns: [observation_date, rate_pct]
+  required_columns: [observation_date, rate_pct, rate_type, _ingestion_timestamp, _source]
+  non_null_columns: [observation_date, rate_pct, rate_type]
   min_row_count: 1
   date_column: observation_date
   max_gap_days: 180

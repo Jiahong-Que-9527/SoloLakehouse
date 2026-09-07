@@ -195,6 +195,9 @@ services:
       OBJECT_STORE_PROVIDER: minio
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ALPHA_VANTAGE_API_KEY: ${ALPHA_VANTAGE_API_KEY:-}
+      DAX_FIXTURE_PATH: ${DAX_FIXTURE_PATH:-}
+      EWG_BOOTSTRAP_FIXTURE_PATH: ${EWG_BOOTSTRAP_FIXTURE_PATH:-}
       DAGSTER_HOME: /app/dagster
     command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000", "-w", "/app/dagster/workspace.yaml"]
     ports:
@@ -257,6 +260,9 @@ services:
       OBJECT_STORE_PROVIDER: minio
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ALPHA_VANTAGE_API_KEY: ${ALPHA_VANTAGE_API_KEY:-}
+      DAX_FIXTURE_PATH: ${DAX_FIXTURE_PATH:-}
+      EWG_BOOTSTRAP_FIXTURE_PATH: ${EWG_BOOTSTRAP_FIXTURE_PATH:-}
       DAGSTER_HOME: /app/dagster
     command: ["dagster-daemon", "run", "-w", "/app/dagster/workspace.yaml"]
     volumes:
