@@ -1,4 +1,4 @@
-.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness serve-ui-up serve-ui-down serve-ui-status serve-ui-urls
+.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness serve-ui-up serve-ui-down serve-ui-status serve-ui-urls om-ingest-trino fix-om-ingestion-db
 
 COMPOSE_FILE := docker/docker-compose.yml
 -include $(ENV_FILE)
@@ -106,6 +106,7 @@ pipeline:
 	@echo "Running v2.5 Dagster pipeline..."
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver dagster job launch -w /app/dagster/workspace.yaml -j $(DAGSTER_JOB)
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver python3 /app/scripts/wait-for-dagster-run.py --job $(DAGSTER_JOB)
+	@if [ "$(OPENMETADATA_SYNC_AFTER_PIPELINE)" = "1" ]; then $(MAKE) om-ingest-trino; fi
 
 pipeline-dagster:
 	$(MAKE) pipeline DAGSTER_JOB="$(DAGSTER_JOB)"
@@ -210,6 +211,12 @@ serve-ui-status:
 
 serve-ui-urls:
 	@bash scripts/tailscale-serve-ui.sh urls
+
+om-ingest-trino:
+	@bash scripts/om-trino-ingest.sh
+
+fix-om-ingestion-db:
+	@bash scripts/fix-om-ingestion-db.sh
 
 test:
 	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration

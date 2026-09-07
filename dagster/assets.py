@@ -235,6 +235,34 @@ def ml_experiment(
     return experiment_result.best_run_id
 
 
+@asset(group_name="catalog")
+def openmetadata_trino_sync(
+    context,
+    ecb_german_equity_proxy_features: str,
+) -> dict[str, Any]:
+    """Refresh OpenMetadata's Trino catalog after Gold materializes."""
+    _ = ecb_german_equity_proxy_features
+    started = time.perf_counter()
+    from governance.openmetadata_ingest import run_trino_metadata_ingest
+
+    result = run_trino_metadata_ingest()
+    context.add_output_metadata(
+        {
+            "status": result.get("status", "unknown"),
+            "reason": result.get("reason", ""),
+            "mode": result.get("mode", ""),
+        }
+    )
+    if result.get("status") == "skipped":
+        context.log.warning("openmetadata_trino_sync skipped: %s", result.get("reason"))
+    elif result.get("status") == "ok":
+        context.log.info("openmetadata_trino_sync completed via %s", result.get("mode"))
+    else:
+        context.log.warning("openmetadata_trino_sync unexpected result: %s", result)
+    _emit_metric("openmetadata_trino_sync", started)
+    return result
+
+
 @sensor(
     job_name="demo_data_flow_job",
     minimum_interval_seconds=1800,

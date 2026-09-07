@@ -19,6 +19,36 @@ service's name and set a local-only `OPENMETADATA_AUTH_TOKEN` with read access
 to the ingested table. The `make lineage-evidence` command deliberately fails
 without both values or without the cataloged table and owner.
 
+## Automated Trino metadata ingest
+
+After the Trino service exists in OpenMetadata, refresh table metadata with:
+
+```bash
+make om-ingest-trino
+```
+
+This runs a one-shot `openmetadata/ingestion:1.5.6` container on the Compose
+network. It uses `OPENMETADATA_AUTH_TOKEN` when still valid, otherwise logs in
+with `OPENMETADATA_ADMIN_PASSWORD` from `.env.secrets` to obtain a short-lived
+JWT.
+
+To chain ingest after a manual pipeline run:
+
+```bash
+make pipeline OPENMETADATA_SYNC_AFTER_PIPELINE=1
+```
+
+Dagster containers default to `OPENMETADATA_SYNC_ENABLED=0` because they do not
+mount the Docker socket. The `openmetadata_trino_sync` asset is included in
+`full_pipeline_job` for hosts that enable sync explicitly.
+
+If the bundled Airflow ingestion runner (`slh-openmetadata-ingestion`) is in a
+restart loop with `Access denied for user 'airflow_user'`, reset the MySQL user:
+
+```bash
+make fix-om-ingestion-db
+```
+
 ## Verify
 
 ```bash

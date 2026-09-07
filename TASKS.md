@@ -757,6 +757,35 @@ recorded backup/restore path (`K9`/`K10`).
 4. The rest of Block `K` can trail. Do not treat engine count or a second
    domain as success metrics.
 
+## Deferred demo polish (wait for richer data)
+
+These items are **intentionally deferred** until the Gold event table is large
+enough for a credible public demo. Revisit when **any** trigger below is true:
+
+| Trigger | Action |
+|---|---|
+| `ecb_german_equity_proxy_features` row count **≥ 100** | Expand Superset dashboard pack (hike/cut split, 5d returns, KPI cards) |
+| Same threshold + stable `full_pipeline_job` ML runs | Publish MLflow/model-card narrative (LinkedIn / portfolio) |
+| OM ingest automated (`make om-ingest-trino`) stable for 2+ weeks | Push Dagster→OM lineage edges (beyond S3 audit manifests) |
+
+Check current Gold row count:
+
+```bash
+docker exec slh-trino trino --execute \
+  "SELECT COUNT(*) FROM iceberg.gold.ecb_german_equity_proxy_features"
+```
+
+Until then, the existing single-chart Superset dashboard and 15-table OM catalog
+are sufficient for **architecture / MLOps** demos, not for statistical claims.
+
+### Ops automation landed (2026-09-07)
+
+- [x] `make om-ingest-trino` — host-side Trino metadata refresh
+- [x] `make fix-om-ingestion-db` — repair bundled OM Airflow MySQL user
+- [x] `openmetadata_trino_sync` Dagster asset (skips inside containers by default)
+- [x] `OPENMETADATA_SYNC_AFTER_PIPELINE=1` hook on `make pipeline`
+- [ ] Merge PR #81 (Tailscale Serve helpers) when reviewed
+
 ## Decision Rules
 
 - v2.8, v2.7, and v2.9 require their internal automated validation; external

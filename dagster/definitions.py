@@ -27,6 +27,7 @@ from assets import (  # noqa: E402
     german_equity_proxy_silver,
     lineage_evidence_sensor,
     ml_experiment,
+    openmetadata_trino_sync,
 )
 from io_managers import ParquetIOManager  # noqa: E402
 from pipeline_notifications import (  # noqa: E402
@@ -42,7 +43,7 @@ data_flow_assets = [
     german_equity_proxy_silver,
     ecb_german_equity_proxy_features,
 ]
-all_assets = [*data_flow_assets, ml_experiment]
+all_assets = [*data_flow_assets, ml_experiment, openmetadata_trino_sync]
 
 full_pipeline_job = define_asset_job(
     name="full_pipeline_job",
