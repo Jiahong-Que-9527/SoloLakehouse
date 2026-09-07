@@ -11,10 +11,10 @@ import structlog
 
 from ingestion import iceberg_io
 from ingestion.iceberg_schemas import (
-    BRONZE_DAX_DAILY_PARTITION,
-    BRONZE_DAX_DAILY_SCHEMA,
     BRONZE_ECB_RATES_PARTITION,
     BRONZE_ECB_RATES_SCHEMA,
+    BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+    BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
     BRONZE_REJECTED_SCHEMA,
 )
 from storage_config import get_data_bucket
@@ -27,7 +27,10 @@ logger = structlog.get_logger()
 # Maps source name → (Iceberg schema, partition spec)
 _BRONZE_TABLE_META = {
     "ecb_rates": (BRONZE_ECB_RATES_SCHEMA, BRONZE_ECB_RATES_PARTITION),
-    "dax_daily": (BRONZE_DAX_DAILY_SCHEMA, BRONZE_DAX_DAILY_PARTITION),
+    "german_equity_proxy_daily": (
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+    ),
 }
 
 
@@ -37,7 +40,7 @@ class BronzeWriter:
         self.bucket = bucket or get_data_bucket()  # kept for observability logging
 
     def write(self, df: pd.DataFrame, source: str, ingestion_date: str | None = None) -> str:
-        """Append *df* to the Bronze Iceberg table for *source* and return a logical path."""
+        """Overwrite the Bronze Iceberg table for *source* with *df* and return a logical path."""
         schema, partition_spec = _BRONZE_TABLE_META.get(source, (BRONZE_ECB_RATES_SCHEMA, None))
         normalized = df.copy()
         if "observation_date" in normalized:
@@ -47,7 +50,7 @@ class BronzeWriter:
                 normalized["observation_date"], errors="raise"
             ).dt.date
 
-        iceberg_io.append_table(
+        iceberg_io.overwrite_table(
             self.catalog,
             namespace="bronze",
             table_name=source,

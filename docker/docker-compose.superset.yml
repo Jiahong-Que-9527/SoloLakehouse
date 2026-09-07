@@ -5,6 +5,7 @@ services:
     profiles: ["bi"]
     container_name: slh-superset
     build: ./superset
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy

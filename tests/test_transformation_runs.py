@@ -77,8 +77,8 @@ class TestTransformationRuns:
 
         result = dax_bronze_to_silver.run(_make_catalog())
 
-        assert result["table"] == "iceberg:silver.dax_daily_cleaned"
-        assert quality_calls == [(2, "dax_daily_cleaned")]
+        assert result["table"] == "iceberg:silver.german_equity_proxy_daily_cleaned"
+        assert quality_calls == [(2, "german_equity_proxy_daily_cleaned")]
         assert "daily_return" in written[0].columns
 
     def test_gold_run_reads_silver_and_writes_gold(self, monkeypatch) -> None:
@@ -121,8 +121,8 @@ class TestTransformationRuns:
 
         result = silver_to_gold_features.run(_make_catalog())
 
-        assert result["table"] == "iceberg:gold.ecb_dax_features"
-        assert quality_calls == [(11, "ecb_dax_features")]
+        assert result["table"] == "iceberg:gold.ecb_german_equity_proxy_features"
+        assert quality_calls == [(11, "ecb_german_equity_proxy_features")]
         assert written[0].columns.tolist() == [
             "event_date",
             "rate_change_bps",

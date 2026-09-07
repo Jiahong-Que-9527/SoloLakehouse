@@ -6,6 +6,7 @@ services:
     profiles: ["catalog"]
     container_name: slh-om-mysql
     image: docker.getcollate.io/openmetadata/db:1.5.6
+    restart: unless-stopped
     command: ["--sort_buffer_size=10M"]
     environment:
       MYSQL_ROOT_PASSWORD: ${OPENMETADATA_MYSQL_ROOT_PASSWORD:?set OPENMETADATA_MYSQL_ROOT_PASSWORD in .env.secrets}
@@ -36,6 +37,7 @@ services:
     profiles: ["catalog"]
     container_name: slh-om-elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+    restart: unless-stopped
     environment:
       discovery.type: single-node
       ES_JAVA_OPTS: "-Xms768m -Xmx768m"

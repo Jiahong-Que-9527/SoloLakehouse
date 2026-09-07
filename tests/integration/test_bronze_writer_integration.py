@@ -10,26 +10,38 @@ from ingestion.iceberg_io import scan_table
 
 
 @pytest.mark.integration
-def test_bronze_writer_roundtrip(iceberg_catalog) -> None:
+def test_bronze_writer_overwrite_roundtrip(iceberg_catalog) -> None:
     writer = BronzeWriter(catalog=iceberg_catalog)
-    source_id = f"integration-{uuid.uuid4().hex[:8]}"
-    before = scan_table(iceberg_catalog, "bronze", "ecb_rates")
-    df = pd.DataFrame(
+    marker_a = f"integration-{uuid.uuid4().hex[:8]}"
+    marker_b = f"integration-{uuid.uuid4().hex[:8]}"
+    df_a = pd.DataFrame(
         {
             "observation_date": ["2024-01-01"],
             "rate_pct": [4.5],
             "_ingestion_timestamp": [pd.Timestamp.utcnow()],
-            "_source": [source_id],
+            "_source": [marker_a],
+        }
+    )
+    df_b = pd.DataFrame(
+        {
+            "observation_date": ["2024-02-01"],
+            "rate_pct": [4.25],
+            "_ingestion_timestamp": [pd.Timestamp.utcnow()],
+            "_source": [marker_b],
         }
     )
 
-    path = writer.write(df, source="ecb_rates")
-    loaded = scan_table(iceberg_catalog, "bronze", "ecb_rates")
-    inserted = loaded[loaded["_source"] == source_id]
-
+    path = writer.write(df_a, source="ecb_rates")
+    loaded_a = scan_table(iceberg_catalog, "bronze", "ecb_rates")
     assert path == "iceberg:bronze.ecb_rates"
-    assert len(inserted) == len(df)
-    assert len(loaded) >= len(before) + len(df)
+    assert marker_a in set(loaded_a["_source"])
+
+    writer.write(df_b, source="ecb_rates")
+    loaded_b = scan_table(iceberg_catalog, "bronze", "ecb_rates")
+
+    assert marker_b in set(loaded_b["_source"])
+    assert marker_a not in set(loaded_b["_source"])
+    assert len(loaded_b) == len(df_b)
 
 
 @pytest.mark.integration

@@ -1,7 +1,7 @@
 """PyIceberg I/O helpers for the SoloLakehouse medallion layers.
 
-All pipeline writes go through `append_table` (Bronze) or `overwrite_table`
-(Silver / Gold).  `scan_table` is used by transformations and freshness checks.
+All pipeline writes go through `overwrite_table` (Bronze full-refetch, Silver,
+Gold).  `append_table` is reserved for rejected-record quarantine.
 Callers inject a `Catalog` so tests can pass a mock without touching
 Hive Metastore or MinIO.
 """
@@ -115,7 +115,7 @@ def append_table(
     schema: "Schema",
     partition_spec: "PartitionSpec | None" = None,
 ) -> None:
-    """Append *df* to an Iceberg table, creating it if needed (Bronze pattern)."""
+    """Append *df* to an Iceberg table, creating it if needed (rejected-records quarantine)."""
     tbl = _get_or_create_table(catalog, namespace, table_name, schema, partition_spec)
     arrow_table = _downcast_ns_timestamps(pa.Table.from_pandas(df, preserve_index=False))
     tbl.append(arrow_table)

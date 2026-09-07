@@ -7,7 +7,6 @@ from unittest.mock import MagicMock
 import pandas as pd
 import pytest
 
-from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
 from ingestion.exceptions import CollectorUnavailableError
 from ml import evaluate
@@ -183,98 +182,6 @@ class TestECBCollector:
         collector.bronze_writer.write_rejected.assert_called_once()
 
 
-class TestDAXCollector:
-    def test_fetch_data_renames_expected_columns(self, tmp_path) -> None:
-        csv_path = tmp_path / "dax.csv"
-        csv_path.write_text(
-            "date,open,high,low,close,volume\n2024-01-02,100,101,99,100.5,12345\n",
-            encoding="utf-8",
-        )
-        collector = DAXCollector(catalog=_make_catalog(), csv_path=str(csv_path))
-
-        records = collector._fetch_data()
-
-        assert records == [
-            {
-                "observation_date": "2024-01-02",
-                "open_price": 100,
-                "high_price": 101,
-                "low_price": 99,
-                "close_price": 100.5,
-                "volume": 12345,
-            }
-        ]
-
-    def test_validate_records_splits_valid_and_rejected(self) -> None:
-        collector = DAXCollector(catalog=_make_catalog())
-
-        valid, rejected = collector._validate_records(
-            [
-                {
-                    "observation_date": "2024-01-02",
-                    "open_price": 100,
-                    "high_price": 101,
-                    "low_price": 99,
-                    "close_price": 100.5,
-                    "volume": 1000,
-                },
-                {
-                    "observation_date": "2024-01-03",
-                    "open_price": 100,
-                    "high_price": 98,
-                    "low_price": 99,
-                    "close_price": 100.5,
-                    "volume": 1000,
-                },
-            ]
-        )
-
-        assert len(valid) == 1
-        assert len(rejected) == 1
-
-    def test_collect_returns_skip_when_already_ingested(self, monkeypatch) -> None:
-        collector = DAXCollector(catalog=_make_catalog(), force=False)
-        monkeypatch.setattr(collector, "_already_ingested_today", lambda: True)
-
-        result = collector.collect()
-
-        assert result == {"status": "skipped", "reason": "already_ingested_today"}
-
-    def test_collect_success_path(self, monkeypatch) -> None:
-        collector = DAXCollector(catalog=_make_catalog(), force=True)
-        monkeypatch.setattr(
-            collector,
-            "_fetch_data",
-            lambda: [
-                {
-                    "observation_date": "2024-01-02",
-                    "open_price": 100,
-                    "high_price": 101,
-                    "low_price": 99,
-                    "close_price": 100.5,
-                    "volume": 1000,
-                }
-            ],
-        )
-        monkeypatch.setattr(
-            "ingestion.collectors.dax_collector.run_dax_bronze_checks",
-            lambda df: None,
-        )
-        collector.bronze_writer = MagicMock()
-        collector.bronze_writer.write.return_value = "iceberg:bronze.dax_daily"
-        collector.bronze_writer.write_rejected.return_value = None
-
-        result = collector.collect()
-
-        assert result == {
-            "status": "ok",
-            "valid_count": 1,
-            "rejected_count": 0,
-            "path": "iceberg:bronze.dax_daily",
-            "rejected_path": None,
-        }
-
-
 class TestQualityReport:
     def test_quality_report_detects_dates_nulls_and_duplicates(self) -> None:
         df = pd.DataFrame(
@@ -395,7 +302,7 @@ class TestEvaluate:
         def fake_write_manifest(manifest):
             _ = manifest
             return (
-                "lineage/fin.ecb_dax_features_gold/2026-08-02/dagster-run-1/"
+                "lineage/fin.ecb_german_equity_proxy_features_gold/2026-08-02/dagster-run-1/"
                 "model-evidence/run-7.json"
             )
 
@@ -411,7 +318,7 @@ class TestEvaluate:
         scanned_snapshots: list[str | None] = []
 
         def fake_scan_table(cat, ns, tbl, *, snapshot_id=None):
-            assert (cat, ns, tbl) == (catalog, "gold", "ecb_dax_features")
+            assert (cat, ns, tbl) == (catalog, "gold", "ecb_german_equity_proxy_features")
             scanned_snapshots.append(snapshot_id)
             return df
 
@@ -424,11 +331,13 @@ class TestEvaluate:
         lineage = MLLineageTuple(
             iceberg_snapshot_id="123456789",
             dagster_run_id="dagster-run-1",
-            feature_version="fin.ecb_dax_features_gold/v1",
+            feature_version="fin.ecb_german_equity_proxy_features_gold/v1",
             code_commit="abc1234",
             data_contract_hash="0" * 64,
         )
-        training_contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
+        training_contract = load_contract(
+            contract_path("fin.ecb_german_equity_proxy_features_gold")
+        )
         contract_hash = policy_hook_from_contract(training_contract).contract_sha256
         lineage = lineage.model_copy(update={"data_contract_hash": contract_hash})
         result = evaluate.run_experiment_set(

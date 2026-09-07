@@ -14,6 +14,7 @@ class ECBRecord(BaseModel):
 
     observation_date: dt.date
     rate_pct: float
+    rate_type: str = "MRO"
     ingestion_timestamp: dt.datetime = Field(
         default_factory=lambda: dt.datetime.now(dt.UTC),
         serialization_alias="_ingestion_timestamp",

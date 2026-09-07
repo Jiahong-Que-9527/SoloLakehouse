@@ -44,24 +44,34 @@ logger = structlog.get_logger()
 def main() -> None:
     from ingestion.iceberg_io import ensure_namespace, get_catalog
     from ingestion.iceberg_schemas import (
-        BRONZE_DAX_DAILY_PARTITION,
-        BRONZE_DAX_DAILY_SCHEMA,
         BRONZE_ECB_RATES_PARTITION,
         BRONZE_ECB_RATES_SCHEMA,
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+        BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
         BRONZE_REJECTED_SCHEMA,
         GOLD_FEATURES_SCHEMA,
-        SILVER_DAX_DAILY_SCHEMA,
         SILVER_ECB_RATES_SCHEMA,
+        SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
     )
 
     tables = [
         # (namespace, table_name, schema, partition_spec)
         ("bronze", "ecb_rates", BRONZE_ECB_RATES_SCHEMA, BRONZE_ECB_RATES_PARTITION),
-        ("bronze", "dax_daily", BRONZE_DAX_DAILY_SCHEMA, BRONZE_DAX_DAILY_PARTITION),
+        (
+            "bronze",
+            "german_equity_proxy_daily",
+            BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
+            BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION,
+        ),
         ("bronze", "rejected_records", BRONZE_REJECTED_SCHEMA, None),
         ("silver", "ecb_rates_cleaned", SILVER_ECB_RATES_SCHEMA, None),
-        ("silver", "dax_daily_cleaned", SILVER_DAX_DAILY_SCHEMA, None),
-        ("gold", "ecb_dax_features", GOLD_FEATURES_SCHEMA, None),
+        (
+            "silver",
+            "german_equity_proxy_daily_cleaned",
+            SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA,
+            None,
+        ),
+        ("gold", "ecb_german_equity_proxy_features", GOLD_FEATURES_SCHEMA, None),
     ]
 
     catalog = get_catalog()
@@ -82,7 +92,28 @@ def main() -> None:
         except TableAlreadyExistsError:
             logger.info("iceberg_table_exists", table=f"{namespace}.{table_name}")
 
+    _ensure_ecb_rate_type_column(catalog)
+
     logger.info("iceberg_init_complete")
+
+
+def _ensure_ecb_rate_type_column(catalog) -> None:
+    """Add rate_type to existing bronze.ecb_rates tables without renumbering field IDs."""
+    from pyiceberg.exceptions import NoSuchTableError
+    from pyiceberg.types import StringType
+
+    identifier = ("bronze", "ecb_rates")
+    try:
+        table = catalog.load_table(identifier)
+    except NoSuchTableError:
+        return
+
+    if any(field.name == "rate_type" for field in table.schema().fields):
+        return
+
+    with table.update_schema() as update:
+        update.add_column("rate_type", StringType(), required=False)
+    logger.info("iceberg_schema_evolved", table="bronze.ecb_rates", column="rate_type")
 
 
 if __name__ == "__main__":

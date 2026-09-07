@@ -29,8 +29,8 @@ from governance.emission import emit_pending_lineage_evidence_for_run
 from governance.ml_lineage import build_ml_lineage_tuple, contract_content_sha256
 from governance.policy_hooks import validate_ml_training_allowed
 from ingestion import iceberg_io
-from ingestion.collectors.dax_collector import DAXCollector
 from ingestion.collectors.ecb_collector import ECBCollector
+from ingestion.collectors.ewg_collector import EWGCollector
 from ml.evaluate import run_experiment_set
 from ml.train_ecb_dax_model import FEATURE_VERSION
 from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
@@ -97,14 +97,14 @@ def ecb_bronze(
 
 
 @asset(group_name="bronze", retry_policy=RetryPolicy(max_retries=3, delay=5))
-def dax_bronze(
+def german_equity_proxy_bronze(
     context,
     iceberg_catalog: IcebergCatalogResource,
     pipeline_config: PipelineConfigResource,
 ) -> dict[str, Any]:
     started = time.perf_counter()
     catalog = iceberg_catalog.get_catalog()
-    result = DAXCollector(
+    result = EWGCollector(
         catalog=catalog,
         bucket=pipeline_config.bucket,
         force=False,
@@ -112,7 +112,7 @@ def dax_bronze(
     context.add_output_metadata(
         _governed_asset_metadata(
             catalog,
-            "dax_bronze",
+            "german_equity_proxy_bronze",
             {
                 "status": result.get("status", "ok"),
                 "valid_count": int(result.get("valid_count", 0)),
@@ -123,7 +123,7 @@ def dax_bronze(
             },
         )
     )
-    _emit_metric("dax_bronze", started)
+    _emit_metric("german_equity_proxy_bronze", started)
     return result
 
 
@@ -149,45 +149,45 @@ def ecb_silver(
 
 
 @asset(group_name="silver")
-def dax_silver(
+def german_equity_proxy_silver(
     context,
     iceberg_catalog: IcebergCatalogResource,
-    dax_bronze: dict[str, Any],
+    german_equity_proxy_bronze: dict[str, Any],
 ) -> str:
-    _ = dax_bronze
+    _ = german_equity_proxy_bronze
     started = time.perf_counter()
     catalog = iceberg_catalog.get_catalog()
     result = dax_bronze_to_silver.run(catalog)
     context.add_output_metadata(
         _governed_asset_metadata(
             catalog,
-            "dax_silver",
+            "german_equity_proxy_silver",
             {"table": result["table"], "row_count": _metadata_row_count(result)},
         )
     )
-    _emit_metric("dax_silver", started)
+    _emit_metric("german_equity_proxy_silver", started)
     return str(result["table"])
 
 
 @asset(group_name="gold")
-def gold_features(
+def ecb_german_equity_proxy_features(
     context,
     iceberg_catalog: IcebergCatalogResource,
     ecb_silver: str,
-    dax_silver: str,
+    german_equity_proxy_silver: str,
 ) -> str:
-    _ = (ecb_silver, dax_silver)
+    _ = (ecb_silver, german_equity_proxy_silver)
     started = time.perf_counter()
     catalog = iceberg_catalog.get_catalog()
     result = silver_to_gold_features.run(catalog)
     context.add_output_metadata(
         _governed_asset_metadata(
             catalog,
-            "gold_features",
+            "ecb_german_equity_proxy_features",
             {"table": result["table"], "event_count": _metadata_row_count(result)},
         )
     )
-    _emit_metric("gold_features", started)
+    _emit_metric("ecb_german_equity_proxy_features", started)
     return str(result["table"])
 
 
@@ -196,14 +196,16 @@ def ml_experiment(
     context,
     iceberg_catalog: IcebergCatalogResource,
     pipeline_config: PipelineConfigResource,
-    gold_features: str,
+    ecb_german_equity_proxy_features: str,
 ) -> str:
-    _ = gold_features
+    _ = ecb_german_equity_proxy_features
     started = time.perf_counter()
     catalog = iceberg_catalog.get_catalog()
-    contract = contract_for_asset_key("gold_features")
+    contract = contract_for_asset_key("ecb_german_equity_proxy_features")
     if contract is None:
-        raise ValueError("gold_features is not covered by a governed dataset contract")
+        raise ValueError(
+            "ecb_german_equity_proxy_features is not covered by a governed dataset contract"
+        )
     location = contract.physical_location
     snapshot_id = iceberg_io.current_snapshot_id(catalog, location.namespace, location.table)
     lineage = build_ml_lineage_tuple(
@@ -233,7 +235,11 @@ def ml_experiment(
     return experiment_result.best_run_id
 
 
-@sensor(job_name="full_pipeline_job", minimum_interval_seconds=1800)
+@sensor(
+    job_name="demo_data_flow_job",
+    minimum_interval_seconds=1800,
+    default_status=DefaultSensorStatus.RUNNING,
+)
 def ecb_data_freshness_sensor(
     iceberg_catalog: IcebergCatalogResource,
 ):
@@ -293,22 +299,25 @@ def lineage_evidence_sensor(context: RunStatusSensorContext):
     )
 
 
-@asset_check(asset=gold_features, description="gold_features should contain at least 10 rows")
-def gold_features_min_rows_check(
+@asset_check(
+    asset=ecb_german_equity_proxy_features,
+    description="ecb_german_equity_proxy_features should contain at least 10 rows",
+)
+def ecb_german_equity_proxy_features_min_rows_check(
     iceberg_catalog: IcebergCatalogResource,
-    gold_features: str,
+    ecb_german_equity_proxy_features: str,
 ) -> AssetCheckResult:
-    _ = gold_features
+    _ = ecb_german_equity_proxy_features
     catalog = iceberg_catalog.get_catalog()
-    gold_df = iceberg_io.scan_table(catalog, "gold", "ecb_dax_features")
+    gold_df = iceberg_io.scan_table(catalog, "gold", "ecb_german_equity_proxy_features")
     row_count = int(len(gold_df.index))
     passed = row_count >= 10
     return AssetCheckResult(
         passed=passed,
         description=(
-            "gold_features has enough event rows for event-study modeling"
+            "ecb_german_equity_proxy_features has enough event rows for event-study modeling"
             if passed
-            else "gold_features has fewer than 10 rows"
+            else "ecb_german_equity_proxy_features has fewer than 10 rows"
         ),
         metadata={"row_count": row_count},
     )
