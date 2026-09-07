@@ -1,7 +1,7 @@
 # FinLakehouse runtime pin — opt in with USE_PINNED_IMAGES=1 in .env (see .env.example).
 # Prevents accidental `docker compose up --build` from replacing a validated Dagster image.
 #
-# Tagged: 2026-09-07 (full_pipeline_job SUCCESS run d0412f55)
+# Tagged: 2026-09-07 post-merge (K3 bronze overwrite + review fixes)
 # Recreate pins after intentional image upgrades:
 #   docker tag sololakehouse-dagster-webserver:latest sololakehouse-dagster-webserver:<new-tag>
 #   docker tag sololakehouse-dagster-daemon:latest sololakehouse-dagster-daemon:<new-tag>
@@ -9,10 +9,10 @@
 
 services:
   dagster-webserver:
-    image: sololakehouse-dagster-webserver:finlakehouse-pinned-20260907
+    image: sololakehouse-dagster-webserver:finlakehouse-pinned-20260907b
     build: !reset null
     pull_policy: never
   dagster-daemon:
-    image: sololakehouse-dagster-daemon:finlakehouse-pinned-20260907
+    image: sololakehouse-dagster-daemon:finlakehouse-pinned-20260907b
     build: !reset null
     pull_policy: never
