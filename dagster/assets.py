@@ -29,8 +29,8 @@ from governance.emission import emit_pending_lineage_evidence_for_run
 from governance.ml_lineage import build_ml_lineage_tuple, contract_content_sha256
 from governance.policy_hooks import validate_ml_training_allowed
 from ingestion import iceberg_io
-from ingestion.collectors.ewg_collector import EWGCollector
 from ingestion.collectors.ecb_collector import ECBCollector
+from ingestion.collectors.ewg_collector import EWGCollector
 from ml.evaluate import run_experiment_set
 from ml.train_ecb_dax_model import FEATURE_VERSION
 from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
