@@ -722,6 +722,54 @@ Explicit non-goals, still in force even after `L3`: the D2 entity split,
 starting v3.0, any domain beyond ECB/German-equity-proxy/crypto, and any
 platform service outside the `crypto` optional profile.
 
+### Post-Phase-1 diversification note (Owner Decision 2026-09-09, planning only)
+
+Recorded ahead of `L4` completion — **does not start new work** and does not
+override the non-goals above until a future Owner Decision explicitly amends
+them. Full evaluation with live-tested facts:
+[`docs/local-cn/数据领域扩张规划_2026-09-09.md`](docs/local-cn/数据领域扩张规划_2026-09-09.md)
+(Chinese planning note, mirrors an internal command-center record; not a
+public-facing doc).
+
+Owner-decided sequencing for what comes **after** `L4` (Phase 1) lands:
+
+1. **Finance domain first, not aviation yet.** Before opening any new domain,
+   deepen the finance domain: add data types beyond the current
+   event-driven ECB-rate-change shape (`ecb_german_equity_proxy_features`
+   updates only on an actual rate change — ~8x/year), and put a real
+   freshness SLA on existing sources (`fin.ecb_rates_bronze.yaml`'s
+   `max_gap_days: 180` currently would not catch a multi-month stall).
+2. **Only after the finance domain is stable** does aviation-domain sourcing
+   start (a genuinely new domain, out of scope per the non-goals above until
+   then). Any aviation source must stay cleanly separated from the
+   Bernardo-controlled ADS-B data used elsewhere — source selection for that
+   phase is deferred and not decided here.
+
+Finance-domain candidates surveyed (not yet implemented, no task IDs assigned):
+
+- **ECB EXR** (daily euro reference rates, same ECB SDW source as `L4-ecb-a`,
+  new dataflow key, not a new domain) — smallest lift, no API key, updates
+  every TARGET business day, multi-currency panel shape (~30 rows/day) rather
+  than a single-value series. Live-verified 2026-09-08:
+  `EXR.D.USD.EUR.SP00.A` returned same-day data over the public API.
+- **FRED daily series** (`DCOILBRENTEU` Brent crude + `DGS10` 10Y Treasury) —
+  moderate lift, a genuinely new domain under the non-goals above so needs its
+  own Owner Decision before implementation starts. Brent is the intentional
+  bridge toward the aviation-domain phase (jet-fuel cost correlation). FRED's
+  free-tier quota (120 req/min) is far less constraining than Alpha Vantage's
+  25 req/day, which the current EWG collector already consumes.
+  Also a new domain requiring its own Owner Decision.
+- **SMARD / Energy-Charts German day-ahead electricity** — optional, largest
+  lift (first intraday/15-minute-resolution source; changes the partitioning
+  assumptions used everywhere else in this Bronze layer), evaluate only after
+  the first two are running cleanly. New domain, own Owner Decision needed.
+
+Explicitly rejected for the finance-domain step: more central-bank
+rate-change tables (same event-driven shape, doesn't fix the staleness
+complaint that motivated this note); crypto (already scoped as the isolated,
+deferred Phase 2 above — do not conflate); stacking more Alpha Vantage
+symbols (same 25 req/day quota as the existing EWG collector).
+
 ## Immediate Next Actions
 
 Execute in this order.
