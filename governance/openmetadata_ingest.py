@@ -10,7 +10,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from governance.openmetadata_auth import OpenMetadataAuthError, resolve_bearer_token
 
