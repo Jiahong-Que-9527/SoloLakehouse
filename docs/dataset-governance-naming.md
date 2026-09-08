@@ -82,18 +82,56 @@ The object paths below use entity-level storage variables. `DATA_BUCKET` is the
 active product-level setting for the main data bucket, with `BUCKET_NAME`
 retained as a v2.5 compatibility alias.
 
+### Live datasets
+
 | Logical dataset ID | Layer | Iceberg table (Trino) | Current Dagster asset | Notes |
 |---|---|---|---|---|
-| `fin.ecb_rates_bronze` | Bronze | `iceberg.bronze.ecb_rates` | `ecb_bronze` | Raw ECB interest-rate observations. Day-partitioned on `_ingestion_timestamp`. Append-only. |
-| `fin.dax_daily_bronze` | Bronze | `iceberg.bronze.dax_daily` | `dax_bronze` | Raw DAX daily OHLCV records. Day-partitioned on `_ingestion_timestamp`. Append-only. |
+| `fin.ecb_rates_bronze` | Bronze | `iceberg.bronze.ecb_rates` | `ecb_bronze` | Raw ECB policy-rate observations. Day-partitioned on `_ingestion_timestamp`. Full overwrite per run (see below). |
+| `fin.german_equity_proxy_daily_bronze` | Bronze | `iceberg.bronze.german_equity_proxy_daily` | `german_equity_proxy_bronze` | Raw EWG daily OHLCV (iShares MSCI Germany ETF, NYSE Arca, via Alpha Vantage). Day-partitioned on `_ingestion_timestamp`. Full overwrite per run. |
 | `fin.ecb_rates_silver` | Silver | `iceberg.silver.ecb_rates_cleaned` | `ecb_silver` | Typed ECB rate series with derived `rate_change_bps`. Full overwrite per run. |
-| `fin.dax_daily_silver` | Silver | `iceberg.silver.dax_daily_cleaned` | `dax_silver` | Cleaned business-day DAX series with `daily_return`. Full overwrite per run. |
-| `fin.ecb_dax_features_gold` | Gold | `iceberg.gold.ecb_dax_features` | `gold_features` | Event-study feature table for ECB rate-change events and DAX returns. Full overwrite per run. |
+| `fin.german_equity_proxy_daily_silver` | Silver | `iceberg.silver.german_equity_proxy_daily_cleaned` | `german_equity_proxy_silver` | Cleaned business-day EWG series with `daily_return`. Full overwrite per run. |
+| `fin.ecb_german_equity_proxy_features_gold` | Gold | `iceberg.gold.ecb_german_equity_proxy_features` | `ecb_german_equity_proxy_features` | Event-study features, one row per ECB rate **change**. Column names retain a `dax_` prefix as historical residue. Full overwrite per run. |
+
+### Deprecated in place
+
+Retired by Owner Decision `2026-09-03` (`D4`). Contracts carry
+`deprecated: true` with `superseded_by`; the physical tables are kept as a
+frozen historical record and are **not** deleted, and carry no freshness SLA.
+
+| Logical dataset ID | Layer | Superseded by |
+|---|---|---|
+| `fin.dax_daily_bronze` | Bronze | `fin.german_equity_proxy_daily_bronze` |
+| `fin.dax_daily_silver` | Silver | `fin.german_equity_proxy_daily_silver` |
+| `fin.ecb_dax_features_gold` | Gold | `fin.ecb_german_equity_proxy_features_gold` |
+
+The rename is a genuine business-entity change (index → ETF, Xetra → NYSE
+Arca, different currency, hours and liquidity), not a provider swap, which is
+why it took new IDs at all three layers rather than reusing the old ones.
+
+### Reserved — planned, not yet implemented
+
+Registered here so the IDs are stable before any code exists. Design:
+[`fin-domain-data-expansion.md`](fin-domain-data-expansion.md); tasks `L6`/`L7`
+in [`TASKS.md`](../TASKS.md).
+
+| Logical dataset ID | Layer | Iceberg table (Trino) | Planned Dagster asset | Notes |
+|---|---|---|---|---|
+| `fin.ecb_fx_rates_bronze` | Bronze | `iceberg.bronze.ecb_fx_rates` | `ecb_fx_bronze` | ECB EXR daily euro reference rates. **First panel-shaped dataset**: keyed on `(observation_date, currency)`, not `observation_date` alone. Measure column is `fx_rate`, never `rate_pct`. |
+| `fin.ecb_fx_rates_silver` | Silver | `iceberg.silver.ecb_fx_rates_cleaned` | `ecb_fx_silver` | Active currencies only, with per-currency `fx_return_pct`. |
+| `fin.eur_market_daily_gold` | Gold | `iceberg.gold.eur_market_daily` | `eur_market_daily` | One row per TARGET business day: policy rate, FX basket, EWG restated in EUR. Does not supersede the event-grained Gold table. |
 
 Notes:
 
 - `${WAREHOUSE_URI}` is the Iceberg warehouse root from the product entity contract.
-- All six Iceberg tables are bootstrapped at startup by `scripts/init-iceberg-namespaces.py`.
+- Iceberg tables are bootstrapped at startup by `scripts/init-iceberg-namespaces.py`.
+- **All three medallion layers are written with full-overwrite semantics**, not
+  append: `BronzeWriter.write()` calls `iceberg_io.overwrite_table()`, and the
+  collectors re-fetch complete source history on every run. Bronze is therefore
+  a current snapshot of the source, not an accumulating log. This is what makes
+  a `max(observation_date)`-versus-today freshness rule meaningful, and it is
+  why the day partition on `_ingestion_timestamp` holds one live partition
+  rather than a growing series. (An earlier revision of this table described
+  Bronze as append-only; that was never true of the pyiceberg path.)
 - The logical `fin.*` IDs stay unchanged if the entity moves from MinIO to another S3-compatible object store.
 - If Trino schema or table names change during migration, update the mapping rows and OpenMetadata service configuration; do not rename the logical IDs.
 

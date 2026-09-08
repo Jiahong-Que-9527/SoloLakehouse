@@ -47,12 +47,14 @@ Never treat a roadmap *target* as a delivered *capability*.
   discipline, and K8s readiness gate.
 - **Owner Decision (2026-08-15):** independent external sign-off is not a
   blocking gate; `docs/external-validation/` is retained as history.
-- **Active task:** Block `L` — **`L4` Phase 1 (batch):** fully wire sources **1**
-  (ECB SDW, extend DFR/MLF) and **2** (live EWG via Alpha Vantage) through
-  Bronze → Silver → Gold → `make demo` / `make pipeline`. **`L4` Phase 2
-  (streaming/crypto) is deferred** — do not start Redpanda, `dagster_crypto/`,
-  or PR2/PR3 until Phase 1 lands. See `TASKS.md` Block `L`, "L4 execution
-  phases".
+- **Active task:** Block `L` / **`D5` finance deepening** — `L4` Phase 1
+  (batch ECB + EWG) **landed**. Execute `L5` → `L6` → `L7`. **`L4` Phase 2
+  (streaming/crypto) stays deferred.** See `TASKS.md` Block `L`, `L5`–`L7`,
+  and `docs/fin-domain-data-expansion.md`.
+- **D5 (resolved 2026-09-08):** deepen finance before any new domain — `L5`
+  freshness SLA, `L6` ECB EXR FX panel, `L7` `fin.eur_market_daily_gold`.
+  Same sources as `D4`; **no new domain**. FRED and electricity surveyed,
+  not started. Aviation follows finance stability.
 - **Layer 1 market leg (D4, resolved 2026-09-03):** `data/sample/dax_daily_sample.csv`
   and any in-repo static DAX CSV path are **retired — not an option** for demo,
   production, CI, or future design. The only approved market leg is live
@@ -77,7 +79,7 @@ v2.5  the platform runs
 
 ## 3. Decision gates
 
-Recorded in `docs/roadmap.md` under "Open Decisions". **D1 and D4 are resolved.**
+Recorded in `docs/roadmap.md` under "Open Decisions". **D1, D4 and D5 are resolved.**
 **D2 and D3 remain live** — an agent that starts work behind either gate is
 doing work that may be thrown away.
 
@@ -87,6 +89,7 @@ doing work that may be thrown away.
 | **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
 | **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
 | **D4** | **Resolved 2026-09-03 (`L3`); phased execution 2026-09-04:** Layer 1 remediation — ECB extends in place; **DAX sample CSV is retired**; market leg becomes live EWG (Alpha Vantage). **Phase 1 (active):** batch sources 1+2 end-to-end. **Phase 2 (deferred):** optional crypto streaming leg (PR2/PR3). Do not start Phase 2 until Phase 1 lands. See `TASKS.md` Block `L`, "L4 execution phases". |
+| **D5** | **Resolved 2026-09-08:** after `L4` Phase 1, deepen the finance domain before opening any new one — `L5` freshness SLA (`max_staleness_days`, `WARN` asset check), `L6` ECB EXR daily FX panel (first panel-shaped dataset; `L4-ecb` landed, needs EXR panel parse), `L7` `fin.eur_market_daily_gold` (daily Gold table, EWG restated in EUR). Stays inside the `D4` sources — **non-goals unchanged**. FRED and electricity are surveyed, **not started**; each needs its own Owner Decision. Aviation follows finance stability. See `TASKS.md` `L5`–`L7` and `docs/fin-domain-data-expansion.md`. |
 
 If a task appears to require crossing a gate, stop and surface the conflict
 rather than proceeding.
