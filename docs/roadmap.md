@@ -45,8 +45,8 @@ As of `2026-08-15`:
 - **Owner Decision (2026-08-15):** independent external sign-off is **not** a
   blocking gate. Protocol files under `docs/external-validation/` are retained
   as historical traces. Internal validation remains mandatory.
-- **Active task:** Block `L` / `D5` in `TASKS.md` — finance-domain deepening
-  (`L5` → `L6` → `L7`) after `L4` Phase 1 landed.
+- **Active task:** Block `L` post-`D5` in `TASKS.md` — finance deepening
+  landed (`#87`); next is Compose operation / Block `K` (Phase 2 deferred).
 - The approved development order was **v2.8, then v2.7, then v2.9**; see
   "Open Decisions" below. Those versions are delivered on `main`.
 - future planning prioritizes **control plane and evidence value** over adding
@@ -508,9 +508,9 @@ task. Internal validation remains mandatory for every change (`make test`,
 `make demo` where applicable). Cancelling this gate does not authorize
 production, WORM, or regulatory-readiness claims, and does not start v3.0.
 
-The next execution backlog is **`D5` / `L5`–`L7`** — freshness SLA, ECB EXR
-FX panel, then daily Gold with EWG in EUR (`TASKS.md` Block `L`). **`L4`
-Phase 1 has landed**; Phase 2 (streaming/crypto) stays deferred.
+**`D5` / `L5`–`L7` landed on `main` (`#87`).** Next backlog is Compose
+operation and Block `K` hardening; Phase 2 (streaming/crypto) stays deferred
+(`TASKS.md` Block `L`).
 
 ## What Is Explicitly Deprioritized
 
