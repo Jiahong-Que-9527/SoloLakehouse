@@ -112,8 +112,8 @@ Proposed per-dataset settings:
 |---|---|---|---|
 | `fin.ecb_rates_bronze` | `daily_calendar` | 3 | 2 *(was 180)* |
 | `fin.ecb_rates_silver` | `daily_calendar` | 3 | 2 *(was 180)* |
-| `fin.german_equity_proxy_daily_bronze` | `business_day` | 5 | 5 *(was 30)* |
-| `fin.german_equity_proxy_daily_silver` | `business_day` | 5 | 5 *(was 30)* |
+| `fin.german_equity_proxy_daily_bronze` | `business_day` | 5 | 10 *(was 30; 10 covers multi-day holiday gaps in historical EWG)* |
+| `fin.german_equity_proxy_daily_silver` | `business_day` | 5 | 10 *(was 30; same as bronze)* |
 | `fin.ecb_german_equity_proxy_features_gold` | `event_driven` | *(none)* | **removed** |
 | `fin.ecb_fx_rates_bronze` *(new, `L6`)* | `business_day` | 5 | 5 |
 | `fin.ecb_fx_rates_silver` *(new, `L6`)* | `business_day` | 5 | 5 |
