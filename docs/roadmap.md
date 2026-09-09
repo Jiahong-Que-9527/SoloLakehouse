@@ -45,8 +45,8 @@ As of `2026-08-15`:
 - **Owner Decision (2026-08-15):** independent external sign-off is **not** a
   blocking gate. Protocol files under `docs/external-validation/` are retained
   as historical traces. Internal validation remains mandatory.
-- **Active task:** Block `L` in `TASKS.md` — research and remediate Layer 1
-  sources before long-term operation. No replacement source is chosen yet.
+- **Active task:** Block `L` / `D5` in `TASKS.md` — finance-domain deepening
+  (`L5` → `L6` → `L7`) after `L4` Phase 1 landed.
 - The approved development order was **v2.8, then v2.7, then v2.9**; see
   "Open Decisions" below. Those versions are delivered on `main`.
 - future planning prioritizes **control plane and evidence value** over adding
@@ -314,7 +314,7 @@ Important framing:
 
 ## Open Decisions
 
-**D1 and D4 are resolved. D2 and D3 remain open.** Agents must not start
+**D1, D4 and D5 are resolved. D2 and D3 remain open.** Agents must not start
 implementation work that depends on an unresolved D2 or D3 decision.
 
 ### D1 — v2.8 before v2.7 (resolved 2026-08-02)
@@ -434,6 +434,57 @@ phases"). ADR record for Phase 2:
 dated amendment paragraph in
 `docs/decisions/ADR-004-financial-dataset.md` (pending — `L4l`).
 
+### D5 — Finance-domain deepening before any new domain (resolved 2026-09-08)
+
+**Status: decided.** After `L4` Phase 1 lands, the next data work **deepens the
+finance domain rather than opening a new one**. Aviation sourcing starts only
+once the finance domain is stable, and any aviation source must stay cleanly
+separated from the externally controlled ADS-B data used elsewhere; that source
+selection is deferred and not decided here.
+
+**This decision opens no new domain.** It stays entirely inside the sources
+already named by `D4` (ECB SDW, Alpha Vantage EWG), so the Block `L` non-goal
+*"any domain beyond ECB/German-equity-proxy/crypto"* is **unchanged and not
+exercised**.
+
+**What prompted it.** Daily runs appeared to produce nothing new. Two live-API
+checks on 2026-09-08 showed the diagnosis in circulation was wrong on both
+counts:
+
+- The ECB policy-rate series is **daily-calendar, not event-driven** —
+  `FM/D.U2.EUR.4F.KR.MRR_RT.LEV` returns a value every calendar day, weekends
+  included, holding the last decided rate constant. Bronze and Silver already
+  gain a row per day. Only `gold.ecb_german_equity_proxy_features` is
+  event-grained (~8 rows/year). **The stagnation is a Gold-layer problem, not a
+  source-count problem.**
+- **Freshness was unmonitored, and tightening `max_gap_days` would not have
+  fixed it.** That rule measures gaps *inside* the observation history, over a
+  Bronze table rewritten as a full snapshot of source history on every run. A
+  source that stops publishing leaves the internal gap set unchanged, so the
+  check passes at any threshold.
+
+**Scope — three tasks, `L5`–`L7` in `TASKS.md` Block `L`, in this order:**
+
+| | Task | Why this position |
+|---|---|---|
+| 1 | `L5` freshness SLA (`max_staleness_days` + `update_pattern`, enforced as a `WARN` Dagster asset check, not a write gate) | Needs no new source, and is what makes "the pipeline ran today" a meaningful statement. Running `L6` first would add a source whose staleness is as undetectable as the current ones |
+| 2 | `L6` ECB EXR daily FX panel | Same source, same host, no API key, new dataflow. Keyed on `(observation_date, currency)` — the **first panel-shaped dataset in the warehouse**. `L4-ecb` (DFR/MLF) already landed; `L6` still needs EXR panel parse that retains currency keys |
+| 3 | `L7` `fin.eur_market_daily_gold` | One row per TARGET business day, carrying **EWG restated in EUR**. EWG is a USD-quoted NYSE ETF, so every return in the warehouse today is contaminated by EUR/USD; this makes the *existing* market leg interpretable. Definition of done includes a Superset tile |
+
+**Surveyed and explicitly not started.** FRED (`DCOILBRENTEU` Brent, `DGS10`)
+and SMARD/Energy-Charts German day-ahead electricity are genuinely new domains
+under the `D4` non-goals; **each requires its own Owner Decision before any
+implementation**. Brent is recorded as the intentional bridge toward the later
+aviation phase. SMARD would additionally be the first intraday source, changing
+Bronze partitioning assumptions across the layer. Rejected outright: further
+central-bank policy-rate tables (same shape, adds rows not information); crypto
+(already scoped as the isolated, deferred Phase 2 — do not conflate); more
+Alpha Vantage symbols (same 25 req/day quota the EWG collector consumes).
+
+Full design, with the evidence each decision rests on:
+[`docs/fin-domain-data-expansion.md`](fin-domain-data-expansion.md).
+Task-level plan: `TASKS.md` Block `L`, `L5`–`L7`.
+
 ### D3 — Portal / Keycloak exploration
 
 **Status: sandbox only.** Local `.env` carries `KEYCLOAK_*` and `PORTAL_OIDC_*`
@@ -457,10 +508,9 @@ task. Internal validation remains mandatory for every change (`make test`,
 `make demo` where applicable). Cancelling this gate does not authorize
 production, WORM, or regulatory-readiness claims, and does not start v3.0.
 
-The next execution backlog is **`L4` Phase 1** — batch sources ECB + EWG through
-the full medallion path (`TASKS.md` Block `L`, "L4 execution phases"). **Phase 2
-(streaming/crypto) is deferred** until Phase 1 lands, then long-term Compose
-operation on the live batch sources.
+The next execution backlog is **`D5` / `L5`–`L7`** — freshness SLA, ECB EXR
+FX panel, then daily Gold with EWG in EUR (`TASKS.md` Block `L`). **`L4`
+Phase 1 has landed**; Phase 2 (streaming/crypto) stays deferred.
 
 ## What Is Explicitly Deprioritized
 

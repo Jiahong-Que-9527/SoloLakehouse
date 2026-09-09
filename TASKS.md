@@ -15,7 +15,7 @@ Use it to answer:
 
 ## Canonical Planning State
 
-As of `2026-08-15`:
+As of `2026-09-08`:
 
 - `v2.5` is delivered and protected from regression.
 - `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
@@ -31,9 +31,16 @@ As of `2026-08-15`:
   checks (`make test`, `make verify`, `make demo`) remain mandatory. This does
   not authorize production, WORM, or regulatory-readiness claims, and does not
   start v3.0.
-- **Active task: Block `L`** — research and remediate Layer 1 sources before
-  long-term operation. No replacement source is chosen yet; do not swap
-  collectors until an Owner Decision names the source.
+- **Active task: Block `L` / `D5`** — `L4` Phase 1 (batch ECB + EWG) **landed**
+  on `main` (`0a5080a` + `#85`). Next execution is finance-domain deepening
+  `L5` → `L6` → `L7` (Owner Decision `D5`, 2026-09-08). Crypto Phase 2 stays
+  deferred. *(Older "no source chosen yet" / "Phase 1 active" wording is
+  superseded.)*
+- **Finance deepening (`D5`):** `L5` freshness SLA → `L6` ECB EXR FX panel →
+  `L7` daily Gold (`fin.eur_market_daily_gold`). Same sources as `D4`; **no new
+  domain, non-goals unchanged.** FRED and German electricity are surveyed but
+  **not started** — each needs its own Owner Decision. Aviation follows finance
+  stability. Design: `docs/fin-domain-data-expansion.md`.
 - **Block `K` remains open** (reliability / recovery) but is **not** the
   current execution focus. Long-term operation starts only after the input
   layer (Layer 1, then the Layer 2 changes that follow) is decided.
@@ -722,6 +729,87 @@ Explicit non-goals, still in force even after `L3`: the D2 entity split,
 starting v3.0, any domain beyond ECB/German-equity-proxy/crypto, and any
 platform service outside the `crypto` optional profile.
 
+### `L5`–`L7` — Finance-domain deepening (Owner Decision `2026-09-08`)
+
+**Active after `L4` Phase 1.** Full design:
+[`docs/fin-domain-data-expansion.md`](docs/fin-domain-data-expansion.md).
+Implementation not started. Owner defaults (2026-09-09): WARN-only staleness,
+dynamic 10-day FX active set, basket USD/GBP/CHF/JPY/CNY, drop ECB silver
+forward-fill with L5.
+
+Owner-decided sequencing: **deepen the finance domain first; aviation only
+after finance is stable**, and any aviation source must stay cleanly separated
+from the externally controlled ADS-B data used elsewhere. Aviation source
+selection is deferred and not decided here.
+
+`L5`–`L7` stay entirely inside the sources named by `D4` (ECB SDW, Alpha
+Vantage EWG). **The non-goals above are unchanged and not exercised** — no new
+domain is opened.
+
+Two corrections to what an earlier draft of this note asserted, both verified
+against the live API on 2026-09-08:
+
+- **The ECB rate series is daily-calendar, not event-driven.**
+  `FM/D.U2.EUR.4F.KR.MRR_RT.LEV` returns a value on every calendar day,
+  weekends included, holding the last decided rate constant (2026-08-28 …
+  2026-09-08 all `2.4`). `bronze.ecb_rates` and `silver.ecb_rates_cleaned`
+  already gain a row per day. Only `gold.ecb_german_equity_proxy_features` is
+  event-grained. The daily-refresh gap is a **Gold-layer** gap.
+- **Tightening `max_gap_days` would not have fixed freshness monitoring.**
+  `governance/quality.py:36-40` measures gaps *inside* the observation
+  history, not the age of the newest row, over a Bronze table that
+  `BronzeWriter.write` rewrites as a full snapshot of source history. A source
+  that stops publishing leaves the internal gap set unchanged, so the check
+  passes at any threshold. Freshness needs a separate rule.
+
+- [ ] `L5` **Freshness SLA that can fire.** Additive `QualityRules` fields
+      `update_pattern` (`daily_calendar` | `business_day` | `event_driven`) and
+      `max_staleness_days`; reject `max_gap_days` on `event_driven` datasets so
+      the current misconfiguration becomes unexpressible. Enforced as a Dagster
+      `@asset_check` at `WARN` severity — shaped like
+      `ecb_german_equity_proxy_features_min_rows_check` — **not** as a write
+      gate, so a source outage does not stop Gold from being rebuilt. Restate
+      the SLA on all six live contracts (per-dataset table in the design doc);
+      leave the two deprecated `fin.dax_*` contracts frozen. Extends the Block
+      `A` contract registry. **Independent of any new source — do this first.**
+- [ ] `L6` **ECB EXR daily FX panel.** Same source, same host, no API key, new
+      dataflow — not a new domain. New `fin.ecb_fx_rates_bronze` /
+      `fin.ecb_fx_rates_silver` (`iceberg.bronze.ecb_fx_rates`,
+      `iceberg.silver.ecb_fx_rates_cleaned`), keyed on
+      `(observation_date, currency)` — the **first panel-shaped dataset in the
+      warehouse**, which is the actual diversity gain. One wildcard request
+      (`EXR/D..EUR.SP00.A`) returns all 44 series; 29 are currently published
+      and 15 are discontinued (BGN ended 2025-12-31 on euro adoption, RUB
+      2022-03-01, …), so the active set is resolved dynamically at Silver
+      rather than from an allow-list. Register `ecb_fx_rates` in
+      `_BRONZE_TABLE_META` — the current fallback would silently write a
+      wrong-shaped table. **`L4-ecb-a`…`d` landed on `#85`** (MRO/DFR/MLF as
+      separate series URLs). `L6` still needs a panel parse: one EXR wildcard
+      request must retain `currency` from SDMX series keys (policy-rate
+      collector still discards series dimension keys).
+- [ ] `L7` **`fin.eur_market_daily_gold`** — one row per TARGET business day
+      (`iceberg.gold.eur_market_daily`), carrying the policy rate, an FX basket,
+      and **EWG restated in EUR** (`ewg_close_usd / eur_usd`). EWG is a
+      USD-quoted NYSE ETF proxying German equity, so every return in the
+      warehouse today is contaminated by EUR/USD; this is what makes the
+      *existing* market leg interpretable, not just a row-count exercise. First
+      table that reconciles two calendars (TARGET vs NYSE): inner join for FX,
+      left join for equity, no forward-fill, `ewg_price_date` recorded so the
+      join is auditable. Does not supersede the event-grained Gold table.
+      Definition of done includes one Superset tile — without it the new rows
+      are invisible and the complaint that motivated this work is unanswered.
+
+Surveyed and explicitly **not** started: FRED (`DCOILBRENTEU` Brent,
+`DGS10`) and SMARD/Energy-Charts German day-ahead electricity are genuinely new
+domains under the non-goals above and each need their own Owner Decision before
+implementation; Brent is noted as the intentional bridge toward the later
+aviation phase, and SMARD would additionally be the first intraday source,
+changing Bronze partitioning assumptions everywhere. Rejected outright: more
+central-bank policy-rate tables (same shape, adds rows not information); crypto
+(already scoped as the isolated, deferred Phase 2 above — do not conflate);
+more Alpha Vantage symbols (same 25 req/day quota the EWG collector already
+consumes).
+
 ## Immediate Next Actions
 
 Execute in this order.
@@ -734,12 +822,17 @@ Execute in this order.
    Decision `2026-09-03` recorded (`docs/roadmap.md` `D4`).
 4. ~~**Implement `L4` Phase 1**~~ — landed on `main` (EWG `0a5080a` + ECB
    DFR/MLF `#85`); `compose-demo` green on `#85`.
-5. **Implement `L4` Phase 2** (deferred) — crypto streaming leg (PR2 + PR3)
+5. **Deepen the finance domain** (`L5` → `L6` → `L7`; Owner Decision
+   `2026-09-08`, design in
+   [`docs/fin-domain-data-expansion.md`](docs/fin-domain-data-expansion.md)).
+   Defaults approved 2026-09-09: WARN-only staleness, dynamic 10-day FX
+   active set, FX basket USD/GBP/CHF/JPY/CNY, drop ECB silver forward-fill
+   once L5 lands. `L4-ecb-a`…`d` already done on `#85`.
+6. **Implement `L4` Phase 2** (deferred) — crypto streaming leg (PR2 + PR3)
    when batch operation is stable and an Owner Decision starts it.
-6. Operate the v2.5 Compose runtime on the live batch sources. Block `K`
+7. Operate the v2.5 Compose runtime on the live batch sources. Block `K`
    (especially `K2`, then `K9`/`K10`) is the hardening track during that
-   operation. Finance-domain deepening (D5 / L5–L7 on PR `#82`) is next when
-   prioritized — not started here.
+   operation.
 
 ### Pre-v3.0 sequencing (recommendation, not yet an Owner Decision)
 
