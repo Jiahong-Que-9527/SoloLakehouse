@@ -19,6 +19,7 @@ quality_rules:
   min_row_count: 10
   date_column: event_date
   forbid_future_dates: true
+  update_pattern: event_driven
 ai_governance:
   ai_use_allowed: true
   risk_tier: limited_risk

@@ -1,11 +1,11 @@
-# Finance-domain data expansion — design (planning only)
+# Finance-domain data expansion — design
 
 ## Status
 
 - **Owner Decision `2026-09-08`:** deepen the existing finance domain first.
   No new domain is opened by this document.
-- **Planning only.** No code is changed by this document. Task IDs `L5`–`L7`
-  are defined in [`TASKS.md`](../TASKS.md) Block `L` and are **not started**.
+- **`L5`–`L7` implemented** on branch work (see Implementation notes). Task IDs
+  live in [`TASKS.md`](../TASKS.md) Block `L`.
 - **Scope boundary:** everything below stays inside the sources already named
   by Owner Decision `2026-09-03` (`D4` in [`docs/roadmap.md`](roadmap.md)) —
   ECB SDW and Alpha Vantage EWG. The Block `L` non-goal *"any domain beyond
@@ -192,7 +192,7 @@ full overwrite per run like the existing Gold table.
 | Column | Source | Note |
 |---|---|---|
 | `observation_date` | EXR | TARGET business day |
-| `ecb_mro_rate_pct` | `silver.ecb_rates_cleaned` | exact-date lookup; the series publishes daily so this is always present |
+| `ecb_policy_rate_pct` | `silver.ecb_rates_cleaned` | exact-date lookup (`rate_pct`); the series publishes daily so this is always present |
 | `eur_usd`, `eur_gbp`, `eur_chf`, `eur_jpy`, `eur_cny` | `silver.ecb_fx_rates_cleaned` | basket is an Owner-adjustable parameter |
 | `eur_usd_return_pct_1d` | derived | |
 | `ewg_close_usd` | `silver.german_equity_proxy_daily_cleaned` | null when NYSE was closed |
@@ -258,6 +258,22 @@ collector is shared; `L7` is a transform plus a contract.
 3. **Staleness severity:** `WARN` asset check (not a write gate).
 4. **`silver.ecb_rates_cleaned` forward-fill:** drop once L5 / `max_gap_days: 2`
    is in force.
+
+## Implementation notes
+
+- **L6** lands as `ECBFxCollector` (`EXR/D..EUR.SP00.A` panel parse), Bronze/Silver
+  contracts, and Dagster assets `ecb_fx_bronze` / `ecb_fx_silver`. CI uses
+  `tests/fixtures/ecb_exr_daily_sample.json` via `ECB_FX_FIXTURE_PATH` / collector
+  `fixture_path` — do not commit a full live dump.
+- **L7** lands as `transformations/build_eur_market_daily.py` writing
+  `iceberg.gold.eur_market_daily` (asset `eur_market_daily`). Policy rate column
+  is `ecb_policy_rate_pct` (exact-date lookup from ECB silver). No calendar
+  forward-fill; unmatched EWG days leave equity columns null with
+  `ewg_price_date` null.
+- **Superset tile:** `make superset-eur-tile` runs
+  `scripts/ensure-superset-eur-market-chart.py` when `SUPERSET_ADMIN_USERNAME` /
+  `SUPERSET_ADMIN_PASSWORD` are set; it ensures a Trino dataset on
+  `gold.eur_market_daily` and a line chart for `eur_usd` + `ewg_close_eur`.
 
 ## Related documents
 

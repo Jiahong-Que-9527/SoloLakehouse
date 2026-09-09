@@ -1,21 +1,21 @@
-dataset_id: fin.german_equity_proxy_daily_bronze
+dataset_id: fin.ecb_fx_rates_silver
 owner: Jiahong Que
-business_purpose: Preserve daily EWG (German equity proxy ETF) observations for governed analytics.
+business_purpose: Provide active-currency ECB EXR FX rates with per-currency returns for daily market analytics.
 refresh_sla: business_day
 quality_class: governed_standard
-consumers: [silver_transforms]
+consumers: [eur_market_daily]
 retention: 7_years_demo_policy
 classification: internal_demo
-source_of_truth: Alpha Vantage TIME_SERIES_DAILY for EWG
+source_of_truth: fin.ecb_fx_rates_bronze
 approved_consumer_class: [internal_analytics]
 access_policy_hint: Restricted to internal analytical and demonstration use.
-layer: bronze
-physical_location: {catalog: hive, namespace: bronze, table: german_equity_proxy_daily}
-dagster_asset_key: german_equity_proxy_bronze
-upstream_dataset_ids: []
+layer: silver
+physical_location: {catalog: hive, namespace: silver, table: ecb_fx_rates_cleaned}
+dagster_asset_key: ecb_fx_silver
+upstream_dataset_ids: [fin.ecb_fx_rates_bronze]
 quality_rules:
-  required_columns: [observation_date, open_price, high_price, low_price, close_price, volume, _ingestion_timestamp, _source]
-  non_null_columns: [observation_date, open_price, high_price, low_price, close_price, volume]
+  required_columns: [observation_date, currency, fx_rate, fx_return_pct]
+  non_null_columns: [observation_date, currency, fx_rate]
   min_row_count: 1
   date_column: observation_date
   max_gap_days: 5

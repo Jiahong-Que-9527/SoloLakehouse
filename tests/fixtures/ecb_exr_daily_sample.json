@@ -1,0 +1,153 @@
+{
+  "header": {
+    "id": "ecb-exr-daily-sample"
+  },
+  "structure": {
+    "dimensions": {
+      "series": [
+        {
+          "id": "FREQ",
+          "values": [
+            {
+              "id": "D"
+            }
+          ]
+        },
+        {
+          "id": "CURRENCY",
+          "values": [
+            {
+              "id": "BGN",
+              "name": "Bulgarian lev"
+            },
+            {
+              "id": "CHF",
+              "name": "Swiss franc"
+            },
+            {
+              "id": "GBP",
+              "name": "UK pound sterling"
+            },
+            {
+              "id": "USD",
+              "name": "US dollar"
+            }
+          ]
+        },
+        {
+          "id": "CURRENCY_DENOM",
+          "values": [
+            {
+              "id": "EUR"
+            }
+          ]
+        },
+        {
+          "id": "EXR_TYPE",
+          "values": [
+            {
+              "id": "SP00"
+            }
+          ]
+        },
+        {
+          "id": "EXR_SUFFIX",
+          "values": [
+            {
+              "id": "A"
+            }
+          ]
+        }
+      ],
+      "observation": [
+        {
+          "id": "TIME_PERIOD",
+          "values": [
+            {
+              "id": "2024-01-02"
+            },
+            {
+              "id": "2024-01-03"
+            },
+            {
+              "id": "2024-01-04"
+            },
+            {
+              "id": "2024-01-05"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "dataSets": [
+    {
+      "series": {
+        "0:0:0:0:0": {
+          "observations": {
+            "0": [
+              1.9558
+            ],
+            "1": [
+              1.9558
+            ],
+            "2": [
+              1.9558
+            ],
+            "3": [
+              1.9558
+            ]
+          }
+        },
+        "0:1:0:0:0": {
+          "observations": {
+            "0": [
+              0.9305
+            ],
+            "1": [
+              0.9322
+            ],
+            "2": [
+              0.9313
+            ],
+            "3": [
+              0.932
+            ]
+          }
+        },
+        "0:2:0:0:0": {
+          "observations": {
+            "0": [
+              0.86645
+            ],
+            "1": [
+              0.8647
+            ],
+            "2": [
+              0.86278
+            ],
+            "3": [
+              0.8621
+            ]
+          }
+        },
+        "0:3:0:0:0": {
+          "observations": {
+            "0": [
+              1.0956
+            ],
+            "1": [
+              1.0919
+            ],
+            "2": [
+              1.0953
+            ],
+            "3": [
+              1.0921
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

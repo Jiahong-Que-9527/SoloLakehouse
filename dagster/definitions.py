@@ -19,12 +19,22 @@ if THIS_DIR not in sys.path:
 
 from assets import (  # noqa: E402
     ecb_bronze,
+    ecb_bronze_staleness_check,
     ecb_data_freshness_sensor,
+    ecb_fx_bronze,
+    ecb_fx_bronze_staleness_check,
+    ecb_fx_silver,
+    ecb_fx_silver_staleness_check,
     ecb_german_equity_proxy_features,
     ecb_german_equity_proxy_features_min_rows_check,
     ecb_silver,
+    ecb_silver_staleness_check,
+    eur_market_daily,
+    eur_market_daily_staleness_check,
     german_equity_proxy_bronze,
+    german_equity_proxy_bronze_staleness_check,
     german_equity_proxy_silver,
+    german_equity_proxy_silver_staleness_check,
     lineage_evidence_sensor,
     ml_experiment,
     openmetadata_trino_sync,
@@ -39,9 +49,12 @@ from resources import IcebergCatalogResource, MinioResource, PipelineConfigResou
 data_flow_assets = [
     ecb_bronze,
     german_equity_proxy_bronze,
+    ecb_fx_bronze,
     ecb_silver,
     german_equity_proxy_silver,
+    ecb_fx_silver,
     ecb_german_equity_proxy_features,
+    eur_market_daily,
 ]
 all_assets = [*data_flow_assets, ml_experiment, openmetadata_trino_sync]
 
@@ -65,7 +78,16 @@ daily_pipeline_schedule = ScheduleDefinition(
 
 defs = Definitions(
     assets=all_assets,
-    asset_checks=[ecb_german_equity_proxy_features_min_rows_check],
+    asset_checks=[
+        ecb_german_equity_proxy_features_min_rows_check,
+        ecb_bronze_staleness_check,
+        german_equity_proxy_bronze_staleness_check,
+        ecb_fx_bronze_staleness_check,
+        ecb_silver_staleness_check,
+        german_equity_proxy_silver_staleness_check,
+        ecb_fx_silver_staleness_check,
+        eur_market_daily_staleness_check,
+    ],
     jobs=[full_pipeline_job, demo_data_flow_job],
     schedules=[daily_pipeline_schedule],
     sensors=[

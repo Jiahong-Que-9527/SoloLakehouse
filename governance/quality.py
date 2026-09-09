@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+from typing import Any
 
 import pandas as pd
 
@@ -10,7 +11,12 @@ from governance.contracts import DatasetContract
 
 
 def validate_dataset_quality(df: pd.DataFrame, contract: DatasetContract) -> None:
-    """Raise ValueError when a dataframe violates its governed quality rules."""
+    """Raise ValueError when a dataframe violates its governed quality rules.
+
+    Continuity (`max_gap_days`) is enforced here as a write gate. Freshness
+    (`max_staleness_days`) is intentionally not — it is evaluated separately as a
+    Dagster WARN asset check so a source outage does not block Gold rebuilds.
+    """
     rules = contract.quality_rules
     missing = [column for column in rules.required_columns if column not in df.columns]
     if missing:
@@ -40,3 +46,51 @@ def validate_dataset_quality(df: pd.DataFrame, contract: DatasetContract) -> Non
                 f"{contract.dataset_id}: date gap exceeds {rules.max_gap_days} days in "
                 f"{rules.date_column}"
             )
+
+
+def evaluate_max_staleness(
+    df: pd.DataFrame,
+    contract: DatasetContract,
+    *,
+    as_of: dt.date | None = None,
+) -> tuple[bool, str, dict[str, Any]]:
+    """Return (passed, description, metadata) for the contract's freshness SLA.
+
+    Datasets without ``max_staleness_days`` always pass. Empty frames fail when a
+    staleness rule is configured.
+    """
+    rules = contract.quality_rules
+    if rules.max_staleness_days is None or rules.date_column is None:
+        return True, f"{contract.dataset_id}: no max_staleness_days configured", {}
+
+    as_of_date = as_of or dt.date.today()
+    if df.empty or rules.date_column not in df.columns:
+        return (
+            False,
+            f"{contract.dataset_id}: empty or missing {rules.date_column} for staleness check",
+            {"as_of": as_of_date.isoformat(), "max_staleness_days": rules.max_staleness_days},
+        )
+
+    dates = pd.to_datetime(df[rules.date_column], errors="coerce").dropna()
+    if dates.empty:
+        return (
+            False,
+            f"{contract.dataset_id}: no valid dates in {rules.date_column}",
+            {"as_of": as_of_date.isoformat(), "max_staleness_days": rules.max_staleness_days},
+        )
+
+    newest = dates.max().date()
+    age_days = (as_of_date - newest).days
+    passed = age_days <= rules.max_staleness_days
+    metadata: dict[str, Any] = {
+        "as_of": as_of_date.isoformat(),
+        "newest_observation_date": newest.isoformat(),
+        "age_days": age_days,
+        "max_staleness_days": rules.max_staleness_days,
+        "update_pattern": rules.update_pattern,
+    }
+    description = (
+        f"{contract.dataset_id}: newest row is {age_days} day(s) old "
+        f"(limit {rules.max_staleness_days})"
+    )
+    return passed, description, metadata

@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **D5 / L5–L7 finance-domain deepening:** freshness SLA (`update_pattern`,
+  `max_staleness_days`, WARN Dagster asset checks); ECB EXR FX panel
+  (`fin.ecb_fx_rates_*`); daily Gold `fin.eur_market_daily_gold` with EWG in EUR;
+  optional `make superset-eur-tile`.
+
 ### Changed
 - **`L4` execution phases (2026-09-04):** Phase 1 (active) — batch sources 1
   (ECB DFR/MLF) + 2 (EWG live) through full medallion path; Phase 2 (deferred)

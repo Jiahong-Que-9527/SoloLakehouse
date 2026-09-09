@@ -3,14 +3,17 @@ from __future__ import annotations
 import datetime as dt
 
 import pandas as pd
+import pytest
 
+from transformations.build_eur_market_daily import build_eur_market_daily
 from transformations.dax_bronze_to_silver import transform_dax_bronze_to_silver
 from transformations.ecb_bronze_to_silver import transform_ecb_bronze_to_silver
+from transformations.ecb_fx_bronze_to_silver import transform_ecb_fx_bronze_to_silver
 from transformations.silver_to_gold_features import build_gold_features
 
 
 class TestECBTransform:
-    def test_transform_ecb_forward_fill_and_dedup(self) -> None:
+    def test_transform_ecb_dedup_drops_null_rates(self) -> None:
         df = pd.DataFrame(
             {
                 "observation_date": ["2024-01-01", "2024-01-02", "2024-01-02", "2024-01-03"],
@@ -134,3 +137,73 @@ class TestGoldFeatures:
 
         out = build_gold_features(ecb, dax)
         assert len(out) == 1
+
+
+class TestECBFxTransform:
+    def test_drops_inactive_currency_and_computes_return(self) -> None:
+        df = pd.DataFrame(
+            {
+                "observation_date": [
+                    "2024-01-02",
+                    "2024-01-03",
+                    "2024-01-02",
+                    "2024-01-03",
+                    "2023-01-02",
+                ],
+                "currency": ["USD", "USD", "GBP", "GBP", "BGN"],
+                "fx_rate": [1.10, 1.12, 0.86, 0.87, 1.95],
+                "_ingestion_timestamp": [dt.datetime.now(dt.timezone.utc)] * 5,
+                "_source": ["ECB_SDW"] * 5,
+            }
+        )
+
+        out = transform_ecb_fx_bronze_to_silver(df)
+
+        assert set(out["currency"]) == {"USD", "GBP"}
+        assert "BGN" not in set(out["currency"])
+        usd = out[out["currency"] == "USD"].sort_values("observation_date")
+        assert pd.isna(usd.iloc[0]["fx_return_pct"])
+        assert usd.iloc[1]["fx_return_pct"] == pytest.approx((1.12 / 1.10 - 1.0) * 100.0)
+
+
+class TestEurMarketDaily:
+    def test_build_eur_market_daily_inner_fx_left_ewg_no_ffill(self) -> None:
+        fx_rows: list[dict[str, object]] = []
+        for day, rates in [
+            ("2024-01-02", {"USD": 1.10, "GBP": 0.86, "CHF": 0.93, "JPY": 160.0, "CNY": 7.8}),
+            ("2024-01-03", {"USD": 1.12, "GBP": 0.87, "CHF": 0.94, "JPY": 161.0, "CNY": 7.9}),
+            ("2024-01-04", {"USD": 1.11, "GBP": 0.865, "CHF": 0.935, "JPY": 159.0, "CNY": 7.85}),
+        ]:
+            for currency, rate in rates.items():
+                fx_rows.append(
+                    {"observation_date": day, "currency": currency, "fx_rate": rate}
+                )
+        # Incomplete basket day should drop out of the inner join.
+        fx_rows.append({"observation_date": "2024-01-05", "currency": "USD", "fx_rate": 1.13})
+        fx = pd.DataFrame(fx_rows)
+        ecb = pd.DataFrame(
+            {
+                "observation_date": ["2024-01-02", "2024-01-03", "2024-01-04"],
+                "rate_pct": [4.0, 4.0, 4.25],
+            }
+        )
+        ewg = pd.DataFrame(
+            {
+                "observation_date": ["2024-01-02", "2024-01-04"],
+                "close_price": [30.0, 31.0],
+            }
+        )
+
+        out = build_eur_market_daily(fx, ecb, ewg)
+
+        assert list(out["observation_date"]) == [
+            dt.date(2024, 1, 2),
+            dt.date(2024, 1, 3),
+            dt.date(2024, 1, 4),
+        ]
+        assert out.loc[0, "ewg_close_eur"] == pytest.approx(30.0 / 1.10)
+        assert pd.isna(out.loc[1, "ewg_close_usd"])
+        assert pd.isna(out.loc[1, "ewg_price_date"])
+        assert out.loc[2, "ewg_price_date"] == dt.date(2024, 1, 4)
+        assert out.loc[2, "ecb_policy_rate_pct"] == 4.25
+        assert out.loc[1, "eur_usd_return_pct_1d"] == pytest.approx((1.12 / 1.10 - 1.0) * 100.0)

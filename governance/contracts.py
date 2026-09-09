@@ -18,6 +18,9 @@ from pydantic import (
 CONTRACTS_DIRECTORY = Path(__file__).with_name("datasets")
 
 
+UpdatePattern = Literal["daily_calendar", "business_day", "event_driven"]
+
+
 class QualityRules(BaseModel):
     """Rules that must hold before a governed table is written."""
 
@@ -29,6 +32,8 @@ class QualityRules(BaseModel):
     date_column: str | None = None
     max_gap_days: int | None = Field(default=None, ge=1)
     forbid_future_dates: bool = False
+    update_pattern: UpdatePattern = "business_day"
+    max_staleness_days: int | None = Field(default=None, ge=0)
 
     @model_validator(mode="after")
     def validate_date_rules(self) -> "QualityRules":
@@ -36,6 +41,10 @@ class QualityRules(BaseModel):
             raise ValueError("max_gap_days requires date_column")
         if self.forbid_future_dates and self.date_column is None:
             raise ValueError("forbid_future_dates requires date_column")
+        if self.max_staleness_days is not None and self.date_column is None:
+            raise ValueError("max_staleness_days requires date_column")
+        if self.update_pattern == "event_driven" and self.max_gap_days is not None:
+            raise ValueError("max_gap_days is invalid when update_pattern=event_driven")
         return self
 
 
