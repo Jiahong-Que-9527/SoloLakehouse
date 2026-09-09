@@ -551,10 +551,9 @@ Current Layer 1 facts:
   DFR/MLF); market leg is live **EWG via Alpha Vantage**; optional crypto
   streaming leg in an isolated profile. **`data/sample/dax_daily_sample.csv` is
   retired — not an option on any path (demo, production, CI design, or docs).**
-- **Implementation status:** EWG collector and DAX CSV retirement are on `main`
-  (`0a5080a`). Phase 1 remaining item was ECB DFR/MLF + DFR Silver/Gold anchor
-  (this PR). Agents must not propose keeping, reviving, or documenting the CSV
-  as a fallback.
+- **Implementation status:** Phase 1 batch path is on `main` (EWG via
+  `0a5080a`; ECB DFR/MLF + DFR anchor via `#85`). Agents must not propose
+  keeping, reviving, or documenting the DAX sample CSV as a fallback.
 
 Tasks:
 
@@ -578,16 +577,15 @@ Tasks:
       the detailed `L4` task list for the full design (dataset renames,
       pack-boundary rules, delivery-semantics/retention requirements).
 - [ ] `L4` Implement `L3` in **two phases** — see `docs/roadmap.md` `D4` and
-      **"L4 execution phases"** below. **Phase 1 (active, nearly complete):**
-      batch sources 1+2 end-to-end. **Phase 2 (deferred):** streaming crypto
-      (PR2 + PR3). EWG market leg and DAX retirement landed on `main`
-      (`0a5080a`); remaining Phase 1 work is ECB DFR/MLF + DFR Gold anchor.
+      **"L4 execution phases"** below. **Phase 1 (batch) landed on `main`**
+      (`0a5080a` EWG + `#85` ECB DFR/MLF). **Phase 2 (deferred):** streaming
+      crypto (PR2 + PR3).
 
 #### L4 execution phases
 
 | Phase | Scope | Status | Blocks |
 |---|---|---|---|
-| **1 — Batch full pipeline** | Source **1** ECB (DFR/MLF) + source **2** EWG (Alpha Vantage); Bronze → Silver → Gold; `make demo` / `make pipeline` | **Active** | Long-term batch operation; personal demo on live data |
+| **1 — Batch full pipeline** | Source **1** ECB (DFR/MLF) + source **2** EWG (Alpha Vantage); Bronze → Silver → Gold; `make demo` / `make pipeline` | **Landed** | Long-term batch operation; personal demo on live data |
 | **2 — Streaming** | Source **3** crypto (Kraken WS → Redpanda → `crypto_bronze`); PR2 + PR3 | **Deferred** | Nothing in Phase 1 |
 
 **Phase 1 done when:** live ECB + live EWG ingest on schedule; governed
@@ -734,17 +732,14 @@ Execute in this order.
    `2026-08-15`; protocol kept under `docs/external-validation/`.
 3. ~~**Block `L` research and decision** (`L1`–`L3`).~~ — done; Owner
    Decision `2026-09-03` recorded (`docs/roadmap.md` `D4`).
-4. **Implement `L4` Phase 1** — batch sources **1** (ECB DFR/MLF) and **2**
-   (EWG live) through the full medallion path; `make demo` / `make pipeline`
-   on live data; retire the DAX sample CSV (`L4-dax-g`). See Block `L`
-   "L4 execution phases". **Do not start Phase 2 (streaming/crypto) until
-   Phase 1 lands.**
+4. ~~**Implement `L4` Phase 1**~~ — landed on `main` (EWG `0a5080a` + ECB
+   DFR/MLF `#85`); `compose-demo` green on `#85`.
 5. **Implement `L4` Phase 2** (deferred) — crypto streaming leg (PR2 + PR3)
-   after Phase 1 merges.
-6. After the batch input layer is live, bring the v2.5 runtime up for long-term
-   operation. Block `K` (especially `K1`/`K2`, then `K9`/`K10`) is the
-   hardening track during that operation — not a reason to skip Block `L`
-   Phase 1.
+   when batch operation is stable and an Owner Decision starts it.
+6. Operate the v2.5 Compose runtime on the live batch sources. Block `K`
+   (especially `K2`, then `K9`/`K10`) is the hardening track during that
+   operation. Finance-domain deepening (D5 / L5–L7 on PR `#82`) is next when
+   prioritized — not started here.
 
 ### Pre-v3.0 sequencing (recommendation, not yet an Owner Decision)
 
