@@ -1,6 +1,6 @@
 dataset_id: fin.ecb_rates_bronze
 owner: Jiahong Que
-business_purpose: Preserve source ECB refinancing-rate observations for governed analytics.
+business_purpose: Preserve source ECB policy-rate observations (MRO, DFR, MLF) for governed analytics.
 refresh_sla: business_day
 quality_class: governed_standard
 consumers: [silver_transforms]

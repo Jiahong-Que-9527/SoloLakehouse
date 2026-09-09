@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 
 from ingestion.collectors.ecb_collector import ECBCollector
+from ingestion.collectors.ewg_collector import EWGCollector
 from ingestion.exceptions import CollectorUnavailableError
 from ml import evaluate
 from ml.train_ecb_dax_model import _make_model, train
@@ -61,14 +62,35 @@ class TestECBCollector:
             ],
         }
 
-        records = collector._parse_payload(payload)
+        records = collector._parse_payload(payload, rate_type="MRO")
 
         assert records == [
-            {"observation_date": "2024-01-01", "rate_pct": 4.0},
-            {"observation_date": "2024-01-02", "rate_pct": 4.25},
+            {"observation_date": "2024-01-01", "rate_pct": 4.0, "rate_type": "MRO"},
+            {"observation_date": "2024-01-02", "rate_pct": 4.25, "rate_type": "MRO"},
         ]
 
-    def test_fetch_data_retries_then_succeeds(self, monkeypatch) -> None:
+    def test_fetch_data_aggregates_mro_dfr_mlf(self, monkeypatch) -> None:
+        collector = ECBCollector(catalog=_make_catalog())
+        calls: list[str] = []
+
+        def fake_fetch_series(rate_type: str) -> list[dict[str, object]]:
+            calls.append(rate_type)
+            return [
+                {
+                    "observation_date": "2024-01-01",
+                    "rate_pct": 4.0,
+                    "rate_type": rate_type,
+                }
+            ]
+
+        monkeypatch.setattr(collector, "_fetch_series", fake_fetch_series)
+
+        records = collector._fetch_data()
+
+        assert calls == ["MRO", "DFR", "MLF"]
+        assert len(records) == 3
+
+    def test_fetch_series_retries_then_succeeds(self, monkeypatch) -> None:
         collector = ECBCollector(catalog=_make_catalog())
         calls = {"count": 0}
 
@@ -87,14 +109,18 @@ class TestECBCollector:
 
         monkeypatch.setattr("ingestion.collectors.ecb_collector.requests.get", fake_get)
         monkeypatch.setattr("ingestion.collectors.ecb_collector.time.sleep", lambda *_: None)
-        monkeypatch.setattr(collector, "_parse_payload", lambda payload: [{"payload": payload}])
+        monkeypatch.setattr(
+            collector,
+            "_parse_payload",
+            lambda payload, rate_type="MRO": [{"payload": payload, "rate_type": rate_type}],
+        )
 
-        records = collector._fetch_data()
+        records = collector._fetch_series("MRO")
 
         assert calls["count"] == 3
-        assert records == [{"payload": {"ok": True}}]
+        assert records == [{"payload": {"ok": True}, "rate_type": "MRO"}]
 
-    def test_fetch_data_raises_after_retries(self, monkeypatch) -> None:
+    def test_fetch_series_raises_after_retries(self, monkeypatch) -> None:
         collector = ECBCollector(catalog=_make_catalog())
 
         monkeypatch.setattr(
@@ -104,7 +130,7 @@ class TestECBCollector:
         monkeypatch.setattr("ingestion.collectors.ecb_collector.time.sleep", lambda *_: None)
 
         with pytest.raises(CollectorUnavailableError):
-            collector._fetch_data()
+            collector._fetch_series("MRO")
 
     def test_validate_records_splits_valid_and_rejected(self) -> None:
         collector = ECBCollector(catalog=_make_catalog())
@@ -112,8 +138,8 @@ class TestECBCollector:
 
         valid, rejected = collector._validate_records(
             [
-                {"observation_date": "2024-01-01", "rate_pct": 4.0},
-                {"observation_date": tomorrow, "rate_pct": 99.0},
+                {"observation_date": "2024-01-01", "rate_pct": 4.0, "rate_type": "MRO"},
+                {"observation_date": tomorrow, "rate_pct": 99.0, "rate_type": "MRO"},
             ]
         )
 
@@ -159,8 +185,8 @@ class TestECBCollector:
             collector,
             "_fetch_data",
             lambda: [
-                {"observation_date": "2024-01-01", "rate_pct": 4.0},
-                {"observation_date": "3024-01-01", "rate_pct": 4.0},
+                {"observation_date": "2024-01-01", "rate_pct": 4.0, "rate_type": "MRO"},
+                {"observation_date": "3024-01-01", "rate_pct": 4.0, "rate_type": "MRO"},
             ],
         )
         monkeypatch.setattr(
@@ -180,6 +206,64 @@ class TestECBCollector:
         assert result["rejected_count"] == 1
         collector.bronze_writer.write.assert_called_once()
         collector.bronze_writer.write_rejected.assert_called_once()
+
+
+class TestEWGBootstrapOptIn:
+    def test_live_path_skips_bootstrap_without_env(self, monkeypatch, tmp_path) -> None:
+        collector = EWGCollector(catalog=_make_catalog())
+        monkeypatch.delenv("EWG_BOOTSTRAP_FIXTURE_PATH", raising=False)
+        monkeypatch.setattr(
+            collector,
+            "_fetch_live_alpha_vantage",
+            lambda: [
+                {
+                    "observation_date": "2024-01-02",
+                    "open_price": "100",
+                    "high_price": "101",
+                    "low_price": "99",
+                    "close_price": "100.5",
+                    "volume": "12345",
+                }
+            ],
+        )
+
+        records = collector._fetch_data()
+
+        assert len(records) == 1
+        assert records[0]["observation_date"] == "2024-01-02"
+
+    def test_bootstrap_merges_only_when_env_set(self, monkeypatch, tmp_path) -> None:
+        bootstrap = tmp_path / "bootstrap.json"
+        bootstrap.write_text(
+            '{"Time Series (Daily)": {'
+            '"2024-01-01": {"1. open": "90", "2. high": "91", "3. low": "89",'
+            ' "4. close": "90.5", "5. volume": "1"},'
+            '"2024-01-02": {"1. open": "95", "2. high": "96", "3. low": "94",'
+            ' "4. close": "95.5", "5. volume": "2"}}}'
+        )
+        monkeypatch.setenv("EWG_BOOTSTRAP_FIXTURE_PATH", str(bootstrap))
+        collector = EWGCollector(catalog=_make_catalog())
+        monkeypatch.setattr(
+            collector,
+            "_fetch_live_alpha_vantage",
+            lambda: [
+                {
+                    "observation_date": "2024-01-02",
+                    "open_price": "100",
+                    "high_price": "101",
+                    "low_price": "99",
+                    "close_price": "100.5",
+                    "volume": "12345",
+                }
+            ],
+        )
+
+        records = collector._fetch_data()
+        by_date = {str(r["observation_date"]): r for r in records}
+
+        assert set(by_date) == {"2024-01-01", "2024-01-02"}
+        assert by_date["2024-01-02"]["close_price"] == "100.5"
+        assert by_date["2024-01-01"]["close_price"] == "90.5"
 
 
 class TestQualityReport:

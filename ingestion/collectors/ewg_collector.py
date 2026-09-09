@@ -26,8 +26,8 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger()
 
-DEFAULT_FIXTURE_PATH = Path("data/fixtures/alpha_vantage_ewg_daily.json")
-DEFAULT_BOOTSTRAP_PATH = Path("data/fixtures/ewg_historical_bootstrap.json")
+# Bootstrap is opt-in only (CI sets EWG_BOOTSTRAP_FIXTURE_PATH). Never default to
+# a committed fixture on the live production path.
 EWG_SOURCE = "ALPHA_VANTAGE_EWG"
 
 
@@ -91,7 +91,9 @@ class EWGCollector:
 
     def _load_bootstrap_records(self) -> list[dict[str, Any]]:
         bootstrap_env = os.environ.get("EWG_BOOTSTRAP_FIXTURE_PATH", "").strip()
-        bootstrap_path = Path(bootstrap_env) if bootstrap_env else DEFAULT_BOOTSTRAP_PATH
+        if not bootstrap_env:
+            return []
+        bootstrap_path = Path(bootstrap_env)
         if not bootstrap_path.is_file():
             return []
         payload = json.loads(bootstrap_path.read_text(encoding="utf-8"))

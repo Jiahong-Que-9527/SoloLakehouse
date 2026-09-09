@@ -1,4 +1,4 @@
-"""Collector for ECB MRO rate data."""
+"""Collector for ECB MRO, DFR, and MLF rate data."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from ingestion import iceberg_io
 from ingestion.bronze_writer import BronzeWriter
 from ingestion.exceptions import CollectorUnavailableError
 from ingestion.quality.bronze_checks import run_ecb_bronze_checks
-from ingestion.schema.ecb_schema import ECBRecord
+from ingestion.schema.ecb_schema import ECBRateType, ECBRecord
 from storage_config import get_data_bucket
 
 if TYPE_CHECKING:
@@ -23,11 +23,15 @@ if TYPE_CHECKING:
 
 logger = structlog.get_logger()
 
+_SERIES_ENDPOINTS: dict[ECBRateType, str] = {
+    "MRO": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_RT.LEV",
+    "DFR": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.DFR.LEV",
+    "MLF": "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MLFR.LEV",
+}
+
 
 class ECBCollector:
     """Collect, validate, and write ECB data to Bronze (Iceberg)."""
-
-    ENDPOINT = "https://data-api.ecb.europa.eu/service/data/FM/D.U2.EUR.4F.KR.MRR_RT.LEV"
 
     def __init__(self, catalog: "Catalog", bucket: str | None = None, force: bool = False):
         self.catalog = catalog
@@ -35,26 +39,38 @@ class ECBCollector:
         self.force = force
         self.bronze_writer = BronzeWriter(catalog=catalog, bucket=self.bucket)
 
-    def _fetch_data(self) -> list[dict[str, Any]]:
+    def _fetch_series(self, rate_type: ECBRateType) -> list[dict[str, Any]]:
+        endpoint = _SERIES_ENDPOINTS[rate_type]
         params = {"format": "jsondata", "startPeriod": "1999-01-01"}
         last_error: Exception | None = None
 
         for attempt in range(1, 4):
             try:
-                response = requests.get(self.ENDPOINT, params=params, timeout=10)
+                response = requests.get(endpoint, params=params, timeout=10)
                 response.raise_for_status()
                 payload = response.json()
-                return self._parse_payload(payload)
+                return self._parse_payload(payload, rate_type=rate_type)
             except Exception as exc:  # pragma: no cover - exercised in tests via mocking
                 last_error = exc
                 if attempt < 3:
                     time.sleep(2)
 
         raise CollectorUnavailableError(
-            f"ECB source unreachable after 3 retries: {last_error}"
+            f"ECB {rate_type} source unreachable after 3 retries: {last_error}"
         ) from last_error
 
-    def _parse_payload(self, payload: dict[str, Any]) -> list[dict[str, Any]]:
+    def _fetch_data(self) -> list[dict[str, Any]]:
+        records: list[dict[str, Any]] = []
+        for rate_type in ("MRO", "DFR", "MLF"):
+            records.extend(self._fetch_series(rate_type))
+        return records
+
+    def _parse_payload(
+        self,
+        payload: dict[str, Any],
+        *,
+        rate_type: ECBRateType,
+    ) -> list[dict[str, Any]]:
         observation_values = (
             payload.get("structure", {})
             .get("dimensions", {})
@@ -67,7 +83,7 @@ class ECBCollector:
             if entry.get("id")
         }
 
-        records: list[dict] = []
+        records: list[dict[str, Any]] = []
         series_map = payload.get("dataSets", [{}])[0].get("series", {})
         for series in series_map.values():
             observations = series.get("observations", {})
@@ -78,6 +94,7 @@ class ECBCollector:
                     {
                         "observation_date": obs_date,
                         "rate_pct": value,
+                        "rate_type": rate_type,
                     }
                 )
         return records
