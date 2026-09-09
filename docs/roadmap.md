@@ -45,8 +45,8 @@ As of `2026-08-15`:
 - **Owner Decision (2026-08-15):** independent external sign-off is **not** a
   blocking gate. Protocol files under `docs/external-validation/` are retained
   as historical traces. Internal validation remains mandatory.
-- **Active task:** Block `L` in `TASKS.md` — research and remediate Layer 1
-  sources before long-term operation. No replacement source is chosen yet.
+- **Active task:** Block `L` / `D5` in `TASKS.md` — finance-domain deepening
+  (`L5` → `L6` → `L7`) after `L4` Phase 1 landed.
 - The approved development order was **v2.8, then v2.7, then v2.9**; see
   "Open Decisions" below. Those versions are delivered on `main`.
 - future planning prioritizes **control plane and evidence value** over adding
