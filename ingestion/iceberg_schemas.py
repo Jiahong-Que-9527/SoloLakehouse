@@ -43,6 +43,18 @@ BRONZE_GERMAN_EQUITY_PROXY_DAILY_PARTITION = PartitionSpec(
     PartitionField(source_id=7, field_id=1000, transform=DayTransform(), name="ingestion_day"),
 )
 
+BRONZE_ECB_FX_RATES_SCHEMA = Schema(
+    NestedField(1, "observation_date", DateType(), required=False),
+    NestedField(2, "currency", StringType(), required=False),
+    NestedField(3, "fx_rate", DoubleType(), required=False),
+    NestedField(4, "_ingestion_timestamp", TimestamptzType(), required=False),
+    NestedField(5, "_source", StringType(), required=False),
+)
+
+BRONZE_ECB_FX_RATES_PARTITION = PartitionSpec(
+    PartitionField(source_id=4, field_id=1000, transform=DayTransform(), name="ingestion_day"),
+)
+
 # Legacy DAX sample schema — frozen for deprecated fin.dax_daily_bronze tables.
 BRONZE_DAX_DAILY_SCHEMA = BRONZE_GERMAN_EQUITY_PROXY_DAILY_SCHEMA
 
@@ -77,6 +89,13 @@ SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA = Schema(
 
 SILVER_DAX_DAILY_SCHEMA = SILVER_GERMAN_EQUITY_PROXY_DAILY_SCHEMA
 
+SILVER_ECB_FX_RATES_SCHEMA = Schema(
+    NestedField(1, "observation_date", DateType(), required=False),
+    NestedField(2, "currency", StringType(), required=False),
+    NestedField(3, "fx_rate", DoubleType(), required=False),
+    NestedField(4, "fx_return_pct", DoubleType(), required=False),
+)
+
 # ── Gold ─────────────────────────────────────────────────────────────────────
 
 GOLD_FEATURES_SCHEMA = Schema(
@@ -89,4 +108,19 @@ GOLD_FEATURES_SCHEMA = Schema(
     NestedField(7, "dax_return_1d", DoubleType(), required=False),
     NestedField(8, "dax_return_5d", DoubleType(), required=False),
     NestedField(9, "dax_volatility_pre_5d", DoubleType(), required=False),
+)
+
+GOLD_EUR_MARKET_DAILY_SCHEMA = Schema(
+    NestedField(1, "observation_date", DateType(), required=False),
+    NestedField(2, "ecb_policy_rate_pct", DoubleType(), required=False),
+    NestedField(3, "eur_usd", DoubleType(), required=False),
+    NestedField(4, "eur_gbp", DoubleType(), required=False),
+    NestedField(5, "eur_chf", DoubleType(), required=False),
+    NestedField(6, "eur_jpy", DoubleType(), required=False),
+    NestedField(7, "eur_cny", DoubleType(), required=False),
+    NestedField(8, "eur_usd_return_pct_1d", DoubleType(), required=False),
+    NestedField(9, "ewg_close_usd", DoubleType(), required=False),
+    NestedField(10, "ewg_close_eur", DoubleType(), required=False),
+    NestedField(11, "ewg_return_eur_pct_1d", DoubleType(), required=False),
+    NestedField(12, "ewg_price_date", DateType(), required=False),
 )

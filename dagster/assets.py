@@ -12,6 +12,7 @@ from resources import IcebergCatalogResource, PipelineConfigResource
 
 from dagster import (
     AssetCheckResult,
+    AssetCheckSeverity,
     AssetKey,
     DagsterRunStatus,
     DefaultSensorStatus,
@@ -28,12 +29,20 @@ from governance.contracts import contract_for_asset_key
 from governance.emission import emit_pending_lineage_evidence_for_run
 from governance.ml_lineage import build_ml_lineage_tuple, contract_content_sha256
 from governance.policy_hooks import validate_ml_training_allowed
+from governance.quality import evaluate_max_staleness
 from ingestion import iceberg_io
 from ingestion.collectors.ecb_collector import ECBCollector
+from ingestion.collectors.ecb_fx_collector import ECBFxCollector
 from ingestion.collectors.ewg_collector import EWGCollector
 from ml.evaluate import run_experiment_set
 from ml.train_ecb_dax_model import FEATURE_VERSION
-from transformations import dax_bronze_to_silver, ecb_bronze_to_silver, silver_to_gold_features
+from transformations import (
+    build_eur_market_daily,
+    dax_bronze_to_silver,
+    ecb_bronze_to_silver,
+    ecb_fx_bronze_to_silver,
+    silver_to_gold_features,
+)
 
 logger = structlog.get_logger()
 
@@ -127,6 +136,37 @@ def german_equity_proxy_bronze(
     return result
 
 
+@asset(group_name="bronze", retry_policy=RetryPolicy(max_retries=3, delay=5))
+def ecb_fx_bronze(
+    context,
+    iceberg_catalog: IcebergCatalogResource,
+    pipeline_config: PipelineConfigResource,
+) -> dict[str, Any]:
+    started = time.perf_counter()
+    catalog = iceberg_catalog.get_catalog()
+    result = ECBFxCollector(
+        catalog=catalog,
+        bucket=pipeline_config.bucket,
+        force=False,
+    ).collect()
+    context.add_output_metadata(
+        _governed_asset_metadata(
+            catalog,
+            "ecb_fx_bronze",
+            {
+                "status": result.get("status", "ok"),
+                "valid_count": int(result.get("valid_count", 0)),
+                "rejected_count": int(result.get("rejected_count", 0)),
+                "partition_date": date.today().isoformat(),
+                "path": result.get("path", ""),
+                "rejected_path": result.get("rejected_path") or "",
+            },
+        )
+    )
+    _emit_metric("ecb_fx_bronze", started)
+    return result
+
+
 @asset(group_name="silver")
 def ecb_silver(
     context,
@@ -169,6 +209,27 @@ def german_equity_proxy_silver(
     return str(result["table"])
 
 
+@asset(group_name="silver")
+def ecb_fx_silver(
+    context,
+    iceberg_catalog: IcebergCatalogResource,
+    ecb_fx_bronze: dict[str, Any],
+) -> str:
+    _ = ecb_fx_bronze
+    started = time.perf_counter()
+    catalog = iceberg_catalog.get_catalog()
+    result = ecb_fx_bronze_to_silver.run(catalog)
+    context.add_output_metadata(
+        _governed_asset_metadata(
+            catalog,
+            "ecb_fx_silver",
+            {"table": result["table"], "row_count": _metadata_row_count(result)},
+        )
+    )
+    _emit_metric("ecb_fx_silver", started)
+    return str(result["table"])
+
+
 @asset(group_name="gold")
 def ecb_german_equity_proxy_features(
     context,
@@ -188,6 +249,29 @@ def ecb_german_equity_proxy_features(
         )
     )
     _emit_metric("ecb_german_equity_proxy_features", started)
+    return str(result["table"])
+
+
+@asset(group_name="gold")
+def eur_market_daily(
+    context,
+    iceberg_catalog: IcebergCatalogResource,
+    ecb_silver: str,
+    ecb_fx_silver: str,
+    german_equity_proxy_silver: str,
+) -> str:
+    _ = (ecb_silver, ecb_fx_silver, german_equity_proxy_silver)
+    started = time.perf_counter()
+    catalog = iceberg_catalog.get_catalog()
+    result = build_eur_market_daily.run(catalog)
+    context.add_output_metadata(
+        _governed_asset_metadata(
+            catalog,
+            "eur_market_daily",
+            {"table": result["table"], "row_count": _metadata_row_count(result)},
+        )
+    )
+    _emit_metric("eur_market_daily", started)
     return str(result["table"])
 
 
@@ -348,4 +432,115 @@ def ecb_german_equity_proxy_features_min_rows_check(
             else "ecb_german_equity_proxy_features has fewer than 10 rows"
         ),
         metadata={"row_count": row_count},
+    )
+
+
+def _staleness_check_for_asset(asset_key: str, table_df: pd.DataFrame) -> AssetCheckResult:
+    contract = contract_for_asset_key(asset_key)
+    if contract is None:
+        return AssetCheckResult(
+            passed=False,
+            severity=AssetCheckSeverity.WARN,
+            description=f"{asset_key}: no governed contract for staleness check",
+        )
+    passed, description, metadata = evaluate_max_staleness(table_df, contract)
+    return AssetCheckResult(
+        passed=passed,
+        severity=AssetCheckSeverity.WARN,
+        description=description,
+        metadata=metadata,
+    )
+
+
+@asset_check(asset=ecb_bronze, description="ECB bronze freshness SLA (WARN)")
+def ecb_bronze_staleness_check(
+    iceberg_catalog: IcebergCatalogResource,
+    ecb_bronze: dict[str, Any],
+) -> AssetCheckResult:
+    _ = ecb_bronze
+    catalog = iceberg_catalog.get_catalog()
+    return _staleness_check_for_asset(
+        "ecb_bronze",
+        iceberg_io.scan_table(catalog, "bronze", "ecb_rates"),
+    )
+
+
+@asset_check(asset=german_equity_proxy_bronze, description="EWG bronze freshness SLA (WARN)")
+def german_equity_proxy_bronze_staleness_check(
+    iceberg_catalog: IcebergCatalogResource,
+    german_equity_proxy_bronze: dict[str, Any],
+) -> AssetCheckResult:
+    _ = german_equity_proxy_bronze
+    catalog = iceberg_catalog.get_catalog()
+    return _staleness_check_for_asset(
+        "german_equity_proxy_bronze",
+        iceberg_io.scan_table(catalog, "bronze", "german_equity_proxy_daily"),
+    )
+
+
+@asset_check(asset=ecb_silver, description="ECB silver freshness SLA (WARN)")
+def ecb_silver_staleness_check(
+    iceberg_catalog: IcebergCatalogResource,
+    ecb_silver: str,
+) -> AssetCheckResult:
+    _ = ecb_silver
+    catalog = iceberg_catalog.get_catalog()
+    return _staleness_check_for_asset(
+        "ecb_silver",
+        iceberg_io.scan_table(catalog, "silver", "ecb_rates_cleaned"),
+    )
+
+
+@asset_check(
+    asset=german_equity_proxy_silver,
+    description="EWG silver freshness SLA (WARN)",
+)
+def german_equity_proxy_silver_staleness_check(
+    iceberg_catalog: IcebergCatalogResource,
+    german_equity_proxy_silver: str,
+) -> AssetCheckResult:
+    _ = german_equity_proxy_silver
+    catalog = iceberg_catalog.get_catalog()
+    return _staleness_check_for_asset(
+        "german_equity_proxy_silver",
+        iceberg_io.scan_table(catalog, "silver", "german_equity_proxy_daily_cleaned"),
+    )
+
+
+@asset_check(asset=ecb_fx_bronze, description="ECB FX bronze freshness SLA (WARN)")
+def ecb_fx_bronze_staleness_check(
+    iceberg_catalog: IcebergCatalogResource,
+    ecb_fx_bronze: dict[str, Any],
+) -> AssetCheckResult:
+    _ = ecb_fx_bronze
+    catalog = iceberg_catalog.get_catalog()
+    return _staleness_check_for_asset(
+        "ecb_fx_bronze",
+        iceberg_io.scan_table(catalog, "bronze", "ecb_fx_rates"),
+    )
+
+
+@asset_check(asset=ecb_fx_silver, description="ECB FX silver freshness SLA (WARN)")
+def ecb_fx_silver_staleness_check(
+    iceberg_catalog: IcebergCatalogResource,
+    ecb_fx_silver: str,
+) -> AssetCheckResult:
+    _ = ecb_fx_silver
+    catalog = iceberg_catalog.get_catalog()
+    return _staleness_check_for_asset(
+        "ecb_fx_silver",
+        iceberg_io.scan_table(catalog, "silver", "ecb_fx_rates_cleaned"),
+    )
+
+
+@asset_check(asset=eur_market_daily, description="EUR market daily freshness SLA (WARN)")
+def eur_market_daily_staleness_check(
+    iceberg_catalog: IcebergCatalogResource,
+    eur_market_daily: str,
+) -> AssetCheckResult:
+    _ = eur_market_daily
+    catalog = iceberg_catalog.get_catalog()
+    return _staleness_check_for_asset(
+        "eur_market_daily",
+        iceberg_io.scan_table(catalog, "gold", "eur_market_daily"),
     )

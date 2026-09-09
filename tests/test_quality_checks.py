@@ -16,9 +16,10 @@ from ingestion.quality.bronze_checks import (
 
 
 def _base_ecb_df() -> pd.DataFrame:
+    # daily_calendar SLA uses max_gap_days=2 — keep synthetic rows contiguous.
     return pd.DataFrame(
         {
-            "observation_date": ["2024-01-01", "2024-03-01", "2024-06-01"],
+            "observation_date": ["2024-01-01", "2024-01-02", "2024-01-03"],
             "rate_pct": [4.0, 4.25, 4.5],
             "rate_type": ["MRO"] * 3,
             "_ingestion_timestamp": [dt.datetime.now(dt.timezone.utc)] * 3,

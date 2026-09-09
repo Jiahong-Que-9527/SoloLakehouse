@@ -17,9 +17,12 @@ from governance.quality import validate_dataset_quality
 ACTIVE_DATASET_IDS = {
     "fin.ecb_rates_bronze",
     "fin.german_equity_proxy_daily_bronze",
+    "fin.ecb_fx_rates_bronze",
     "fin.ecb_rates_silver",
     "fin.german_equity_proxy_daily_silver",
+    "fin.ecb_fx_rates_silver",
     "fin.ecb_german_equity_proxy_features_gold",
+    "fin.eur_market_daily_gold",
 }
 
 DEPRECATED_DATASET_IDS = {
@@ -46,7 +49,7 @@ def test_governed_pipeline_asset_keys_cover_active_contracts() -> None:
         for contract in contracts.values()
         if not contract.deprecated
     }
-    assert len(active_keys) == 5
+    assert len(active_keys) == 8
 
 
 def test_contract_loader_rejects_unknown_fields(tmp_path: Path) -> None:

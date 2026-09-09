@@ -91,6 +91,9 @@ retained as a v2.5 compatibility alias.
 | `fin.ecb_rates_silver` | Silver | `iceberg.silver.ecb_rates_cleaned` | `ecb_silver` | Typed ECB rate series with derived `rate_change_bps`. Full overwrite per run. |
 | `fin.german_equity_proxy_daily_silver` | Silver | `iceberg.silver.german_equity_proxy_daily_cleaned` | `german_equity_proxy_silver` | Cleaned business-day EWG series with `daily_return`. Full overwrite per run. |
 | `fin.ecb_german_equity_proxy_features_gold` | Gold | `iceberg.gold.ecb_german_equity_proxy_features` | `ecb_german_equity_proxy_features` | Event-study features, one row per ECB rate **change**. Column names retain a `dax_` prefix as historical residue. Full overwrite per run. |
+| `fin.ecb_fx_rates_bronze` | Bronze | `iceberg.bronze.ecb_fx_rates` | `ecb_fx_bronze` | ECB EXR daily euro reference rates. **First panel-shaped dataset**: keyed on `(observation_date, currency)`, not `observation_date` alone. Measure column is `fx_rate`, never `rate_pct`. |
+| `fin.ecb_fx_rates_silver` | Silver | `iceberg.silver.ecb_fx_rates_cleaned` | `ecb_fx_silver` | Active currencies only (dynamic 10-day rule), with per-currency `fx_return_pct`. |
+| `fin.eur_market_daily_gold` | Gold | `iceberg.gold.eur_market_daily` | `eur_market_daily` | One row per TARGET business day: policy rate, FX basket (USD/GBP/CHF/JPY/CNY), EWG restated in EUR. Does not supersede the event-grained Gold table. |
 
 ### Deprecated in place
 
@@ -107,18 +110,6 @@ frozen historical record and are **not** deleted, and carry no freshness SLA.
 The rename is a genuine business-entity change (index → ETF, Xetra → NYSE
 Arca, different currency, hours and liquidity), not a provider swap, which is
 why it took new IDs at all three layers rather than reusing the old ones.
-
-### Reserved — planned, not yet implemented
-
-Registered here so the IDs are stable before any code exists. Design:
-[`fin-domain-data-expansion.md`](fin-domain-data-expansion.md); tasks `L6`/`L7`
-in [`TASKS.md`](../TASKS.md).
-
-| Logical dataset ID | Layer | Iceberg table (Trino) | Planned Dagster asset | Notes |
-|---|---|---|---|---|
-| `fin.ecb_fx_rates_bronze` | Bronze | `iceberg.bronze.ecb_fx_rates` | `ecb_fx_bronze` | ECB EXR daily euro reference rates. **First panel-shaped dataset**: keyed on `(observation_date, currency)`, not `observation_date` alone. Measure column is `fx_rate`, never `rate_pct`. |
-| `fin.ecb_fx_rates_silver` | Silver | `iceberg.silver.ecb_fx_rates_cleaned` | `ecb_fx_silver` | Active currencies only, with per-currency `fx_return_pct`. |
-| `fin.eur_market_daily_gold` | Gold | `iceberg.gold.eur_market_daily` | `eur_market_daily` | One row per TARGET business day: policy rate, FX basket, EWG restated in EUR. Does not supersede the event-grained Gold table. |
 
 Notes:
 

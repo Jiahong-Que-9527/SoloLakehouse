@@ -1,27 +1,27 @@
-dataset_id: fin.ecb_rates_bronze
+dataset_id: fin.ecb_fx_rates_bronze
 owner: Jiahong Que
-business_purpose: Preserve source ECB policy-rate observations (MRO, DFR, MLF) for governed analytics.
+business_purpose: Preserve ECB EXR daily euro reference FX observations as a panel keyed on (observation_date, currency).
 refresh_sla: business_day
 quality_class: governed_standard
 consumers: [silver_transforms]
 retention: 7_years_demo_policy
 classification: internal_demo
-source_of_truth: ECB Statistical Data Warehouse
+source_of_truth: ECB Statistical Data Warehouse EXR
 approved_consumer_class: [internal_analytics]
 access_policy_hint: Restricted to internal analytical and demonstration use.
 layer: bronze
-physical_location: {catalog: hive, namespace: bronze, table: ecb_rates}
-dagster_asset_key: ecb_bronze
+physical_location: {catalog: hive, namespace: bronze, table: ecb_fx_rates}
+dagster_asset_key: ecb_fx_bronze
 upstream_dataset_ids: []
 quality_rules:
-  required_columns: [observation_date, rate_pct, rate_type, _ingestion_timestamp, _source]
-  non_null_columns: [observation_date, rate_pct, rate_type]
+  required_columns: [observation_date, currency, fx_rate, _ingestion_timestamp, _source]
+  non_null_columns: [observation_date, currency, fx_rate]
   min_row_count: 1
   date_column: observation_date
-  max_gap_days: 2
+  max_gap_days: 5
   forbid_future_dates: true
-  update_pattern: daily_calendar
-  max_staleness_days: 3
+  update_pattern: business_day
+  max_staleness_days: 5
 ai_governance:
   ai_use_allowed: false
   risk_tier: not_applicable

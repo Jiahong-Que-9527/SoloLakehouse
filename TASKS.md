@@ -762,7 +762,7 @@ against the live API on 2026-09-08:
   that stops publishing leaves the internal gap set unchanged, so the check
   passes at any threshold. Freshness needs a separate rule.
 
-- [ ] `L5` **Freshness SLA that can fire.** Additive `QualityRules` fields
+- [x] `L5` **Freshness SLA that can fire.** Additive `QualityRules` fields
       `update_pattern` (`daily_calendar` | `business_day` | `event_driven`) and
       `max_staleness_days`; reject `max_gap_days` on `event_driven` datasets so
       the current misconfiguration becomes unexpressible. Enforced as a Dagster
@@ -772,7 +772,7 @@ against the live API on 2026-09-08:
       the SLA on all six live contracts (per-dataset table in the design doc);
       leave the two deprecated `fin.dax_*` contracts frozen. Extends the Block
       `A` contract registry. **Independent of any new source — do this first.**
-- [ ] `L6` **ECB EXR daily FX panel.** Same source, same host, no API key, new
+- [x] `L6` **ECB EXR daily FX panel.** Same source, same host, no API key, new
       dataflow — not a new domain. New `fin.ecb_fx_rates_bronze` /
       `fin.ecb_fx_rates_silver` (`iceberg.bronze.ecb_fx_rates`,
       `iceberg.silver.ecb_fx_rates_cleaned`), keyed on
@@ -787,7 +787,7 @@ against the live API on 2026-09-08:
       separate series URLs). `L6` still needs a panel parse: one EXR wildcard
       request must retain `currency` from SDMX series keys (policy-rate
       collector still discards series dimension keys).
-- [ ] `L7` **`fin.eur_market_daily_gold`** — one row per TARGET business day
+- [x] `L7` **`fin.eur_market_daily_gold`** — one row per TARGET business day
       (`iceberg.gold.eur_market_daily`), carrying the policy rate, an FX basket,
       and **EWG restated in EUR** (`ewg_close_usd / eur_usd`). EWG is a
       USD-quoted NYSE ETF proxying German equity, so every return in the
@@ -822,12 +822,10 @@ Execute in this order.
    Decision `2026-09-03` recorded (`docs/roadmap.md` `D4`).
 4. ~~**Implement `L4` Phase 1**~~ — landed on `main` (EWG `0a5080a` + ECB
    DFR/MLF `#85`); `compose-demo` green on `#85`.
-5. **Deepen the finance domain** (`L5` → `L6` → `L7`; Owner Decision
-   `2026-09-08`, design in
-   [`docs/fin-domain-data-expansion.md`](docs/fin-domain-data-expansion.md)).
-   Defaults approved 2026-09-09: WARN-only staleness, dynamic 10-day FX
-   active set, FX basket USD/GBP/CHF/JPY/CNY, drop ECB silver forward-fill
-   once L5 lands. `L4-ecb-a`…`d` already done on `#85`.
+5. ~~**Deepen the finance domain** (`L5` → `L6` → `L7`)~~ — implemented on
+   `feat/d5-l5-l6-l7` (WARN staleness, EXR FX panel, `eur_market_daily` gold +
+   Superset tile). Defaults: dynamic 10-day FX active set, basket
+   USD/GBP/CHF/JPY/CNY, no ECB silver forward-fill.
 6. **Implement `L4` Phase 2** (deferred) — crypto streaming leg (PR2 + PR3)
    when batch operation is stable and an Owner Decision starts it.
 7. Operate the v2.5 Compose runtime on the live batch sources. Block `K`

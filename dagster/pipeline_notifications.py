@@ -31,9 +31,12 @@ PIPELINE_JOB_NAMES = frozenset({"demo_data_flow_job", "full_pipeline_job"})
 PIPELINE_ICEBERG_TABLES: tuple[tuple[str, str, str], ...] = (
     ("bronze", "ecb_rates", "observation_date"),
     ("bronze", "german_equity_proxy_daily", "observation_date"),
+    ("bronze", "ecb_fx_rates", "observation_date"),
     ("silver", "ecb_rates_cleaned", "observation_date"),
     ("silver", "german_equity_proxy_daily_cleaned", "observation_date"),
+    ("silver", "ecb_fx_rates_cleaned", "observation_date"),
     ("gold", "ecb_german_equity_proxy_features", "event_date"),
+    ("gold", "eur_market_daily", "observation_date"),
 )
 
 _DAGSTER_RUN_QUERY = """

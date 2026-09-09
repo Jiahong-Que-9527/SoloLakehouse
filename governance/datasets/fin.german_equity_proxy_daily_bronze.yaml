@@ -18,8 +18,10 @@ quality_rules:
   non_null_columns: [observation_date, open_price, high_price, low_price, close_price, volume]
   min_row_count: 1
   date_column: observation_date
-  max_gap_days: 30
+  max_gap_days: 10
   forbid_future_dates: true
+  update_pattern: business_day
+  max_staleness_days: 5
 ai_governance:
   ai_use_allowed: false
   risk_tier: not_applicable

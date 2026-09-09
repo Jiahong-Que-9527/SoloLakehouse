@@ -1,4 +1,4 @@
-.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness serve-ui-up serve-ui-down serve-ui-status serve-ui-urls om-ingest-trino fix-om-ingestion-db
+.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness serve-ui-up serve-ui-down serve-ui-status serve-ui-urls om-ingest-trino fix-om-ingestion-db superset-eur-tile
 
 COMPOSE_FILE := docker/docker-compose.yml
 -include $(ENV_FILE)
@@ -116,6 +116,9 @@ verify:
 
 validate-contracts:
 	$(PYTHON) scripts/validate-dataset-contracts.py
+
+superset-eur-tile:
+	$(PYTHON) scripts/ensure-superset-eur-market-chart.py
 
 export-policy-hooks:
 	$(PYTHON) scripts/export-policy-hooks.py

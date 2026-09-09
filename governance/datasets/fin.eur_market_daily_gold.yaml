@@ -1,0 +1,31 @@
+dataset_id: fin.eur_market_daily_gold
+owner: Jiahong Que
+business_purpose: Provide one TARGET business-day row with ECB policy rate, FX basket, and EWG restated in EUR for euro-based daily analytics.
+refresh_sla: business_day
+quality_class: governed_standard
+consumers: [internal_analytics, superset]
+retention: 7_years_demo_policy
+classification: internal_demo
+source_of_truth: fin.ecb_rates_silver, fin.ecb_fx_rates_silver, and fin.german_equity_proxy_daily_silver
+approved_consumer_class: [internal_analytics]
+access_policy_hint: Restricted to internal analytical and demonstration use.
+layer: gold
+physical_location: {catalog: hive, namespace: gold, table: eur_market_daily}
+dagster_asset_key: eur_market_daily
+upstream_dataset_ids: [fin.ecb_rates_silver, fin.ecb_fx_rates_silver, fin.german_equity_proxy_daily_silver]
+quality_rules:
+  required_columns: [observation_date, ecb_policy_rate_pct, eur_usd, eur_gbp, eur_chf, eur_jpy, eur_cny, eur_usd_return_pct_1d, ewg_close_usd, ewg_close_eur, ewg_return_eur_pct_1d, ewg_price_date]
+  non_null_columns: [observation_date, eur_usd, eur_gbp, eur_chf, eur_jpy, eur_cny]
+  min_row_count: 1
+  date_column: observation_date
+  max_gap_days: 5
+  forbid_future_dates: true
+  update_pattern: business_day
+  max_staleness_days: 5
+ai_governance:
+  ai_use_allowed: false
+  risk_tier: not_applicable
+  intended_uses: []
+  prohibited_uses: [model_training, automated_decision_making]
+  human_oversight_required: false
+  model_lineage_required: false

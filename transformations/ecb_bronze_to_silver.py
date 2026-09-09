@@ -59,7 +59,8 @@ def transform_ecb_bronze_to_silver(
     transformed["rate_pct"] = pd.to_numeric(transformed["rate_pct"], errors="coerce")
 
     transformed = transformed.sort_values("observation_date")
-    transformed["rate_pct"] = transformed["rate_pct"].ffill()
+    # Source publishes daily-calendar values; do not forward-fill (masks holes).
+    transformed = transformed.dropna(subset=["rate_pct"])
     transformed = transformed.drop_duplicates(subset=["observation_date"], keep="last")
     transformed = transformed.drop(
         columns=["_ingestion_timestamp", "_source", "rate_type"],
