@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -42,7 +43,7 @@ def build_gold_features(ecb_df: pd.DataFrame, dax_df: pd.DataFrame) -> pd.DataFr
         event_date = event["observation_date"]
         candidates = dax[
             (dax["observation_date"] >= event_date)
-            & (dax["observation_date"] <= (event_date + pd.Timedelta(days=3).to_pytimedelta()))
+            & (dax["observation_date"] <= event_date + timedelta(days=3))
         ]
         if candidates.empty:
             continue
