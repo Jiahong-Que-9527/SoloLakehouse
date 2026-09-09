@@ -31,16 +31,14 @@ As of `2026-09-08`:
   checks (`make test`, `make verify`, `make demo`) remain mandatory. This does
   not authorize production, WORM, or regulatory-readiness claims, and does not
   start v3.0.
-- **Active task: Block `L` / `D5`** — `L4` Phase 1 (batch ECB + EWG) **landed**
-  on `main` (`0a5080a` + `#85`). Next execution is finance-domain deepening
-  `L5` → `L6` → `L7` (Owner Decision `D5`, 2026-09-08). Crypto Phase 2 stays
-  deferred. *(Older "no source chosen yet" / "Phase 1 active" wording is
-  superseded.)*
-- **Finance deepening (`D5`):** `L5` freshness SLA → `L6` ECB EXR FX panel →
-  `L7` daily Gold (`fin.eur_market_daily_gold`). Same sources as `D4`; **no new
-  domain, non-goals unchanged.** FRED and German electricity are surveyed but
-  **not started** — each needs its own Owner Decision. Aviation follows finance
-  stability. Design: `docs/fin-domain-data-expansion.md`.
+- **Active task: Block `L` post-`D5`** — finance deepening `L5`–`L7` **landed**
+  on `main` (`#87`). `L4` Phase 1 batch path remains in place. Crypto Phase 2
+  stays deferred. Next focus: Compose operation / Block `K`, or a new Owner
+  Decision for FRED/electricity/aviation.
+- **Finance deepening (`D5`, done):** `L5` freshness SLA, `L6` ECB EXR FX panel,
+  `L7` daily Gold (`fin.eur_market_daily_gold`) on `main` via `#87`. Same
+  sources as `D4`; **no new domain.** FRED and German electricity remain
+  surveyed-not-started. Design: `docs/fin-domain-data-expansion.md`.
 - **Block `K` remains open** (reliability / recovery) but is **not** the
   current execution focus. Long-term operation starts only after the input
   layer (Layer 1, then the Layer 2 changes that follow) is decided.
@@ -782,11 +780,8 @@ against the live API on 2026-09-08:
       and 15 are discontinued (BGN ended 2025-12-31 on euro adoption, RUB
       2022-03-01, …), so the active set is resolved dynamically at Silver
       rather than from an allow-list. Register `ecb_fx_rates` in
-      `_BRONZE_TABLE_META` — the current fallback would silently write a
-      wrong-shaped table. **`L4-ecb-a`…`d` landed on `#85`** (MRO/DFR/MLF as
-      separate series URLs). `L6` still needs a panel parse: one EXR wildcard
-      request must retain `currency` from SDMX series keys (policy-rate
-      collector still discards series dimension keys).
+      `_BRONZE_TABLE_META`. Implemented on `#87` with `ECBFxCollector` panel
+      parse retaining `currency` from SDMX series keys.
 - [x] `L7` **`fin.eur_market_daily_gold`** — one row per TARGET business day
       (`iceberg.gold.eur_market_daily`), carrying the policy rate, an FX basket,
       and **EWG restated in EUR** (`ewg_close_usd / eur_usd`). EWG is a
@@ -822,10 +817,9 @@ Execute in this order.
    Decision `2026-09-03` recorded (`docs/roadmap.md` `D4`).
 4. ~~**Implement `L4` Phase 1**~~ — landed on `main` (EWG `0a5080a` + ECB
    DFR/MLF `#85`); `compose-demo` green on `#85`.
-5. ~~**Deepen the finance domain** (`L5` → `L6` → `L7`)~~ — implemented on
-   `feat/d5-l5-l6-l7` (WARN staleness, EXR FX panel, `eur_market_daily` gold +
-   Superset tile). Defaults: dynamic 10-day FX active set, basket
-   USD/GBP/CHF/JPY/CNY, no ECB silver forward-fill.
+5. ~~**Deepen the finance domain** (`L5` → `L6` → `L7`)~~ — landed on `main`
+   via `#87` (`compose-demo` green). Defaults applied: WARN staleness, dynamic
+   10-day FX active set, basket USD/GBP/CHF/JPY/CNY, no ECB silver forward-fill.
 6. **Implement `L4` Phase 2** (deferred) — crypto streaming leg (PR2 + PR3)
    when batch operation is stable and an Owner Decision starts it.
 7. Operate the v2.5 Compose runtime on the live batch sources. Block `K`

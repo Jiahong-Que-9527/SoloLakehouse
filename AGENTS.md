@@ -47,14 +47,12 @@ Never treat a roadmap *target* as a delivered *capability*.
   discipline, and K8s readiness gate.
 - **Owner Decision (2026-08-15):** independent external sign-off is not a
   blocking gate; `docs/external-validation/` is retained as history.
-- **Active task:** Block `L` / **`D5` finance deepening** — `L4` Phase 1
-  (batch ECB + EWG) **landed**. Execute `L5` → `L6` → `L7`. **`L4` Phase 2
-  (streaming/crypto) stays deferred.** See `TASKS.md` Block `L`, `L5`–`L7`,
-  and `docs/fin-domain-data-expansion.md`.
-- **D5 (resolved 2026-09-08):** deepen finance before any new domain — `L5`
-  freshness SLA, `L6` ECB EXR FX panel, `L7` `fin.eur_market_daily_gold`.
-  Same sources as `D4`; **no new domain**. FRED and electricity surveyed,
-  not started. Aviation follows finance stability.
+- **Active task:** Block `L` post-`D5` — finance deepening `L5`–`L7` **landed**
+  (`#87`). Operate the Compose stack / Block `K`; **`L4` Phase 2
+  (streaming/crypto) stays deferred.** See `TASKS.md` Block `L`.
+- **D5 (resolved 2026-09-08, implemented `#87`):** freshness SLA, ECB EXR FX
+  panel, `fin.eur_market_daily_gold`. Same sources as `D4`. FRED and
+  electricity surveyed, not started. Aviation follows finance stability.
 - **Layer 1 market leg (D4, resolved 2026-09-03):** `data/sample/dax_daily_sample.csv`
   and any in-repo static DAX CSV path are **retired — not an option** for demo,
   production, CI, or future design. The only approved market leg is live
