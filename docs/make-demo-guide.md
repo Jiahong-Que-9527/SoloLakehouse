@@ -56,7 +56,7 @@ In plain terms:
 
 `make demo` deliberately does not run the full `full_pipeline_job`, because that also trains MLflow experiments. The demo gate exists to prove the core data flow quickly: ECB + market leg → Bronze → Silver → Gold → Trino.
 
-> **Layer 1 target (D4):** the market leg is **live EWG via Alpha Vantage**; `data/sample/dax_daily_sample.csv` is **retired** and must not be documented or implemented as a fallback. Until `L4` lands, asset names and tables may still say `dax_*` and read the legacy CSV — treat that as implementation lag only.
+> **Layer 1 target (D4; L4 Phase 1 landed):** the market leg is **live EWG via Alpha Vantage** (CI fixtures under `data/fixtures/`). Any in-repo DAX sample CSV path is **retired and removed** — do not document or implement it as a fallback.
 
 ## 3. One-command execution
 

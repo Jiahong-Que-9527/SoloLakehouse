@@ -155,7 +155,7 @@ Important framing:
 - `v2.6` should prepare future purpose-based access and AI/agent consumption by
   making governance metadata executable now
 - the external demonstration goal is defined in
-  [v2.6-demo-goal.md](v2.6-demo-goal.md)
+  [v2.6-demo-goal.md](history/v2.6-demo-goal.md)
 
 ### v2.6.1 — Operationalize the Evidence Plane
 

@@ -37,11 +37,6 @@ DOC_LINKS: list[DocLink] = [
     },
     {
         "label": "Demo Runbook",
-        "route": "/docs/DEMO_RUNBOOK.md",
-        "path": REPO_ROOT / "docs" / "DEMO_RUNBOOK.md",
-    },
-    {
-        "label": "Demo Runbook EN",
         "route": "/docs/DEMO_RUNBOOK_EN.md",
         "path": REPO_ROOT / "docs" / "DEMO_RUNBOOK_EN.md",
     },

@@ -152,7 +152,7 @@ DEFAULT_SERVICE_SLOS: tuple[ServiceSLODefinition, ...] = (
 DEFAULT_INCIDENT_RUNBOOKS: tuple[IncidentRunbookBinding, ...] = (
     IncidentRunbookBinding(
         incident_class="pipeline.demo_failure",
-        runbook_path="docs/DEMO_RUNBOOK.md",
+        runbook_path="docs/DEMO_RUNBOOK_EN.md",
         primary_command="make demo",
     ),
     IncidentRunbookBinding(

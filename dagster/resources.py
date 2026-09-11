@@ -4,34 +4,10 @@ from __future__ import annotations
 
 import os
 
-from minio import Minio
-
 from dagster import ConfigurableResource
 from storage_config import get_storage_config
 
 DEFAULT_STORAGE_CONFIG = get_storage_config()
-
-
-class MinioResource(ConfigurableResource):
-    """Configurable MinIO client resource (used by ParquetIOManager and legacy paths)."""
-
-    endpoint: str = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
-    access_key: str = os.environ.get(
-        "S3_ACCESS_KEY", os.environ.get("MINIO_ROOT_USER", "sololakehouse")
-    )
-    secret_key: str = os.environ.get(
-        "S3_SECRET_KEY", os.environ.get("MINIO_ROOT_PASSWORD", "sololakehouse123")
-    )
-    secure: bool = os.environ.get("MINIO_SECURE", "false").lower() == "true"
-
-    def get_client(self) -> Minio:
-        endpoint = self.endpoint.replace("http://", "").replace("https://", "").rstrip("/")
-        return Minio(
-            endpoint=endpoint,
-            access_key=self.access_key,
-            secret_key=self.secret_key,
-            secure=self.secure,
-        )
 
 
 class IcebergCatalogResource(ConfigurableResource):

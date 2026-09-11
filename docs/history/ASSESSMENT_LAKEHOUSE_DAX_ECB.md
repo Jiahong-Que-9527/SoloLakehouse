@@ -1,3 +1,7 @@
+> **SUPERSEDED (archived 2026-09-11).** Kept for historical context only.
+> Current authority: [`docs/roadmap.md`](../roadmap.md) and [`TASKS.md`](../../TASKS.md).
+> Do not treat status tables or Layer-1 paths in this file as current.
+
 # SoloLakehouse Assessment: Soundness as a Lakehouse and End-to-End Viability of the DAX/ECB Pipeline
 
 > **Assessment goal**: judge whether SoloLakehouse is a *sound lakehouse reference implementation*, and whether the ECB (main refinancing rate) + DAX (German equity index) sources can run **completely** through Bronze → Silver → Gold → ML. Where the implementation is incomplete or non-idiomatic, propose concrete remedies.

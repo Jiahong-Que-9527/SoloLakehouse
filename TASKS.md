@@ -447,11 +447,10 @@ Tasks:
 - [ ] `K17` *(should-do)* Document that `iceberg_schemas.py` changes do not
       retroactively apply to existing tables (`_get_or_create_table`'s
       `schema` parameter is a no-op once a table exists).
-- [ ] `K18` *(should-do)* Remove the unused `ParquetIOManager` registration in
+- [x] `K18` *(should-do)* Remove the unused `ParquetIOManager` registration in
       `dagster/definitions.py` (never wired to any asset via
-      `io_manager_key`), or document why it is kept; remove or clearly
-      deprecate the stale `docker/.env` (490 bytes, 3月26日, superseded by the
-      root `.env` generated via `make init-env`).
+      `io_manager_key`); also drop unused `MinioResource`. Local stale
+      `docker/.env` is not tracked — use root `.env` via `make init-env`.
 
 Explicit non-goals for Block `K`: Kubernetes, Kafka, Service Mesh, Vault,
 multi-region/HA, GitOps, complex RBAC, custom operators, a full

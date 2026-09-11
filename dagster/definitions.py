@@ -39,12 +39,11 @@ from assets import (  # noqa: E402
     ml_experiment,
     openmetadata_trino_sync,
 )
-from io_managers import ParquetIOManager  # noqa: E402
 from pipeline_notifications import (  # noqa: E402
     pipeline_failure_email_sensor,
     pipeline_success_email_sensor,
 )
-from resources import IcebergCatalogResource, MinioResource, PipelineConfigResource  # noqa: E402
+from resources import IcebergCatalogResource, PipelineConfigResource  # noqa: E402
 
 data_flow_assets = [
     ecb_bronze,
@@ -97,9 +96,7 @@ defs = Definitions(
         pipeline_failure_email_sensor,
     ],
     resources={
-        "minio": MinioResource(),
         "pipeline_config": PipelineConfigResource(),
         "iceberg_catalog": IcebergCatalogResource(),
-        "parquet_io_manager": ParquetIOManager(),
     },
 )

@@ -480,7 +480,7 @@ Loopback-only bindings are intentional for the reference security model.
 | [`operational-slo.md`](operational-slo.md) | SLO framing |
 | [`promotion-discipline.md`](promotion-discipline.md) | Promotion evidence |
 | [`entity-backup-restore-runbook.md`](entity-backup-restore-runbook.md) | Backup/restore |
-| [`ASSESSMENT_LAKEHOUSE_DAX_ECB.md`](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Honest self-assessment |
+| [`history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md`](history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Honest self-assessment |
 | [`TASKS.md`](../TASKS.md) Block `K` | Reliability / recovery / alert backlog |
 
 ---

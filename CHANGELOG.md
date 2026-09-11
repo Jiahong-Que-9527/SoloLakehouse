@@ -13,6 +13,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   optional `make superset-eur-tile`.
 
 ### Changed
+- **Repo slim (ops transition):** archive superseded assessment / state /
+  v2.6 plan docs under `docs/history/` with SUPERSEDED banners; drop unused
+  pre-v2.9 architecture image binaries; point demo runbook bindings at
+  `docs/DEMO_RUNBOOK_EN.md`; scrub stale “CSV implementation lag” prose now
+  that L4 Phase 1 removed the sample path.
+- **`K18`:** remove unused Dagster `ParquetIOManager` and `MinioResource`
+  registrations (`dagster/io_managers.py` deleted).
 - **`L4` execution phases (2026-09-04):** Phase 1 (active) — batch sources 1
   (ECB DFR/MLF) + 2 (EWG live) through full medallion path; Phase 2 (deferred)
   — streaming crypto (PR2/PR3). Documented in `TASKS.md`, `docs/roadmap.md` D4,

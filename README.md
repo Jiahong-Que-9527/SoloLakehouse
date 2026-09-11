@@ -25,7 +25,7 @@
   ·
   <a href="docs/decisions/README.md"><strong>ADRs</strong></a>
   ·
-  <a href="docs/project-state-overview-2026-05-05.md"><strong>Self-assessment</strong></a>
+  <a href="docs/history/project-state-overview-2026-05-05.md"><strong>Self-assessment</strong></a>
 </p>
 
 ---
@@ -63,7 +63,7 @@ The detailed architecture is in [docs/architecture.md](docs/architecture.md), an
 
 **Current source transition:** the approved target is ECB SDW plus live EWG
 (Alpha Vantage). Until Block `L` / `L4` Phase 1 lands, the legacy DAX sample CSV
-path may still exist in code as implementation lag; it is not a supported
+path is retired and removed; it is not a supported
 fallback. See [the D4 decision](docs/roadmap.md) and [the active task list](TASKS.md).
 
 ## What It Solves
@@ -149,7 +149,7 @@ Warehouse interest rates plus a German-equity proxy. The approved target is
 live EWG (iShares MSCI Germany ETF) through Alpha Vantage; it preserves the
 temporal-join, look-ahead-bias, and regulatory-lineage challenges that make the
 reference pipeline useful. The legacy DAX sample CSV remains in the current code
-only as implementation lag and is being removed in Block `L` / `L4` Phase 1; it
+is retired (L4 Phase 1 landed); it
 is not an approved demo, production, CI, or future-design source. The Compose
 runtime is **v2.5**; historical v1/v2 material is preserved under
 [docs/history/](docs/history/).
@@ -341,7 +341,7 @@ First run usually takes 10-15 minutes on a typical laptop because Docker pulls O
 - [ADR index](docs/decisions/README.md)
 - [Demo runbook](docs/DEMO_RUNBOOK_EN.md)
 - [User guide](docs/USER_GUIDE_EN.md)
-- [Self-assessment](docs/ASSESSMENT_LAKEHOUSE_DAX_ECB.md)
+- [Self-assessment](docs/history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md)
 
 ## Feedback
 

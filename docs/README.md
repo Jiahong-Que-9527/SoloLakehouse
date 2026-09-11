@@ -28,7 +28,7 @@ and not published; follow the two authoritative documents instead.
 | [ONBOARDING_READING_ORDER.md](ONBOARDING_READING_ORDER.md) | Suggested reading order for new maintainers |
 | [../TASKS.md](../TASKS.md) | Active execution backlog — canonical "what to build next" |
 | [roadmap.md](roadmap.md) | Canonical version status, delivery velocity, and open decisions |
-| [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: where this reference implementation is honest about its limits |
+| [history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md](history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Archived self-assessment (2026-04; superseded — see banner) |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
 | [../DEMO.md](../DEMO.md) | Fixed 20-30 minute v2.5 recording script |
 | [capability-showcase-guide.md](capability-showcase-guide.md) | Capability inventory, demo recipes, and talk tracks (governance, audit, lineage, ops) |
@@ -98,13 +98,14 @@ for instructions.
 | `history/v2.7-planning.md` *(local-only)* | Its primary gate (4-engine demo) is explicitly rejected by the current roadmap |
 | `history/v2.8-planning.md` *(local-only)* | Its timing rationale (EU AI Act `2026-08-02`) has passed |
 | `history/v2.9-planning.md` *(local-only)* | Assumes the superseded six-month milestone plan |
-| [v2.6-execution-plan.md](v2.6-execution-plan.md) | v2.6 execution order — delivered |
+| [history/v2.6-execution-plan.md](history/v2.6-execution-plan.md) | v2.6 execution order — delivered (archived) |
+| [history/v2.6-demo-goal.md](history/v2.6-demo-goal.md) | v2.6 demo goal definition — delivered (archived) |
 
 ## Project State Snapshots (dated, do not retroactively edit)
 
 | Document | Purpose |
 |----------|---------|
-| [project-state-overview-2026-05-05.md](project-state-overview-2026-05-05.md) | EN snapshot — v2.5 baseline overview |
+| [history/project-state-overview-2026-05-05.md](history/project-state-overview-2026-05-05.md) | EN snapshot — v2.5 baseline overview (archived 2026-09-11) |
 
 ## Local-only documents (not in the public repository)
 
