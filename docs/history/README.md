@@ -16,6 +16,10 @@ Use it as the long-term continuity layer between roadmap intent and implementati
   kept in maintainer working copies only and are not published; see
   [../roadmap.md](../roadmap.md) for the authoritative scope of each version.
 - [v3-planning.md](v3-planning.md): draft plan for production infrastructure and governance
+- [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md): archived 2026-04 lakehouse assessment (SUPERSEDED)
+- [project-state-overview-2026-05-05.md](project-state-overview-2026-05-05.md): archived EN state snapshot (SUPERSEDED)
+- [v2.6-execution-plan.md](v2.6-execution-plan.md): delivered v2.6 execution order (SUPERSEDED)
+- [v2.6-demo-goal.md](v2.6-demo-goal.md): delivered v2.6 demo goal note (SUPERSEDED)
 
 ## How to maintain
 

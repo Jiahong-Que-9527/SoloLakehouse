@@ -63,7 +63,7 @@ Option 4, or P0 as valid alternatives.
 - **Layer 2 impact:** None (implemented)
 - **Gold impact:** None — but sparse post-2022; not the primary policy signal today
 - **Demo policy fit:** P1
-- **Risks:** MRO alone under-represents post-2022 policy regime ([ASSESSMENT](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) P7)
+- **Risks:** MRO alone under-represents post-2022 policy regime ([ASSESSMENT](history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) P7)
 
 ### ECB SDW — Deposit Facility Rate (DFR)
 
@@ -219,7 +219,7 @@ The Owner Decision should record:
 
 - [layer1-source-selection-criteria.md](layer1-source-selection-criteria.md) — L1 rubric
 - [ADR-004](decisions/ADR-004-financial-dataset.md) — current domain decision
-- [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) — P1, P7 recommendations
+- [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) — P1, P7 recommendations
 - [ECB FM dataset](https://data.ecb.europa.eu/data/datasets/FM) — rates and market statistics
 - [STOXX DAX Conditions of Use](https://stoxx.com/legal/dax-conditions-of-use/)
 - [Bundesbank download options](https://www.bundesbank.de/en/statistics/time-series-databases/help-on-the-time-series-databases/download-options)

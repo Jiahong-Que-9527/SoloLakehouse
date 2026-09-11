@@ -105,7 +105,7 @@ missing. Do not add a partial-output fallback to any of them.
 
 ```
 ingestion/
-  collectors/         # One class per data source (ECBCollector, DAXCollector)
+  collectors/         # One class per data source (ECBCollector, EWGCollector, …)
   schema/             # Pydantic v2 models for record validation
   quality/            # Bronze-layer quality check functions
   bronze_writer.py    # Writes validated data to Iceberg (pyiceberg append_table)
@@ -196,14 +196,13 @@ dagster/
 
 tests/                      # Unit tests (mocked I/O, no Docker needed)
 docs/                       # See docs/README.md — architecture, ADRs, roadmap, deployment
-data/sample/                # Legacy DAX sample CSV — RETIRED by D4; remove in L4-dax-g
+data/fixtures/              # CI / bootstrap fixtures for EWG (Alpha Vantage shaped)
 ```
 
-**Layer 1 market leg (D4):** `data/sample/dax_daily_sample.csv` is not an
-approved source — not for demo, production, or as a documented fallback. Target
-path is live EWG via Alpha Vantage (`ALPHA_VANTAGE_API_KEY`; CI uses
-`tests/fixtures/alpha_vantage_ewg_daily.json`). Do not extend or preserve the
-CSV collector path in new work.
+**Layer 1 market leg (D4; L4 Phase 1 landed):** in-repo static DAX CSV is
+retired and removed. Target path is live EWG via Alpha Vantage
+(`ALPHA_VANTAGE_API_KEY`; CI uses `data/fixtures/`). Do not revive a CSV
+collector path in new work.
 
 ## Architecture Patterns — Follow These When Adding Code
 

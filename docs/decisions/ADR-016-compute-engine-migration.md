@@ -16,7 +16,7 @@ In the v2.5 baseline, Bronze → Silver and Silver → Gold transformations run 
 This works for the reference scope but has three structural issues:
 
 1. **Engine conflation.** Trino is asked to do both *transformation* (the CTAS rebuild) and *query*. BI latency and ETL latency share the same coordinator and workers.
-2. **No real use of Iceberg semantics.** The `DROP + CTAS` pattern rebuilds the table on every run and discards snapshot history, invalidating most of the reason to pick Iceberg (cf. [ASSESSMENT_LAKEHOUSE_DAX_ECB.md §3.2 P2](../ASSESSMENT_LAKEHOUSE_DAX_ECB.md)).
+2. **No real use of Iceberg semantics.** The `DROP + CTAS` pattern rebuilds the table on every run and discards snapshot history, invalidating most of the reason to pick Iceberg (cf. [ASSESSMENT_LAKEHOUSE_DAX_ECB.md §3.2 P2](../history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md)).
 3. **Scaling ceiling.** pandas in a single Dagster process is acceptable for a CSV-sized demo but is not a Lakehouse compute pattern readers can generalize to a real platform.
 
 The ask is therefore: **move transformations to a proper compute engine, and restrict Trino to the query role**.
@@ -50,7 +50,7 @@ Exit criteria for Phase 1:
    - `transformations/dax_bronze_to_silver.py` → `models/silver/dax_daily_cleaned.sql` (same pattern)
    - the Phase 1 PySpark Gold job → `models/gold/ecb_dax_features.sql`
 3. Use `dagster-dbt` to reflect each dbt model as a Dagster asset, preserving the existing asset graph shape (`ecb_bronze → ecb_silver → gold_features` etc.).
-4. Add dbt tests (`not_null`, `unique`, `accepted_values`, and a custom freshness test on `event_date`) — these close most of the asset-check gap called out in [ASSESSMENT §4 P4](../ASSESSMENT_LAKEHOUSE_DAX_ECB.md).
+4. Add dbt tests (`not_null`, `unique`, `accepted_values`, and a custom freshness test on `event_date`) — these close most of the asset-check gap called out in [ASSESSMENT §4 P4](../history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md).
 5. Enable OpenMetadata's dbt manifest ingestion to surface model lineage and tests in the catalog.
 
 Exit criteria for Phase 2:
@@ -133,6 +133,6 @@ Bronze remains collector-driven Python (Pydantic validation, rejected-record han
 
 ## Related work
 
-- [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](../ASSESSMENT_LAKEHOUSE_DAX_ECB.md) — items P2, P4, P5 are largely resolved by this ADR.
+- [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](../history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) — items P2, P4, P5 are largely resolved by this ADR.
 - `TASKS.md` Block A (governance contracts) — directly benefits from dbt tests and dbt manifest lineage.
 - [ADR-013](ADR-013-iceberg-gold-trino.md) — this ADR supersedes its compute-path portion; the Iceberg-for-Gold decision itself still stands.

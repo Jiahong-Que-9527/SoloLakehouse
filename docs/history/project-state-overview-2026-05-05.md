@@ -1,3 +1,7 @@
+> **SUPERSEDED (archived 2026-09-11).** Kept for historical context only.
+> Current authority: [`docs/roadmap.md`](../roadmap.md) and [`TASKS.md`](../../TASKS.md).
+> Do not treat status tables or Layer-1 paths in this file as current.
+
 # SoloLakehouse — Comprehensive Project State Overview
 
 > Snapshot date: 2026-05-05

@@ -156,7 +156,7 @@ Minimum portal capabilities:
   - Bronze -> Silver -> Gold data flow
   - Trino Hive Gold and Iceberg Gold row-count checks
   - optional `make pipeline` for MLflow experiment coverage
-- Provide links to `docs/make-demo-guide.md`, `docs/DEMO_RUNBOOK.md`, and `docs/DEMO_RUNBOOK_EN.md`.
+- Provide links to `docs/make-demo-guide.md`, `docs/DEMO_RUNBOOK_EN.md`, and `docs/DEMO_RUNBOOK_EN.md`.
 - Be configurable per entity so FinLakehouse and Aviation Lakehouse can reuse the same portal with different labels, links, and domain context.
 
 Implementation guardrails:

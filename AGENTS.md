@@ -53,12 +53,11 @@ Never treat a roadmap *target* as a delivered *capability*.
 - **D5 (resolved 2026-09-08, implemented `#87`):** freshness SLA, ECB EXR FX
   panel, `fin.eur_market_daily_gold`. Same sources as `D4`. FRED and
   electricity surveyed, not started. Aviation follows finance stability.
-- **Layer 1 market leg (D4, resolved 2026-09-03):** `data/sample/dax_daily_sample.csv`
-  and any in-repo static DAX CSV path are **retired — not an option** for demo,
-  production, CI, or future design. The only approved market leg is live
-  **EWG via Alpha Vantage** (CI uses a committed API fixture, not the CSV).
-  Do not propose keeping, reviving, or documenting the sample CSV as a
-  fallback. `L4-dax-g` removes it from the production path.
+- **Layer 1 market leg (D4, resolved 2026-09-03; L4 Phase 1 landed):** any
+  in-repo static DAX CSV path is **retired and removed**. The only approved
+  market leg is live **EWG via Alpha Vantage** (CI uses committed fixtures
+  under `data/fixtures/`). Do not propose keeping, reviving, or documenting a
+  sample CSV as a fallback.
 
 Each v2.x version adds **one category of evidence** without changing the runtime:
 
@@ -112,12 +111,9 @@ rather than proceeding.
 6. **Estimate with the measured rate.** v2.6 was planned at 4 weeks and took
    11.7 (≈2.9×). Publish version *order*, not dates.
 7. **No DAX sample CSV — ever again.** Owner Decision D4 (`2026-09-03`) retires
-   `data/sample/dax_daily_sample.csv` and forbids any static in-repo market-leg
-   file as demo fallback, production path, or documented alternative. Agents
-   must not add new references that present the CSV as current, optional, or
-   transitional-by-choice. Until `L4` lands, the file may still exist in code
-   as **implementation lag**; new work must move toward EWG + Alpha Vantage
-   (or CI fixture), not preserve or extend the CSV path.
+   any static in-repo market-leg file as demo fallback, production path, or
+   documented alternative. The sample CSV path is removed; use live EWG via
+   Alpha Vantage or the committed CI fixtures under `data/fixtures/`.
 
 ---
 

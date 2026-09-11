@@ -13,26 +13,21 @@ candidates; **`L3` decided** remediation and replacement; `L4` implements.
 
 **Authority chain:** `docs/roadmap.md` and `TASKS.md` win over this file.
 
-**Agent rule (D4):** `data/sample/dax_daily_sample.csv` and any in-repo static
-DAX/market CSV are **retired**. They are not a valid demo fallback, production
-path, or planning option. Policy **P0** (demo frozen on sample DAX) and
-outcome **D** (split demo vs operation with sample DAX) are **revoked** by the
-Owner Decision.
+**Agent rule (D4; L4 Phase 1 landed):** any in-repo static DAX/market CSV is
+**retired and removed**. It is not a valid demo fallback, production path, or
+planning option. Policy **P0** (demo frozen on sample DAX) and outcome **D**
+(split demo vs operation with sample DAX) remain **revoked**.
 
 ---
 
 ## Purpose
 
 SoloLakehouse has a complete v2.5 runtime and a v2.6–v2.9 evidence plane. Its
-**input edge** is being remediated under Block `L` / D4:
+**input edge** was remediated under Block `L` / D4:
 
-- **ECB** — live SDW REST API (MRO today; DFR/MLF planned in `L4`)
-- **Market leg** — **`L3` retired the DAX sample CSV**; target is live **EWG**
-  via Alpha Vantage (CI fixture only — not the CSV)
-
-Until `L4` lands, `DAXCollector` may still read `data/sample/dax_daily_sample.csv`
-on `main`. That is **implementation lag**, not an approved option. Agents must not
-treat the CSV as current policy or propose keeping it.
+- **ECB** — live SDW REST API (MRO/DFR/MLF as implemented on `main`)
+- **Market leg** — live **EWG** via Alpha Vantage (CI fixtures under
+  `data/fixtures/` — never a sample CSV)
 
 ---
 

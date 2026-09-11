@@ -22,7 +22,7 @@ Read in order to learn what this is, what it runs, and where its boundaries are.
 | 1 | [README.md](../README.md) | Project positioning, one-line architecture, quick-start entry point. |
 | 2 | [docs/README.md](README.md) | Full documentation map — return here whenever you get lost. |
 | 3 | [docs/roadmap.md](roadmap.md) | **Authoritative**: version status, measured delivery velocity, open decisions (D1–D3), and roadmap. |
-| 4 | [docs/ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: the honest boundaries of this reference implementation. |
+| 4 | [docs/history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md](history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: the honest boundaries of this reference implementation. |
 
 ---
 
@@ -68,7 +68,7 @@ not when running the local finance reference demo.
 | 10 | [docs/architecture.md](architecture.md) | Layers and component relationships. |
 | 11 | [docs/medallion-model.md](medallion-model.md) | Bronze / Silver / Gold conventions and data contracts. |
 | 12 | [docs/dataset-governance-naming.md](dataset-governance-naming.md) | Stable dataset IDs, physical mapping, and lineage-evidence naming rules. |
-| 13 | [docs/v2.6-demo-goal.md](v2.6-demo-goal.md) | What the v2.6 governance-evidence capability is meant to prove, and its boundaries. |
+| 13 | [docs/history/v2.6-demo-goal.md](history/v2.6-demo-goal.md) | What the v2.6 governance-evidence capability is meant to prove, and its boundaries. |
 | 14 | [docs/v2.6-release-readiness.md](v2.6-release-readiness.md) | The v2.6 evidence gate, the recorded drill, and the honest limitations. |
 | 15 | [docs/object-store-abstraction.md](object-store-abstraction.md) | The S3-compatible object-store configuration boundary and why MinIO is retained. |
 | 16 | [docs/decisions/README.md](decisions/README.md) | ADR index — skim the list, then open individual records as needed. |

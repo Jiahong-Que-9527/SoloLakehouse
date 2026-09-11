@@ -21,7 +21,7 @@ SECTIONS: list[tuple[str, list[str]]] = [
             "CLAUDE.md",
             "AGENTS.md",
             "docs/roadmap.md",
-            "docs/ASSESSMENT_LAKEHOUSE_DAX_ECB.md",
+            "docs/history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md",
             "CHANGELOG.md",
         ],
     ),
@@ -106,7 +106,7 @@ SECTIONS: list[tuple[str, list[str]]] = [
         [
             "TASKS.md",
             "task.md",
-            "docs/project-state-overview-2026-05-05.md",
+            "docs/history/project-state-overview-2026-05-05.md",
         ],
     ),
     (
