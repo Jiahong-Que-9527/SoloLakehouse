@@ -21,6 +21,7 @@ from governance.lineage import (
     LineageEvidenceJoiner,
     OpenMetadataAdapter,
 )
+from governance.openmetadata_auth import resolve_bearer_token
 from ingestion.iceberg_io import get_catalog
 from runtime_identity import get_runtime_identity
 from storage_config import get_storage_config
@@ -124,7 +125,9 @@ def emit_lineage_evidence(
     identity = get_runtime_identity(env)
     storage = get_storage_config(env)
     service_name = _required_env(env, "OPENMETADATA_TRINO_SERVICE_NAME")
-    auth_token = _required_env(env, "OPENMETADATA_AUTH_TOKEN")
+    # Prefer a still-valid OPENMETADATA_AUTH_TOKEN; otherwise refresh via
+    # OPENMETADATA_ADMIN_PASSWORD (login JWTs from OM are short-lived).
+    auth_token = resolve_bearer_token(env)
     openmetadata = OpenMetadataAdapter(
         env.get("OPENMETADATA_URL", "http://localhost:8585"),
         service_name,

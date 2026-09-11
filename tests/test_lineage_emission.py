@@ -202,7 +202,12 @@ def test_emit_lineage_evidence_writes_manifest_with_injected_dependencies(
         "run-1",
         environ={
             "OPENMETADATA_TRINO_SERVICE_NAME": "svc",
-            "OPENMETADATA_AUTH_TOKEN": "token",
+            # JWT-shaped token with a future exp so resolve_bearer_token accepts it
+            "OPENMETADATA_AUTH_TOKEN": (
+                "header."
+                "eyJleHAiOjQ5MTEyNDgwMDB9."  # {"exp": 4911248000}
+                "signature"
+            ),
         },
         s3_client=object(),
     )

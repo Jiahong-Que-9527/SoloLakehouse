@@ -31,6 +31,7 @@ and not published; follow the two authoritative documents instead.
 | [ASSESSMENT_LAKEHOUSE_DAX_ECB.md](ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Self-assessment: where this reference implementation is honest about its limits |
 | [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
 | [../DEMO.md](../DEMO.md) | Fixed 20-30 minute v2.5 recording script |
+| [capability-showcase-guide.md](capability-showcase-guide.md) | Capability inventory, demo recipes, and talk tracks (governance, audit, lineage, ops) |
 | [make-demo-guide.md](make-demo-guide.md) | Detailed `make demo` explanation and manual execution guide |
 | [../RUNBOOK.md](../RUNBOOK.md) | Operational runbook for common local-stack scenarios |
 | [DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | Full demo runbook in English (with acceptance checklist) |
