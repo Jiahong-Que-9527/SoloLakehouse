@@ -17,6 +17,11 @@ COPY data ./data
 COPY runtime_identity.py ./runtime_identity.py
 COPY storage_config.py ./storage_config.py
 
+# Baked at image build so ML lineage still works if runtime env omits GIT_COMMIT
+# (compose also passes GIT_COMMIT at runtime when Make exports it).
+ARG GIT_COMMIT=
+ENV GIT_COMMIT=${GIT_COMMIT}
+
 ENV PYTHONPATH=/app
 EXPOSE 3000
 
