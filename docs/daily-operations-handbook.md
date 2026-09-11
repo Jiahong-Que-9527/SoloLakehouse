@@ -249,6 +249,7 @@ Until Block `K9`/`K10` are scripted and drilled, say:
 | Item | Ops note |
 |------|----------|
 | OM JWT | Short-lived if from login; keep admin password in `.env.secrets` for refresh |
+| `GIT_COMMIT` | Required for `ml_experiment` lineage. Prefer `make up` / `make pipeline` (Make exports it). If you recreate Dagster with raw `docker compose`, pass `GIT_COMMIT=$(git rev-parse HEAD)` or rebuild the image so the bake-time commit is set. Empty commit → ML step fails; Bronze/Silver/Gold may still succeed. |
 | Weak defaults | Replace example passwords before any non-loopback exposure |
 | Network | Loopback binds + tunnel are the accepted model near-term |
 | Alpha Vantage | Daily quota — collector failures may be rate limits |
