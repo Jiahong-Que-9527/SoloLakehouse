@@ -1,353 +1,48 @@
 # SoloLakehouse
 
-<p align="center">
-  <img src="docs/img/slh-brand.png" width="300" alt="SoloLakehouse">
-</p>
+**A self-hosted reference Data & AI platform for governed, reproducible workflows.**
 
-<h3 align="center">A local-first lakehouse reference architecture for production-minded data platform engineering.</h3>
+[![CI](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml/badge.svg)](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml) · [Architecture](docs/architecture.md) · [Demo runbook](docs/DEMO_RUNBOOK_EN.md) · [ADRs](docs/decisions/README.md) · [Roadmap](docs/roadmap.md)
 
-<p align="center">
-  MinIO · Trino · Iceberg · Dagster · MLflow · OpenMetadata · Superset
-</p>
+SoloLakehouse connects ingestion, Iceberg tables, orchestration, SQL analytics, ML tracking, and metadata in one Docker Compose runtime. The point is not the number of services: it is whether a data product can be **re-run, inspected, and explained** from source through Gold table and model evidence.
 
-<p align="center">
-  <a href="https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml"><img src="https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/python-3.13%2B-blue.svg" alt="Python 3.13+">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License">
-  <img src="https://img.shields.io/badge/runtime-Docker%20Compose-2496ED.svg" alt="Docker Compose">
-  <img src="https://img.shields.io/badge/table%20format-Iceberg-5C7CFA.svg" alt="Apache Iceberg">
-</p>
+The current reference domain is **European financial-market data**: ECB rates and FX, plus EWG (a German-equity proxy) via Alpha Vantage. The architecture is intended to be transferable; this repository does **not** currently run an air-cargo data pipeline.
 
-<p align="center">
-  <a href="#quick-start"><strong>Run locally</strong></a>
-  ·
-  <a href="docs/architecture.md"><strong>Architecture</strong></a>
-  ·
-  <a href="docs/decisions/README.md"><strong>ADRs</strong></a>
-  ·
-  <a href="docs/history/project-state-overview-2026-05-05.md"><strong>Self-assessment</strong></a>
-</p>
+## What the repository demonstrates
 
----
-
-SoloLakehouse is a self-hosted reference data platform for regulated industries.
-
-It demonstrates how ingestion, orchestration, Iceberg tables, Trino query, MLflow, BI, metadata governance, and audit-oriented documentation can work together in one reproducible Docker Compose runtime.
-
-The goal is not to replace Databricks, but to show the architecture thinking behind owning an open, governed, production-minded lakehouse platform.
-
-## Architecture
-
-<p align="center">
-  <img src="docs/img/slh_architecture_v2.9_a.png" alt="SoloLakehouse architecture through v2.9">
-</p>
-
-<p align="center">
-  <em>v2.5 runtime + v2.6–v2.9 evidence/control plane: all-layer Iceberg, three-source lineage, AI/ML governance, openness proofs, and operational promotion evidence on Docker Compose.</em>
-</p>
-
-```text
-Data sources (target: ECB / live EWG)
-  -> Python ingestion + Pydantic validation + dataset contracts
-  -> Iceberg Bronze / Silver / Gold on MinIO (Hive Metastore catalog)
-  -> Trino query + Dagster assets / schedules / sensors
-  -> Superset · MLflow · OpenMetadata · local operator portal
-
-Evidence & control plane (on the same runtime):
-  lineage join · SHA-256 audit packs · Object Lock
-  interoperability / sovereignty · ML five-tuple · policy hooks
-  promotion / rollback · SLO evidence · secrets discipline · k8s-readiness
-```
-
-The detailed architecture is in [docs/architecture.md](docs/architecture.md), and the medallion conventions are in [docs/medallion-model.md](docs/medallion-model.md).
-
-**Current source transition:** the approved target is ECB SDW plus live EWG
-(Alpha Vantage). Until Block `L` / `L4` Phase 1 lands, the legacy DAX sample CSV
-path is retired and removed; it is not a supported
-fallback. See [the D4 decision](docs/roadmap.md) and [the active task list](TASKS.md).
-
-## What It Solves
-
-Most lakehouse tutorials show **how to plug components together**. SoloLakehouse is built to answer the harder questions a regulated European platform team actually faces:
-
-| Problem the platform answers | How SoloLakehouse addresses it |
+| Platform concern | Inspectable implementation |
 |---|---|
-| **"If BaFin asks for end-to-end lineage of this Gold table tomorrow, can we deliver it in 24h?"** | Three-source lineage join (OpenMetadata + Iceberg snapshots + Dagster runs) producing SHA-256-bound evidence packs to an audit bucket. *([v2.6 — delivered](docs/v2.6-release-readiness.md))* |
-| **"Are we locked into our vendor's table format?"** | Explicit catalog abstraction boundary, Hive-Metastore ↔ REST-Catalog path, `make interoperability-proof`, and a signable sovereignty report + exit playbook. *(v2.7 — on `main`; see [roadmap](docs/roadmap.md))* |
-| **"Can we trace any model artifact back to the exact training data, code commit, and orchestration run?"** | MLflow runs bound to Iceberg snapshot id + Dagster run id + code commit + data-contract hash, with auto-generated EU AI Act Art.13 model cards. *(v2.8 — on `main`; see [roadmap](docs/roadmap.md))* |
-| **"Can the same stack run on a laptop and on Kubernetes without rewriting?"** | All services are containerized, configuration-externalized, state-externalized; `make k8s-readiness` gates the migration and v3.0 promotes the same images to K8s + Helm + Terraform. *(v2.9 on `main` → [v3.0](docs/history/v3-planning.md); see [roadmap](docs/roadmap.md))* |
+| **A reproducible data path** | Python/Pydantic ingestion → Iceberg Bronze, Silver, and Gold on MinIO → Dagster assets and schedules → Trino queries. The finance path includes a freshness check and an EUR market-day Gold table. |
+| **Governance tied to execution** | Versioned [dataset contracts](governance/datasets/), quality checks, and [lineage evidence](docs/governance-evidence-layout.md) binding Dagster runs, Iceberg snapshots, and metadata. |
+| **ML and operational evidence** | MLflow experiments, model/evaluation artifacts, promotion and rollback drills, and operational evidence commands. [Tests and CI](.github/workflows/test.yml) cover the platform code. |
 
+<p align="center">
+  <img src="docs/img/slh_architecture_v2.9_a.png" alt="SoloLakehouse architecture: Compose runtime and governance evidence layers" width="90%">
+</p>
 
-## Quick Start
+**Stack:** Docker Compose · MinIO · Apache Iceberg · Trino · Dagster · PostgreSQL · MLflow · OpenMetadata · Superset. See the [architecture document](docs/architecture.md) for service boundaries and [decision records](docs/decisions/README.md) for trade-offs.
 
-From a cold clone, the full stack starts through one command:
+## Run the reference flow
+
+Use Linux, macOS, or Windows **WSL2** with Docker Compose, Python 3.13+, Git, and `make`. The full local stack needs roughly 8 GB free RAM (12 GB recommended); see [quick start](docs/quickstart.md) for details.
 
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
 cd SoloLakehouse
 make setup
-```
-
-`make setup` runs `make init-env` when `.env` is missing, prepares `.venv`, installs Python dependencies, pulls images, starts the Compose stack, bootstraps databases, and waits for service health checks.
-
-`make init-env` is the supported bootstrap. It seeds `.env.shared` (non-secret
-configuration) and `.env.secrets` (credentials and tokens) from their committed
-`*.example` templates, then merges both into `.env` for Compose and the scripts.
-Do **not** use `cp .env.example .env` — that bypasses the v2.9 secrets split.
-Both `.env.shared` and `.env.secrets` are gitignored; never commit either.
-
-Validate the stack, open the local operator portal, and run the end-to-end demo:
-
-```bash
 make verify
-make health
 make demo
 ```
 
-Operator portal: `http://127.0.0.1:8090/health`
+`make setup` creates local environment files from the committed templates and starts the Compose services. For the live EWG source, add an Alpha Vantage key to the gitignored `.env.secrets`; CI uses committed API fixtures. Do not commit credentials. `make demo` checks the Dagster-to-Iceberg-to-Trino path. See [DEMO.md](DEMO.md) and the [operator runbook](RUNBOOK.md) for expected results and troubleshooting.
 
-The portal shows entity identity, service health, demo readiness, links to the
-core UIs, and the `make verify` -> Dagster -> Bronze/Silver/Gold -> Trino
-demo path.
+## Maturity and boundaries
 
-Key UIs:
+- **Running baseline:** v2.5 on Docker Compose. Governance and operational evidence capabilities through v2.9 are implemented on `main`; the latest published release tag is **v2.6.1**. “On `main`” does not mean a tagged release.
+- **Current source path:** live ECB and EWG batch ingestion; the old in-repository DAX sample CSV was retired. Optional crypto streaming is deferred.
+- **Not claimed:** enterprise production operation, regulatory certification, enforced AI policy, or a Kubernetes deployment. Kubernetes/Helm/Terraform are planned for v3.0; the current repository includes a readiness check, not that runtime.
 
-- Dagster: `http://localhost:3000`
-- Superset: `http://localhost:8088`
-- OpenMetadata: `http://localhost:8585`
-- MLflow: `http://localhost:5000`
-- Trino: `http://localhost:8080`
-- MinIO Console: `http://localhost:9001`
-
-See [docs/quickstart.md](docs/quickstart.md), [docs/deployment.md](docs/deployment.md), [DEMO.md](DEMO.md), and [RUNBOOK.md](RUNBOOK.md) for details, sizing, credentials, and troubleshooting.
-
-## Demo
-
-- SLH setup demo (YouTube): [https://www.youtube.com/watch?v=dH0Nwteas7E](https://www.youtube.com/watch?v=dH0Nwteas7E)
-
-## Capabilities Demonstrated
-
-**Runtime baseline (v2.5 — protected):**
-
-- **Medallion architecture** with strict Bronze immutability, Pydantic-v2 schema validation at ingestion, and **Iceberg for Bronze / Silver / Gold** via pyiceberg
-- **Asset-aware orchestration** in Dagster — jobs, schedules, sensors, asset checks, and lineage in the UI (not task-based DAGs)
-- **Federated SQL** over Iceberg tables through a single Trino endpoint (Hive Metastore catalog; REST/Polaris path evaluated in v2.7)
-- **Open table format discipline** — no proprietary engine lock-in; warehouse on S3-compatible MinIO
-- **ML tracking baseline** — MLflow experiments with object-storage artifacts; `TimeSeriesSplit` CV as a discipline (look-ahead bias is treated as a defect, not a default)
-- **Catalog & BI integration** — OpenMetadata for lineage and ownership, Superset for SQL-first BI on Trino
-- **Production-minded engineering** — CI gates, type checking, ADRs per non-trivial decision, release notes and planning notes per minor version
-
-**Evidence & control plane (v2.6–v2.9 on `main`):**
-
-- Dataset contracts, automatic three-source lineage emission, and Object Lock on the audit bucket
-- Catalog interoperability proof, sovereignty report, and exit playbook
-- ML lineage five-tuple, AI-governance contract fields, policy hooks, and EU AI Act Art.13 model cards
-- Promotion / rollback / operational SLO evidence, `.env.shared` + `.env.secrets` discipline, and `make k8s-readiness`
-
-The reference data domain is European financial markets — ECB Statistical Data
-Warehouse interest rates plus a German-equity proxy. The approved target is
-live EWG (iShares MSCI Germany ETF) through Alpha Vantage; it preserves the
-temporal-join, look-ahead-bias, and regulatory-lineage challenges that make the
-reference pipeline useful. The legacy DAX sample CSV remains in the current code
-is retired (L4 Phase 1 landed); it
-is not an approved demo, production, CI, or future-design source. The Compose
-runtime is **v2.5**; historical v1/v2 material is preserved under
-[docs/history/](docs/history/).
-
-## Product Entity Template
-
-SoloLakehouse is an **upstream template**, not a single permanent runtime. The
-repository ships one **reference pipeline** (target: ECB + live EWG) plus the
-platform and governance stack. You can turn it into independently operated
-product entities
-— for example `finlakehouse` or `aviation-lakehouse` — without waiting for a
-domain-neutral plugin architecture.
-
-| Customization | When | What changes | What stays in this repo |
-|---|---|---|---|
-| **Deploy-time** | Clone + `.env` before first `make setup` | `PRODUCT_ID`, buckets, warehouse URI, credentials, service labels, entity-owned runtime root | Finance collectors, transforms, Dagster assets, `fin.*` contracts, `make demo` |
-| **Post-deploy** | In the entity's own clone under `/opt/<product_id>/app` | Collectors, schemas, Iceberg tables, transforms, Dagster jobs, `aviation.*` (or other) contracts, acceptance checks | Generic platform improvements only — merge or cherry-pick upstream |
-
-**Deploy-time configuration** isolates identity and infrastructure: see the
-[Product Entity Contract](docs/product-entity-contract.md) and
-[runtime state layout](docs/runtime-state-layout.md). Changing `.env` alone does
-**not** switch data sources or the medallion pipeline — `make demo` always
-exercises the finance reference path until you change code in the entity clone.
-
-**Post-deploy domain work** happens in the entity instance: fork or clone the
-template, keep entity-specific pipeline code there, and pull platform upgrades
-from upstream through side-by-side migration. The full split, localization, and
-upgrade strategy is documented in [`task.md`](task.md) (design reference;
-entity split is **deferred indefinitely** per [roadmap D2](docs/roadmap.md) — it
-is not the active repository backlog).
-
-Phase 1 template readiness (identity, storage, backup/restore, naming) is
-complete — see [entity-template readiness](docs/entity-template-readiness.md).
-For a dedicated VPS walkthrough of the first finance entity, see
-[FinLakehouse deployment guide](docs/finlakehouse-deployment-guide.md).
-
-## Engineering Practices
-
-Beyond the platform features, this is built with explicit engineering discipline a hiring panel can audit:
-
-- **Test discipline** — pure-function transforms unit-tested without Docker; Pydantic v2 schema validation on every Bronze record; quality checks fail-fast rather than silent-degrade
-- **Type discipline** — `mypy` over `ingestion/`, `transformations/`, `ml/`, `scripts/`, `dagster/`, `governance/`
-- **Lint discipline** — `ruff` enforced in CI
-- **Architecture discipline** — every non-trivial decision recorded as an [ADR](docs/decisions/README.md)
-- **Release discipline** — version-tagged release notes, planning note per minor version, evolution timeline at [docs/history/timeline.md](docs/history/timeline.md)
-- **Observability discipline** — `structlog` JSON events at every step boundary; `make operational-evidence` emits SHA-256-bound SLO evidence (v2.9, on `main`)
-- **CI** — GitHub Actions runs lint + typecheck + tests on every push
-
-## AI-Assisted Platform Workflow
-
-The maintainers use two complementary Codex Skills to keep AI-assisted work
-aligned with product value while limiting the repository context loaded by each
-agent. They guide development work and are not runtime dependencies of
-SoloLakehouse.
-
-| Skill | Responsibility | Use it for |
-|---|---|---|
-| `$slh-platform-owner` | Decides why work matters, its priority and approved scope, and what operational and user evidence defines completion | Roadmap decisions, significant features, architecture changes, deployments, releases, operational readiness, cost, security, and commercial validation |
-| `$slh-context-router` | Selects the smallest authoritative context and recommends the appropriate tool or agent | Backlog questions, code changes, architecture analysis, operations, documentation, GitHub work, and multi-agent delegation |
-
-The intended control flow is:
-
-```text
-slh-platform-owner
-  -> Owner Decision: value, priority, scope, evidence
-  -> slh-context-router
-  -> minimal context for Graphify / Serena / Code / Ops / Review agents
-  -> release and operational evidence
-```
-
-For significant work, invoke both Skills explicitly:
-
-```text
-Use $slh-platform-owner to evaluate a proposed change after the active Block L
-Phase 1 work, define its priority, approved scope, operational impact, and
-evidence of completion. Then use $slh-context-router to load the minimum
-canonical context and prepare the implementation brief. Do not modify code until
-the Owner Decision is complete.
-```
-
-For an already-approved implementation task, start directly with the context
-router:
-
-```text
-Use $slh-context-router to implement Block L Phase 1's live EWG market leg.
-Preserve the v2.5 runtime baseline, inspect only the target modules and matching
-tests, and report focused validation results.
-```
-
-For multi-agent work, pass the Owner Decision to every delegated agent and use
-the router to define each agent's canonical context, exclusions, baseline
-constraints, and expected output. Small local fixes need only a one-sentence
-`Owner impact` instead of a full strategic review.
-
-## Evolution Roadmap
-
-The platform evolves along a single narrative: **first make it run, then make every claim provable on the same Compose stack, and only then migrate the runtime to Kubernetes.** v2.5 is the live runtime today (capabilities listed above). Each minor version after that adds **one category of evidence** the platform can produce — without changing the runtime.
-
-| Version | Theme | Problem | Focus |
-|---------|-------|---------|-------|
-| **v2.5** *(delivered)* | Platform can run | local-first lakehouse baseline | reproducible Docker Compose stack, Bronze/Silver/Gold flow, Trino, Dagster, MLflow, OpenMetadata, Superset |
-| **v2.6** *(delivered)* | Platform can produce evidence | regulatory lineage & audit readiness | Dagster + OpenMetadata + Iceberg three-source lineage join, SHA-256-bound audit evidence pack, and data contracts as the gate |
-| **v2.6.1** *(delivered on `main`)* | Evidence is operational, not demonstrable | audit-grade evidence plane | automatic emission on successful materialization, MinIO Object Lock on the audit bucket, all five governed datasets covered, causal snapshot ↔ run binding |
-| **v2.7** *(delivered on `main`)* | Platform can prove openness | data sovereignty & vendor lock-in | explicit catalog abstraction boundary, Hive Metastore ↔ Iceberg REST Catalog path, Apache Polaris evaluation, `make interoperability-proof`, signable sovereignty report + exit playbook *(engine count is not the success metric — Spark/Flink demos and migration PoC tooling are out of scope)* |
-| **v2.8** *(delivered on `main`)* | Platform can govern AI | compliant AI / model traceability | MLflow ↔ Iceberg snapshot five-tuple binding (snapshot_id, dagster.run_id, feature_version, code_commit, data_contract_hash), AI-governance contract fields, exportable policy hooks, auto **EU AI Act Art.13** model card *(policy hooks are metadata — no enforcement point yet; model serving stays out — ADR-011)* |
-| **v2.9** *(delivered on `main`)* | Platform has production shape | operational readiness | operational SLO evidence, promotion/rollback evidence with `make` entrypoints, rollback drill, `.env.shared` vs `.env.secrets` discipline + rotation drill, K8s readiness gate before v3.0 |
-| **v3.0** *(planned)* | Platform can run in production | scalable deployment & environment management | Kubernetes, Helm, Terraform, dev/stage/prod separation, managed secrets, GitOps-ready deployment model |
-| **v4.0** *(planned)* | Self-serve usability | docs-first onboarding | repeatable verification, clearer failure modes, operational polish |
-
-**"On `main`" is not "released."** v2.6.1 Block `J` through v2.9 are implemented,
-internally verified, and CI-green on `main`. The latest published tag is
-`v2.6.1`, which predates Block `J`. External sign-off is not a blocking gate
-(Owner Decision 2026-08-15); the protocol under
-[docs/external-validation/](docs/external-validation/) is retained as history.
-The active backlog is Block `L` / **`L4` Phase 1**: wire ECB (DFR/MLF) and live
-EWG (Alpha Vantage) through Bronze → Silver → Gold, `make demo`, and
-`make pipeline`; retire the DAX sample CSV from the production path. Phase 2
-(the optional crypto streaming leg) is deferred until Phase 1 lands. See
-[TASKS.md](TASKS.md) and [the roadmap's D4 decision](docs/roadmap.md).
-
-Per-version planning notes:
-
-- v2.5 — [docs/history/v2.5-planning.md](docs/history/v2.5-planning.md)
-- v2.6 onward — [docs/roadmap.md](docs/roadmap.md) is the authority for every version's scope and status
-- v3.0 — [docs/history/v3-planning.md](docs/history/v3-planning.md)
-
-See [docs/roadmap.md](docs/roadmap.md) for the canonical version status table, and [docs/history/timeline.md](docs/history/timeline.md) for the full evolution timeline.
-
-## Portability & Migration Paths
-
-The platform is built around **replaceable boundaries** — not because every component will be replaced, but because every component **could** be without rewriting the platform contract:
-
-| Boundary | Current (v2.5) | Migration target | Trigger criteria |
-|----------|----------------|------------------|------------------|
-| Object storage | MinIO | SeaweedFS / Ceph / S3 / GCS | scale beyond single-node throughput; multi-region requirement |
-| Runtime | Docker Compose | Kubernetes + Helm + Terraform | multi-environment promotion; HA / SLO requirement *(v3.0)* |
-| Metadata DB | Local PostgreSQL 17 | Managed / HA PostgreSQL | RPO < 24h or production SLO commitment |
-| Catalog | Hive Metastore | Iceberg REST Catalog | multi-engine demand or vendor-neutral catalog requirement *(v2.7)* |
-| Secrets | `.env.shared` + `.env.secrets` (merged by `make init-env`) | Vault / cloud KMS | multi-tenant or multi-environment deployment *(v3.0)* |
-| BI / Catalog | Superset / OpenMetadata | Enterprise tool (Looker, Atlan, etc.) | enterprise procurement constraints |
-
-Each boundary has a corresponding ADR explaining the current choice and the explicit conditions under which it should change. See the [ADR index](docs/decisions/README.md).
-
-## Can My Machine Run This?
-
-Minimum local profile for the full v2.5 stack:
-
-| Requirement | Minimum | Recommended |
-|---|---:|---:|
-| CPU | 4 cores | 6+ cores |
-| Free RAM | 8 GB | 12+ GB |
-| Free disk | 10 GB | 20+ GB |
-
-Required software:
-
-| Software | Version |
-|---|---|
-| Git | 2.40+ |
-| Docker Engine / Desktop | 24.0+ |
-| Docker Compose plugin | v2.20+ |
-| Python | 3.13+ |
-| make | any recent GNU/BSD make |
-
-OS compatibility:
-
-| OS | Status | Notes |
-|---|---|---|
-| Linux | Supported | Primary local path |
-| macOS | Supported | Docker Desktop required |
-| Windows WSL2 | Supported | Run commands inside the Linux distro |
-| Native Windows shell | Not supported | Use WSL2 |
-
-First run usually takes 10-15 minutes on a typical laptop because Docker pulls OpenMetadata, Superset, Trino, MLflow, and database images. If your network is slow, budget 20-30 minutes for image pulls.
-
-
-## Documentation
-
-- [Architecture](docs/architecture.md)
-- [Quick start](docs/quickstart.md)
-- [Deployment](docs/deployment.md)
-- [Product entity contract](docs/product-entity-contract.md) — deploy-time identity, storage, and metadata fields
-- [Entity template readiness](docs/entity-template-readiness.md) — Phase 1 evidence for using SoloLakehouse as a template
-- [FinLakehouse deployment guide](docs/finlakehouse-deployment-guide.md) — optional VPS path for the first independent entity
-- [Dataset governance naming](docs/dataset-governance-naming.md) — stable `fin.*` / `aviation.*` logical IDs
-- [Runtime state layout](docs/runtime-state-layout.md) — entity-owned roots and side-by-side upgrades
-- [Entity backup and restore runbook](docs/entity-backup-restore-runbook.md)
-- [Entity split design reference](task.md) — localization and cutover strategy (D2 deferred)
-- [Roadmap](docs/roadmap.md)
-- [ADR index](docs/decisions/README.md)
-- [Demo runbook](docs/DEMO_RUNBOOK_EN.md)
-- [User guide](docs/USER_GUIDE_EN.md)
-- [Self-assessment](docs/history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md)
-
-## Feedback
-
-If this architecture is useful, star the repo so more platform engineers can find it.
-
-Architecture critiques are welcome, especially around governance hardening, migration paths, and v3 productionization priorities.
+The canonical [roadmap](docs/roadmap.md) and [active backlog](TASKS.md) separate delivered work from future scope. For a deeper review, start with the [architecture](docs/architecture.md), [governance evidence layout](docs/governance-evidence-layout.md), [operational SLO](docs/operational-slo.md), and [ADR index](docs/decisions/README.md).
 
 ## License
 
