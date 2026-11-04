@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # Agent Guide — SoloLakehouse
 
 Entry point for any AI coding agent (Codex, Cursor, Copilot, Claude, …).
@@ -25,6 +27,8 @@ Never treat a roadmap *target* as a delivered *capability*.
 
 ## 2. Current state (verify against `docs/roadmap.md` before relying on this)
 
+**D6 positioning (2026-11-04):** SoloLakehouse is the lakehouse foundation for a personally operated data and AI platform. Aviation is the main operated domain; finance remains the executable public reference. Aviation implementation is maintained separately. Current documentation/evidence work must distinguish reference code, operator-reported observations, and planned infrastructure; see `docs/platform-overview.md` and `docs/workloads/aviation.md`. This decision does not alter the protected runtime or hard rules.
+
 - **Runtime baseline: v2.5.** Docker Compose + Dagster + all-layer Iceberg +
   Trino + MLflow + OpenMetadata + Superset. **This runtime does not change
   before v3.0.** Do not add platform services.
@@ -47,12 +51,10 @@ Never treat a roadmap *target* as a delivered *capability*.
   discipline, and K8s readiness gate.
 - **Owner Decision (2026-08-15):** independent external sign-off is not a
   blocking gate; `docs/external-validation/` is retained as history.
-- **Active task:** Block `L` post-`D5` — finance deepening `L5`–`L7` **landed**
-  (`#87`). Operate the Compose stack / Block `K`; **`L4` Phase 2
-  (streaming/crypto) stays deferred.** See `TASKS.md` Block `L`.
+- **Current work:** D6 documentation and an inspectable aviation evidence case, then a bounded observed reliability/data-correctness gap from Block `K`. Finance L5-L7 landed (`#87`); crypto stays deferred. The aviation implementation remains separate. See `TASKS.md` immediate actions.
 - **D5 (resolved 2026-09-08, implemented `#87`):** freshness SLA, ECB EXR FX
   panel, `fin.eur_market_daily_gold`. Same sources as `D4`. FRED and
-  electricity surveyed, not started. Aviation follows finance stability.
+  electricity surveyed, not started. D6 supersedes the old finance-first aviation prerequisite.
 - **Layer 1 market leg (D4, resolved 2026-09-03; L4 Phase 1 landed):** any
   in-repo static DAX CSV path is **retired and removed**. The only approved
   market leg is live **EWG via Alpha Vantage** (CI uses committed fixtures
@@ -76,7 +78,7 @@ v2.5  the platform runs
 
 ## 3. Decision gates
 
-Recorded in `docs/roadmap.md` under "Open Decisions". **D1, D4 and D5 are resolved.**
+Recorded in `docs/roadmap.md` under "Open Decisions". **D1, D4, D5 and D6 are resolved.**
 **D2 and D3 remain live** — an agent that starts work behind either gate is
 doing work that may be thrown away.
 
@@ -86,7 +88,8 @@ doing work that may be thrown away.
 | **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
 | **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
 | **D4** | **Resolved 2026-09-03 (`L3`); phased execution 2026-09-04:** Layer 1 remediation — ECB extends in place; **DAX sample CSV is retired**; market leg becomes live EWG (Alpha Vantage). **Phase 1 (active):** batch sources 1+2 end-to-end. **Phase 2 (deferred):** optional crypto streaming leg (PR2/PR3). Do not start Phase 2 until Phase 1 lands. See `TASKS.md` Block `L`, "L4 execution phases". |
-| **D5** | **Resolved 2026-09-08:** after `L4` Phase 1, deepen the finance domain before opening any new one — `L5` freshness SLA (`max_staleness_days`, `WARN` asset check), `L6` ECB EXR daily FX panel (first panel-shaped dataset; `L4-ecb` landed, needs EXR panel parse), `L7` `fin.eur_market_daily_gold` (daily Gold table, EWG restated in EUR). Stays inside the `D4` sources — **non-goals unchanged**. FRED and electricity are surveyed, **not started**; each needs its own Owner Decision. Aviation follows finance stability. See `TASKS.md` `L5`–`L7` and `docs/fin-domain-data-expansion.md`. |
+| **D5** | **Resolved 2026-09-08:** after `L4` Phase 1, deepen the finance domain before opening any new one ; `L5` freshness SLA (`max_staleness_days`, `WARN` asset check), `L6` ECB EXR daily FX panel (first panel-shaped dataset; `L4-ecb` landed, needs EXR panel parse), `L7` `fin.eur_market_daily_gold` (daily Gold table, EWG restated in EUR). Stays inside the `D4` sources ; **non-goals unchanged**. FRED and electricity are surveyed, **not started**; each needs its own Owner Decision. The finance-first sequencing is historical and superseded by D6. See `TASKS.md` `L5`-`L7` and `docs/fin-domain-data-expansion.md`. |
+| **D6** | **Decided 2026-11-04:** personally operated data/AI platform; aviation primary operated domain, finance public reference, separate aviation implementation. Documentation/evidence alignment only; no D2 split, runtime migration, or new service. |
 
 If a task appears to require crossing a gate, stop and surface the conflict
 rather than proceeding.

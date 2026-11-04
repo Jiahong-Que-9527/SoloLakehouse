@@ -1,55 +1,65 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 <p align="center"><img src="docs/img/slh-brand.png" width="250" alt="SoloLakehouse logo"></p>
 
 <h1 align="center">SoloLakehouse</h1>
 
-<p align="center"><strong>A self-hosted Data &amp; AI platform reference for governed, reproducible workflows</strong></p>
+<p align="center"><strong>A personally operated data &amp; AI platform, built on a lakehouse foundation</strong></p>
 
-[Quick start](docs/quickstart.md) · [Architecture](docs/architecture.md) · [ADRs](docs/decisions/README.md) · [Roadmap](docs/roadmap.md) · [CI runs](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml)
+[Platform story](docs/platform-overview.md) · [Aviation workload](docs/workloads/aviation.md) · [Architecture](docs/architecture.md) · [Quick start](docs/quickstart.md) · [Roadmap](docs/roadmap.md) · [CI](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml)
 
-Most lakehouse demos stop when a query returns rows. SoloLakehouse asks the next questions: **Which source and contract produced this table? Which run and snapshot support a result? Can an operator reproduce the flow, inspect a failure, and explain a model artifact?**
+**SoloLakehouse started with a simple question: could one person understand and operate a lakehouse?**
 
-This repository implements a local, single-host reference platform rather than an enterprise production service. It connects ingestion, orchestration, all-layer Iceberg storage, SQL analytics, ML tracking, metadata, and evidence generation in a Docker Compose runtime.
+The first goal was to follow data all the way from ingestion and storage to SQL analytics and model experiments. Bringing real workloads into the system added an ongoing responsibility: understand the sources, make processing repeatable, investigate failures, and explain what the outputs can support.
 
-## At a glance
+That work has grown into a data platform I operate myself. **Aviation is the main domain in the operated environment, alongside financial reference data.** The platform is designed for limited resources and clear ownership, with traceable data, reproducible workflows, and recovery that can be checked.
 
-| | Current implementation |
+## One platform, clear implementation boundaries
+
+| Part | Role and current boundary |
 |---|---|
-| **Reference workload** | European financial-market data: ECB policy rates and FX, plus EWG (a German-equity proxy) from Alpha Vantage. The legacy in-repo DAX sample CSV is retired. |
-| **Data path** | Python/Pydantic collectors → Iceberg Bronze / Silver / Gold on MinIO → Dagster assets and checks → Trino queries, with Superset, MLflow, and OpenMetadata alongside. |
-| **Evidence path** | Dataset contracts and quality rules; Dagster-run, Iceberg-snapshot, and metadata lineage joins; ML lineage; operational and promotion evidence. |
-| **Delivery status** | v2.5 Compose architecture baseline; governance/control-plane work through v2.9 is on `main`. The latest published tag is v2.6.1. Kubernetes deployment is planned, not delivered. |
+| **SoloLakehouse: this public repository** | Reusable lakehouse foundation and the executable finance reference implementation. The reference runtime uses Docker Compose, Dagster, Iceberg on MinIO, Trino, MLflow, OpenMetadata, and Superset. |
+| **Operated platform instance** | A self-hosted environment reusing the platform services for separate aviation and finance workloads. Runtime configuration and dated operating evidence differ from the reference clone. |
+| **Aviation: primary domain** | Historical OpenSky observations around Frankfurt Airport, candidate arrival events, taxi-in proxy labels, features, baseline experiments, and analytical views. The pipeline code is maintained separately; its [workload guide](docs/workloads/aviation.md) explains the integration and evidence limits. |
+| **Finance: complementary workload** | ECB policy rates and FX, plus EWG, a German-equity ETF proxy from Alpha Vantage. This repository contains its collectors, transformations, contracts, and reference demo. |
 
-The finance workload tests platform patterns that can transfer to other regulated or operational domains. **This repository does not currently ingest air-cargo data** and should not be presented as a deployed aviation platform.
+Cloning this repository gives you the finance reference flow. It does not install the separately maintained aviation pipeline. The aviation data is historical and proxy-labelled; airport-validated prediction performance and a live air-cargo transaction pipeline remain unverified.
 
-## Architecture: data flow and evidence flow
+## From an idea to an operated platform
 
 ```mermaid
 flowchart LR
-    S["ECB + EWG sources"] --> I["Python ingestion<br/>Pydantic validation"]
-    I --> B["Iceberg Bronze"] --> V["Iceberg Silver"] --> G["Iceberg Gold"]
-    D["Dagster assets / checks"] --> I
-    G --> T["Trino SQL"] --> U["Superset / consumers"]
-    G --> M["MLflow experiments"]
-    C["Dataset contracts"] -.->|validate| I
-    E["Lineage + audit evidence"] -.->|bind run, snapshot, metadata| G
+    IDEA["Original idea<br/>A lakehouse one person can operate"] --> FOUNDATION["SoloLakehouse foundation<br/>Storage, orchestration, SQL, experiments"]
+    FOUNDATION --> OPERATED["Personally operated platform"]
+    OPERATED --> AVIATION["Primary domain<br/>Aviation observations and proxy datasets"]
+    OPERATED --> FINANCE["Complementary workload<br/>Financial reference data"]
+    OPERATED -.-> NEXT["Planned next steps<br/>Reproduction, recovery, infrastructure evaluation"]
 ```
 
-The runtime also includes MinIO object storage, PostgreSQL/Hive Metastore, OpenMetadata, and a local operator portal. The [architecture document](docs/architecture.md) describes the services and their boundaries; [ADR-020](docs/decisions/ADR-020-iceberg-all-layers.md) records the all-layer Iceberg decision.
+The working goals are practical:
 
-## What to inspect
+- **Understand the data:** record source, version, quality, missingness, and intended use.
+- **Repeat the workflow:** connect a run to its tables, snapshots, features, and experiment artifacts.
+- **Operate with clear ownership:** detect failures, explain dependencies, and verify recovery within a stated scope.
+- **Reuse the foundation:** apply the same engineering methods to different domain workloads.
 
-| Engineering question | Repository evidence |
+The AI scope currently includes feature preparation, baseline model experiments, evaluation, and model-artifact tracking. Broader domain AI services are a future direction. RecordChat is a separate knowledge application, with no claim of an already integrated data-to-chat system.
+
+## Inspect the implementation and the evidence
+
+| Question | Start here |
 |---|---|
-| **How is the data flow verified?** | `make setup`, `make verify`, and `make demo` are the intended local path to start the stack and check Gold through Trino. The [demo runbook](docs/DEMO_RUNBOOK_EN.md) states what to observe and how to troubleshoot it; see the current CI limitation below. |
-| **Is data quality explicit?** | [Versioned dataset contracts](governance/datasets/) and validation/quality checks cover the finance pipeline, including freshness and the [EUR market-day Gold contract](governance/datasets/fin.eur_market_daily_gold.yaml). |
-| **Can a result be traced?** | The [governance evidence layout](docs/governance-evidence-layout.md) and [ML lineage decision](docs/decisions/ADR-018-ml-lineage-five-tuple.md) document how runs, table snapshots, contracts, and model artifacts are related. |
-| **What happens during operation or change?** | [Operational SLO evidence](docs/operational-slo.md), [promotion/rollback decisions](docs/decisions/ADR-022-v29-promotion-operational-evidence.md), and the [secrets/Kubernetes-readiness decision](docs/decisions/ADR-023-v29-secrets-k8s-readiness.md) make trade-offs and limits reviewable. |
+| Why did the project evolve this way? | [Platform story and operating principles](docs/platform-overview.md) |
+| What does the aviation workflow produce, and what can it support? | [Aviation workload, dated snapshot, and limitations](docs/workloads/aviation.md) |
+| How do the reference stack and operated environment differ? | [Architecture and deployment boundaries](docs/architecture.md) |
+| How are quality and provenance represented in the reference code? | [Dataset contracts](governance/datasets/), [evidence layout](docs/governance-evidence-layout.md), and [ML lineage](docs/decisions/ADR-018-ml-lineage-five-tuple.md) |
+| How are operational changes and recovery described? | [Operator runbook](RUNBOOK.md), [operational evidence](docs/operational-slo.md), and [promotion/rollback decision](docs/decisions/ADR-022-v29-promotion-operational-evidence.md) |
 
-These are **reference implementations and internal evidence mechanisms**. They do not imply a regulatory certification, a customer deployment, or an externally guaranteed SLA.
+Published code, operator-reported observations, and future plans are labelled separately. These personal engineering workloads do not establish customer adoption, regulatory certification, an externally guaranteed SLA, or high availability.
 
-## Run the reference flow
+## Run the finance reference flow
 
-Use Linux, macOS, or Windows **WSL2** with Docker Compose, Python 3.13+, Git, and `make`. Allow at least 8 GB free RAM for the full stack (12 GB recommended).
+Use Linux, macOS, or Windows **WSL2** with Docker Compose, Python 3.13+, Git, and `make`. Allow at least 8 GB free RAM for the full reference stack (12 GB recommended).
 
 ```bash
 git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
@@ -59,16 +69,17 @@ make verify
 make demo
 ```
 
-`make setup` is designed to create local environment files from committed templates, install dependencies, and start the Compose services. For the live EWG market source, put an Alpha Vantage key in the gitignored `.env.secrets`; CI uses committed API fixtures. Never commit credentials. See the [quick-start guide](docs/quickstart.md), [demo walkthrough](DEMO.md), and [operator runbook](RUNBOOK.md) for configuration, expected results, and failure handling.
+`make setup` creates local environment files from templates, installs dependencies, and starts the reference Compose services. The live EWG source needs an Alpha Vantage key in the gitignored `.env.secrets`; CI uses committed fixtures. See [Quick start](docs/quickstart.md), [Demo](DEMO.md), and [Runbook](RUNBOOK.md).
 
-## Current boundary and next step
+**Verification status checked 2026-11-04:** in the [latest pre-update main CI run](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/36453729682), lint, typecheck, and tests passed. The Compose demo failed before startup while pulling `minio/mc`. A clean reference deployment needs to be revalidated after that image-source problem is resolved. A working operated instance does not establish that a fresh clone currently passes the demo.
 
-- **Implemented now:** the v2.5 Compose architecture and governance, ML, catalog, and operational-evidence capabilities on `main` through v2.9. The published `v2.6.1` tag predates some of that `main` work.
-- **Known verification gap:** the [2026-09-28 GitHub `compose-demo` run](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/36444030708/job/109003572805) failed before stack startup because the runner could not pull `minio/minio`. Lint, typecheck, and unit tests passed in that run; a clean Compose demo needs to be revalidated after the image-source issue is resolved.
-- **Current work:** operate and harden the batch finance path; optional crypto streaming is deferred. The [active backlog](TASKS.md) and [roadmap](docs/roadmap.md) are authoritative for status.
-- **Not yet delivered:** Kubernetes/Helm/Terraform runtime migration, multi-environment production operation, AI policy enforcement, and an air-cargo pipeline in this repository.
+## Where the platform goes next
 
-The design principle is to make claims **testable and inspectable before expanding the runtime**. Feedback on the architecture, evidence boundaries, and operational trade-offs is welcome.
+The near-term focus is a reviewable aviation case: clear dataset definitions, source and processing evidence, quality limitations, and a reproducible explanation of success, failure, and recovery. Finance remains the reference workload for comparing calendars, missingness, freshness, and currency conversion.
+
+A small three-node Proxmox cluster is being planned as a possible next infrastructure stage. Workload placement, storage, backups, and recovery still need design and validation. This is not a delivered cluster or a completed Kubernetes migration.
+
+The repository keeps its v2.5 Compose runtime baseline, with evidence work on `main` through v2.9 and the latest published tag at v2.6.1. See the [roadmap](docs/roadmap.md) for scope and [TASKS.md](TASKS.md) for execution order. New services, runtime migrations, and domain integrations need their own bounded implementation work.
 
 ## License
 

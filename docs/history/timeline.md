@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # SoloLakehouse Timeline
 
 This document records version evolution in release order.
@@ -298,3 +300,11 @@ Focus:
 
 Theme:
 - Self-serve usability and operational clarity.
+
+## 2026-11-04: Personally operated platform positioning (D6)
+
+- Owner approved a visible project story: a lakehouse one person can operate grew into the foundation of a personally operated data and AI platform.
+- Aviation is the primary operated domain; finance remains the executable public reference. Aviation implementation stays in a separate project; the public guide records sanitized, operator-reported evidence and its limits.
+- Updated README, workload/architecture navigation, roadmap/backlog, and agent state references. No runtime, pipeline, deployment, or version release is introduced.
+- Proxmox exploration remains planned. Independent aviation reproduction, ground truth, recovery, and reference cold-clone image-pull verification remain separately checkable work.
+- See [D6](../roadmap.md#d6-personally-operated-platform-and-workload-positioning-decided-2026-11-04) and [platform overview](../platform-overview.md).

@@ -1,4 +1,8 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # Finance-domain data expansion — design
+
+**2026-11-04 scope amendment (D6):** L5-L7 are delivered reference-workload capabilities. The finance-first sequencing below is historical; aviation is now the main operated domain, with its code maintained separately. This finance design remains useful for source/calendar, freshness, and daily-Gold semantics. Follow the [current roadmap](roadmap.md) and [TASKS.md](../TASKS.md) for priority; this amendment does not add sources or change contracts.
 
 ## Status
 

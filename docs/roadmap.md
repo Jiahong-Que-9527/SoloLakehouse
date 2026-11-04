@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # Roadmap
 
 > **Authority.** This document defines **what each version does**. `TASKS.md`
@@ -22,9 +24,7 @@ v2.5  the platform runs
 
 ## Primary Audience
 
-The primary audience is **technical decision-makers in EU/DACH financial and
-regulated data organizations** — people who must answer to auditors and
-regulators.
+The primary audience is engineers and technical leads assessing reliable data and AI platforms for complex operational domains. Aviation and air cargo provide domain context; finance is a reference workload and engineering comparison. The central constraint is a platform whose operation one person can understand, maintain, and explain.
 
 When depth and breadth conflict, **depth wins**: one capability that is
 automated, enforced, and honestly bounded beats three that are demonstrable
@@ -33,7 +33,7 @@ a design goal that competes with it.
 
 ## Current Strategic Position
 
-As of `2026-08-15`:
+As of `2026-11-04` (positioning decision D6; no runtime release):
 
 - `v2.5` remains the protected baseline runtime and does not change until v3.0.
 - `v2.6.1` is **released** as tag `v2.6.1` (`6bd138a`, `2026-07-31`) — version
@@ -45,8 +45,7 @@ As of `2026-08-15`:
 - **Owner Decision (2026-08-15):** independent external sign-off is **not** a
   blocking gate. Protocol files under `docs/external-validation/` are retained
   as historical traces. Internal validation remains mandatory.
-- **Active task:** Block `L` post-`D5` in `TASKS.md` — finance deepening
-  landed (`#87`); next is Compose operation / Block `K` (Phase 2 deferred).
+- **Current positioning and work:** D6 makes aviation the primary domain of the operated platform and retains finance as the public reference workload. Assemble an inspectable aviation case and address observed reliability/data-correctness gaps through Block `K`; finance deepening already landed (`#87`). Aviation code stays separate, and crypto Phase 2 stays deferred.
 - The approved development order was **v2.8, then v2.7, then v2.9**; see
   "Open Decisions" below. Those versions are delivered on `main`.
 - future planning prioritizes **control plane and evidence value** over adding
@@ -314,7 +313,7 @@ Important framing:
 
 ## Open Decisions
 
-**D1, D4 and D5 are resolved. D2 and D3 remain open.** Agents must not start
+**D1, D4, D5 and D6 are resolved. D2 and D3 remain open.** Agents must not start
 implementation work that depends on an unresolved D2 or D3 decision.
 
 ### D1 — v2.8 before v2.7 (resolved 2026-08-02)
@@ -436,6 +435,8 @@ dated amendment paragraph in
 
 ### D5 — Finance-domain deepening before any new domain (resolved 2026-09-08)
 
+**2026-11-04 amendment:** the finance-first sequencing below is historical and superseded by D6. The delivered L5-L7 implementation and source boundaries remain; D6 documents the separately maintained aviation workload without adding its code to this reference repository.
+
 **Status: decided.** After `L4` Phase 1 lands, the next data work **deepens the
 finance domain rather than opening a new one**. Aviation sourcing starts only
 once the finance domain is stable, and any aviation source must stay cleanly
@@ -484,6 +485,21 @@ Alpha Vantage symbols (same 25 req/day quota the EWG collector consumes).
 Full design, with the evidence each decision rests on:
 [`docs/fin-domain-data-expansion.md`](fin-domain-data-expansion.md).
 Task-level plan: `TASKS.md` Block `L`, `L5`–`L7`.
+
+### D6: Personally operated platform and workload positioning (decided 2026-11-04)
+
+**Owner-approved scope:** make the platform's purpose visible in the public repository: a lakehouse foundation for a personally operated data and AI platform, with aviation as the main operated domain and finance as a complementary reference workload.
+
+- Publish the project story and a sanitized aviation workload guide; distinguish public reference code, operator-reported observations, and future plans.
+- Keep aviation implementation in its separate project. Reuse of shared platform services is not the D2 product split and does not authorize moving private code/data into this repository.
+- Replace the old finance-before-aviation prerequisite with an aviation evidence case, finance comparison, and reliability/data-correctness work selected from observed gaps. Financial maintenance and existing contracts remain.
+- Define AI through feature preparation, reproducible experiments, evaluation, and artifact handling. RecordChat remains a separate knowledge application; platform-wide integration is not claimed.
+- Record the three-node Proxmox idea as an infrastructure plan with unresolved placement, storage, backup, and recovery decisions. It neither deploys a cluster nor starts v3.0.
+- Preserve the v2.5 reference runtime, D2/D3 boundaries, source restrictions, privacy, and validation requirements. No runtime or release change is made by this decision.
+
+**Completion evidence for this documentation change:** coherent README and metadata, navigable published workload/architecture guides, matching roadmap/backlog/agent summaries, relative-link and agent-entry checks, and CI results with the existing Compose image-pull gap disclosed. The broader aviation case, independent reproduction, ground truth, recovery, and future infrastructure remain separately verifiable work.
+
+This is a positioning and documentation decision, so no runtime ADR is introduced. See [platform overview](platform-overview.md), [aviation workload](workloads/aviation.md), and [history](history/timeline.md).
 
 ### D3 — Portal / Keycloak exploration
 

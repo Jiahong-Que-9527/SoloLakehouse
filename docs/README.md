@@ -1,11 +1,10 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # SoloLakehouse Documentation
 
-**v2.5 is the protected runtime baseline** — the Docker Compose stack does not
-change until v3.0. **v2.9 is delivered on `main`**; the active backlog is
-**Block `L` / `L4` Phase 1** — live batch sources ECB (DFR/MLF) + EWG (Alpha
-Vantage) through the full medallion path. Phase 2 (streaming/crypto) is
-deferred until Phase 1 lands. Historical version narratives are preserved
-under `docs/history/`.
+SoloLakehouse is the lakehouse foundation for a personally operated data and AI platform. Start with the [platform story](platform-overview.md), the [aviation workload](workloads/aviation.md), and the [reference/operated architecture boundaries](architecture.md).
+
+The public code contains the finance reference workflow. The operated environment also hosts a separately maintained aviation pipeline. D6 records this positioning; the reference v2.5 Compose runtime is unchanged, evidence work through v2.9 is on `main`, and the latest published tag remains v2.6.1. Current work is an inspectable aviation case and observed reliability/data-correctness gaps. Crypto streaming remains deferred.
 
 Two documents are authoritative:
 
@@ -25,6 +24,8 @@ and not published; follow the two authoritative documents instead.
 
 | Document | Purpose |
 |----------|---------|
+| [platform-overview.md](platform-overview.md) | Project origin, core positioning, workloads, and next steps |
+| [workloads/aviation.md](workloads/aviation.md) | Aviation integration, dated operator-reported evidence, and limits |
 | [ONBOARDING_READING_ORDER.md](ONBOARDING_READING_ORDER.md) | Suggested reading order for new maintainers |
 | [../TASKS.md](../TASKS.md) | Active execution backlog — canonical "what to build next" |
 | [roadmap.md](roadmap.md) | Canonical version status, delivery velocity, and open decisions |

@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # Architecture Evolution and Planning Choices
 
 This file explains major architecture choices over time and why they changed.
@@ -186,3 +188,12 @@ repository backlog.
 
 Historical migration and compatibility details remain documented for reference only:
 - `docs/history/legacy-overview.md`
+
+## 2026-11-04: Reference platform and operated-workload boundaries
+
+- Selected: retain the public finance reference implementation and describe the separately maintained aviation workload that reuses shared services in the operated environment.
+- Rationale: the project now needs to explain ongoing data and operational responsibility across workloads while keeping a fresh clone's capabilities explicit.
+- Alternative not selected: import private aviation code or treat the existing entity-template/separate-host examples as the deployed architecture.
+- Reference Compose still includes OpenMetadata/Superset; the dated operated environment uses Metabase/Evidence and has OpenMetadata paused. A shared service is not a separate failure domain.
+- No runtime ADR is needed: this is a documentation and positioning decision with no change to source code, service definitions, or storage layout. D6 records its scope; D2/D3 boundaries remain.
+- A small Proxmox cluster remains a future infrastructure exploration, with no completed migration or high-availability claim.
