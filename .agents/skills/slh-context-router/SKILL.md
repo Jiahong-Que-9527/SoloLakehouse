@@ -3,6 +3,8 @@ name: slh-context-router
 description: "Route SoloLakehouse work through Graphify to the smallest authoritative context, appropriate tools or agents, and focused validation plan. Use for backlog questions, code changes, architecture analysis, operations, documentation, GitHub work, or multi-agent delegation—especially after an Owner Decision or whenever broad repository loading would be wasteful."
 ---
 
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # SoloLakehouse Context Router
 
 Select only the context needed to answer or execute the request. For unapproved significant work, ask for or create an Owner Decision through `$slh-platform-owner` before routing implementation.
@@ -62,5 +64,5 @@ Do not delegate overlapping ownership. Use independent agents only for separable
 - Do not redefine priority or approve scope; return to `$slh-platform-owner` when that decision is missing or materially changes.
 - Do not load all documentation by default; use Graphify to discover candidates, then prefer `docs/README.md` for navigation and canonical documents for claims.
 - Do not treat historical planning, generated documentation, or a graph result as authoritative over the current roadmap, code, tests, or runbooks.
-- **Check the decision gates in `AGENTS.md` section 3 before routing any implementation.** D1 blocks v2.7 and v2.8 work, D2 defers the entity split, D3 confines portal/Keycloak to a sandbox. Routing work behind a live gate wastes it — surface the conflict to `$slh-platform-owner` instead.
+- **Check the decision gates in `AGENTS.md` section 3 before routing any implementation.** Read current D1-D6 status from the canonical roadmap: D1 is resolved, D2 defers the entity split, D3 confines portal/Keycloak to a sandbox, and D6 documents positioning without a runtime change. Routing work behind a live gate wastes it ; surface the conflict to `$slh-platform-owner` instead.
 - Some referenced documents are local-only and absent from a fresh clone; `references/routing-map.md` lists them. Never route to those paths and never report their absence as a defect.

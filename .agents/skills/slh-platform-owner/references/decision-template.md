@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # Owner decision sources and evidence
 
 Use the smallest set needed for the decision.
@@ -15,11 +17,10 @@ Use the smallest set needed for the decision.
 - **v2.5 is the protected runtime baseline** (Compose + Dagster + all-layer
   Iceberg + Trino + MLflow + OpenMetadata + Superset). It does not change before
   v3.0.
-- **v2.6.0 is released**; **v2.6.1 is the active target** — operationalize the
-  evidence plane rather than adding a new evidence category.
+- Read current release and version status from `docs/roadmap.md` and `TASKS.md`; do not infer it from this template. D6 records the personally operated platform positioning, aviation workload boundary, and current documentation/evidence priority.
 - **Decision gates** (`docs/roadmap.md`, "Open Decisions"; `AGENTS.md` §3).
   **D1 resolved (2026-08-02):** v2.8, then v2.7, then v2.9; independent external
-  validation and operational rollout follow v2.9. **D2/D3** still block work
+  validation requirements follow the current roadmap, including its later cancellation of mandatory external sign-off. **D2/D3** still block work
   behind the entity split or portal/Keycloak in compose — those require an Owner
   Decision (`needs-user-decision`).
 - Each v2.x version delivers **one category of evidence**. Adding a new category

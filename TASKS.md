@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # SoloLakehouse Active Backlog
 
 This file is the **single active backlog** for the shared SoloLakehouse
@@ -15,7 +17,7 @@ Use it to answer:
 
 ## Canonical Planning State
 
-As of `2026-09-08`:
+As of `2026-11-04` (D6 positioning update; no runtime release):
 
 - `v2.5` is delivered and protected from regression.
 - `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
@@ -31,17 +33,12 @@ As of `2026-09-08`:
   checks (`make test`, `make verify`, `make demo`) remain mandatory. This does
   not authorize production, WORM, or regulatory-readiness claims, and does not
   start v3.0.
-- **Active task: Block `L` post-`D5`** — finance deepening `L5`–`L7` **landed**
-  on `main` (`#87`). `L4` Phase 1 batch path remains in place. Crypto Phase 2
-  stays deferred. Next focus: Compose operation / Block `K`, or a new Owner
-  Decision for FRED/electricity/aviation.
+- **Current work under D6:** make the personally operated platform and separately maintained aviation workload inspectable, then address the most material observed data-correctness or reliability gap. Finance L5-L7 landed (`#87`) and remains the executable reference; crypto Phase 2, FRED, and electricity remain deferred or unstarted. D6 does not import aviation code or change the runtime.
 - **Finance deepening (`D5`, done):** `L5` freshness SLA, `L6` ECB EXR FX panel,
   `L7` daily Gold (`fin.eur_market_daily_gold`) on `main` via `#87`. Same
   sources as `D4`; **no new domain.** FRED and German electricity remain
   surveyed-not-started. Design: `docs/fin-domain-data-expansion.md`.
-- **Block `K` remains open** (reliability / recovery) but is **not** the
-  current execution focus. Long-term operation starts only after the input
-  layer (Layer 1, then the Layer 2 changes that follow) is decided.
+- **Block `K` remains open** for reliability, data correctness, and recovery. Prioritize one observed gap with a stated validation outcome; operational changes still require specific scope. Historical evidence mechanisms do not establish continuous live operation.
 - `v2.8` before `v2.7` is an approved Owner Decision (`docs/roadmap.md`, D1).
 - entity-template / entity-split work is **deferred indefinitely**
   (`docs/roadmap.md`, D2).
@@ -734,10 +731,7 @@ Implementation not started. Owner defaults (2026-09-09): WARN-only staleness,
 dynamic 10-day FX active set, basket USD/GBP/CHF/JPY/CNY, drop ECB silver
 forward-fill with L5.
 
-Owner-decided sequencing: **deepen the finance domain first; aviation only
-after finance is stable**, and any aviation source must stay cleanly separated
-from the externally controlled ADS-B data used elsewhere. Aviation source
-selection is deferred and not decided here.
+Historical owner sequencing (2026-09-08): finance deepening preceded aviation. **D6 supersedes that prerequisite**: aviation is now the primary operated workload, maintained separately from this public reference. Keep the original restriction on externally controlled ADS-B data. The delivered L5-L7 technical design below remains finance-specific.
 
 `L5`–`L7` stay entirely inside the sources named by `D4` (ECB SDW, Alpha
 Vantage EWG). **The non-goals above are unchanged and not exercised** — no new
@@ -806,26 +800,19 @@ consumes).
 
 ## Immediate Next Actions
 
-Execute in this order.
+Current order under D6:
 
-1. ~~**Implement v2.9** operational and promotion evidence.~~ — done on `main`
-   @ `71c2c89` (PRs #57, #59).
-2. ~~**Recruit an external validator** as a blocking gate.~~ — cancelled
-   `2026-08-15`; protocol kept under `docs/external-validation/`.
-3. ~~**Block `L` research and decision** (`L1`–`L3`).~~ — done; Owner
-   Decision `2026-09-03` recorded (`docs/roadmap.md` `D4`).
-4. ~~**Implement `L4` Phase 1**~~ — landed on `main` (EWG `0a5080a` + ECB
-   DFR/MLF `#85`); `compose-demo` green on `#85`.
-5. ~~**Deepen the finance domain** (`L5` → `L6` → `L7`)~~ — landed on `main`
-   via `#87` (`compose-demo` green). Defaults applied: WARN staleness, dynamic
-   10-day FX active set, basket USD/GBP/CHF/JPY/CNY, no ECB silver forward-fill.
-6. **Implement `L4` Phase 2** (deferred) — crypto streaming leg (PR2 + PR3)
-   when batch operation is stable and an Owner Decision starts it.
-7. Operate the v2.5 Compose runtime on the live batch sources. Block `K`
-   (especially `K2`, then `K9`/`K10`) is the hardening track during that
-   operation.
+1. Publish the platform story and sanitized aviation workload guide, with explicit public-code, operated-environment, and planned-infrastructure boundaries. This is a documentation deliverable, not completion of the broader aviation case.
+2. Assemble the reviewable aviation case: architecture, dataset definitions, dated processing/quality evidence, failure and recovery limits, and a handover path. Mark independent reproduction and unverified claims explicitly.
+3. Revalidate the finance reference cold-clone/demo path after resolving the existing MinIO image-pull failure. Record the result rather than inferring success from the operated environment.
+4. Select one material reliability/data-correctness gap for a bounded Block K change. Keep finance maintenance, source calendars, event-grain constraints, and recovery checks in scope as required by that gap.
+5. Keep crypto streaming deferred. The Proxmox infrastructure exploration is planned separately; it does not authorize a service addition, workload migration, or v3.0 implementation in this repository.
 
-### Pre-v3.0 sequencing (recommendation, not yet an Owner Decision)
+Completed finance milestones: L4 Phase 1 (live EWG and ECB DFR/MLF) and L5-L7 (freshness, FX panel, daily Gold) landed before D6. Their implementation and earlier CI records remain historical evidence, not proof of the current cold-clone result.
+
+### Pre-v3.0 sequencing (historical recommendation)
+
+**2026-11-04 amendment:** D6 and the immediate actions above determine current priority. The reference-runtime migration boundary remains; optional crypto work below is not a prerequisite for the aviation workload or public case.
 
 Cancelling the external sign-off gate does **not** start v3.0. v3.0 remains a
 runtime migration after the Compose stack has a decided input layer and a

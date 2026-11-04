@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # Changelog
 
 All notable changes to this project are documented in this file.
@@ -13,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   optional `make superset-eur-tile`.
 
 ### Changed
+- **D6 platform positioning (2026-11-04):** make the personally operated data/AI platform visible in README and project/workload guides; aviation is the main operated domain and finance the public reference. Distinguish separate aviation implementation, dated operator-reported evidence, and planned Proxmox infrastructure. Align architecture, roadmap/backlog, and agent summaries without a runtime or release change.
 - **Repo slim (ops transition):** archive superseded assessment / state /
   v2.6 plan docs under `docs/history/` with SUPERSEDED banners; drop unused
   pre-v2.9 architecture image binaries; point demo runbook bindings at

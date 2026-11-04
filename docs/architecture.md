@@ -1,29 +1,27 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # SoloLakehouse — Architecture
 
 ## Overview
 
-SoloLakehouse is a **Lakehouse reference implementation** standardized on a **single v2.5 runtime path**.
-The local/reference deployment runs on one Docker Compose host with **MinIO**, **PostgreSQL**, **Hive Metastore**, **Trino**, **MLflow**, **Dagster**, **OpenMetadata**, and **Superset**.
+SoloLakehouse provides the lakehouse foundation for a personally operated data and AI platform. Aviation is the primary domain in the operated environment; finance remains the executable reference workload in this public repository. The [platform story](platform-overview.md) explains the project positioning, and the [aviation guide](workloads/aviation.md) records the separate implementation and dated operating limits.
 
-The active architecture centers on five data/runtime layers (sources -> ingestion -> medallion storage -> query -> ML) plus platform services for orchestration, metadata, and BI access.
-Earlier version milestones and migration narratives are preserved in **[history/README.md](history/README.md)**.
+The local/reference deployment uses a **single v2.5 Docker Compose runtime** with **MinIO**, **PostgreSQL**, **Hive Metastore**, **Trino**, **MLflow**, **Dagster**, **OpenMetadata**, and **Superset**. This documentation update does not change that runtime. The reference finance path contains ECB policy rates, FX, and EWG; aviation pipeline code is maintained separately.
 
-SoloLakehouse is an **upstream template** with a built-in **finance reference
-pipeline** (ECB + German-equity proxy via EWG after `L4` Phase 1; legacy
-`dax_*` names until then). Product instances — for example FinLakehouse or
-Aviation Lakehouse — are created by cloning the template and applying the
-entity contract at deploy time; **domain-specific pipeline changes belong in the
-entity clone**, not in the shared upstream repository. See
-[entity-template-readiness.md](entity-template-readiness.md) and the
-[FinLakehouse deployment guide](finlakehouse-deployment-guide.md).
+## Reference implementation and operated instance
 
-For product instances derived from the v2.5 template, use the
-**[Product Entity Contract](product-entity-contract.md)** to separate stable
-entity identity from physical runtime and storage details. That contract covers
-**deploy-time** isolation (identity, buckets, warehouse URI, service labels) —
-it does **not** replace collectors, transforms, or governed dataset contracts.
-Use **[Object Store Abstraction and MinIO Deferral](object-store-abstraction.md)**
-for the current MinIO provider boundary and future storage replacement path.
+| Boundary | Public reference repository | Operator-reported environment, 2026-11-04 |
+|---|---|---|
+| Workloads | Executable finance reference pipeline | Finance plus a separately maintained aviation workflow |
+| Shared foundation | Dagster, MinIO, Iceberg/catalog, Trino, MLflow | Reused platform services; separate aviation workers, namespaces, and state |
+| Analytics | Superset | Metabase and Evidence |
+| Metadata | OpenMetadata in reference Compose configuration | OpenMetadata paused; historical three-source lineage is not claimed as currently active |
+| Reproduction | Finance setup/demo path; known image-pull verification gap | Aviation requires separate private source/configuration; dated evidence is summarized in the workload guide |
+| Future infrastructure | Reference remains on Compose | Three-node Proxmox exploration is planned, not deployed |
+
+Shared services do not create independent failure domains. Adding a separately owned workload is not the deferred D2 product-entity split. The older [entity contract](product-entity-contract.md), [template readiness](entity-template-readiness.md), and [FinLakehouse deployment guide](finlakehouse-deployment-guide.md) remain design/deployment references; their separate-host examples do not describe the current aviation workload integration.
+
+The active reference architecture covers sources, ingestion, medallion storage, SQL, and model experiments, with orchestration, metadata, and BI services. Earlier version narratives remain in [history](history/README.md). The [object-store boundary](object-store-abstraction.md) describes MinIO and possible future storage replacement.
 
 ## Diagram — current (v2.5 runtime + v2.6–v2.9 evidence plane)
 
@@ -130,24 +128,22 @@ v2 introduces Dagster as the default orchestrator for asset-aware execution, ret
 
 ### Dagster assets
 
-**Target after `L4` Phase 1:** `ecb_bronze`, `german_equity_proxy_bronze`,
-`ecb_silver`, `german_equity_proxy_silver`, `ecb_german_equity_proxy_features`,
-`ml_experiment`.
+**Implemented finance assets:** `ecb_bronze`, `german_equity_proxy_bronze`, `ecb_fx_bronze`, `ecb_silver`, `german_equity_proxy_silver`, `ecb_fx_silver`, `ecb_german_equity_proxy_features`, `eur_market_daily`, and `ml_experiment`.
 
-**On `main` today (implementation lag):** `dax_bronze`, `dax_silver`,
-`gold_features` — same graph shape, legacy names and DAX sample CSV market leg.
+`openmetadata_trino_sync` is a separate catalog asset. The static DAX sample path is retired. The separately maintained aviation assets are not installed by this repository's default workspace.
 
 ### Asset dependency graph (ASCII)
 
 ```text
-ecb_bronze      dax_bronze
-    |               |
-ecb_silver      dax_silver
-      \           /
-       \         /
-        gold_features
-              |
-         ml_experiment
+ecb_bronze -> ecb_silver
+german_equity_proxy_bronze -> german_equity_proxy_silver
+ecb_fx_bronze -> ecb_fx_silver
+
+ecb_silver + german_equity_proxy_silver
+    -> ecb_german_equity_proxy_features -> ml_experiment
+
+ecb_silver + german_equity_proxy_silver + ecb_fx_silver
+    -> eur_market_daily
 ```
 
 ### Scheduling and automation

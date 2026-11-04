@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
 # SoloLakehouse routing map
 
 Authority reminder: `docs/roadmap.md` decides **what each version does**;
@@ -25,9 +27,7 @@ two. `AGENTS.md` carries the current state, decision gates, and hard rules.
   CSV retired; live EWG only. **D2:** entity split deferred.
   **D3:** portal/Keycloak is sandbox only. The next PR is in `TASKS.md`.
 - **Layer 1 / data sources** — `docs/roadmap.md` D4, `docs/layer1-source-selection-criteria.md`,
-  `TASKS.md` Block `L`. **Phase 1 (active):** batch ECB + EWG full pipeline.
-  **Phase 2 (deferred):** streaming crypto. Do not start Phase 2 until Phase 1
-  lands. Do not propose `data/sample/dax_daily_sample.csv` as demo fallback.
+  `TASKS.md` Block `L`. Finance L4 Phase 1 and L5-L7 are implemented. Read current work from D6 and the immediate actions; aviation is a separately maintained operated workload. Streaming crypto remains deferred. Do not propose `data/sample/dax_daily_sample.csv` as demo fallback.
 - The published repository is **English-only**; `docs/local-cn/` is local.
 
 ## Paths that are local-only
