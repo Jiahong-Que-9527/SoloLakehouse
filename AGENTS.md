@@ -99,7 +99,8 @@ rather than proceeding.
 ## 4. Hard rules
 
 1. **Do not regress the v2.5 baseline.** `make demo` and `make pipeline` must
-   keep working. CI gates this with a full Compose run.
+   keep working. Use the manual Compose Demo workflow to validate changes
+   that affect the runtime baseline.
 2. **Fail loudly, never partially.** Quality checks and evidence adapters raise
    rather than degrade. Never emit an evidence artifact that looks complete but
    is not — a partial bundle is worse than none.

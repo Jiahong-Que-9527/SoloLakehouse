@@ -1,0 +1,52 @@
+name: Compose Demo
+
+on: workflow_dispatch
+
+jobs:
+  compose-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      # docker-compose.yml/superset.yml/openmetadata.yml require POSTGRES_PASSWORD,
+      # SUPERSET_ADMIN_PASSWORD, and OPENMETADATA_MYSQL_ROOT_PASSWORD with no
+      # fallback default (see .env.secrets.example). CI has no real secrets and
+      # never did; generate throwaway values scoped to this ephemeral runner so
+      # the demo stack can boot. These are not used anywhere outside this job.
+      - name: Generate CI-only secrets
+        run: |
+          cp .env.secrets.example .env.secrets
+          sed -i "s/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
+          sed -i "s/^SUPERSET_ADMIN_PASSWORD=$/SUPERSET_ADMIN_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
+          sed -i "s/^OPENMETADATA_MYSQL_ROOT_PASSWORD=$/OPENMETADATA_MYSQL_ROOT_PASSWORD=$(openssl rand -hex 24)/" .env.secrets
+          make init-env
+          printf '%s\n' \
+            'DAX_FIXTURE_PATH=/app/data/fixtures/alpha_vantage_ewg_daily.json' \
+            'EWG_BOOTSTRAP_FIXTURE_PATH=/app/data/fixtures/ewg_historical_bootstrap.json' \
+            >> .env
+      # Prebuild serially: `make setup` ends in `up -d --build`, whose bake path
+      # builds all five images at once and OOMs BuildKit on a 4-core runner.
+      # With the cache warm, that build step becomes a no-op.
+      - name: Build images serially
+        run: make build-images-serial
+      - name: Run full v2.5 demo path
+        run: |
+          make setup
+          make demo
+      - name: Show container logs on failure
+        if: failure()
+        run: |
+          docker ps -a
+          docker logs --tail 200 slh-postgres || true
+          docker logs --tail 200 slh-minio || true
+          docker logs --tail 200 slh-hive-metastore || true
+          docker logs --tail 200 slh-trino || true
+          docker logs --tail 200 slh-dagster-webserver || true
+          docker logs --tail 200 slh-dagster-daemon || true
+          docker logs --tail 200 slh-mlflow || true
+      - name: Stop stack
+        if: always()
+        run: make down
