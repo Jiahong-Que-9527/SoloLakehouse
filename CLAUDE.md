@@ -59,7 +59,7 @@ manifest digest to the record. See "Governance / Evidence Pattern" below.
 make up          # Start all Docker services + init MinIO buckets + create Iceberg namespaces/tables
 make down        # Stop services (data preserved under docker/data/)
 make pipeline    # Run Dagster full_pipeline_job (v2.5 runtime path)
-make demo        # Acceptance/demo data flow (gated in CI by the compose-demo job)
+make demo        # Acceptance/demo data flow (also available in the manual Compose Demo workflow)
 make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
