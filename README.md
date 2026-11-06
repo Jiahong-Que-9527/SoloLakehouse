@@ -8,6 +8,11 @@
 
 [Platform story](docs/platform-overview.md) · [Aviation workload](docs/workloads/aviation.md) · [Architecture](docs/architecture.md) · [Quick start](docs/quickstart.md) · [Roadmap](docs/roadmap.md) · [CI](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml)
 
+<!-- [房玄龄·2026-11-06] Owner-supplied platform illustration. -->
+![SoloLakehouse from idea to platform, with aviation and finance workloads](docs/img/sololakehouse-from-idea-to-platform.png)
+
+*The illustration combines historical work and planned infrastructure. Aviation uses [observation-derived taxi-in proxies](docs/workloads/aviation.md), and the current finance reference uses EWG. See the [roadmap](docs/roadmap.md) for current status.*
+
 **SoloLakehouse started with a simple question: could one person understand and operate a lakehouse?**
 
 The first goal was to follow data all the way from ingestion and storage to SQL analytics and model experiments. Bringing real workloads into the system added an ongoing responsibility: understand the sources, make processing repeatable, investigate failures, and explain what the outputs can support.
