@@ -6,7 +6,15 @@
 
 <p align="center"><strong>A personally operated data &amp; AI platform, built on a lakehouse foundation</strong></p>
 
-[Platform story](docs/platform-overview.md) · [Aviation workload](docs/workloads/aviation.md) · [Architecture](docs/architecture.md) · [Quick start](docs/quickstart.md) · [Roadmap](docs/roadmap.md) · [CI](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml)
+<!-- [房玄龄·2026-11-06] Center the README navigation. -->
+<p align="center">
+  <a href="docs/platform-overview.md">Platform story</a> &middot;
+  <a href="docs/workloads/aviation.md">Aviation workload</a> &middot;
+  <a href="docs/architecture.md">Architecture</a> &middot;
+  <a href="docs/quickstart.md">Quick start</a> &middot;
+  <a href="docs/roadmap.md">Roadmap</a> &middot;
+  <a href="https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml">CI</a>
+</p>
 
 <!-- [房玄龄·2026-11-06] Owner-supplied platform illustration. -->
 ![SoloLakehouse from idea to platform, with aviation and finance workloads](docs/img/sololakehouse-from-idea-to-platform.png)
