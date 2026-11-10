@@ -1,3 +1,7 @@
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+**Command amendment:** legacy clean/reset/purge targets are disabled. Old destructive examples below are retained for reference and must not be executed as ordinary setup or verification. Use make down to stop without deleting bind-mounted data; state recovery/disposal needs an exact reviewed procedure. See [current storage/recovery design](design/v3/storage-and-recovery.md).
+
 # `make demo` — Detailed Explanation and Manual Execution Guide
 
 This document explains what `make demo` actually does, and how to execute the same steps by hand and confirm each one passes.

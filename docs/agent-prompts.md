@@ -1,63 +1,46 @@
-# Agent Prompt Reference
+<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
 
-Prompts for AI coding agents working on this codebase.
+# Agent task reference
 
-## Baseline prompt
+Read [AGENTS](../AGENTS.md), [roadmap](roadmap.md) and [TASKS](../TASKS.md).
+Prompts route to current authority rather than hard-coding a stale work block.
 
-```
-Read AGENTS.md, then docs/roadmap.md and TASKS.md.
-Confirm three things before starting:
-  1. the runtime baseline is v2.5 single-track and does not change before v3.0
-  2. the next PR is in TASKS.md (currently Block L: Layer 1 sources)
-  3. the task is not blocked by decision gate D2 or D3
-If a gate blocks it, stop and say so instead of proceeding.
-Otherwise perform the task and report the files changed and how you verified them.
-```
+## Design task
 
-## Verification prompt
-
-```
-Run make verify, make demo, make pipeline, make test, make lint, and
-make typecheck in that order.
-Identify and fix any failures, then report the root cause and the fix.
+```text
+Read the current roadmap, TASKS and relevant v3 design section.
+State the requested output, actual authorization, preserved reference behavior,
+and what remains design-only. Make only that bounded change.
+Do not provision hosts, deploy services or migrate data during repository design.
+Report actual checks and any unexecuted validation.
 ```
 
-## Decision-gate check
+## Code task
 
-```
-Check AGENTS.md section 3 and the "Open Decisions" section of docs/roadmap.md.
-Report whether this task sits behind D1 (resolved development order: v2.8,
-v2.7, v2.9 — delivered), D2 (entity split deferred), or D3 (portal/Keycloak
-sandbox only). The next PR is in TASKS.md (Block L: Layer 1 sources). If D2
-or D3 blocks the task, do not implement — return what would need to be
-decided first.
-```
-
-## Governance prompt
-
-```
-Run make validate-contracts.
-For any governed dataset you touch, confirm that governance/datasets/<id>.yaml
-still matches the physical table, the Dagster asset key, and the declared
-quality rules. Never emit partial evidence: a missing source must fail loudly.
+```text
+Read AGENTS, the affected code and matching tests.
+Check source/dataset and private-workload boundaries.
+Use available Graphify context if the project graph exists; verify owning sources.
+Keep compatibility changes separate from unrelated directory reorganization.
+Run appropriate checks and report observed behavior, not assumed success.
 ```
 
-## Docs consistency prompt
+## Historical cleanup task
 
-```
-Scan README.md and docs/.
-Ensure no removed command or entrypoint is still referenced (for example
-pipeline-v1, pipeline-legacy, PIPELINE_MODE).
-Keep historical narrative under docs/history/.
-Public documentation is English-only; do not add Chinese-language files to the
-repository.
+```text
+Find callers and links before classifying a file as unused.
+Preserve signed originals and source provenance before substantial rewrites.
+Carry every unfinished item forward or document its evidence-based classification.
+Exact-target approval is required before destructive file/data/volume disposal.
+Do not run clean/reset/purge commands to inspect their behavior.
 ```
 
-## Runtime troubleshooting prompt
+## Verification task
 
-```
-Run make verify.
-If it fails, work through the services in dependency order
-(PostgreSQL, Hive Metastore, MinIO, Trino, MLflow, Dagster, OpenMetadata,
-Superset), give actionable repair steps, and re-verify.
+```text
+Choose checks proportional to the change.
+For active docs/scaffold use docs-check and check-agent-docs.
+For runtime/code changes add applicable lint, type, contract, unit/integration
+and explicit runtime acceptance. Do not silently turn a read-only check into
+installation, remote changes or data cleanup. Distinguish skipped from passed.
 ```

@@ -18,6 +18,7 @@ jobs:
       - run: pip install -r requirements.txt -r requirements-dagster.txt
       - run: ruff check .
       - run: python scripts/check-agent-docs.py
+      - run: python scripts/check-repo-docs.py
       - run: python scripts/validate-dataset-contracts.py
       - run: mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/
       - run: >-

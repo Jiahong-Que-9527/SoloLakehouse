@@ -1,3 +1,7 @@
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+**Command amendment:** legacy clean/reset/purge targets are disabled. Old destructive examples below are retained for reference and must not be executed as ordinary setup or verification. Use make down to stop without deleting bind-mounted data; state recovery/disposal needs an exact reviewed procedure. See [current storage/recovery design](docs/design/v3/storage-and-recovery.md).
+
 # SoloLakehouse v2.5 Operations Runbook
 
 This runbook covers common operational tasks for the local v2.5 Compose baseline.

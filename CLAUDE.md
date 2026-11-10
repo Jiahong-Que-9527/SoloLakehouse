@@ -1,3 +1,7 @@
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+For current design scope and the next output, follow [AGENTS](AGENTS.md), [TASKS](TASKS.md) and the [construction plan](docs/design/v3/README.md). This file supplies code patterns for retained reference paths.
+
 # Agent Guide for SoloLakehouse
 
 This file carries the **code-level patterns** for this repository: layout,
@@ -32,7 +36,7 @@ into typed, SHA-256-bound manifests, and `make` entrypoints that emit them. Ever
 module under `governance/` follows the same two rules — fail loudly, and bind the
 manifest digest to the record. See "Governance / Evidence Pattern" below.
 
-**Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
+**Domain:** Finance reference engineering + ML (ECB rates/FX and EWG German-equity ETF proxy); old DAX-named modules remain compatibility names.
 
 ## Tech Stack
 
@@ -65,7 +69,8 @@ make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
 make lint        # ruff (CI)
 make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/, governance/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
-make clean       # Stop services + delete docker/data/ + purge legacy named Docker volumes
+make docs-check  # Active links, immutable archive hashes and retained-task coverage
+# clean/reset/purge targets are disabled; use make down for non-destructive shutdown.
 
 make init-env    # Seed .env.shared + .env.secrets from templates, merge into .env
                  # This is the supported bootstrap — never `cp .env.example .env`

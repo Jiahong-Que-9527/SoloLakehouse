@@ -1,3 +1,7 @@
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+**Current design route:** the owner selected a single-repository v3 construction plan; hardware is not provisioned. Read the [current design](design/v3/README.md) for future architecture. The retained text below describes its reference/dated operated context, not a newly deployed cluster.
+
 <!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
 
 # SoloLakehouse — Architecture

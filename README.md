@@ -1,99 +1,142 @@
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design and construction plan; hardware not provisioned. -->
 
-<p align="center"><img src="docs/img/slh-brand.png" width="250" alt="SoloLakehouse logo"></p>
+<p align="center"><img src="docs/img/slh-brand.png" width="220" alt="SoloLakehouse logo"></p>
 
 <h1 align="center">SoloLakehouse</h1>
 
-<p align="center"><strong>A personally operated data &amp; AI platform, built on a lakehouse foundation</strong></p>
+<p align="center"><strong>A personally operated data and AI platform, built on a lakehouse foundation</strong></p>
 
-<!-- [房玄龄·2026-11-06] Center the README navigation. -->
 <p align="center">
-  <a href="docs/platform-overview.md">Platform story</a> &middot;
-  <a href="docs/workloads/aviation.md">Aviation workload</a> &middot;
-  <a href="docs/architecture.md">Architecture</a> &middot;
-  <a href="docs/quickstart.md">Quick start</a> &middot;
-  <a href="docs/roadmap.md">Roadmap</a> &middot;
-  <a href="https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/workflows/test.yml">CI</a>
+  <a href="docs/design/v3/README.md">V3 construction plan</a> &middot;
+  <a href="docs/architecture.md">Reference architecture</a> &middot;
+  <a href="docs/quickstart.md">Compose reference</a> &middot;
+  <a href="docs/workloads/aviation.md">Aviation case</a> &middot;
+  <a href="docs/README.md">Documentation</a> &middot;
+  <a href="TASKS.md">Next work</a>
 </p>
 
-<!-- [房玄龄·2026-11-06] Owner-supplied platform illustration. -->
-![SoloLakehouse from idea to platform, with aviation and finance workloads](docs/img/sololakehouse-from-idea-to-platform.png)
+**Current stage — v3 design and repository preparation.** Three Mini PCs have
+not been provisioned. The Proxmox/K3s cluster, GitOps deployment, and new
+infrastructure directories describe a construction plan. They are not a
+deployed platform or a completed migration.
 
-*The illustration combines historical work and planned infrastructure. Aviation uses [observation-derived taxi-in proxies](docs/workloads/aviation.md), and the current finance reference uses EWG. See the [roadmap](docs/roadmap.md) for current status.*
+SoloLakehouse started with a practical question: can one person understand a
+data platform from ingestion through storage, SQL, model experiments, and
+recovery? The repository contains the finance reference implementation and
+the contracts, lineage, quality checks, and experiment evidence built around it.
+The next step is to make that foundation reproducible and operable through
+infrastructure as code and GitOps.
 
-**SoloLakehouse started with a simple question: could one person understand and operate a lakehouse?**
+## What is here today
 
-The first goal was to follow data all the way from ingestion and storage to SQL analytics and model experiments. Bringing real workloads into the system added an ongoing responsibility: understand the sources, make processing repeatable, investigate failures, and explain what the outputs can support.
-
-That work has grown into a data platform I operate myself. **Aviation is the main domain in the operated environment, alongside financial reference data.** The platform is designed for limited resources and clear ownership, with traceable data, reproducible workflows, and recovery that can be checked.
-
-## One platform, clear implementation boundaries
-
-| Part | Role and current boundary |
+| Area | Implemented reference / boundary |
 |---|---|
-| **SoloLakehouse: this public repository** | Reusable lakehouse foundation and the executable finance reference implementation. The reference runtime uses Docker Compose, Dagster, Iceberg on MinIO, Trino, MLflow, OpenMetadata, and Superset. |
-| **Operated platform instance** | A self-hosted environment reusing the platform services for separate aviation and finance workloads. Runtime configuration and dated operating evidence differ from the reference clone. |
-| **Aviation: primary domain** | Historical OpenSky observations around Frankfurt Airport, candidate arrival events, taxi-in proxy labels, features, baseline experiments, and analytical views. The pipeline code is maintained separately; its [workload guide](docs/workloads/aviation.md) explains the integration and evidence limits. |
-| **Finance: complementary workload** | ECB policy rates and FX, plus EWG, a German-equity ETF proxy from Alpha Vantage. This repository contains its collectors, transformations, contracts, and reference demo. |
+| Data flow | ECB policy rates and FX, plus Alpha Vantage EWG, a German-equity ETF proxy; Bronze/Silver/Gold Iceberg transformations. |
+| Runtime path | Docker Compose, Dagster, PostgreSQL, Hive Metastore, MinIO, Trino, MLflow, OpenMetadata, and Superset. Existing paths are retained. |
+| Governance | Dataset contracts, quality checks, source/run/snapshot lineage, ML evidence, and operational evidence adapters. Evidence limitations remain explicit. |
+| Aviation | The primary operated use case is maintained separately. This public clone contains its [integration guide](docs/workloads/aviation.md), not the private pipeline or datasets. |
+| V3 | A documented single-repository target for Proxmox, K3s, Flux, deployment packaging, recovery, and phased validation. No hardware deployment has been performed. |
 
-Cloning this repository gives you the finance reference flow. It does not install the separately maintained aviation pipeline. The aviation data is historical and proxy-labelled; airport-validated prediction performance and a live air-cargo transaction pipeline remain unverified.
+Aviation uses historical observations and observation-derived taxi-in proxies.
+These are not airport-validated labels or a demonstrated air-cargo transaction
+loop. Finance remains the public, reproducible engineering reference. Training,
+evaluation, and MLflow tracking are in scope; online serving and an operations
+agent are later candidates.
 
-## From an idea to an operated platform
+## V3: three hosts, one repository, clear ownership
 
-```mermaid
-flowchart LR
-    IDEA["Original idea<br/>A lakehouse one person can operate"] --> FOUNDATION["SoloLakehouse foundation<br/>Storage, orchestration, SQL, experiments"]
-    FOUNDATION --> OPERATED["Personally operated platform"]
-    OPERATED --> AVIATION["Primary domain<br/>Aviation observations and proxy datasets"]
-    OPERATED --> FINANCE["Complementary workload<br/>Financial reference data"]
-    OPERATED -.-> NEXT["Planned next steps<br/>Reproduction, recovery, infrastructure evaluation"]
-```
+The planned starting hardware is three GMKtec M6 Ultra systems, each with 32GB
+RAM and a 1TB SSD. Each PVE host initially carries one 24GiB K3s server VM that
+also runs application workloads. An existing NAS is the proposed independent
+backup destination. Resource budgets are estimates awaiting measurement.
 
-The working goals are practical:
+| Repository area | Responsibility | Current maturity |
+|---|---|---|
+| [infra/](infra/README.md) | PVE resources, VM lifecycle, state and recovery design | Design only |
+| [bootstrap/](bootstrap/README.md) | First boot, K3s installation, upgrades and rebuilds | Design only |
+| [deploy/](deploy/README.md) | Reusable SLH deployment packaging and application contracts | Design only |
+| [gitops/](gitops/README.md) | Flux entry point, platform components and environment configuration | Design only |
+| Existing Python modules | Ingestion, transformation, governance, orchestration and ML | Existing code; preserved |
+| [docs/design/v3/](docs/design/v3/README.md) | Construction sequence, decisions, migration and acceptance | Design; checks recorded separately |
 
-- **Understand the data:** record source, version, quality, missingness, and intended use.
-- **Repeat the workflow:** connect a run to its tables, snapshots, features, and experiment artifacts.
-- **Operate with clear ownership:** detect failures, explain dependencies, and verify recovery within a stated scope.
-- **Reuse the foundation:** apply the same engineering methods to different domain workloads.
+The control boundaries are deliberate:
 
-The AI scope currently includes feature preparation, baseline model experiments, evaluation, and model-artifact tracking. Broader domain AI services are a future direction. RecordChat is a separate knowledge application, with no claim of an already integrated data-to-chat system.
+- **OpenTofu + cloud-init/Ansible** establish VMs and K3s from an external
+  administration environment.
+- **CI** tests code and produces immutable images and, later, versioned charts.
+- **Flux** reconciles reviewed deployment configuration.
+- **Dagster** schedules and executes data and ML work.
 
-## Inspect the implementation and the evidence
+Cluster bootstrap, IaC state, decryption keys, and recovery instructions must
+remain usable when the target cluster is unavailable. Git can reconstruct
+configuration; recovering databases, catalogs, objects, and model artifacts
+requires separate, tested procedures.
 
-| Question | Start here |
-|---|---|
-| Why did the project evolve this way? | [Platform story and operating principles](docs/platform-overview.md) |
-| What does the aviation workflow produce, and what can it support? | [Aviation workload, dated snapshot, and limitations](docs/workloads/aviation.md) |
-| How do the reference stack and operated environment differ? | [Architecture and deployment boundaries](docs/architecture.md) |
-| How are quality and provenance represented in the reference code? | [Dataset contracts](governance/datasets/), [evidence layout](docs/governance-evidence-layout.md), and [ML lineage](docs/decisions/ADR-018-ml-lineage-five-tuple.md) |
-| How are operational changes and recovery described? | [Operator runbook](RUNBOOK.md), [operational evidence](docs/operational-slo.md), and [promotion/rollback decision](docs/decisions/ADR-022-v29-promotion-operational-evidence.md) |
+Start with the [complete construction plan](docs/design/v3/README.md),
+[target architecture](docs/design/v3/architecture.md), and
+[storage/recovery design](docs/design/v3/storage-and-recovery.md).
+The [roadmap](docs/roadmap.md) owns scope; [TASKS.md](TASKS.md) owns execution order.
 
-Published code, operator-reported observations, and future plans are labelled separately. These personal engineering workloads do not establish customer adoption, regulatory certification, an externally guaranteed SLA, or high availability.
+## Inspect and validate the repository
 
-## Run the finance reference flow
-
-Use Linux, macOS, or Windows **WSL2** with Docker Compose, Python 3.13+, Git, and `make`. Allow at least 8 GB free RAM for the full reference stack (12 GB recommended).
+These commands inspect the repository without starting the runtime:
 
 ```bash
-git clone https://github.com/Jiahong-Que-9527/SoloLakehouse.git
-cd SoloLakehouse
-make setup
-make verify
-make demo
+make help
+make docs-check
+make check-agent-docs
 ```
 
-`make setup` creates local environment files from templates, installs dependencies, and starts the reference Compose services. The live EWG source needs an Alpha Vantage key in the gitignored `.env.secrets`; CI uses committed fixtures. See [Quick start](docs/quickstart.md), [Demo](DEMO.md), and [Runbook](RUNBOOK.md).
+With the documented Python dependencies installed, the existing checks remain:
 
-**Verification status checked 2026-11-04:** in the [latest pre-update main CI run](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/36453729682), lint, typecheck, and tests passed. The Compose demo failed before startup while pulling `minio/mc`. A clean reference deployment needs to be revalidated after that image-source problem is resolved. A working operated instance does not establish that a fresh clone currently passes the demo.
+```bash
+make lint
+make typecheck
+make validate-contracts
+make test
+```
 
-## Where the platform goes next
+These results establish only what each check exercises. A passing Markdown
+check does not validate a Helm chart, a VM, a data restore, or cluster HA.
 
-The near-term focus is a reviewable aviation case: clear dataset definitions, source and processing evidence, quality limitations, and a reproducible explanation of success, failure, and recovery. Finance remains the reference workload for comparing calendars, missingness, freshness, and currency conversion.
+## Use the existing finance reference
 
-A small three-node Proxmox cluster is being planned as a possible next infrastructure stage. Workload placement, storage, backups, and recovery still need design and validation. This is not a delivered cluster or a completed Kubernetes migration.
+The [quick start](docs/quickstart.md), [demo](DEMO.md), and
+[runbook](RUNBOOK.md) describe the existing Compose reference path.
+It remains the development and regression reference while v3 is constructed.
 
-The repository keeps its v2.5 Compose runtime baseline, with evidence work on `main` through v2.9 and the latest published tag at v2.6.1. See the [roadmap](docs/roadmap.md) for scope and [TASKS.md](TASKS.md) for execution order. New services, runtime migrations, and domain integrations need their own bounded implementation work.
+The previously observed clean-clone MinIO client image-pull problem has not
+been resolved or revalidated by this design change. Object-storage supply and
+compatibility are explicit [pre-migration work](docs/design/v3/storage-and-recovery.md#object-storage-decision).
+Do not infer a successful fresh deployment from retained configuration or
+from a separately operated environment.
 
-## License
+Routine shutdown uses `make down` and preserves bind-mounted data.
+The legacy `clean`, `reset-mlflow-db`, and `purge-legacy-docker-volumes`
+targets are disabled: data destruction requires an exact, reviewed recovery
+or disposal procedure, not a general cleanup command.
 
-[MIT](LICENSE)
+## What completion will mean
+
+V3 acceptance requires more than running Pods:
+
+1. Rebuild the declared environment with its documented bootstrap inputs.
+2. Trace a reviewed code change through image digest, GitOps commit, and run.
+3. Execute and validate the reference Iceberg/Gold workflow.
+4. Recover a consistent catalog and object-data state in isolation.
+5. Regress existing governance, MLflow, metadata, and BI capabilities.
+6. Record measured resource use, failure behavior, and recovery times.
+
+The [migration and validation plan](docs/design/v3/migration-and-validation.md)
+defines the evidence and boundaries for each stage. No delivery date, hardware
+availability, production SLA, or whole-platform HA is claimed.
+
+## History and license
+
+The [pre-v3 checkpoint](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10)
+preserves the earlier main baseline. Superseded planning and the original
+versions of rewritten entry documents are retained in the
+[pre-v3 archive](docs/history/pre-v3/README.md), with source hashes and commit
+provenance.
+
+[Project history](docs/history/README.md) · [Platform story](docs/platform-overview.md) · [MIT license](LICENSE)

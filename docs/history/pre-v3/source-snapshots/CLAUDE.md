@@ -1,0 +1,466 @@
+# Agent Guide for SoloLakehouse
+
+This file carries the **code-level patterns** for this repository: layout,
+architecture patterns, data flow, and the conventions new code must follow.
+
+> **Read [`AGENTS.md`](AGENTS.md) first.** It is the shared, tool-neutral
+> contract for every agent working here: where authority lives, the current
+> version state, the live decision gates (D1/D2/D3), the hard rules, and the
+> validation commands. This file adds the code-level detail on top of it.
+>
+> Both files summarize state. **`docs/roadmap.md` is the single source of truth**
+> — verify against it before relying on any summary, and update it in the same
+> PR whenever your change alters version status or scope.
+
+## What This Project Is
+
+SoloLakehouse is a **reference implementation** of a Lakehouse architecture,
+not a framework or library. It demonstrates how platforms like Databricks and
+Snowflake work internally, using only open-source tools on a single Docker
+Compose node.
+
+**Runtime baseline: v2.5 single-track** — orchestrated platform with Dagster assets/schedules/UI, **full-stack Iceberg** (Bronze/Silver/Gold all written via pyiceberg), and mandatory OpenMetadata + Superset in the default stack. This runtime is protected from regression and does **not** change during the v2.x series.
+
+**Which version is current, what is delivered, and what comes next: see
+[`AGENTS.md` §2](AGENTS.md) — not this file.** That state changes every release;
+duplicating it here is how the entry points drift apart. This file describes the
+code as it stands on `main`.
+
+On top of the v2.5 runtime, `main` carries a **governance and evidence plane**:
+machine-validated dataset contracts, evidence records that join several sources
+into typed, SHA-256-bound manifests, and `make` entrypoints that emit them. Every
+module under `governance/` follows the same two rules — fail loudly, and bind the
+manifest digest to the record. See "Governance / Evidence Pattern" below.
+
+**Domain:** Financial data engineering + ML (ECB interest rates + DAX stock index).
+
+## Tech Stack
+
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Object Storage | MinIO (S3-compatible) | RELEASE.2025-09-07T16-13-09Z |
+| Metadata DB | PostgreSQL | 17 |
+| Table Catalog | Apache Hive Metastore (standalone) | 4.0.0 |
+| Query Engine | Trino (Hive + Iceberg catalogs) | 480 |
+| Table format (all layers) | Apache Iceberg via pyiceberg (Bronze/Silver/Gold) | ≥0.8.0 |
+| Data catalog | OpenMetadata | 1.5.x |
+| BI / SQL UI | Apache Superset | 6.0.0 |
+| ML Tracking | MLflow | 3.10.1 |
+| Orchestration | Dagster | 1.7.x (Python < 3.13) / 1.12.x (Python ≥ 3.13) |
+| Language | Python | 3.13+ |
+| Validation | Pydantic v2 | 2.12.5 |
+| Data Format | Iceberg (Parquet data files, snappy) for all layers; PyArrow 23.0.1 internally | — |
+| Logging | structlog | 25.5.0 |
+| Testing | pytest | 9.0.2 |
+
+## Commands
+
+```bash
+make up          # Start all Docker services + init MinIO buckets + create Iceberg namespaces/tables
+make down        # Stop services (data preserved under docker/data/)
+make pipeline    # Run Dagster full_pipeline_job (v2.5 runtime path)
+make demo        # Acceptance/demo data flow (also available in the manual Compose Demo workflow)
+make dagster-ui  # Open Dagster UI (http://localhost:3000)
+make verify      # Health-check all services
+make test        # Run unit tests (pytest, no Docker needed)
+make lint        # ruff (CI)
+make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/, governance/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
+make clean       # Stop services + delete docker/data/ + purge legacy named Docker volumes
+
+make init-env    # Seed .env.shared + .env.secrets from templates, merge into .env
+                 # This is the supported bootstrap — never `cp .env.example .env`
+
+# Contracts & lineage evidence
+make validate-contracts  # Validate every governance/datasets/*.yaml against the contract schema
+make lineage-evidence DATASET_ID=fin.ecb_dax_features_gold DAGSTER_RUN_ID=<run-id>
+                         # Join three sources and write a SHA-256-bound manifest to the audit bucket.
+                         # Requires OPENMETADATA_TRINO_SERVICE_NAME + OPENMETADATA_AUTH_TOKEN from the
+                         # local environment (never Git). Fails without output if any source is missing.
+                         # The happy path is automatic — a Dagster sensor emits on successful
+                         # materialization; this CLI is for backfill and debugging.
+
+# Catalog openness
+make interoperability-proof   # Catalog-boundary interoperability evidence (LIVE_REST=1 needs a REST catalog)
+make sovereignty-report       # Sovereignty / component-origin report (FORMAT=json for machine output)
+make polaris-up               # Optional Polaris REST-catalog profile — not in the default stack
+
+# AI/ML governance
+make export-policy-hooks      # Canonical-JSON policy hooks derived from governed contracts
+
+# Operations, promotion, secrets
+make promotion-evidence       # Promotion gates -> SHA-256-bound manifest
+make rollback-drill           # Rollback drill record (ALLOW_UNHEALTHY=1 only to document a limitation)
+make operational-evidence     # SLO evidence (ALLOW_SLO_FAILURE=1 only to document a limitation)
+make secrets-discipline       # Fails on any secret-handling violation; no --allow-warn on a clean tree
+make secrets-rotation-drill ROTATED_KEYS=POSTGRES_PASSWORD,S3_SECRET_KEY
+make k8s-readiness            # v3.0 migration readiness gate
+
+make check-agent-docs         # Entry points resolve to AGENTS.md and do not duplicate version state
+```
+
+Every evidence command exits non-zero and writes nothing when a source is
+missing. Do not add a partial-output fallback to any of them.
+
+## Project Layout
+
+```
+ingestion/
+  collectors/         # One class per data source (ECBCollector, EWGCollector, …)
+  schema/             # Pydantic v2 models for record validation
+  quality/            # Bronze-layer quality check functions
+  bronze_writer.py    # Writes validated data to Iceberg (pyiceberg append_table)
+  iceberg_io.py       # Core I/O: append_table, overwrite_table, scan_table, get_catalog
+  iceberg_schemas.py  # Iceberg Schema + PartitionSpec for all six tables
+  trino_sql.py        # Trino REST utility (execute_trino_sql only; Hive staging removed)
+
+transformations/
+  ecb_bronze_to_silver.py   # ECB: type cleanup, forward-fill, rate_change_bps
+  dax_bronze_to_silver.py   # DAX: weekend filter, daily_return
+  silver_to_gold_features.py # Join ECB+DAX, build event-study features
+
+ml/
+  train_ecb_dax_model.py    # XGBoost/LightGBM with TimeSeriesSplit CV
+  evaluate.py               # MLflow experiment runner (multiple hyperparams)
+
+governance/                 # Governance & evidence plane — every module follows the two rules below
+  contracts.py              # DatasetContract pydantic model + YAML loader
+  quality.py                # Contract-driven quality gates
+  datasets/*.yaml           # One contract per governed dataset (fin.*)
+  # lineage evidence
+  lineage.py                # OpenMetadata / Iceberg / Dagster read-only adapters + strict joiner
+  evidence.py               # LineageRecord + EvidenceManifest (canonical JSON, SHA-256 bound)
+  emission.py               # Shared emission path for the CLI and the Dagster sensor
+  audit.py                  # AuditEvidenceWriter — writes manifests to the audit bucket
+  audit_storage.py          # Audit-bucket Object Lock configuration + verification
+  # catalog openness
+  interoperability.py       # Catalog interoperability evidence
+  sovereignty.py            # Sovereignty / component-origin evidence
+  # AI/ML governance
+  ml_lineage.py             # ML lineage five-tuple types + binding helpers (ADR-018)
+  model_evidence.py         # Model evaluation evidence + audit paths
+  policy_hooks.py           # Agent-ready policy hooks derived from contracts (ADR-021)
+  # operations, promotion, secrets
+  promotion.py              # Promotion and rollback evidence (ADR-022)
+  operations.py             # SLO and incident-readiness evidence (ADR-022)
+  runtime_health.py         # Shared runtime health access used by operational evidence
+  secrets_discipline.py     # Secrets discipline evidence (ADR-023)
+  env_merge.py              # .env.shared / .env.secrets split helpers
+  k8s_readiness.py          # Kubernetes migration readiness evidence (ADR-023)
+
+scripts/                    # One CLI per make target; the logic lives in governance/
+  verify-setup.py           # Service health checks (also reports audit-bucket Object Lock)
+  verify-demo.py            # Asserts Gold is queryable via Trino after make demo
+  validate-dataset-contracts.py # Contract schema validation (wired into CI)
+  lineage-evidence.py       # Lineage evidence CLI (backfill/debug; the sensor is the happy path)
+  export-policy-hooks.py    # make export-policy-hooks
+  interoperability-proof.py # make interoperability-proof
+  generate-sovereignty-report.py # make sovereignty-report
+  promotion-evidence.py     # make promotion-evidence
+  rollback-drill.py         # make rollback-drill
+  operational-evidence.py   # make operational-evidence
+  secrets-discipline.py     # make secrets-discipline
+  secrets-rotation-drill.py # make secrets-rotation-drill
+  k8s-readiness.py          # make k8s-readiness
+  merge-env-files.py        # make init-env — merges the split templates into .env
+  check-agent-docs.py       # make check-agent-docs — entry-point consistency, runs in CI
+  bootstrap-postgres.py     # Ensure DBs exist; TCP password check + align vs .env after docker-exec bootstrap
+  wait-for-dagster-run.py   # Block until a Dagster run reaches a terminal state
+  health-server.py          # Operator portal at 127.0.0.1:8090/health
+  prepare-docker-data-dirs.sh   # mkdir + perms for docker/data bind mounts
+  purge-legacy-docker-volumes.sh # Remove pre-bind-mount Docker named volumes (after down)
+  init-minio.sh             # Legacy bucket init (now handled by minio-init container)
+  trino-entrypoint.sh       # Expands all Trino catalog *.properties templates
+
+config/
+  trino/catalog/hive.properties   # Template — uses ${S3_ACCESS_KEY}/${S3_SECRET_KEY}
+  trino/catalog/iceberg.properties # Iceberg connector + Hive Metastore catalog
+  trino/config.properties        # Trino coordinator settings
+  postgres/init.sql              # Creates hive_metastore + mlflow databases
+
+docker/
+  docker-compose.yml        # Core platform services
+  docker-compose.openmetadata.yml # OpenMetadata stack (included by default in Makefile)
+  docker-compose.superset.yml # Superset stack (included by default in Makefile)
+  data/                     # Bind-mounted runtime state (MinIO, Postgres, Dagster, OM; contents gitignored)
+  dagster/                  # Dagster image build context
+  hive-metastore/           # Custom Dockerfile + entrypoint (envsubst)
+  mlflow/                   # Custom Dockerfile
+  superset/                 # Custom Superset image + bootstrap config
+
+dagster/
+  assets.py                 # Software-defined assets, sensor, asset checks
+  resources.py              # IcebergCatalogResource + config resources
+  definitions.py            # Jobs/schedule/definitions registry
+  workspace.yaml            # Dagster code location workspace
+  dagster.yaml              # Dagster instance config (PostgreSQL storage)
+
+tests/                      # Unit tests (mocked I/O, no Docker needed)
+docs/                       # See docs/README.md — architecture, ADRs, roadmap, deployment
+data/fixtures/              # CI / bootstrap fixtures for EWG (Alpha Vantage shaped)
+```
+
+**Layer 1 market leg (D4; L4 Phase 1 landed):** in-repo static DAX CSV is
+retired and removed. Target path is live EWG via Alpha Vantage
+(`ALPHA_VANTAGE_API_KEY`; CI uses `data/fixtures/`). Do not revive a CSV
+collector path in new work.
+
+## Architecture Patterns — Follow These When Adding Code
+
+### Collector Pattern (ingestion/collectors/)
+
+```python
+class NewCollector:
+    def __init__(self, catalog: Catalog, bucket: str | None = None):
+        self.catalog = catalog
+        self.bronze_writer = BronzeWriter(catalog)
+
+    def _fetch_data(self, ...) -> list | pd.DataFrame:
+        """Pull from source. Use structlog for logging."""
+
+    def _validate_records(self, raw_data) -> tuple[list, list]:
+        """Validate each record against a Pydantic schema.
+        Returns (valid_dicts, rejected_dicts)."""
+
+    def _already_ingested_today(self) -> bool:
+        """Check iceberg_io.scan_table for today's _ingestion_timestamp."""
+
+    def collect(self, ...) -> dict:
+        """Orchestrate: fetch → validate → write Bronze (Iceberg append).
+        Returns summary dict with counts and iceberg: path."""
+```
+
+### Schema Pattern (ingestion/schema/)
+
+```python
+from pydantic import BaseModel, field_validator, model_validator
+
+class NewRecord(BaseModel):
+    field: type
+
+    @field_validator("field")
+    @classmethod
+    def validate_field(cls, v):
+        if bad: raise ValueError("reason")
+        return v
+
+    @model_validator(mode="after")    # for cross-field checks
+    def check_consistency(self):
+        if self.high < self.low: raise ValueError("...")
+        return self
+```
+
+- Use `.model_dump()` (NOT `.dict()`) — this is Pydantic v2.
+
+### Transformation Pattern (transformations/)
+
+Every transformation file has two functions:
+
+1. **Pure transform function** (testable, no I/O):
+   ```python
+   def transform_X_bronze_to_silver(df: pd.DataFrame) -> pd.DataFrame:
+       df = df.copy()  # never mutate input
+       # type conversions → filter → sort → derive fields → dedup → quality check
+       return df[["col1", "col2", ...]]  # explicit column subset
+   ```
+
+2. **Orchestration function** (reads Iceberg, calls transform, writes Iceberg):
+   ```python
+   def run(catalog: Catalog) -> dict[str, object]:
+       df = scan_table(catalog, "bronze", "source_name")
+       silver_df = transform_X_bronze_to_silver(df)
+       overwrite_table(catalog, "silver", "source_name_cleaned", silver_df, SILVER_SCHEMA)
+       return {"table": "iceberg:silver.source_name_cleaned", "row_count": len(silver_df)}
+   ```
+
+### Iceberg I/O Pattern (ingestion/iceberg_io.py)
+
+```python
+from ingestion.iceberg_io import append_table, overwrite_table, scan_table, get_catalog
+
+catalog = get_catalog()  # reads HIVE_METASTORE_URI, MINIO_ENDPOINT, S3_ACCESS_KEY from env
+
+# Bronze (immutable append)
+append_table(catalog, "bronze", "ecb_rates", df, BRONZE_ECB_RATES_SCHEMA, BRONZE_ECB_RATES_PARTITION)
+
+# Silver / Gold (full overwrite on each run)
+overwrite_table(catalog, "silver", "ecb_rates_cleaned", df, SILVER_ECB_RATES_SCHEMA)
+
+# Read
+df = scan_table(catalog, "gold", "ecb_dax_features")
+```
+
+### Governance / Evidence Pattern (governance/)
+
+Two rules govern every change in `governance/`:
+
+1. **Fail loudly, never partially.** Every adapter raises `EvidenceSourceError` when a
+   required field is missing. Never emit a manifest that looks complete but is not —
+   a partial evidence bundle is worse than no bundle.
+2. **Evidence records are frozen and hash-bound.** `LineageRecord` and
+   `EvidenceManifest` use `model_config = ConfigDict(extra="forbid", frozen=True)`;
+   the manifest digest is validated against the record on construction.
+
+```python
+from governance.contracts import contract_path, load_contract
+from governance.lineage import LineageEvidenceJoiner, OpenMetadataAdapter
+from governance.evidence import EvidenceManifest
+
+contract = load_contract(contract_path("fin.ecb_dax_features_gold"))
+# each adapter is read-only and raises EvidenceSourceError on any missing field
+record = LineageEvidenceJoiner(product_id, runtime_version, environment).join(
+    contract, openmetadata_evidence, iceberg_evidence, dagster_evidence
+)
+manifest = EvidenceManifest.from_record(record)  # binds record_sha256 to the record
+```
+
+Adding a governed dataset means adding `governance/datasets/<dataset_id>.yaml` —
+`make validate-contracts` (and CI) rejects missing required fields.
+
+Every other evidence module (`promotion`, `operations`, `secrets_discipline`,
+`k8s_readiness`, `interoperability`, `sovereignty`, `model_evidence`) repeats the
+same shape, so follow it when adding one:
+
+```text
+governance/<topic>.py   frozen record model + gate evaluation + manifest builder
+scripts/<topic>.py      thin CLI: parse args -> build record -> print manifest, exit non-zero on any failed gate
+Makefile                one target, no flags that weaken the gate by default
+tests/test_*.py         one passing case, one failing gate, one digest-binding assertion
+```
+
+Escape hatches (`ALLOW_SLO_FAILURE`, `ALLOW_UNHEALTHY`, `--allow-warn`) exist only
+to *document* a known limitation. Never default them on, and never widen one to
+make a gate pass.
+
+### Testing Pattern (tests/)
+
+- `class TestXxx` grouping, plain pytest (no unittest.TestCase)
+- Mock `pyiceberg.Catalog` with `unittest.mock.MagicMock`; monkeypatch `iceberg_io.scan_table` / `iceberg_io.overwrite_table` to capture writes
+- Test pure transform functions with small synthetic DataFrames
+- Test schemas for both valid and invalid inputs
+- Helper functions like `make_gold_training_frame()` for test data
+
+### Logging Pattern
+
+```python
+import structlog
+logger = structlog.get_logger()
+
+logger.info("event_name_snake_case", rows=100, table="iceberg:bronze.ecb_rates")
+```
+
+- Event names: `snake_case`
+- Context: key-value pairs, not formatted strings
+- Log at step boundaries with counts
+
+### MinIO / Parquet direct I/O
+
+**No longer used in the pipeline** — all writes go through `iceberg_io`.
+If you need a raw MinIO client for tooling only:
+
+```python
+# Read
+response = minio.get_object(bucket, path)
+df = pd.read_parquet(BytesIO(response.read()))
+response.close()
+response.release_conn()
+```
+
+### Environment Variables
+
+All credentials and endpoints come from env vars with local-dev defaults:
+
+```python
+endpoint = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
+user = os.environ.get("MINIO_ROOT_USER", "sololakehouse")
+```
+
+Never hardcode credentials. Config files that need credentials use `envsubst`
+templates (see `config/trino/catalog/hive.properties`).
+
+## Data Flow (Medallion — all Iceberg)
+
+```
+ECB API / DAX CSV
+    → Bronze Iceberg (iceberg.bronze.{ecb_rates,dax_daily})
+        append-only, day-partitioned on _ingestion_timestamp
+    → Silver Iceberg (iceberg.silver.{ecb_rates_cleaned,dax_daily_cleaned})
+        full overwrite each run; cleaned, typed, deduped, derived fields
+    → Gold Iceberg (iceberg.gold.ecb_dax_features)
+        full overwrite each run; one row per ECB rate-change event
+        — readable via Trino: SELECT * FROM iceberg.gold.ecb_dax_features
+    → MLflow (XGBoost/LightGBM experiments with TimeSeriesSplit CV)
+        reads Gold from Trino (preferred) or pyiceberg scan_table
+```
+
+All writes go through `ingestion/iceberg_io.py` (pyiceberg HiveCatalog).
+`ingestion/trino_sql.py` is now a thin utility for ad-hoc Trino SQL only
+(Hive staging / CTAS removed — superseded by pyiceberg direct writes, ADR-020).
+
+MinIO bucket: `sololakehouse` (Iceberg warehouse: `s3://sololakehouse/warehouse/`)
+MLflow bucket: `mlflow-artifacts`
+
+## Key Design Decisions
+
+- **Docker Compose, not K8s** — single-node reference; K8s is v3 (ADR-001)
+- **Trino, not DuckDB** — federation + Hive metadata (ADR-002)
+- **Iceberg for all layers via pyiceberg** — replaces Parquet+Hive staging; eliminates write-path duplication (ADR-020 supersedes ADR-003 and ADR-013)
+- **ECB/DAX data** — public APIs, temporal structure, no API keys (ADR-004)
+- **No Prometheus/Grafana until post-core** — meaningful metrics require custom instrumentation (ADR-005)
+- **TimeSeriesSplit** — no random CV on time-series data (look-ahead bias)
+- **Quality checks raise exceptions** — fail-fast, not silent degradation
+- **Catalog access goes through a boundary** — `HiveCatalog` is the default backend, not a hardcoded assumption; REST/Polaris is selectable (ADR-017)
+- **ML lineage is a five-tuple** — snapshot id + Dagster run id + feature version + code commit + contract hash; anything less is not traceable (ADR-018)
+- **Policy hooks are metadata, not enforcement** — contracts carry `approved_consumer_class` / `access_policy_hint`, but there is **no** enforcement point yet; do not describe them as access control (ADR-021)
+- **Promotion and operations produce evidence, not logs** — SHA-256-bound manifests with explicit gates (ADR-022)
+- **Secrets live in `.env.secrets`, config in `.env.shared`** — merged into `.env` by `make init-env`; never `cp .env.example .env` (ADR-023)
+- **v3 governance-first productionization** — environment promotion, secrets/access governance, SLO-driven operations, and auditability are mandatory before claiming production readiness
+
+## Things to Watch Out For
+
+- `config/trino/catalog/*.properties` are **templates** with `${VAR}` placeholders — bash `eval` expansion runs at container startup via `scripts/trino-entrypoint.sh` (includes `hive` + `iceberg`)
+- PostgreSQL is shared by Hive Metastore AND MLflow (two databases: `hive_metastore`, `mlflow`)
+- Bronze data is immutable — `BronzeWriter` calls `iceberg_io.append_table`; never overwrite
+- Iceberg namespaces/tables are bootstrapped by `scripts/init-iceberg-namespaces.py` (called by `make up`); if you reset the Hive Metastore run `make init-iceberg` to recreate them
+- `HIVE_METASTORE_URI=thrift://localhost:9083` in `.env` is for host-side scripts; Docker services override to `thrift://hive-metastore:9083`
+- Tests run without Docker — they mock `iceberg_io.scan_table` / `iceberg_io.overwrite_table`
+- The `version: "3.8"` field was intentionally removed from docker-compose.yml (deprecated in Compose V2)
+- `.env` is **generated** by `make init-env` from `.env.shared` + `.env.secrets` — editing `.env` directly is lost on the next merge; edit the split files. `.env.example` is a legacy single-file reference only
+- `RUNTIME_VERSION` tracks the last **published** tag, so it lags `main` between releases; it is stamped into every evidence manifest, and bumping it is part of tagging, not part of feature work
+- The audit bucket has MinIO Object Lock enabled — a bucket created before that landed cannot be retrofitted in place; `make clean && make up` recreates it
+
+## Roadmap context
+
+**Version state, decision gates, and hard rules live in [`AGENTS.md`](AGENTS.md)
+— do not duplicate them here.** That file is the shared contract every agent
+reads (Claude Code, Cursor, Codex); this file adds the code-level detail on top
+of it. Keeping the state in one place is what stops the entry points drifting
+apart. `make check-agent-docs` enforces it.
+
+The chain of authority, in one line:
+
+> `docs/roadmap.md` (what each version does) → `TASKS.md` (what the next PR does)
+> → `AGENTS.md` (the agent-facing summary of both) → this file (how to write the code)
+
+Two things worth restating here because they constrain the code you write:
+
+- **The v2.5 runtime does not change before v3.0.** Do not add platform
+  services. Each v2.x version adds one category of *evidence*, not capability.
+- **Decision gates are read from [`AGENTS.md` §3](AGENTS.md), every time.** Two
+  of them exclude code that would otherwise look reasonable: the entity split in
+  `task.md` is not a work track, and the portal/Keycloak exploration must not
+  enter `docker/docker-compose.yml` or the env templates. Check the current
+  wording there before acting — gate status changes, and this file does not
+  track it.
+
+Ingestion-hardening and related tasks: see **`TASKS.md`**.
+
+## History maintenance (required)
+
+To preserve long-term evolution context across v2/v3/v4, every major milestone update must also update `docs/history/`.
+
+Required actions per version:
+
+1. Update `docs/history/timeline.md` with milestone status, delivered scope, and next decision gate.
+2. Update `docs/history/architecture-evolution.md` with architecture choices made, alternatives rejected, and rationale.
+3. Create or update a version planning note using `docs/history/planning-template.md` (for example `docs/history/v2-planning.md`) before implementation starts.
+4. Cross-link version artifacts: release tag, release notes, checklist, and key ADRs.

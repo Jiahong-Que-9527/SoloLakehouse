@@ -1,235 +1,109 @@
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
 
-# Agent Guide — SoloLakehouse
+# Agent guide — SoloLakehouse
 
-Entry point for any AI coding agent (Codex, Cursor, Copilot, Claude, …).
-Read this before doing anything. Claude Code users should also read `CLAUDE.md`
-for the code-level patterns; this file is the shared, tool-neutral contract.
+Read this before changing the repository. Honor the owner's current task and
+invoking workspace instructions, including exact-target file/data approval.
 
----
+## 1. Authority and reading route
 
-## 1. Where authority lives
+- [docs/roadmap.md](docs/roadmap.md): scope, current position and decisions.
+- [TASKS.md](TASKS.md): active order and next verifiable output.
+- [docs/design/v3/README.md](docs/design/v3/README.md): detailed v3 construction design.
+- [CLAUDE.md](CLAUDE.md): code-level patterns; pointer tools defer here for state.
+- [docs/README.md](docs/README.md): bounded reference navigation.
 
-Exactly two documents decide what gets built:
+History, old specs, ADR proposals and generated graphs are context, not a
+competing backlog. Never treat a target as delivered capability. Use the
+smallest relevant source set; do not load the entire history/compendium.
 
-| Document | Answers |
-|---|---|
-| **`docs/roadmap.md`** | What each version does, current status, open decisions |
-| **`TASKS.md`** | What the next PR does |
+## 2. Current state
 
-**When any other file disagrees with those two, those two win.** This includes
-historical planning notes, dated snapshots, generated documentation, ADRs
-describing proposals, and anything under `docs/history/`.
+- **Runtime baseline: v2.5 reference semantics.** Existing Compose + Dagster +
+  all-layer Iceberg + Trino + MLflow + OpenMetadata/Superset paths remain.
+- **Released tag:** v2.6.1 predates Block J; evidence work through v2.9 and
+  finance L4 phase 1/L5-L7 are on main. This is not current runtime proof.
+- **Current work:** D7 single-repository v3 design and repository preparation.
+  Three planned 32GB/1TB Mini PCs are not provisioned. New infra/bootstrap/
+  deploy/gitops areas are responsibility documents, not implemented deployment.
+- The reference cold-clone/image-supply gap remains open; no new Compose or
+  hardware result is implied by documentation checks.
+- Aviation is the primary separately maintained operated domain; finance is
+  this public code reference. Historical/proxy labels are not airport truth,
+  and no live air-cargo closed loop is established.
+- Training/evaluation/tracking/evidence remain the ML boundary. Serving,
+  a portal and an operations agent are later candidates.
 
-Never treat a roadmap *target* as a delivered *capability*.
+## 3. Decisions and exclusions
 
----
+Read current wording in the roadmap before implementation.
 
-## 2. Current state (verify against `docs/roadmap.md` before relying on this)
+- **D1:** v2 evidence order is historical/delivered; independent external
+  sign-off was cancelled as a blocking gate. Internal verification remains.
+- **D2:** entity/product split stays deferred indefinitely. A monorepo
+  directory layout does not reopen it.
+- **D3:** portal/Keycloak remains sandbox-only; no reference stack/env addition.
+- **D4/D5:** no retired DAX sample CSV. Live EWG via Alpha Vantage is the
+  approved market leg; committed JSON fixtures support controlled tests.
+  Preserve calendars, FX, freshness and source limits. Crypto/new domains stay deferred.
+- **D6:** private aviation implementation and existing operated fin/avi state
+  remain separate. Preserve unfinished evidence/reliability work.
+- **D7:** the owner approved the monorepo construction plan, scaffold,
+  entry-document rewrite, byte-preserved archive and safe command changes.
+  This does not authorize deployment, host installation or data migration.
 
-**D6 positioning (2026-11-04):** SoloLakehouse is the lakehouse foundation for a personally operated data and AI platform. Aviation is the main operated domain; finance remains the executable public reference. Aviation implementation is maintained separately. Current documentation/evidence work must distinguish reference code, operator-reported observations, and planned infrastructure; see `docs/platform-overview.md` and `docs/workloads/aviation.md`. This decision does not alter the protected runtime or hard rules.
-
-- **Runtime baseline: v2.5.** Docker Compose + Dagster + all-layer Iceberg +
-  Trino + MLflow + OpenMetadata + Superset. **This runtime does not change
-  before v3.0.** Do not add platform services.
-- **Released tag: `v2.6.1`** (2026-07-31, commit `6bd138a`) — corrects the
-  version stamp and ships the v2.6 governance/evidence plane (contracts,
-  three-source lineage join, manual `make lineage-evidence`). It does **not**
-  include Block `J`.
-  - `v2.6.0` is superseded: it stamped `slh-v2.5.1` into every evidence
-    manifest. Anyone on that tag should upgrade and regenerate.
-- **Block `J` on `main`** (2026-08-01, commit `e534c73`, PR #49) — automatic
-  emission, Object Lock, five-dataset coverage, causal snapshot↔run binding,
-  and CI coverage for `governance/` + `dagster/`. **Implementation complete.**
-- **v2.8 Block `E` delivered on `main`** (2026-08-02, PRs #51–#54) — ML lineage
-  five-tuple, AI-governance contract fields, policy hooks, model evaluation
-  evidence and model card.
-- **v2.7 Block `I` delivered on `main`** (2026-08-02, PRs #55–#56) — catalog
-  boundary, Polaris evaluation, interoperability proof, sovereignty report.
-- **v2.9 Blocks `B`/`C`/`D`/`F` delivered on `main`** (2026-08-02, PRs #57,
-  #59) — promotion/rollback evidence, operational SLO evidence, secrets
-  discipline, and K8s readiness gate.
-- **Owner Decision (2026-08-15):** independent external sign-off is not a
-  blocking gate; `docs/external-validation/` is retained as history.
-- **Current work:** D6 documentation and an inspectable aviation evidence case, then a bounded observed reliability/data-correctness gap from Block `K`. Finance L5-L7 landed (`#87`); crypto stays deferred. The aviation implementation remains separate. See `TASKS.md` immediate actions.
-- **D5 (resolved 2026-09-08, implemented `#87`):** freshness SLA, ECB EXR FX
-  panel, `fin.eur_market_daily_gold`. Same sources as `D4`. FRED and
-  electricity surveyed, not started. D6 supersedes the old finance-first aviation prerequisite.
-- **Layer 1 market leg (D4, resolved 2026-09-03; L4 Phase 1 landed):** any
-  in-repo static DAX CSV path is **retired and removed**. The only approved
-  market leg is live **EWG via Alpha Vantage** (CI uses committed fixtures
-  under `data/fixtures/`). Do not propose keeping, reviving, or documenting a
-  sample CSV as a fallback.
-
-Each v2.x version adds **one category of evidence** without changing the runtime:
-
-```text
-v2.5  the platform runs
-  -> v2.6   the platform produces evidence
-     -> v2.6.1  that evidence is operational, not just demonstrable
-        -> v2.8  auditable-AI evidence
-           -> v2.7  openness evidence
-              -> v2.9  operational and promotion evidence
-                 -> source-layer research, then long-term Compose operation
-                    -> v3.0  the runtime migrates to Kubernetes
-```
-
----
-
-## 3. Decision gates
-
-Recorded in `docs/roadmap.md` under "Open Decisions". **D1, D4, D5 and D6 are resolved.**
-**D2 and D3 remain live** — an agent that starts work behind either gate is
-doing work that may be thrown away.
-
-| Gate | Rule |
-|---|---|
-| **D1** | **Resolved 2026-08-02 by Owner Decision:** implement v2.8 (`E1`–`E4`), then v2.7 (`I1`–`I5`), then v2.9. Those versions are complete on `main`. A later Owner Decision (`2026-08-15`) cancelled independent external sign-off as a blocking gate. Do not start v3.0 as a side effect of that cancellation; see `TASKS.md` Block `L`. |
-| **D2** | The entity split described in `task.md` is **deferred indefinitely**. It is a design reference, not a backlog. Do not reopen it as a work track. |
-| **D3** | The portal / Keycloak exploration is **sandbox only**. It must not enter `docker/docker-compose.yml`, `.env.example`, or any version scope. |
-| **D4** | **Resolved 2026-09-03 (`L3`); phased execution 2026-09-04:** Layer 1 remediation — ECB extends in place; **DAX sample CSV is retired**; market leg becomes live EWG (Alpha Vantage). **Phase 1 (active):** batch sources 1+2 end-to-end. **Phase 2 (deferred):** optional crypto streaming leg (PR2/PR3). Do not start Phase 2 until Phase 1 lands. See `TASKS.md` Block `L`, "L4 execution phases". |
-| **D5** | **Resolved 2026-09-08:** after `L4` Phase 1, deepen the finance domain before opening any new one ; `L5` freshness SLA (`max_staleness_days`, `WARN` asset check), `L6` ECB EXR daily FX panel (first panel-shaped dataset; `L4-ecb` landed, needs EXR panel parse), `L7` `fin.eur_market_daily_gold` (daily Gold table, EWG restated in EUR). Stays inside the `D4` sources ; **non-goals unchanged**. FRED and electricity are surveyed, **not started**; each needs its own Owner Decision. The finance-first sequencing is historical and superseded by D6. See `TASKS.md` `L5`-`L7` and `docs/fin-domain-data-expansion.md`. |
-| **D6** | **Decided 2026-11-04:** personally operated data/AI platform; aviation primary operated domain, finance public reference, separate aviation implementation. Documentation/evidence alignment only; no D2 split, runtime migration, or new service. |
-
-If a task appears to require crossing a gate, stop and surface the conflict
-rather than proceeding.
-
----
+If a task requires changing these boundaries, surface the concrete conflict.
+Do not invent a new approval requirement for already authorized reversible work.
 
 ## 4. Hard rules
 
-1. **Do not regress the v2.5 baseline.** `make demo` and `make pipeline` must
-   keep working. Use the manual Compose Demo workflow to validate changes
-   that affect the runtime baseline.
-2. **Fail loudly, never partially.** Quality checks and evidence adapters raise
-   rather than degrade. Never emit an evidence artifact that looks complete but
-   is not — a partial bundle is worse than none.
-3. **Do not overstate.** No compliance certification, WORM/immutability, or
-   regulatory-readiness claim without an implementation and a verification
-   record. Limitations belong in `CHANGELOG.md` and the release-readiness doc.
-4. **English only.** The published repository contains English documentation
-   only. Chinese working documents live in `docs/local-cn/` and are gitignored.
-   Do not add non-English files to the repository.
-5. **Do not add engines or services** to chase maturity. Engine count is not a
-   success metric — see the roadmap's alignment rules.
-6. **Estimate with the measured rate.** v2.6 was planned at 4 weeks and took
-   11.7 (≈2.9×). Publish version *order*, not dates.
-7. **No DAX sample CSV — ever again.** Owner Decision D4 (`2026-09-03`) retires
-   any static in-repo market-leg file as demo fallback, production path, or
-   documented alternative. The sample CSV path is removed; use live EWG via
-   Alpha Vantage or the committed CI fixtures under `data/fixtures/`.
+1. Preserve reference demo/pipeline semantics. Use the manual Compose Demo
+   workflow for affected runtime acceptance; do not claim it ran when it did not.
+2. Quality/evidence adapters fail loudly; no partial bundle presented as complete.
+3. No compliance certification, WORM/immutability, regulatory-readiness, SLA,
+   HA or production claim without scoped implementation and verification.
+4. **English-only** public documentation; local Chinese working notes remain
+   gitignored. Preserve signed historical text; new edits carry an author/date.
+5. Do not add engines/services, new domains or extra repositories as a side effect.
+6. Publish ordering and actual results, not unsupported delivery dates.
+7. Never restore retired DAX CSV paths; legacy schemas/contracts with active
+   references require deliberate compatibility work.
+8. Preserve original data and backups. No file/volume/database/bucket deletion,
+   destructive reset or broad cleanup without exact scope and owner approval.
+   No bypass flags or autonomous background disposal.
+9. Do not use or restore Hallmark, flywheel-gate, personal-company-strategy,
+   or associated mandatory attribution/testing workflows.
 
----
-
-## 5. Validation — run these before claiming done
+## 5. Verification
 
 ```bash
-make test               # unit tests, no Docker required
-make lint               # ruff
-make typecheck          # mypy over ingestion/ transformations/ ml/ scripts/ dagster/ governance/
-make validate-contracts # every governance/datasets/*.yaml against the contract schema
-
-# Requires the stack to be up (make setup / make up):
-make verify             # service health checks
-make demo               # acceptance data flow; asserts Gold is queryable via Trino
+make docs-check          # active links, archive hashes and retained-task coverage
+make check-agent-docs    # shared entry points and authority
+make lint
+make typecheck
+make validate-contracts
+make test
 ```
 
-Evidence proportional to the claim:
+Run checks appropriate to the change. Design-only changes do not justify
+automatic container startup or a destructive command. Disabled legacy Make
+targets must remain non-destructive. Actual IaC/chart definitions later need
+their applicable static checks; hardware and data restore need actual runtime
+evidence. A skipped check is not a pass.
 
-- runtime behaviour → a reproducible command, its output, and a test
-- governance → a machine-readable artifact plus its validation result and limits
-- architecture → an ADR, or an explicit reason none is needed
-- release → the readiness checks in `docs/v2.6-release-readiness.md`
+If state/scope changes, update roadmap and TASKS in the same PR. Maintain
+timeline, architecture evolution and the v3 planning cross-link; do not rewrite
+historical originals. Keep the archived-task ledger exhaustive.
 
-"Code merged", "document written", or "service running" is **not** evidence.
+## 6. Code and tool routing
 
----
+Keep existing ingestion/transformations/governance/ml/dagster paths for now.
+CLAUDE.md describes their patterns; old names are not proof of dead code.
+The project skills slh-platform-owner and slh-context-router route bounded work;
+current owner authorization takes precedence over historical defaults.
 
-## 6. Repository map (short form)
-
-| Path | Contents |
-|---|---|
-| `ingestion/` | Collectors, Pydantic schemas, Bronze quality checks, `iceberg_io.py` |
-| `transformations/` | Bronze→Silver→Gold; each file has a pure transform plus a `run()` |
-| `governance/` | v2.6 contracts, quality gates, lineage adapters, evidence, audit writer |
-| `ml/` | XGBoost/LightGBM with `TimeSeriesSplit`; MLflow tracking |
-| `dagster/` | Assets, resources, jobs, schedule, sensor, asset checks |
-| `scripts/` | Health checks, bootstrap, contract validation, evidence CLI |
-| `docs/` | See `docs/README.md`; `docs/local-cn/` is local-only |
-| `tests/` | Unit tests mock Iceberg I/O — no Docker needed |
-
-`CLAUDE.md` carries the code-level patterns (collector, schema, transformation,
-Iceberg I/O, governance/evidence, logging, testing). Follow them when adding code.
-
----
-
-## 7. Multi-agent conventions
-
-- **Do not delegate overlapping ownership.** One agent owns one bounded change.
-- **Hand off the constraints, not just the task**: decision-gate status, the
-  exact canonical files, explicit exclusions, and the validation command.
-- **Update state when you change it.** If your change alters version status,
-  scope, or a decision gate, update `docs/roadmap.md` and `TASKS.md` in the same
-  PR. Stale planning state is the failure mode this guide exists to prevent.
-- **Per-version history maintenance is required** — see the "History
-  maintenance" section of `CLAUDE.md`.
-
-### Entry points — all three resolve here
-
-| Tool | Reads first | Role |
-|---|---|---|
-| **Codex** (and any agent following the `AGENTS.md` convention) | `AGENTS.md` | This file — the shared contract |
-| **Claude Code** | `CLAUDE.md` | Points here for state; adds code-level patterns |
-| **Cursor** | `.cursor/rules/sololakehouse.mdc` | Points here; `alwaysApply: true` |
-
-**Version state, decision gates, and hard rules live in this file only.** The
-other two are pointers by design — duplicating state into them is how the three
-tools drift apart and start working from different targets.
-
-`make check-agent-docs` enforces this mechanically: it fails when an entry point
-is missing or unpublished, stops pointing here, duplicates the version table, or
-asserts version state in prose (`Current version:`, `Next target:`,
-`Released tag:`). It runs in CI.
-
-The prose rule exists because `CLAUDE.md` carried a stale `Current version: v2.6`
-line through four delivered versions — the claim was a sentence, so the
-table-shaped check never saw it. A pointer file may describe the **runtime
-baseline** it constrains code against; it may not state which version is current
-or what ships next.
-
-Two project skills are available under `.agents/skills/`:
-
-- `$slh-platform-owner` — produce an Owner Decision before implementing
-  unapproved scope
-- `$slh-context-router` — select the minimum authoritative context for a task
-
----
-
-## 8. Graphify
-
-This project has a knowledge graph at `graphify-out/` with god nodes, community
-structure, and cross-file relationships.
-
-When the user types `$graphify`, use the installed graphify skill or
-instructions before doing anything else.
-
-Rules:
-
-- For codebase questions, first run `graphify query "<question>"` when
-  `graphify-out/graph.json` exists. Use `graphify path "<A>" "<B>"` for
-  relationships and `graphify explain "<concept>"` for focused concepts. These
-  return a scoped subgraph, usually much smaller than `GRAPH_REPORT.md` or raw
-  grep output.
-- Dirty `graphify-out/` files are expected after hooks or incremental updates;
-  dirty graph files are not a reason to skip graphify. Only skip graphify if the
-  task is about stale or incorrect graph output, or the user explicitly says not
-  to use it.
-- If `graphify-out/wiki/index.md` exists, use it for broad navigation instead of
-  raw source browsing.
-- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review or when
-  query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current
-  (AST-only, no API cost).
-
-Graphify finds context. **Canonical source files establish facts.** A graph edge
-is navigational evidence, not authority.
+If graphify-out/graph.json exists, query Graphify before broad code navigation;
+use query/path/explain, then verify against canonical sources. Dirty graph files
+are not a reason to skip it. If absent, use the bounded document route without
+installing/rebuilding a graph just for orientation. After code changes update
+an available graph; report unavailable tooling rather than fabricating a result.

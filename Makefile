@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := help
+.PHONY: help docs-check
 .PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness serve-ui-up serve-ui-down serve-ui-status serve-ui-urls om-ingest-trino fix-om-ingestion-db superset-eur-tile
 
 COMPOSE_FILE := docker/docker-compose.yml
@@ -22,9 +24,9 @@ prepare-data-dirs:
 
 # Remove old named volumes from layouts before bind mounts (run after `make down`).
 purge-legacy-docker-volumes:
-	@sh scripts/purge-legacy-docker-volumes.sh
+	@printf '%s\n' 'Disabled: legacy volume deletion needs exact-target approval; see docs/design/v3/storage-and-recovery.md.' >&2
+	@exit 2
 
-# Ensure required DBs exist before MLflow and other clients start (avoids race with bootstrap-db).
 wait-postgres-ready:
 	@echo "Waiting for PostgreSQL to accept connections..."
 	@for i in $$(seq 1 90); do \
@@ -85,22 +87,15 @@ bootstrap-db:
 	EXTRA_POSTGRES_DATABASES="$(EXTRA_POSTGRES_DATABASES)" $(PYTHON) scripts/bootstrap-postgres.py
 
 reset-mlflow-db:
-	@echo "Resetting MLflow metadata database (mlflow)..."
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) stop mlflow
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'mlflow' AND pid <> pg_backend_pid();\""
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"DROP DATABASE IF EXISTS mlflow;\""
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"CREATE DATABASE mlflow;\""
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d mlflow
-	@echo "MLflow metadata database reset complete."
+	@printf '%s\n' 'Disabled: database reset needs an exact reviewed recovery/disposal procedure.' >&2
+	@exit 2
 
 down:
 	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) down --remove-orphans
 
 clean:
-	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) down --remove-orphans
-	rm -rf docker/data/minio docker/data/postgres docker/data/dagster docker/data/om-mysql docker/data/om-elasticsearch
-	$(MAKE) prepare-data-dirs
-	$(MAKE) purge-legacy-docker-volumes
+	@printf '%s\n' 'Disabled: generic data deletion is not an approved cleanup procedure. Use make down for shutdown.' >&2
+	@exit 2
 
 pipeline:
 	@echo "Running v2.5 Dagster pipeline..."
@@ -284,3 +279,10 @@ wait:
 		printf "."; \
 		sleep 10; \
 	done
+
+# [房玄龄·2026-11-10] Repository-only entrypoints; no deployment or cleanup.
+help:
+	@{ printf '%s\n' 'SoloLakehouse: design and reference-code commands' 'No cluster is deployed by this scaffold.' 'make docs-check / check-agent-docs: repository integrity' 'make lint / typecheck / validate-contracts / test: installed Python checks' 'make setup / verify / demo / pipeline: explicit Compose reference operations' 'make down: stop the reference stack, retaining bind-mounted state' 'clean / reset-mlflow-db / purge-legacy-docker-volumes: disabled'; }
+
+docs-check:
+	$(PYTHON) scripts/check-repo-docs.py

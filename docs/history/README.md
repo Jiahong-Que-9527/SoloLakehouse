@@ -29,3 +29,10 @@ For each new milestone (for example `v2.0.0`):
 2. Update `architecture-evolution.md` with what changed and why.
 3. Copy `planning-template.md` into a versioned planning note (for example `v2-planning.md`) and fill it before implementation starts.
 4. Cross-link release artifacts (tag, PR, release notes, checklist).
+
+## Pre-v3 source preservation
+
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+- [pre-v3/README.md](pre-v3/README.md): byte-preserved original planning and entry documents, source commit, hashes and archive policy.
+- [Current construction design](../design/v3/README.md): the active detailed plan, subordinate to roadmap/TASKS.

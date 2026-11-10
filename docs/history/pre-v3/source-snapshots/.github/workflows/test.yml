@@ -1,0 +1,26 @@
+name: CI
+
+on: pull_request
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      # Install Dagster so mypy resolves imports to the installed package.
+      - run: pip install -r requirements.txt -r requirements-dagster.txt
+      - run: ruff check .
+      - run: python scripts/check-agent-docs.py
+      - run: python scripts/validate-dataset-contracts.py
+      - run: mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/
+      - run: >-
+          pytest tests/ -v --tb=short --ignore=tests/integration
+          --cov=ingestion --cov=transformations --cov=ml --cov=governance
+          --cov=dagster --cov-report=term-missing --cov-fail-under=70
