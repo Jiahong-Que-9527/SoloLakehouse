@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation; no runtime implementation or release. -->
+
 <!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
 
 # SoloLakehouse Active Backlog
@@ -17,7 +19,7 @@ Use it to answer:
 
 ## Canonical Planning State
 
-As of `2026-11-04` (D6 positioning update; no runtime release):
+As of `2026-11-10` (D7 v3 repository preparation; no runtime release):
 
 - `v2.5` is delivered and protected from regression.
 - `v2.6.1` tag (`6bd138a`, `2026-07-31`) is **released** and carries the corrected
@@ -33,7 +35,7 @@ As of `2026-11-04` (D6 positioning update; no runtime release):
   checks (`make test`, `make verify`, `make demo`) remain mandatory. This does
   not authorize production, WORM, or regulatory-readiness claims, and does not
   start v3.0.
-- **Current work under D6:** make the personally operated platform and separately maintained aviation workload inspectable, then address the most material observed data-correctness or reliability gap. Finance L5-L7 landed (`#87`) and remains the executable reference; crypto Phase 2, FRED, and electricity remain deferred or unstarted. D6 does not import aviation code or change the runtime.
+- **Current work under D7:** prepare the repository for v3 development on `v3/development`, preserve the pre-v3 baseline and complete branch history, and define the first bounded implementation slice. Runtime implementation has not started. D6 aviation evidence and observed reliability/data-correctness work remain unfinished carry-forward work; finance L5-L7 remains the executable reference. Crypto Phase 2, FRED, and electricity remain deferred or unstarted.
 - **Finance deepening (`D5`, done):** `L5` freshness SLA, `L6` ECB EXR FX panel,
   `L7` daily Gold (`fin.eur_market_daily_gold`) on `main` via `#87`. Same
   sources as `D4`; **no new domain.** FRED and German electricity remain
@@ -80,7 +82,7 @@ Future agents should follow these rules by default:
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
-| v3.0 | **Later — not started** | Kubernetes runtime migration |
+| v3.0 | **Repository preparation active; runtime implementation not started** | Runtime migration; first implementation slice to be defined under D7 |
 
 ## Work Blocks
 
@@ -105,9 +107,10 @@ Historical block letters remain the stable map for planning references.
 
 `v2.6.1` Block `J` implementation is complete and internally verified. v2.8,
 v2.7, and v2.9 are all delivered on `main`. Independent external sign-off is
-**not** a blocking gate (Owner Decision 2026-08-15). The active execution
-backlog is Block `L` (Layer 1 sources). Do not start v3.0 implementation as a
-side effect of cancelling that gate.
+**not** a blocking gate (Owner Decision 2026-08-15). The historical execution
+backlog was Block `L` (Layer 1 sources). D7 now sets repository preparation
+as the immediate work. Cancelling the external gate did not itself authorize
+v3.0 implementation.
 
 Its internal delivery succeeds when the evidence plane runs **without a human
 in the loop**, on **every** governed dataset, into **write-once** storage.
@@ -800,7 +803,17 @@ consumes).
 
 ## Immediate Next Actions
 
-Current order under D6:
+Current order under D7 ([roadmap decision](docs/roadmap.md#d7-v3-repository-preparation-decided-2026-11-10)):
+
+1. Preserve `main` at `2d8020ab4c5c6f81b0d44ad8bc91ecdc1bc20e0c` as annotated tag [`pre-v3-2026-11-10`](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10). This is a repository checkpoint, not a new release or runtime acceptance result.
+2. Retain a verified full Git-history bundle before cleaning obsolete remote branches. Preserve the closed PR #78 branch, including its non-equivalent commits. Execute deletion only after the owner's exact-target approval; the bundle does not back up runtime data or ignored files.
+3. Work on `v3/development`. Define the first bounded v3 implementation slice, its target environment, storage and recovery assumptions, compatibility/rollback path, and observable acceptance checks before changing the runtime.
+4. Carry forward the existing cold-clone/image-pull gap, unfinished reliability/recovery work, and reference-runtime validation requirements. No previous pipeline, restore, or deployment result is revalidated by this repository preparation.
+5. Keep D2/D3 boundaries, separate aviation implementation, finance isolation, and deferred sources unchanged. No new service, deployment, or migration is delivered by this preparation.
+
+### D6 carry-forward work (retained)
+
+Earlier order under D6, retained as unfinished work rather than cancelled tasks:
 
 1. Publish the platform story and sanitized aviation workload guide, with explicit public-code, operated-environment, and planned-infrastructure boundaries. This is a documentation deliverable, not completion of the broader aviation case.
 2. Assemble the reviewable aviation case: architecture, dataset definitions, dated processing/quality evidence, failure and recovery limits, and a handover path. Mark independent reproduction and unverified claims explicitly.
@@ -812,7 +825,9 @@ Completed finance milestones: L4 Phase 1 (live EWG and ECB DFR/MLF) and L5-L7 (f
 
 ### Pre-v3.0 sequencing (historical recommendation)
 
-**2026-11-04 amendment:** D6 and the immediate actions above determine current priority. The reference-runtime migration boundary remains; optional crypto work below is not a prerequisite for the aviation workload or public case.
+**2026-11-10 amendment:** D7 and the immediate actions above determine current priority; repository preparation is active, with runtime implementation still to be scoped. The older sequencing below remains historical.
+
+**2026-11-04 amendment (historical):** D6 determined the earlier priority. The reference-runtime migration boundary remains; optional crypto work below is not a prerequisite for the aviation workload or public case.
 
 Cancelling the external sign-off gate does **not** start v3.0. v3.0 remains a
 runtime migration after the Compose stack has a decided input layer and a

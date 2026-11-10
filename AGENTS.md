@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation; no runtime implementation or release. -->
+
 <!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
 
 # Agent Guide — SoloLakehouse
@@ -51,7 +53,7 @@ Never treat a roadmap *target* as a delivered *capability*.
   discipline, and K8s readiness gate.
 - **Owner Decision (2026-08-15):** independent external sign-off is not a
   blocking gate; `docs/external-validation/` is retained as history.
-- **Current work:** D6 documentation and an inspectable aviation evidence case, then a bounded observed reliability/data-correctness gap from Block `K`. Finance L5-L7 landed (`#87`); crypto stays deferred. The aviation implementation remains separate. See `TASKS.md` immediate actions.
+- **Current work:** D7 v3 repository preparation on `v3/development`: preserve the pre-v3 baseline and full branch history, prepare obsolete-branch cleanup, and define the first implementation slice. Runtime implementation has not started. Unfinished D6 aviation evidence and Block `K` work remain; finance L5-L7 landed (`#87`), crypto stays deferred, and aviation implementation remains separate. See `TASKS.md` immediate actions.
 - **D5 (resolved 2026-09-08, implemented `#87`):** freshness SLA, ECB EXR FX
   panel, `fin.eur_market_daily_gold`. Same sources as `D4`. FRED and
   electricity surveyed, not started. D6 supersedes the old finance-first aviation prerequisite.
@@ -78,7 +80,7 @@ v2.5  the platform runs
 
 ## 3. Decision gates
 
-Recorded in `docs/roadmap.md` under "Open Decisions". **D1, D4, D5 and D6 are resolved.**
+Recorded in `docs/roadmap.md` under "Open Decisions". **D1, D4, D5, D6 and D7 are resolved.**
 **D2 and D3 remain live** — an agent that starts work behind either gate is
 doing work that may be thrown away.
 
@@ -90,6 +92,7 @@ doing work that may be thrown away.
 | **D4** | **Resolved 2026-09-03 (`L3`); phased execution 2026-09-04:** Layer 1 remediation — ECB extends in place; **DAX sample CSV is retired**; market leg becomes live EWG (Alpha Vantage). **Phase 1 (active):** batch sources 1+2 end-to-end. **Phase 2 (deferred):** optional crypto streaming leg (PR2/PR3). Do not start Phase 2 until Phase 1 lands. See `TASKS.md` Block `L`, "L4 execution phases". |
 | **D5** | **Resolved 2026-09-08:** after `L4` Phase 1, deepen the finance domain before opening any new one ; `L5` freshness SLA (`max_staleness_days`, `WARN` asset check), `L6` ECB EXR daily FX panel (first panel-shaped dataset; `L4-ecb` landed, needs EXR panel parse), `L7` `fin.eur_market_daily_gold` (daily Gold table, EWG restated in EUR). Stays inside the `D4` sources ; **non-goals unchanged**. FRED and electricity are surveyed, **not started**; each needs its own Owner Decision. The finance-first sequencing is historical and superseded by D6. See `TASKS.md` `L5`-`L7` and `docs/fin-domain-data-expansion.md`. |
 | **D6** | **Decided 2026-11-04:** personally operated data/AI platform; aviation primary operated domain, finance public reference, separate aviation implementation. Documentation/evidence alignment only; no D2 split, runtime migration, or new service. |
+| **D7** | **Decided 2026-11-10:** prepare the v3 repository track, preserve the pre-v3 tag and complete Git bundle, and define the first bounded implementation slice. Exact-target approval is still required for branch deletion. No runtime deployment or migration is delivered or automatically authorized. |
 
 If a task appears to require crossing a gate, stop and surface the conflict
 rather than proceeding.

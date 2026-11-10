@@ -1,5 +1,18 @@
 # v3 Planning (Production-Capable Platform Hardening)
 
+## 2026-11-10 amendment: repository preparation
+
+<!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation. -->
+
+- **Status:** repository preparation active on `v3/development`; runtime implementation not started.
+- **Authority:** [D7](../roadmap.md#d7-v3-repository-preparation-decided-2026-11-10) and [immediate actions](../../TASKS.md#immediate-next-actions) supersede the old queue priority. The historical plan below supplies context, not current completion evidence, a delivery date, or approval for every listed component.
+- **Preserved baseline:** [`pre-v3-2026-11-10`](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10) points to `2d8020a`. A full pre-cleanup Git bundle passed verification, mirror recovery, and `git fsck`; its Windows copy has a matching SHA-256. Runtime state and ignored files are not part of this Git backup.
+- **Cleanup:** preserve all obsolete branch tips in the bundle; deletion is pending exact-target owner confirmation. The PR #78 branch has non-equivalent historical commits and must remain recoverable.
+- **Next implementation decision:** define one bounded slice, target environment, storage/recovery assumptions, compatibility/rollback path, and validation. Historical Kubernetes/Helm/Terraform choices remain proposals until applied to that slice.
+- **Carry-forward:** D2/D3, private aviation boundaries, finance isolation, source restrictions, cold-clone/image-pull uncertainty, and unfinished recovery work remain in force. This amendment introduces no deployment, runtime change, or new production claim.
+
+## Historical version plan (retained)
+
 ## Version
 
 - Target version: v3.0.0

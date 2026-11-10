@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation; no runtime implementation or release. -->
+
 <!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
 
 # Roadmap
@@ -33,7 +35,7 @@ a design goal that competes with it.
 
 ## Current Strategic Position
 
-As of `2026-11-04` (positioning decision D6; no runtime release):
+As of `2026-11-10` (D7 v3 repository preparation; no runtime release):
 
 - `v2.5` remains the protected baseline runtime and does not change until v3.0.
 - `v2.6.1` is **released** as tag `v2.6.1` (`6bd138a`, `2026-07-31`) — version
@@ -45,7 +47,7 @@ As of `2026-11-04` (positioning decision D6; no runtime release):
 - **Owner Decision (2026-08-15):** independent external sign-off is **not** a
   blocking gate. Protocol files under `docs/external-validation/` are retained
   as historical traces. Internal validation remains mandatory.
-- **Current positioning and work:** D6 makes aviation the primary domain of the operated platform and retains finance as the public reference workload. Assemble an inspectable aviation case and address observed reliability/data-correctness gaps through Block `K`; finance deepening already landed (`#87`). Aviation code stays separate, and crypto Phase 2 stays deferred.
+- **Current work:** D7 starts v3 repository preparation on `v3/development`; runtime implementation has not started. D6 continues to define aviation as the primary operated domain and finance as the public reference. The unfinished aviation evidence case and observed Block `K` gaps remain carry-forward work; finance deepening landed (`#87`). Aviation code stays separate, and crypto Phase 2 stays deferred.
 - The approved development order was **v2.8, then v2.7, then v2.9**; see
   "Open Decisions" below. Those versions are delivered on `main`.
 - future planning prioritizes **control plane and evidence value** over adding
@@ -64,7 +66,7 @@ As of `2026-11-04` (positioning decision D6; no runtime release):
 | v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
 | v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
 | v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
-| v3.0 | **Later — not started** | Production runtime migration to Kubernetes |
+| v3.0 | **Repository preparation active; runtime implementation not started** | Runtime migration; first implementation slice to be defined under D7 |
 | v4.0 | Future candidate | Self-serve usability and operational clarity |
 
 ## Delivery Velocity (measured, not estimated)
@@ -291,6 +293,8 @@ The next execution backlog is Layer 1 source research (Block `L` in
 
 ### v3.0 — Production Runtime Migration
 
+**2026-11-10 status:** repository preparation is active under [D7](#d7-v3-repository-preparation-decided-2026-11-10). The deliverables below remain planned; the first implementation slice and deployment environment have not been selected.
+
 Primary outcome:
 
 - the same platform contracts run across multiple environments on Kubernetes
@@ -313,7 +317,7 @@ Important framing:
 
 ## Open Decisions
 
-**D1, D4, D5 and D6 are resolved. D2 and D3 remain open.** Agents must not start
+**D1, D4, D5, D6 and D7 are resolved. D2 and D3 remain open.** Agents must not start
 implementation work that depends on an unresolved D2 or D3 decision.
 
 ### D1 — v2.8 before v2.7 (resolved 2026-08-02)
@@ -501,6 +505,19 @@ Task-level plan: `TASKS.md` Block `L`, `L5`–`L7`.
 
 This is a positioning and documentation decision, so no runtime ADR is introduced. See [platform overview](platform-overview.md), [aviation workload](workloads/aviation.md), and [history](history/timeline.md).
 
+### D7: V3 repository preparation (decided 2026-11-10)
+
+**Owner-approved scope:** synchronize WSL `main` with GitHub, preserve the complete pre-v3 Git baseline, prepare cleanup of obsolete branches, and open the v3 development track. This supersedes the earlier queue priority without marking unfinished D6 or Block `K` work complete.
+
+- Preserve commit `2d8020ab4c5c6f81b0d44ad8bc91ecdc1bc20e0c` as annotated tag [`pre-v3-2026-11-10`](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10).
+- A full Git-history bundle has been verified through `git bundle verify`, mirror-clone recovery, `git fsck --full`, and baseline-tag resolution. It retains every pre-cleanup branch, including the closed PR #78 branch. This is a one-time Git snapshot; runtime volumes and ignored configuration are outside its coverage.
+- Use `v3/development` for the preparation changes. Branch deletion remains pending the owner's exact-target confirmation under the existing file-safety rules.
+- Before runtime implementation, define one bounded v3 slice with its target environment, storage/recovery assumptions, compatibility and rollback path, and observable validation. Existing Kubernetes/Helm/Terraform material remains a design direction, not a completed migration or authorization to deploy services.
+- Preserve D2/D3, the separate aviation implementation, finance isolation, source restrictions, and the reference demo/pipeline semantics. No release, new service, workload migration, or runtime acceptance is claimed here.
+- Completion evidence for preparation: a published baseline tag, verified restorable Git bundle, independently checked Windows copy, a dedicated development branch, coherent planning/agent/history records, and focused documentation checks.
+
+See [immediate actions](../TASKS.md#immediate-next-actions), [v3 planning amendment](history/v3-planning.md#2026-11-10-amendment-repository-preparation), and [history](history/timeline.md). No new runtime ADR is introduced by this repository-only preparation.
+
 ### D3 — Portal / Keycloak exploration
 
 **Status: sandbox only.** Local `.env` carries `KEYCLOAK_*` and `PORTAL_OIDC_*`
@@ -524,8 +541,9 @@ task. Internal validation remains mandatory for every change (`make test`,
 `make demo` where applicable). Cancelling this gate does not authorize
 production, WORM, or regulatory-readiness claims, and does not start v3.0.
 
-**`D5` / `L5`–`L7` landed on `main` (`#87`).** Next backlog is Compose
-operation and Block `K` hardening; Phase 2 (streaming/crypto) stays deferred
+**`D5` / `L5`–`L7` landed on `main` (`#87`).** D7 sets v3 repository
+preparation as the immediate work. Compose operation and Block `K` hardening
+remain carry-forward work; Phase 2 (streaming/crypto) stays deferred
 (`TASKS.md` Block `L`).
 
 ## What Is Explicitly Deprioritized

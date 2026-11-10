@@ -308,3 +308,13 @@ Theme:
 - Updated README, workload/architecture navigation, roadmap/backlog, and agent state references. No runtime, pipeline, deployment, or version release is introduced.
 - Proxmox exploration remains planned. Independent aviation reproduction, ground truth, recovery, and reference cold-clone image-pull verification remain separately checkable work.
 - See [D6](../roadmap.md#d6-personally-operated-platform-and-workload-positioning-decided-2026-11-04) and [platform overview](../platform-overview.md).
+
+## 2026-11-10: Pre-v3 baseline and development-track preparation (D7)
+
+<!-- [房玄龄·2026-11-10] Owner-approved repository preparation; runtime implementation not started. -->
+
+- Synchronized WSL `main` to GitHub commit `2d8020a` and published annotated tag [`pre-v3-2026-11-10`](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10).
+- Verified a complete Git bundle containing all pre-cleanup refs through bundle verification, mirror recovery, and `git fsck`; a Windows copy matches its SHA-256. This does not back up runtime data or ignored files.
+- Opened `v3/development` for repository preparation and aligned the roadmap, active backlog, agent summary, and historical v3 plan. Obsolete-branch deletion remains pending exact-target approval.
+- Runtime implementation, workload migration, and a v3 release have not happened. The next decision defines the first bounded implementation slice and its acceptance/rollback evidence.
+- See [D7](../roadmap.md#d7-v3-repository-preparation-decided-2026-11-10) and [v3 planning amendment](v3-planning.md#2026-11-10-amendment-repository-preparation).

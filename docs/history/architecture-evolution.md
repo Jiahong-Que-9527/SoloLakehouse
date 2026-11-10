@@ -197,3 +197,14 @@ Historical migration and compatibility details remain documented for reference o
 - Reference Compose still includes OpenMetadata/Superset; the dated operated environment uses Metabase/Evidence and has OpenMetadata paused. A shared service is not a separate failure domain.
 - No runtime ADR is needed: this is a documentation and positioning decision with no change to source code, service definitions, or storage layout. D6 records its scope; D2/D3 boundaries remain.
 - A small Proxmox cluster remains a future infrastructure exploration, with no completed migration or high-availability claim.
+
+## 2026-11-10: Preserve the pre-v3 runtime while opening the development track
+
+<!-- [房玄龄·2026-11-10] Owner-approved repository preparation; no runtime architecture change. -->
+
+- Selected: preserve `main` at `2d8020a` under `pre-v3-2026-11-10`, retain all branch histories in a verified Git bundle, and isolate preparation on `v3/development`.
+- Rationale: the owner expects substantial v3 changes and needs a recoverable repository baseline, including the non-equivalent work on the closed PR #78 branch.
+- Alternative not selected: replay the old EWG branch wholesale or couple branch cleanup to a runtime migration. Main already contains successor implementations; archival preserves remaining differences without reverting later fixes.
+- No runtime architecture alternative is selected by this preparation. Define the first bounded implementation slice and its storage, recovery, promotion, and rollback assumptions before changing services.
+- D2/D3, separate aviation implementation, finance isolation, reference-runtime semantics, and unfinished recovery checks remain. A Git-history restore is not a service-data restore.
+- No new ADR: this decision changes repository preparation and work order only. See [D7](../roadmap.md#d7-v3-repository-preparation-decided-2026-11-10) and [v3 planning amendment](v3-planning.md#2026-11-10-amendment-repository-preparation).
