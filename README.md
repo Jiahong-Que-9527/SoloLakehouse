@@ -15,6 +15,14 @@
   <a href="TASKS.md">Next work</a>
 </p>
 
+<!-- [房玄龄·2026-11-10] Owner-provided platform cover; reference and target boundaries preserved. -->
+
+![SoloLakehouse platform overview: finance reference, separate aviation workload, and planned v3 infrastructure](docs/img/sololakehouse-platform-overview.png)
+
+*Conceptual overview of the reference capabilities and v3 direction. The new
+cluster and GitOps deployment remain planned; aviation code and datasets are
+maintained separately.*
+
 **Current stage — v3 design and repository preparation.** Three Mini PCs have
 not been provisioned. The Proxmox/K3s cluster, GitOps deployment, and new
 infrastructure directories describe a construction plan. They are not a
