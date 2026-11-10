@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved design-only monorepo scaffold. -->
-
 # GitOps desired-state design
 
 **Status: design only; hardware not provisioned.**

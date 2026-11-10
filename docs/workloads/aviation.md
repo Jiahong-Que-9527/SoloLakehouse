@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
-
 # Aviation workload: historical observations to inspectable datasets
 
 ## Scope and implementation boundary

@@ -49,6 +49,4 @@ The active runtime baseline is **v2.5 single-track**; older ADRs remain valuable
 
 ## Current repository construction decision
 
-<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
-
 - [ADR-024-v3-gitops-monorepo.md](ADR-024-v3-gitops-monorepo.md): accepted monorepo/design boundary; [current plan](../design/v3/README.md). Older ADRs retain their identifiers and historical status; a listed v3 rationale is not a deployed capability.

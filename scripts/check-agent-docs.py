@@ -29,7 +29,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CONTRACT = "AGENTS.md"
 
 # Entry points that must exist, be published, and point at the contract.
-# [房玄龄·2026-11-10] Keep tool pointers on the shared TODO and roadmap.
+# Keep tool pointers on the shared TODO and roadmap.
 ENTRY_POINTS = {
     "CLAUDE.md": "Claude Code",
     "GEMINI.md": "Gemini",

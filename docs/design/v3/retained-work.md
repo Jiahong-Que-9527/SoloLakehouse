@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Preserve every prior unchecked task and its explicit classification. -->
-
 # Retained work and source provenance
 
 This ledger is an audit index, not a second execution queue. [TASKS](../../../TASKS.md) owns current priority. Every unchecked item from the 902-line source snapshot is listed below; the complete original wording and continuation remain preserved.

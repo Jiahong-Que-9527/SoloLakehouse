@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Index the owner-provided README cover without removing earlier assets. -->
-
 # Diagram assets
 
 | File | Purpose and boundary |

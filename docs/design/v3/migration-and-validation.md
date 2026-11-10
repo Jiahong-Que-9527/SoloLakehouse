@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # Construction, migration and validation
 
 This is the complete implementation sequence after repository design. Stage
@@ -41,8 +39,6 @@ placeholder manifests simply to make a check pass.
 Keep real tfvars, inventory, plans/state, private keys and kubeconfig outside
 public commits. Preserve encrypted recovery copies. No auto-apply or scheduled
 deployment is part of D0.
-
-<!-- [房玄龄·2026-11-10] Pending D1 slices are owned by the active queue. -->
 
 Use [TASKS](../../../TASKS.md#next-bounded-work) for D1.1 inputs, D1.2 S3
 compatibility, D1.3 first VM/cloud-init and D1.4 minimal GitOps configuration.

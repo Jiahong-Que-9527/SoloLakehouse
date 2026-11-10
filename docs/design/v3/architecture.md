@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design and construction plan; hardware not provisioned. -->
-
 # V3 target architecture
 
 **Design only — no new physical host or Kubernetes deployment is present.**

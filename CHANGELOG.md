@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
-
 # Changelog
 
 All notable changes to this project are documented in this file.
@@ -7,8 +5,6 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
-
-<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
 
 ### V3 repository design — 2026-11-10
 

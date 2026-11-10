@@ -3,15 +3,11 @@ description: SoloLakehouse shared authority and bounded code/design route.
 alwaysApply: true
 ---
 
-<!-- [房玄龄·2026-11-10] Keep tool entrypoints as pointers, not duplicate version state. -->
-
 # Read the shared contract
 
 Read [AGENTS.md](../../AGENTS.md), then the relevant section of [roadmap](../../docs/roadmap.md) and [TASKS](../../TASKS.md). Use the [construction plan](../../docs/design/v3/README.md) for design and [CLAUDE](../../CLAUDE.md) for code patterns. Do not duplicate version status here.
 
 Honor current owner authorization, exact-target file/data safety, English-only public docs and private workload/source boundaries. Read historical originals only as explicitly linked reference. New deployment design is not runtime proof. No automatic installs, host operations or data cleanup follow from reading this entrypoint.
-
-<!-- [房玄龄·2026-11-10] Use the shared task-ID and evidence handoff protocol. -->
 
 Use TASKS as the single TODO for pending IDs, dependencies, outputs and
 acceptance. Follow AGENTS' start/handoff protocol and update TASKS with observed

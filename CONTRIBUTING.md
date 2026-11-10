@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
-
 # Contributing
 
 Read [AGENTS](AGENTS.md), [roadmap](docs/roadmap.md) and [TASKS](TASKS.md). Use the [construction plan](docs/design/v3/README.md) for design work and [CLAUDE](CLAUDE.md) for retained code patterns.
