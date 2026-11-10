@@ -8,6 +8,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+### V3 repository design — 2026-11-10
+
+- Add complete single-repository construction/migration/recovery design and responsibility READMEs; no hardware, IaC/chart/Flux deployment is implemented.
+- Rewrite README and current reading routes; preserve original signed text and all prior unchecked-task provenance in a hash-indexed archive.
+- Disable generic data-destruction Make targets; add non-runtime help/docs integrity checks and behavior regression tests.
+- Retain existing Python, dataset, Docker/Compose and operated-workload boundaries; hardware/runtime acceptance remains unexecuted.
+
 ### Added
 - **D5 / L5–L7 finance-domain deepening:** freshness SLA (`update_pattern`,
   `max_staleness_days`, WARN Dagster asset checks); ECB EXR FX panel

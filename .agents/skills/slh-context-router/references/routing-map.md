@@ -1,44 +1,16 @@
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
 
-# SoloLakehouse routing map
+# Routing map
 
-Authority reminder: `docs/roadmap.md` decides **what each version does**;
-`TASKS.md` decides **what the next PR does**. Everything else defers to those
-two. `AGENTS.md` carries the current state, decision gates, and hard rules.
+Roadmap defines scope; TASKS defines the next output. Current authorization and AGENTS override historical defaults.
 
-| Task class | Canonical starting context | Route and validation |
+| Task | Minimal source | Validation |
 |---|---|---|
-| Priority, roadmap, major scope | `docs/roadmap.md`, `TASKS.md` | `$slh-platform-owner`; no code until approved |
-| Code change or defect | Graphify query; target module; matching tests; `CLAUDE.md` patterns | Code agent; `make test lint typecheck`; run `graphify update .` after edits |
-| Architecture | Graphify query or path; `docs/architecture.md`; `docs/decisions/README.md` | Architecture review; ADR assessment; preserve the v2.5 runtime baseline |
-| Governance, contracts, lineage evidence | Graphify query; `governance/`; `docs/v2.6-demo-goal.md`; `docs/dataset-governance-naming.md`; `docs/v2.6-release-readiness.md` | Governance implementation; `make validate-contracts`; verify fail-fast on every missing source |
-| Data flow / Layer 1 sources | Graphify query; `docs/architecture.md`; `docs/layer1-source-selection-criteria.md`; `docs/roadmap.md` D4; `TASKS.md` Block `L` | Layer 1 route; DAX sample CSV is retired — do not propose keeping it |
-| Operations / deployment | Graphify query; `RUNBOOK.md`; `docs/deployment.md`; `docs/make-demo-guide.md` | Ops route; `make verify`, `make demo` |
-| Release | `docs/v2.6-release-readiness.md`; `CHANGELOG.md`; `docs/history/timeline.md` | Release route; record the drill evidence and disclose limitations |
-| Documentation | Graphify query; `docs/README.md`; the target canonical document | Docs route; verify links resolve **in the published repository**, and that no claim outruns the implementation |
-| GitHub issue / PR / CI | Graphify query for local context; the linked issue/PR | GitHub route; inspect before changing code |
+| Repository design | docs/design/v3/README.md and one detailed design section | docs-check, check-agent-docs |
+| Runtime/code | affected module, CLAUDE patterns and matching tests | applicable lint/type/contract/unit checks; explicitly scoped runtime evidence |
+| Infrastructure/bootstrap | infra/ or bootstrap/ README, architecture and recovery design | actual static definitions first; provisioning only in an authorized target scope |
+| Deployment/GitOps | deploy/ or gitops/ README, delivery/environment design | actual chart/manifest checks when implemented; no pretend pass for absent templates |
+| Cleanup/history | callers/links, pre-v3 manifest and retained-work ledger | preserve originals and open-task coverage; exact approval for destructive targets |
+| Old decisions | ADR index and explicit source snapshot | treat as historical, not a competing active queue |
 
-## Constraints that always apply
-
-- When `graphify-out/graph.json` exists, query Graphify before broad repository
-  browsing. Graphify finds context; canonical source files establish facts.
-- **v2.5 is the protected runtime baseline** and does not change before v3.0.
-- **Decision gates** — see `AGENTS.md` section 3. **D4 (resolved):** DAX sample
-  CSV retired; live EWG only. **D2:** entity split deferred.
-  **D3:** portal/Keycloak is sandbox only. The next PR is in `TASKS.md`.
-- **Layer 1 / data sources** — `docs/roadmap.md` D4, `docs/layer1-source-selection-criteria.md`,
-  `TASKS.md` Block `L`. Finance L4 Phase 1 and L5-L7 are implemented. Read current work from D6 and the immediate actions; aviation is a separately maintained operated workload. Streaming crypto remains deferred. Do not propose `data/sample/dax_daily_sample.csv` as demo fallback.
-- The published repository is **English-only**; `docs/local-cn/` is local.
-
-## Paths that are local-only
-
-Some documents referenced in older material are not present in a fresh clone.
-Do not route an agent to them and do not treat their absence as a defect:
-
-- `docs/local-cn/**` — Chinese working documents
-- `docs/history/v2.6-planning.md` … `v2.9-planning.md` — superseded 2026-05-05
-  snapshots; use `docs/roadmap.md` instead
-- `docs/release.md`, `docs/release-readiness.md`, `docs/V*_RELEASE_CHECKLIST.md`
-  — internal runbooks; the published gate is `docs/v2.6-release-readiness.md`
-- `docs/DOCUMENTATION_COMPENDIUM.md` — generated convenience context, never the
-  preferred source when the original document is available
+When a Graphify graph exists, query it before broad code discovery and verify owning sources. If absent, use this route without installing/rebuilding a graph merely to orient. D2/D3/source/private-workload boundaries remain; current decision wording is in roadmap/AGENTS. Local-only notes are not missing public features.

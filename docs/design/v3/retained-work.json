@@ -1,0 +1,200 @@
+{
+  "author": "[房玄龄·2026-11-10]",
+  "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+  "source_snapshot": "docs/history/pre-v3/source-snapshots/TASKS.md",
+  "policy": "Provenance index, not a parallel active task queue. No closure inferred from archive.",
+  "items": [
+    {
+      "source_line": 396,
+      "task": "K2",
+      "original_first_line": "- [ ] `K2` Close the residual `RUNTIME_VERSION` mismatch left open by `R1`:",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 410,
+      "task": "K4",
+      "original_first_line": "- [ ] `K4` Add `run_coordinator: QueuedRunCoordinator` (`max_concurrent_runs`)",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 413,
+      "task": "K5",
+      "original_first_line": "- [ ] `K5` Add a disk-capacity check to `scripts/verify-setup.py` (none of the",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 416,
+      "task": "K6",
+      "original_first_line": "- [ ] `K6` Add Silver/Gold freshness sensors mirroring the existing",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 420,
+      "task": "K7",
+      "original_first_line": "- [ ] `K7` Add a daily `make verify` wrapper that posts to a webhook/email on",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 423,
+      "task": "K8",
+      "original_first_line": "- [ ] `K8` Add a check in `governance/secrets_discipline.py` that flags actual",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 427,
+      "task": "K9",
+      "original_first_line": "- [ ] `K9` Script the backup procedure in",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 431,
+      "task": "K10",
+      "original_first_line": "- [ ] `K10` Execute and record one real end-to-end restore drill on top of",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 435,
+      "task": "K11",
+      "original_first_line": "- [ ] `K11` ADR (next available: `ADR-024`) for the security-boundary model:",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 438,
+      "task": "K12",
+      "original_first_line": "- [ ] `K12` ADR for the container self-healing level chosen in `K1`",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 440,
+      "task": "K13",
+      "original_first_line": "- [ ] `K13` ADR for the Bronze write semantics decided in `K3` (full refetch +",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 442,
+      "task": "K14",
+      "original_first_line": "- [ ] `K14` ADR for the backup consistency model from `K9`/`K10`",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 445,
+      "task": "K15",
+      "original_first_line": "- [ ] `K15` *(should-do)* Pin and checksum-verify the JDBC driver download in",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 447,
+      "task": "K16",
+      "original_first_line": "- [ ] `K16` *(should-do)* Add Iceberg `expire_snapshots` plus Dagster",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 449,
+      "task": "K17",
+      "original_first_line": "- [ ] `K17` *(should-do)* Document that `iceberg_schemas.py` changes do not",
+      "classification": "Retained; not completed by repository preparation."
+    },
+    {
+      "source_line": 585,
+      "task": "L4",
+      "original_first_line": "- [ ] `L4` Implement `L3` in **two phases** — see `docs/roadmap.md` `D4` and",
+      "classification": "Batch phase delivered historically; crypto phase remains deferred."
+    },
+    {
+      "source_line": 651,
+      "task": "L4a",
+      "original_first_line": "  - [ ] `L4a` `docker/docker-compose.crypto.yml`: Redpanda single-node",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 656,
+      "task": "L4b",
+      "original_first_line": "  - [ ] `L4b` `ingestion/bronze_writer.py::BronzeWriter.write()` — add",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 659,
+      "task": "L4c",
+      "original_first_line": "  - [ ] `L4c`–`L4f` Everything crypto-specific lives in a new",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 668,
+      "task": "L4g",
+      "original_first_line": "  - [ ] `L4g` `governance/contracts.py`: add `ingestion_mode`,",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 681,
+      "task": "L4h",
+      "original_first_line": "  - [ ] `L4h` `dagster_crypto/assets.py`/`definitions.py`: `crypto_bronze`",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 686,
+      "task": "L4i",
+      "original_first_line": "  - [ ] `L4i` `docker/dagster-crypto/Dockerfile` +",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 691,
+      "task": "L4i2",
+      "original_first_line": "  - [ ] `L4i2` `dagster/workspace.crypto.yaml` (Core + crypto code",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 696,
+      "task": "L4j",
+      "original_first_line": "  - [ ] `L4j` `make crypto-init`: creates `bronze.crypto_trades` explicitly",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 699,
+      "task": "L4k",
+      "original_first_line": "  - [ ] `L4k` Tests: mocked WS/Kafka client, recorded trade-message",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 703,
+      "task": "L4-crypto-retention",
+      "original_first_line": "  - [ ] `L4-crypto-retention` Daily Dagster job in `dagster_crypto/`",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 709,
+      "task": "L4l",
+      "original_first_line": "  - [ ] `L4l` `docs/decisions/ADR-024-crypto-streaming-leg.md` (new,",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 713,
+      "task": "L4m",
+      "original_first_line": "  - [ ] `L4m` Dated amendment note in",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 717,
+      "task": "L4n",
+      "original_first_line": "  - [ ] `L4n` Update `docs/roadmap.md` (`D4` → mark fully implemented),",
+      "classification": "Deferred crypto phase; not authorized as v3 MVP implementation."
+    },
+    {
+      "source_line": 720,
+      "task": "L4o",
+      "original_first_line": "  - [ ] `L4o` ~~Fix `docs/README.md`'s stale \"v2.6 is the current version\"~~",
+      "classification": "Struck-through historical documentation item; do not reactivate a removed stale claim."
+    },
+    {
+      "source_line": 722,
+      "task": "L4p",
+      "original_first_line": "  - [ ] `L4p` Confirm `make demo`/`make pipeline`/CI `compose-demo` are",
+      "classification": "Reference cold-clone/demo acceptance still needs revalidation; crypto remains deferred."
+    },
+    {
+      "source_line": 873,
+      "task": "PR81-merge",
+      "original_first_line": "- [ ] Merge PR #81 (Tailscale Serve helpers) when reviewed",
+      "classification": "Stale historical checkbox; PR #81 already merged. Preserve source, do not reactivate."
+    }
+  ]
+}

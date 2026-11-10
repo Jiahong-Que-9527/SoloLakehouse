@@ -1,0 +1,286 @@
+.PHONY: up down clean up-core up-orchestration up-catalog up-bi stop-orchestration stop-catalog stop-bi status bootstrap-db reset-mlflow-db wait-postgres-ready pipeline pipeline-dagster verify demo health health-json test test-cov test-cov-html test-integration release-check lint typecheck setup wait dagster-install dagster-ui prepare-data-dirs purge-legacy-docker-volumes init-iceberg build-images-serial validate-contracts export-policy-hooks lineage-evidence check-agent-docs polaris-up interoperability-proof sovereignty-report promotion-evidence rollback-drill operational-evidence init-env secrets-discipline secrets-rotation-drill k8s-readiness serve-ui-up serve-ui-down serve-ui-status serve-ui-urls om-ingest-trino fix-om-ingestion-db superset-eur-tile
+
+COMPOSE_FILE := docker/docker-compose.yml
+-include $(ENV_FILE)
+COMPOSE_PINNED := $(if $(and $(wildcard docker/docker-compose.pinned.yml),$(USE_PINNED_IMAGES)),-f docker/docker-compose.pinned.yml,)
+COMPOSE_STACK := -f docker/docker-compose.yml -f docker/docker-compose.openmetadata.yml -f docker/docker-compose.superset.yml $(COMPOSE_PINNED)
+POLARIS_COMPOSE := -f docker/docker-compose.yml -f docker/docker-compose.polaris.yml
+ALL_PROFILES := --profile orchestration --profile catalog --profile bi
+ENV_FILE ?= .env
+GIT_COMMIT ?= $(shell git rev-parse HEAD 2>/dev/null)
+export GIT_COMMIT
+LINEAGE_BUILD_INPUTS := ingestion governance transformations ml scripts dagster data requirements.txt requirements-dagster.txt runtime_identity.py storage_config.py docker/dagster
+DOCKER_COMPOSE := docker compose --env-file $(ENV_FILE)
+PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
+VENV_PYTHON := .venv/bin/python
+DAGSTER_JOB ?= full_pipeline_job
+SUPERSET_DB_NAME ?= superset_metadata
+
+# Runtime state (MinIO, Postgres, Dagster, OM) lives under docker/data/ (bind mounts), not Docker named volumes.
+prepare-data-dirs:
+	@sh scripts/prepare-docker-data-dirs.sh
+
+# Remove old named volumes from layouts before bind mounts (run after `make down`).
+purge-legacy-docker-volumes:
+	@sh scripts/purge-legacy-docker-volumes.sh
+
+# Ensure required DBs exist before MLflow and other clients start (avoids race with bootstrap-db).
+wait-postgres-ready:
+	@echo "Waiting for PostgreSQL to accept connections..."
+	@for i in $$(seq 1 90); do \
+		docker exec slh-postgres sh -c 'pg_isready -U "$$POSTGRES_USER" -d postgres' >/dev/null 2>&1 && exit 0; \
+		sleep 1; \
+	done; \
+	echo "Postgres did not become ready in time."; exit 1
+
+init-iceberg:
+	$(PYTHON) scripts/init-iceberg-namespaces.py
+
+# Build one image at a time. Compose's default bake path builds every buildable
+# target concurrently, which OOMs BuildKit on small runners (GitHub Actions gave
+# "failed to receive status: rpc error: code = Unavailable ... EOF"). The service
+# list is derived from the merged compose config so it cannot go stale.
+# `up -d --build` afterwards is a cache hit and stays cheap.
+# `config` needs $(ENV_FILE); without it compose emits no JSON and this target
+# would silently build nothing. Mirror what `setup` does.
+build-images-serial: check-git-lineage
+	@test -f $(ENV_FILE) || $(MAKE) init-env
+	@set -e; \
+	services=$$($(DOCKER_COMPOSE) $(COMPOSE_STACK) config --format json \
+		| $(PYTHON) -c "import json,sys; print(' '.join(k for k,v in sorted(json.load(sys.stdin)['services'].items()) if 'build' in v))"); \
+	if test -z "$$services"; then \
+		echo "No buildable services found in the compose stack."; \
+		exit 1; \
+	fi; \
+	for svc in $$services; do \
+		echo "==> building $$svc"; \
+		$(DOCKER_COMPOSE) $(COMPOSE_STACK) build "$$svc"; \
+	done
+
+check-git-lineage:
+	@test -n "$(GIT_COMMIT)" || (echo "GIT_COMMIT could not be resolved; run from a git checkout." && exit 1)
+	@if ! git diff --quiet -- $(LINEAGE_BUILD_INPUTS) || test -n "$$(git ls-files --others --exclude-standard -- $(LINEAGE_BUILD_INPUTS))"; then \
+		echo "Refusing to build lineage-bearing Dagster images from dirty inputs."; \
+		git status --short -- $(LINEAGE_BUILD_INPUTS); \
+		exit 1; \
+	fi
+
+up: check-git-lineage prepare-data-dirs
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d postgres minio
+	$(MAKE) wait-postgres-ready
+	$(MAKE) bootstrap-db
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) up -d --build
+	$(MAKE) wait
+	$(MAKE) init-iceberg
+	@echo ""
+	@echo "SoloLakehouse is ready."
+	@echo "  MinIO Console:  http://localhost:9001"
+	@echo "  Trino UI:       http://localhost:8080"
+	@echo "  MLflow UI:      http://localhost:5000"
+	@echo "  Dagster UI:     http://localhost:3000"
+	@echo "  OpenMetadata:  http://localhost:8585"
+	@echo "  Superset UI:   http://localhost:8088"
+
+bootstrap-db:
+	EXTRA_POSTGRES_DATABASES="$(EXTRA_POSTGRES_DATABASES)" $(PYTHON) scripts/bootstrap-postgres.py
+
+reset-mlflow-db:
+	@echo "Resetting MLflow metadata database (mlflow)..."
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) stop mlflow
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'mlflow' AND pid <> pg_backend_pid();\""
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"DROP DATABASE IF EXISTS mlflow;\""
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec -T postgres sh -c "psql -U \"$$POSTGRES_USER\" -d postgres -c \"CREATE DATABASE mlflow;\""
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) up -d mlflow
+	@echo "MLflow metadata database reset complete."
+
+down:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) down --remove-orphans
+
+clean:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) down --remove-orphans
+	rm -rf docker/data/minio docker/data/postgres docker/data/dagster docker/data/om-mysql docker/data/om-elasticsearch
+	$(MAKE) prepare-data-dirs
+	$(MAKE) purge-legacy-docker-volumes
+
+pipeline:
+	@echo "Running v2.5 Dagster pipeline..."
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver dagster job launch -w /app/dagster/workspace.yaml -j $(DAGSTER_JOB)
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) exec dagster-webserver python3 /app/scripts/wait-for-dagster-run.py --job $(DAGSTER_JOB)
+	@if [ "$(OPENMETADATA_SYNC_AFTER_PIPELINE)" = "1" ]; then $(MAKE) om-ingest-trino; fi
+
+pipeline-dagster:
+	$(MAKE) pipeline DAGSTER_JOB="$(DAGSTER_JOB)"
+
+verify:
+	$(PYTHON) scripts/verify-setup.py
+
+validate-contracts:
+	$(PYTHON) scripts/validate-dataset-contracts.py
+
+superset-eur-tile:
+	$(PYTHON) scripts/ensure-superset-eur-market-chart.py
+
+export-policy-hooks:
+	$(PYTHON) scripts/export-policy-hooks.py
+
+check-agent-docs:
+	$(PYTHON) scripts/check-agent-docs.py
+
+lineage-evidence:
+	@test -n "$(DATASET_ID)" || (echo "DATASET_ID is required" && exit 2)
+	@test -n "$(DAGSTER_RUN_ID)" || (echo "DAGSTER_RUN_ID is required" && exit 2)
+	$(PYTHON) scripts/lineage-evidence.py --dataset-id "$(DATASET_ID)" --dagster-run-id "$(DAGSTER_RUN_ID)"
+
+# On-demand component groups: core (minio/postgres/hive-metastore/trino/mlflow) always
+# starts with plain `up`/`up-core`. The other three are opt-in via profiles so idle
+# components can sit fully stopped and cost zero CPU/RAM until needed.
+up-core:
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml up -d
+
+up-orchestration:
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml --profile orchestration up -d
+
+up-catalog:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile catalog up -d
+
+up-bi:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile bi up -d
+
+stop-orchestration:
+	$(DOCKER_COMPOSE) -f docker/docker-compose.yml --profile orchestration stop dagster-webserver dagster-daemon
+
+stop-catalog:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile catalog stop om-mysql om-elasticsearch openmetadata-server ingestion
+
+stop-bi:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) --profile bi stop superset
+
+status:
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) $(ALL_PROFILES) ps
+
+polaris-up:
+	$(DOCKER_COMPOSE) $(POLARIS_COMPOSE) --profile polaris up -d polaris
+
+interoperability-proof:
+	$(PYTHON) scripts/interoperability-proof.py $(if $(LIVE_REST),--live-rest,)
+
+sovereignty-report:
+	$(PYTHON) scripts/generate-sovereignty-report.py $(if $(FORMAT),--format $(FORMAT),)
+
+promotion-evidence:
+	$(PYTHON) scripts/promotion-evidence.py $(if $(TARGET_STAGE),--target-stage $(TARGET_STAGE),)
+
+rollback-drill:
+	$(PYTHON) scripts/rollback-drill.py $(if $(ALLOW_UNHEALTHY),--allow-unhealthy-runtime,)
+
+operational-evidence:
+	$(PYTHON) scripts/operational-evidence.py $(if $(ALLOW_SLO_FAILURE),--allow-slo-failure,)
+
+init-env:
+	@test -f .env.shared || cp .env.shared.example .env.shared
+	@test -f .env.secrets || cp .env.secrets.example .env.secrets
+	@test -f docker/openmetadata/openmetadata.env || { cp docker/openmetadata/openmetadata.env.example docker/openmetadata/openmetadata.env; $(PYTHON) -c "import base64,os,re,pathlib; p=pathlib.Path('docker/openmetadata/openmetadata.env'); k=base64.urlsafe_b64encode(os.urandom(32)).decode(); s=p.read_text(); s=re.sub(r'(?m)^FERNET_KEY=.*$$', 'FERNET_KEY='+k, s); p.write_text(s)"; }
+	$(PYTHON) scripts/merge-env-files.py
+
+secrets-discipline:
+	$(PYTHON) scripts/secrets-discipline.py $(if $(ALLOW_SECRETS_WARN),--allow-warn,)
+
+secrets-rotation-drill:
+	@test -n "$(ROTATED_KEYS)" || (echo "ROTATED_KEYS is required" && exit 2)
+	$(PYTHON) scripts/secrets-rotation-drill.py --keys "$(ROTATED_KEYS)" $(if $(ROTATION_NOTES),--notes "$(ROTATION_NOTES)",)
+
+k8s-readiness:
+	$(PYTHON) scripts/k8s-readiness.py
+
+demo:
+	$(MAKE) verify
+	$(MAKE) pipeline DAGSTER_JOB=demo_data_flow_job
+	$(PYTHON) scripts/verify-demo.py
+
+health:
+	$(PYTHON) scripts/health-server.py
+
+health-json:
+	$(PYTHON) scripts/health-server.py --port 8090
+
+serve-ui-up:
+	@bash scripts/tailscale-serve-ui.sh up
+
+serve-ui-down:
+	@bash scripts/tailscale-serve-ui.sh down
+
+serve-ui-status:
+	@bash scripts/tailscale-serve-ui.sh status
+
+serve-ui-urls:
+	@bash scripts/tailscale-serve-ui.sh urls
+
+om-ingest-trino:
+	@bash scripts/om-trino-ingest.sh
+
+fix-om-ingestion-db:
+	@bash scripts/fix-om-ingestion-db.sh
+
+test:
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
+
+TEST_COV_PACKAGES := --cov=ingestion --cov=transformations --cov=ml --cov=governance --cov=dagster
+
+test-cov:
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-fail-under=70
+
+test-cov-html:
+	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-report=html --cov-fail-under=70
+
+test-integration:
+	$(PYTHON) -m pytest tests/integration/ -v --tb=short -m integration
+
+release-check:
+	$(MAKE) verify
+	$(MAKE) test
+	$(MAKE) test-integration
+
+lint:
+	$(PYTHON) -m ruff check .
+
+# Requires Dagster on PYTHONPATH (same as CI): pip install -r requirements.txt -r requirements-dagster.txt
+typecheck:
+	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/
+
+dagster-install:
+	$(PYTHON) -m pip install -r requirements-dagster.txt
+
+dagster-ui:
+	$(PYTHON) -m webbrowser http://localhost:3000
+
+setup:
+	@echo "[1/4] Checking Docker daemon..."
+	@docker info >/dev/null 2>&1 || (echo "Docker is not running. Please start Docker and retry." && exit 1)
+	@echo "[2/4] Ensuring env files and Python environment exist..."
+	@test -f .env || $(MAKE) init-env
+	@test -x $(VENV_PYTHON) || python3 -m venv .venv
+	$(VENV_PYTHON) -m pip install -r requirements.txt
+	@echo "[3/4] Pulling container images..."
+	$(DOCKER_COMPOSE) $(COMPOSE_STACK) pull
+	@echo "[4/4] Starting services, bootstrapping databases, and waiting for health checks..."
+	$(MAKE) up PYTHON=$(VENV_PYTHON)
+
+wait:
+	@echo "Waiting for services to become ready (timeout: 5 minutes)..."
+	@start=$$(date +%s); \
+	while true; do \
+		if SUPERSET_DB_NAME="$(SUPERSET_DB_NAME)" $(PYTHON) scripts/verify-setup.py >/dev/null 2>&1; then \
+			echo ""; \
+			echo "All services are healthy."; \
+			exit 0; \
+		fi; \
+		now=$$(date +%s); \
+		if [ $$((now - start)) -ge 300 ]; then \
+			echo ""; \
+			echo "Timed out after 5 minutes. Last verify output:"; \
+			SUPERSET_DB_NAME="$(SUPERSET_DB_NAME)" $(PYTHON) scripts/verify-setup.py || true; \
+			exit 1; \
+		fi; \
+		printf "."; \
+		sleep 10; \
+	done

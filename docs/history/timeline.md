@@ -327,3 +327,11 @@ Theme:
 - Git push automatically removed the corresponding local tracking refs. The script's subsequent old-SHA deletion transaction stopped because those refs were already absent; no deletion retry or repair was needed.
 - Independent read-only checks confirmed the exact approved outcome, unchanged protected branch commits at cleanup time, a clean worktree, the unchanged WSL/Windows bundle SHA-256, and every deleted tip present in the recovery mirror.
 - `main` and `pre-v3-2026-11-10` remain at `2d8020a`. This follow-up records repository cleanup only; runtime implementation and v3 release remain unstarted.
+
+## 2026-11-10: Single-repository v3 design framework
+
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+Owner approved complete construction design, README/navigation rewrite, responsibility scaffolds, byte-preserved historical archive and safe command changes. All previous unchecked task sources are indexed. Hardware is not provisioned; no IaC/chart/Flux or runtime migration is claimed.
+
+See [construction plan](../design/v3/README.md), [ADR-024](../decisions/ADR-024-v3-gitops-monorepo.md) and [original archive](pre-v3/README.md).

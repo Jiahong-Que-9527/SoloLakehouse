@@ -1,0 +1,245 @@
+{
+  "author": "[房玄龄·2026-11-10]",
+  "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+  "policy": "Original bytes and signatures preserved. Historical relative links are not rewritten; use source-commit permalinks. Archive is not an active task source.",
+  "files": [
+    {
+      "source_path": "task.md",
+      "archive_path": "docs/history/pre-v3/entity-split/task.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "5b8927cd26c1210efcdabbee9625ea61fd31aa686c52befa345045ebbd5be383",
+      "bytes": 28045
+    },
+    {
+      "source_path": "docs/v3-spec.md",
+      "archive_path": "docs/history/pre-v3/v3-spec.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "148b570c640b0294aa0dcd0022f433a2cd679c3843ac9e0ae8294fa205d568aa",
+      "bytes": 12968
+    },
+    {
+      "source_path": "docs/governance-v3-matrix.md",
+      "archive_path": "docs/history/pre-v3/governance/governance-v3-matrix.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "195dbca8cfd0d3bb237c76a68c7c850a08f1eef3a49f39ff6fad857750d15ddf",
+      "bytes": 5165
+    },
+    {
+      "source_path": "docs/governance-v3-runbook.md",
+      "archive_path": "docs/history/pre-v3/governance/governance-v3-runbook.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "9770355df6928d0d577b40105e1d0b592ac6b0fe2f8dbc88a66ea0961d60daa9",
+      "bytes": 4203
+    },
+    {
+      "source_path": "docs/v3-governance-navigation.md",
+      "archive_path": "docs/history/pre-v3/governance/v3-governance-navigation.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "2c0e1efe19bbc96810b3bab35b96baef5a3f14c7359b3a7282dae36bedf2c135",
+      "bytes": 2952
+    },
+    {
+      "source_path": "docs/architecture-review-2026-08-11.md",
+      "archive_path": "docs/history/pre-v3/architecture-review-2026-08-11.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "25cf31ad25b10044706fe2c15b745031c560ec845ed39f650ce91020d4b783df",
+      "bytes": 9437
+    },
+    {
+      "source_path": "README.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/README.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "8b85c54a0d8cb22d8ccc6e65f7e5d4e972c9d6c06738288a7484e27d33216507",
+      "bytes": 7902
+    },
+    {
+      "source_path": "TASKS.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/TASKS.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "9e87e4f6401767a88638688bf059918dde161ae70d49cb569ad7c203d79044ab",
+      "bytes": 47243
+    },
+    {
+      "source_path": "AGENTS.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/AGENTS.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "7144ad5a1a974f4cb842dbd23d0a070f3d028f88b41a1f7f70804adb32436033",
+      "bytes": 13937
+    },
+    {
+      "source_path": "CLAUDE.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/CLAUDE.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "a31bfb06b7bf58515f89622c9fe81776f14d4924581f0057b1423ddf8e108ac9",
+      "bytes": 24364
+    },
+    {
+      "source_path": "Makefile",
+      "archive_path": "docs/history/pre-v3/source-snapshots/Makefile",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "fb3d77fd1e41e8fc345fc0b7cc69f9e42a095afc15b0d11c594cff756556be71",
+      "bytes": 12024
+    },
+    {
+      "source_path": ".gitignore",
+      "archive_path": "docs/history/pre-v3/source-snapshots/.gitignore",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "5f704d520ef57ff44dc6e08adc7139a65f4781187ec8f4b3645f30241601962f",
+      "bytes": 1603
+    },
+    {
+      "source_path": ".github/workflows/test.yml",
+      "archive_path": "docs/history/pre-v3/source-snapshots/.github/workflows/test.yml",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "db0dc266e722c34fbc14ed38afe6a38ccbb8fd5863694d1d8ee94b424cc005a3",
+      "bytes": 899
+    },
+    {
+      "source_path": ".cursor/rules/sololakehouse.mdc",
+      "archive_path": "docs/history/pre-v3/source-snapshots/.cursor/rules/sololakehouse.mdc",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "1353ff127a923e46de103ed103bc6601941578493825bc905b5d3ab8d63a602c",
+      "bytes": 3267
+    },
+    {
+      "source_path": "docs/README.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/README.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "3f93e0476d92cd50b9d230a517da6d7c3ec6eb4f2ca0da440886cc5fa2d13b1c",
+      "bytes": 8490
+    },
+    {
+      "source_path": "docs/roadmap.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/roadmap.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "93d66fafedaf19dcefbe201ddb268c8426ea7c1a02e4e1ff37e86f44136e9649",
+      "bytes": 33849
+    },
+    {
+      "source_path": "docs/ONBOARDING_READING_ORDER.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/ONBOARDING_READING_ORDER.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "4676deef5e8b94a7f843398c0e800825439767636efda113fbdf8b5c85826e16",
+      "bytes": 9307
+    },
+    {
+      "source_path": "docs/agent-prompts.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/agent-prompts.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "4019ed01ede695d0b06db9348f3cb554877e583e49a1951303a9241ef505e981",
+      "bytes": 2039
+    },
+    {
+      "source_path": "docs/history/v3-planning.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/history/v3-planning.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "df95813add449df28058b4d488df7bfeaf140677174939374d06b20835084e70",
+      "bytes": 10502
+    },
+    {
+      "source_path": "docs/history/README.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/history/README.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "750b4a1553ea37eff6c3cf5008f053faf11b5e43c350acb0cdff2289e6cccce8",
+      "bytes": 1905
+    },
+    {
+      "source_path": "docs/decisions/README.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/decisions/README.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "ded909390fc1065ea15994acf45643837271e851d66de8775fefbe9fe0024299",
+      "bytes": 3605
+    },
+    {
+      "source_path": ".agents/skills/slh-context-router/references/routing-map.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/.agents/skills/slh-context-router/references/routing-map.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "53d5731b32b897f204045527f3454ba5cfb701578dedbc5ed7b58516a2690b39",
+      "bytes": 3626
+    },
+    {
+      "source_path": "scripts/check-agent-docs.py",
+      "archive_path": "docs/history/pre-v3/source-snapshots/scripts/check-agent-docs.py",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "3097ab51f2872bd1e3c3306f4de1dbc025bd96e352747f1f453a697ac5e5b134",
+      "bytes": 4557
+    },
+    {
+      "source_path": "docs/platform-overview.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/platform-overview.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "7972f058cbdad0a2770dc800cf73714f1549f73bc32b62e19afab797d156acdd",
+      "bytes": 5048
+    },
+    {
+      "source_path": "docs/architecture.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/architecture.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "b4810acd1ee827a7d7e298bc39a18d4be0ec6021a7b66883ab62a0d439c2cb95",
+      "bytes": 12348
+    },
+    {
+      "source_path": "CONTRIBUTING.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/CONTRIBUTING.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "98e2e0f8f01c9634473eb07574b49909a8e84d303272d05f9c6af953e96265e9",
+      "bytes": 122
+    },
+    {
+      "source_path": "RUNBOOK.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/RUNBOOK.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "0d981522db551fe5d98f14e61203ef0eb9220c8db3ee3460fd6a1ef6b25a2453",
+      "bytes": 3833
+    },
+    {
+      "source_path": "docs/quickstart.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/quickstart.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "34430d02794a50730eb8b9bb26aff6f69f050ae48d187a5ef79d660a622785e1",
+      "bytes": 2363
+    },
+    {
+      "source_path": "docs/deployment.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/deployment.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "c6b5c4403f3bbf26f2b20022aa21291634d69fc19e5f22b802a9bf1b9194f316",
+      "bytes": 6165
+    },
+    {
+      "source_path": "docs/DEMO_RUNBOOK_EN.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/DEMO_RUNBOOK_EN.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "64fb31de9495d562fa3c1949033b8387e8f550aee83a763b24fa4b727edc507d",
+      "bytes": 7823
+    },
+    {
+      "source_path": "docs/USER_GUIDE_EN.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/USER_GUIDE_EN.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "eddd720afaa6f91391c9ff65c37cda8d882c0b8718ad2a40eed9e8c1f36c64d2",
+      "bytes": 5537
+    },
+    {
+      "source_path": "docs/daily-operations-handbook.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/daily-operations-handbook.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "716cefa0b26572363479441551163b77c5773877ac638fdeb543db13be8ec6c2",
+      "bytes": 10785
+    },
+    {
+      "source_path": "docs/make-demo-guide.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/docs/make-demo-guide.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "2ab9f729f2a83c9b894c0309195c2139b94b01ec99b874bdb9179421d9929986",
+      "bytes": 10273
+    },
+    {
+      "source_path": "CHANGELOG.md",
+      "archive_path": "docs/history/pre-v3/source-snapshots/CHANGELOG.md",
+      "source_commit": "a1bef2efb96750d19e49bab44fd9de470eadad23",
+      "sha256": "c37c046650dadeff7ab1a29f281cb7c8ecb76a0742a1009ddd6fc7efc9e2baf5",
+      "bytes": 13477
+    }
+  ]
+}

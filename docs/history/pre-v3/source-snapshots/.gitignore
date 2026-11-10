@@ -1,0 +1,67 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.shared
+.env.secrets
+.codex
+.codex/
+.codex.disabled
+.claude/
+graphify-out/
+docs/DOCUMENTATION_COMPENDIUM.md
+htmlcov/
+.coverage
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+data/bronze/
+data/silver/
+data/gold/
+
+# Docker Compose runtime bind mounts (MinIO, Postgres, Dagster, OpenMetadata)
+docker/data/*
+!docker/data/.gitkeep
+
+# ---------------------------------------------------------------------------
+# English-only public repository policy (2026-07-31)
+#
+# The published repository contains English documentation only. Chinese-language
+# working documents live under docs/local-cn/ and are never published. Where an
+# English equivalent exists, that equivalent is published instead.
+# ---------------------------------------------------------------------------
+docs/local-cn/
+docs/DEMO_RUNBOOK.md
+docs/USER_GUIDE.md
+docs/vps-deployment-runbook.md
+docs/history/v2.6-planning.md
+docs/history/v2.7-planning.md
+docs/history/v2.8-planning.md
+docs/history/v2.9-planning.md
+docs/enterprise-evolution-plan-2026-05-05.md
+
+# Local-only working materials (not published)
+tutorial_v1/
+tutorial_v2/
+docs/chatgpt narrative
+docs/release.md
+docs/release-readiness.md
+docs/V3_RELEASE_CHECKLIST.md
+docs/V2_RELEASE_CHECKLIST.md
+docs/V1_RELEASE_CHECKLIST.md
+
+wiki/
+
+# Backups
+README.bak1
+README.bak2
+
+# OpenMetadata runtime env (contains DB_USER_PASSWORD/FERNET_KEY/etc, rotated 2026-08-29).
+# Was tracked with live credentials before this line; see Change_Log 2026-08-29.
+docker/openmetadata/openmetadata.env
+docker/openmetadata/openmetadata.env.bak*
+tmp/
+.pre-rotation-*

@@ -1,124 +1,54 @@
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
 
-# SoloLakehouse Documentation
+# Documentation
 
-SoloLakehouse is the lakehouse foundation for a personally operated data and AI platform. Start with the [platform story](platform-overview.md), the [aviation workload](workloads/aviation.md), and the [reference/operated architecture boundaries](architecture.md).
+Start with the [project README](../README.md). Current work is single-repository
+v3 design; the planned Mini PCs are not provisioned. Existing reference code,
+operated-workload reports and future deployment plans have different evidence.
 
-The public code contains the finance reference workflow. The operated environment also hosts a separately maintained aviation pipeline. D6 records this positioning; the reference v2.5 Compose runtime is unchanged, evidence work through v2.9 is on `main`, and the latest published tag remains v2.6.1. Current work is an inspectable aviation case and observed reliability/data-correctness gaps. Crypto streaming remains deferred.
+## Current route
 
-Two documents are authoritative:
+| Question | Source |
+|---|---|
+| What is in scope? | [Roadmap](roadmap.md) |
+| What comes next? | [Active work](../TASKS.md) |
+| How will the entire platform be constructed? | [V3 construction plan](design/v3/README.md) |
+| How are hosts/resources/network and responsibilities arranged? | [Target architecture](design/v3/architecture.md) |
+| Where does state live and how is it recovered? | [Storage and recovery](design/v3/storage-and-recovery.md) |
+| How do CI, bootstrap, Flux and environments interact? | [Delivery and environments](design/v3/delivery-and-environments.md) |
+| How will migration and acceptance proceed? | [Migration and validation](design/v3/migration-and-validation.md) |
+| Which older tasks remain? | [Retained-work ledger](design/v3/retained-work.md) |
 
-- **[roadmap.md](roadmap.md)** — what each version does
-- **[../TASKS.md](../TASKS.md)** — what the next PR does
+## Existing reference and workload evidence
 
-Where any other document disagrees with those two, those two win. The version
-planning notes for v2.6–v2.9 are superseded 2026-05-05 snapshots kept locally
-and not published; follow the two authoritative documents instead.
+- [Reference/operated architecture](architecture.md), [platform story](platform-overview.md),
+  [aviation boundaries](workloads/aviation.md).
+- [Compose quick start](quickstart.md), [deployment guide](deployment.md),
+  [operator runbook](../RUNBOOK.md), [demo](../DEMO.md).
+- [Dagster guide](DAGSTER_GUIDE.md), [detailed demo](DEMO_RUNBOOK_EN.md),
+  [user guide](USER_GUIDE_EN.md), [capability inventory](capability-showcase-guide.md).
+- [Dataset naming](dataset-governance-naming.md), [evidence layout](governance-evidence-layout.md),
+  [catalog boundary](catalog-boundary.md), [operational SLO reference](operational-slo.md).
+- [ADR index](decisions/README.md), especially [ADR-024](decisions/ADR-024-v3-gitops-monorepo.md).
 
-> Some documents referenced by maintainers are intentionally local-only and are
-> not part of the public repository (release checklists, dated CN state
-> snapshots, the generated documentation compendium). They are listed under
-> "Local-only documents" at the end of this index rather than linked inline.
+These retained documents describe their own reference paths and dates. They
+are not proof of a fresh deployment or instructions to run every command now.
+Do not execute old reset/cleanup examples; current generic destruction targets
+are disabled.
 
-## Start Here
+## History and specialized reference
 
-| Document | Purpose |
-|----------|---------|
-| [platform-overview.md](platform-overview.md) | Project origin, core positioning, workloads, and next steps |
-| [workloads/aviation.md](workloads/aviation.md) | Aviation integration, dated operator-reported evidence, and limits |
-| [ONBOARDING_READING_ORDER.md](ONBOARDING_READING_ORDER.md) | Suggested reading order for new maintainers |
-| [../TASKS.md](../TASKS.md) | Active execution backlog — canonical "what to build next" |
-| [roadmap.md](roadmap.md) | Canonical version status, delivery velocity, and open decisions |
-| [history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md](history/ASSESSMENT_LAKEHOUSE_DAX_ECB.md) | Archived self-assessment (2026-04; superseded — see banner) |
-| [quickstart.md](quickstart.md) | Fast local run: clone -> up -> verify -> pipeline |
-| [../DEMO.md](../DEMO.md) | Fixed 20-30 minute v2.5 recording script |
-| [capability-showcase-guide.md](capability-showcase-guide.md) | Capability inventory, demo recipes, and talk tracks (governance, audit, lineage, ops) |
-| [daily-operations-handbook.md](daily-operations-handbook.md) | One-book daily/weekly ops cadence, duty card, fault classes, evidence paths |
-| [make-demo-guide.md](make-demo-guide.md) | Detailed `make demo` explanation and manual execution guide |
-| [../RUNBOOK.md](../RUNBOOK.md) | Operational runbook for common local-stack scenarios |
-| [DEMO_RUNBOOK_EN.md](DEMO_RUNBOOK_EN.md) | Full demo runbook in English (with acceptance checklist) |
-| [deployment.md](deployment.md) | Prerequisites, deployment, operations, troubleshooting |
-| [DAGSTER_GUIDE.md](DAGSTER_GUIDE.md) | Dagster operations and runtime usage |
+The [pre-v3 archive](history/pre-v3/README.md) preserves original planning and
+rewritten entry documents with hashes and commit provenance. The
+[history index](history/README.md) retains the timeline and architecture evolution.
+[External-validation protocols](external-validation/README.md) remain historical;
+external sign-off is not a live blocking requirement.
 
-## User Guides
+[Compliance mappings](compliance/README.md), [Polaris evaluation](polaris-evaluation.md)
+and entity-template material remain specialized reference, not defaults for
+v3 execution or new certification claims. Old ADR numbers and URLs are retained.
 
-| Document | Purpose |
-|----------|---------|
-| [USER_GUIDE_EN.md](USER_GUIDE_EN.md) | Full user guide in English |
-
-## Architecture and Data
-
-| Document | Purpose |
-|----------|---------|
-| [architecture.md](architecture.md) | Layered architecture and component relationships |
-| [layer1-source-selection-criteria.md](layer1-source-selection-criteria.md) | Block `L` / `L1` — mandatory gates and scoring rubric for Layer 1 source research |
-| [layer1-source-survey.md](layer1-source-survey.md) | Block `L` / `L2` — research-only candidate survey and `L3` decision checklist |
-| [entity-template-readiness.md](entity-template-readiness.md) | Phase 1 readiness evidence for using SoloLakehouse as the repeatable product-entity template |
-| [product-entity-contract.md](product-entity-contract.md) | Required identity, storage, runtime, and metadata fields for FinLakehouse/Aviation product entities |
-| [finlakehouse-deployment-guide.md](finlakehouse-deployment-guide.md) | Optional VPS walkthrough for the first independent FinLakehouse entity |
-| [dataset-governance-naming.md](dataset-governance-naming.md) | Stable logical dataset IDs and physical mapping rules for entity governance |
-| [object-store-abstraction.md](object-store-abstraction.md) | Object-store configuration boundary and MinIO deferral strategy for entity split |
-| [runtime-state-layout.md](runtime-state-layout.md) | Entity-owned runtime roots, bind mount ownership, `.env`, and side-by-side state layout |
-| [entity-backup-restore-runbook.md](entity-backup-restore-runbook.md) | Minimum backup set, restore order, and validation checks for a product entity |
-| [restore-drills/2026-05-17-entity-template-restore-drill.md](restore-drills/2026-05-17-entity-template-restore-drill.md) | Completed v2.5 entity-template restore drill evidence for issue #10 |
-| [medallion-model.md](medallion-model.md) | Bronze/Silver/Gold conventions and data contracts |
-| [decisions/README.md](decisions/README.md) | ADR index (including v2.5 decisions) |
-| [compliance/README.md](compliance/README.md) | DORA, BaFin BAIT, and MiFID II / MiFIR evidence mappings |
-
-## Release and Quality
-
-| Document | Purpose |
-|----------|---------|
-| [v2.6-release-readiness.md](v2.6-release-readiness.md) | v2.6 lineage-evidence release gate, recorded drill, and honest limitations |
-| [v2.5-acceptance-criteria.md](v2.5-acceptance-criteria.md) | v2.5 frozen-baseline Definition of Done |
-| [../CHANGELOG.md](../CHANGELOG.md) | Version history in Keep a Changelog format |
-
-## Historical and Legacy Records
-
-| Document | Purpose |
-|----------|---------|
-| [history/README.md](history/README.md) | History index |
-| [history/timeline.md](history/timeline.md) | Version timeline |
-| [history/architecture-evolution.md](history/architecture-evolution.md) | Architecture decision evolution |
-| [history/legacy-overview.md](history/legacy-overview.md) | Retired runtime paths and archive map |
-| [history/planning-template.md](history/planning-template.md) | Reusable version-planning template |
-| [history/v2-planning.md](history/v2-planning.md) | Delivered v2 planning |
-| [history/v2.5-planning.md](history/v2.5-planning.md) | Delivered v2.5 planning |
-| [history/v3-planning.md](history/v3-planning.md) | Planned v3 production runtime |
-
-### Superseded planning notes (2026-05-05 snapshots)
-
-All four were written on a single day, before v2.6 implementation began. They
-carry a SUPERSEDED banner listing their known deviations. Read them for
-historical context; follow [roadmap.md](roadmap.md) and [../TASKS.md](../TASKS.md)
-for instructions.
-
-| Document | Superseded because |
-|----------|--------------------|
-| `history/v2.6-planning.md` *(local-only)* | Delivered; two dropped items moved to v2.6.1 (`J1`, `J2`) |
-| `history/v2.7-planning.md` *(local-only)* | Its primary gate (4-engine demo) is explicitly rejected by the current roadmap |
-| `history/v2.8-planning.md` *(local-only)* | Its timing rationale (EU AI Act `2026-08-02`) has passed |
-| `history/v2.9-planning.md` *(local-only)* | Assumes the superseded six-month milestone plan |
-| [history/v2.6-execution-plan.md](history/v2.6-execution-plan.md) | v2.6 execution order — delivered (archived) |
-| [history/v2.6-demo-goal.md](history/v2.6-demo-goal.md) | v2.6 demo goal definition — delivered (archived) |
-
-## Project State Snapshots (dated, do not retroactively edit)
-
-| Document | Purpose |
-|----------|---------|
-| [history/project-state-overview-2026-05-05.md](history/project-state-overview-2026-05-05.md) | EN snapshot — v2.5 baseline overview (archived 2026-09-11) |
-
-## Local-only documents (not in the public repository)
-
-These exist in maintainer working copies and are intentionally excluded from the
-published repository. They are listed here so their absence is not mistaken for
-an oversight:
-
-- `DOCUMENTATION_COMPENDIUM.md` — generated aggregate of all docs
-- `release.md`, `release-readiness.md` — internal release runbooks
-- `V1_RELEASE_CHECKLIST.md`, `V2_RELEASE_CHECKLIST.md`, `V3_RELEASE_CHECKLIST.md`
-- Chinese-language working documents: dated state snapshots, the enterprise
-  evolution note, and the v2.6–v2.9 version planning notes
-- Chinese-language user guide and demo runbook (English equivalents are published)
-
-Diagrams are under [img/](img/README.md).
+Generated compendia, local Chinese notes, release checklists and private runtime
+configuration may be intentionally gitignored. Their absence from a public
+clone is not a missing deployment feature. Use this bounded route instead of
+loading the full archive.

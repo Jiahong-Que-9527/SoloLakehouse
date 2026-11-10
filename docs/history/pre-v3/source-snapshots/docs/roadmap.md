@@ -1,0 +1,594 @@
+<!-- [房玄龄·2026-11-10] Record owner-confirmed branch cleanup and independent verification. -->
+
+<!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation; no runtime implementation or release. -->
+
+<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
+
+# Roadmap
+
+> **Authority.** This document defines **what each version does**. `TASKS.md`
+> defines **what the next PR does**. When any other document in this repository
+> disagrees with these two, these two win. The v2.6–v2.9 version planning notes
+> are superseded `2026-05-05` snapshots, kept locally and not published; this
+> document supersedes them.
+
+SoloLakehouse evolves along a single path — the runtime stays on Docker Compose
+until v3.0, and each v2.x version adds **one category of evidence**:
+
+```text
+v2.5  the platform runs
+  -> v2.6   the platform produces evidence
+     -> v2.6.1  that evidence is operational, not just demonstrable (internally verified)
+        -> v2.8  auditable-AI evidence
+           -> v2.7  openness evidence
+           -> v2.9  operational and promotion evidence
+              -> source-layer research, then long-term Compose operation
+              -> v3.0  the runtime migrates to Kubernetes
+```
+
+## Primary Audience
+
+The primary audience is engineers and technical leads assessing reliable data and AI platforms for complex operational domains. Aviation and air cargo provide domain context; finance is a reference workload and engineering comparison. The central constraint is a platform whose operation one person can understand, maintain, and explain.
+
+When depth and breadth conflict, **depth wins**: one capability that is
+automated, enforced, and honestly bounded beats three that are demonstrable
+once. Portfolio and hiring visibility is a valued by-product of that depth, not
+a design goal that competes with it.
+
+## Current Strategic Position
+
+As of `2026-11-10` (D7 v3 repository preparation; no runtime release):
+
+- `v2.5` remains the protected baseline runtime and does not change until v3.0.
+- `v2.6.1` is **released** as tag `v2.6.1` (`6bd138a`, `2026-07-31`) — version
+  stamp fix and v2.6 evidence plane only.
+- `v2.6.0` is **superseded**: it stamped `slh-v2.5.1` into every evidence
+  manifest. Anyone on that tag should upgrade and regenerate their evidence.
+- Block `J` is **implemented on `main`** (`e534c73`, PR #49, `2026-08-01`). The
+  tag predates Block `J`; do not treat `v2.6.1` as the Block `J` release.
+- **Owner Decision (2026-08-15):** independent external sign-off is **not** a
+  blocking gate. Protocol files under `docs/external-validation/` are retained
+  as historical traces. Internal validation remains mandatory.
+- **Current work:** D7 starts v3 repository preparation on `v3/development`; runtime implementation has not started. D6 continues to define aviation as the primary operated domain and finance as the public reference. The unfinished aviation evidence case and observed Block `K` gaps remain carry-forward work; finance deepening landed (`#87`). Aviation code stays separate, and crypto Phase 2 stays deferred.
+- The approved development order was **v2.8, then v2.7, then v2.9**; see
+  "Open Decisions" below. Those versions are delivered on `main`.
+- future planning prioritizes **control plane and evidence value** over adding
+  more engines or surface features.
+
+## Version Status
+
+| Version | Status | Theme |
+|---------|--------|-------|
+| v1.0 | Delivered (historical) | Runnable lakehouse baseline |
+| v2.0 | Delivered (historical) | Dagster orchestration introduction |
+| v2.5 | Delivered / protected baseline | Single-track all-layer Iceberg runtime + Dagster + Trino + MLflow + OpenMetadata + Superset |
+| v2.6.0 | Superseded — carries a version-stamp defect | Computational governance and evidence plane |
+| v2.6.1 (tag) | **Released `2026-07-31`** | Corrected version stamp; English-only publication; unified agent entry points |
+| v2.6.1 Block `J` (`main` @ `e534c73`) | **Implementation complete** | Operationalize the evidence plane |
+| v2.8 | **Delivered on `main`** (PRs #51–#54) | AI/ML governance and agent-ready context |
+| v2.7 | **Delivered on `main`** | Catalog/control-plane openness and sovereignty proof |
+| v2.9 | **Delivered on `main`** (PRs #57, #59) | Operational evidence and promotion discipline |
+| v3.0 | **Repository preparation active; runtime implementation not started** | Runtime migration; first implementation slice to be defined under D7 |
+| v4.0 | Future candidate | Self-serve usability and operational clarity |
+
+## Delivery Velocity (measured, not estimated)
+
+Plan with the **measured** rate, not the optimistic one:
+
+| Version | Planned | Actual | Ratio |
+|---|---|---|---|
+| v2.6 (`2026-05-10` → `2026-07-31`) | 4 weeks | **11.7 weeks** | **≈ 2.9×** |
+
+Rules that follow from this:
+
+- Multiply every remaining estimate by **≈3** before committing to a date.
+- At the measured rate, v3.0 lands in **early 2028**. Any plan that assumes
+  v3.0 in 2026 or 2027 is invalid.
+- Do not publish version dates. Publish version **order** and current status.
+- The `M1–M4` six-month milestone plan in the local-only enterprise evolution
+  note (2026-05-05) is **superseded** — M1 alone consumed both quarters it
+  allotted for M1 and M2.
+
+## Strategic Alignment Rules
+
+These rules are the default planning lens for future work:
+
+1. **Prefer control plane value over engine count.**
+   Success is not measured by how many compute engines are attached. It is
+   measured by whether catalog, lineage, access control boundaries, and audit
+   evidence are explicit and portable.
+
+2. **Prefer executable governance over narrative governance.**
+   Contracts, quality gates, lineage records, manifests, and audit outputs
+   should be machine-readable and testable.
+
+3. **Treat agent readiness as a metadata and policy problem first.**
+   SoloLakehouse should become a governed context layer that future AI agents
+   can consume safely. It should not prioritize building chat apps or a full
+   agent product before governance primitives exist.
+
+4. **Keep v3 runtime migration separate from v2.x evidence work.**
+   Kubernetes, Helm, Terraform, secrets lifecycle, and promotion models belong
+   in the runtime migration track only after the governance and evidence claims
+   are already provable on the current stack.
+
+## Current Baseline (v2.5)
+
+The protected v2.5 baseline includes:
+
+- Dagster as the only orchestration engine
+- all three medallion layers written as Iceberg tables via `pyiceberg`
+- Trino as the shared SQL/query surface
+- OpenMetadata in the default platform stack
+- Superset in the default platform stack
+- MLflow experiment tracking on the same runtime
+- `make demo` as the acceptance/demo path
+- `make pipeline` as the full pipeline path including MLflow execution
+
+Operational contract:
+
+- `make setup` prepares a cold clone and starts the mandatory stack
+- `make up` restarts the stack after setup
+- `make verify` validates services and UIs
+- `make demo` executes the demo data flow
+- `make pipeline` executes the full pipeline
+
+Future work must not regress this baseline without an explicit roadmap change.
+
+## Version-by-Version Direction
+
+### v2.6 — Computational Governance and Evidence Plane
+
+Primary outcome:
+
+- one governed dataset can produce a structured, archivable, repeatable evidence
+  bundle from repository-native commands
+
+Core deliverables:
+
+- machine-validated dataset contracts
+- governed quality gates for critical datasets
+- typed lineage record and three-source lineage join
+- evidence CLI and stable audit manifest layout
+- release/readiness evidence for the new governance path
+
+Important framing:
+
+- `v2.6` is not a general observability or platform expansion release
+- `v2.6` should prepare future purpose-based access and AI/agent consumption by
+  making governance metadata executable now
+- the external demonstration goal is defined in
+  [v2.6-demo-goal.md](history/v2.6-demo-goal.md)
+
+### v2.6.1 — Operationalize the Evidence Plane
+
+Primary outcome:
+
+- the evidence plane runs **without a human in the loop**, on **every** governed
+  dataset, into **write-once** storage
+
+Why this version exists:
+
+`v2.6` shipped roughly 80% of its plan. The 20% that did not ship is exactly the
+part that separates *demonstrable* from *operational*, and it was never
+rescheduled into any later version. Adding a second evidence category (v2.7 or
+v2.8) on top of a manually-triggered, single-dataset, overwritable evidence
+plane would compound that gap rather than close it.
+
+Core deliverables:
+
+- ~~Correct the `v2.6.0` version stamp~~ — **shipped in `v2.6.1`**. The drill
+  was re-run and the manifest read back to confirm `runtime_version=slh-v2.6.1`.
+- Automatic evidence emission: a Dagster sensor generates evidence when a
+  governed asset materializes successfully — no hand-copied run IDs.
+  *(Was in the v2.6 plan at 1 day; dropped.)*
+- WORM audit storage: enable MinIO Object Lock on the audit bucket so archived
+  evidence cannot be silently overwritten or deleted.
+  *(Was in the v2.6 plan as E4 at 2 days; dropped.)*
+- Coverage for **all** governed datasets, not only `fin.ecb_dax_features_gold`.
+- **Causal** snapshot↔run binding: today the three-source join verifies name
+  consistency but not causality — a stale Iceberg snapshot plus an unrelated
+  successful Dagster run produces a structurally valid record. Stamp the
+  snapshot ID into the asset materialization and verify it on join.
+- CI coverage gate extended to `governance/` and `dagster/` (currently excluded,
+  so the v2.6 centerpiece has no regression protection).
+
+Important framing:
+
+- `v2.6.1` adds **no new evidence category**. It makes the existing one true.
+- Only after this is `"the platform produces evidence"` a claim about the
+  platform rather than about one recorded drill.
+
+### v2.7 — Catalog/Control-Plane Openness and Sovereignty Proof
+
+Primary outcome:
+
+- the platform can demonstrate that governance identity and table access do not
+  depend on a single catalog implementation or vendor path
+
+Core deliverables:
+
+- explicit catalog abstraction boundary
+- Iceberg REST catalog compatibility path
+- Apache Polaris evaluation as the first reference implementation
+- minimal multi-engine proof after the catalog boundary is clear
+- sovereignty report and exit playbook
+
+Important framing:
+
+- catalog/control-plane portability comes before adding more engines
+- engine count is not a success metric on its own
+
+Known precondition (code, not documentation):
+
+- `ingestion/iceberg_io.py:get_catalog()` constructs `HiveCatalog`
+  unconditionally, and `governance/lineage.py:OpenMetadataAdapter` hard-codes the
+  four-segment Trino FQN shape. There is currently **no** point in the codebase
+  where a catalog backend can be selected. The first v2.7 change must be a small
+  refactor that creates those seams — otherwise "catalog-independent" is a claim
+  the code contradicts.
+
+Scope reduction from the 2026-05-05 planning note:
+
+The superseded note budgeted 30 days, of which ~17 went to work this roadmap
+does not endorse. Dropped or downgraded: Spark demo (4d), Flink streaming demo
+(5d), `migrate-from-databricks.py` (5d — sales PoC tooling, not platform
+capability), cross-object-store demo (3d). Retained: sovereignty report,
+portability matrix, DuckDB read (near-zero cost via pyiceberg), REST catalog
+switch, exit playbook, plus the catalog abstraction seam above.
+
+### v2.8 — AI/ML Governance and Agent-Ready Context
+
+Primary outcome:
+
+- AI and ML assets can be traced back to governed datasets, runs, contracts, and
+  policy context
+
+Core deliverables:
+
+- ML lineage binding across dataset, snapshot, run, code, and contract metadata
+- AI governance extensions on top of the v2.6 contract/evidence plane
+- agent-ready metadata and policy hooks for future MCP-style consumption
+- model/evaluation evidence aligned with EU AI Act-style traceability goals
+
+Important framing:
+
+- this version should strengthen governance primitives for AI
+- it should not expand into a full conversational agent application platform
+
+Corrected timing rationale:
+
+The superseded planning note justified v2.8's priority by aligning it with the
+EU AI Act high-risk obligations date of `2026-08-02`. **That window has passed
+and cannot be met** — at the measured velocity v2.8 is 6–12 months out under any
+ordering. v2.8's value must stand on the durable argument instead: traceability
+from model to dataset to snapshot to run to contract is required by regulated
+model governance regardless of any single regulatory date.
+
+Known gap to design before starting:
+
+- `approved_consumer_class` and `access_policy_hint` exist in the contract schema
+  but nothing enforces them — any credentialed Trino user can read a governed
+  table today. If "agent-ready policy hooks" is to mean anything, the hard part
+  is a **policy enforcement point** (Trino access-control provider, or a proxy in
+  front of MCP-style tool calls), not more contract fields. Decide that approach
+  before writing E1–E4.
+
+### v2.9 — Operational Evidence and Promotion Discipline
+
+Primary outcome:
+
+- the platform can demonstrate repeatable operations, rollback readiness, and
+  promotion discipline on the existing runtime
+
+Core deliverables:
+
+- SLO-oriented operational evidence
+- rollback and drill artifacts
+- secrets/access discipline documentation and checks
+- readiness gates for the runtime migration
+
+**Status: delivered on `main` (`71c2c89`, PRs #57, #59).** Internal validation
+passes. External sign-off is not a blocking gate (Owner Decision 2026-08-15).
+The next execution backlog is Layer 1 source research (Block `L` in
+`TASKS.md`), then long-term Compose operation.
+
+### v3.0 — Production Runtime Migration
+
+**2026-11-10 status:** repository preparation is active under [D7](#d7-v3-repository-preparation-decided-2026-11-10). The deliverables below remain planned; the first implementation slice and deployment environment have not been selected.
+
+Primary outcome:
+
+- the same platform contracts run across multiple environments on Kubernetes
+
+Core deliverables:
+
+- Kubernetes deployment baseline
+- Helm packaging
+- Terraform infrastructure baseline
+- environment promotion model
+- managed secrets path
+
+Important framing:
+
+- v3.0 is a runtime migration release, not the place to introduce the core
+  governance concepts for the first time
+- v3.0 is an **infrastructure** milestone, not a narrative one. Talking about
+  the project publicly is not gated on Kubernetes, and is not gated on an
+  external sign-off (Owner Decision 2026-08-15).
+
+## Open Decisions
+
+**D1, D4, D5, D6 and D7 are resolved. D2 and D3 remain open.** Agents must not start
+implementation work that depends on an unresolved D2 or D3 decision.
+
+### D1 — v2.8 before v2.7 (resolved 2026-08-02)
+
+**Status: decided — v2.8 first, then v2.7, then v2.9.**
+
+An explicit Owner Decision authorizes continuous internal development through
+v2.9. A later Owner Decision (`2026-08-15`) cancelled independent external
+sign-off as a blocking gate; the protocol under `docs/external-validation/`
+is retained as history. That cancellation does not start v3.0.
+
+| | Reuse of v2.6 machinery | Standalone timing pressure | Scope |
+|---|---|---|---|
+| **v2.8** (AI/ML governance) | **High** — the lineage five-tuple extends the existing contracts, lineage join, and audit bucket directly | AI-governance interest is current; the specific `2026-08-02` anchor is already missed | ~23 planned days |
+| **v2.7** (openness/sovereignty) | **Low** — the sovereignty report scans compose files; the multi-engine proof is independent of v2.6 code | Vendor lock-in concern is evergreen, not time-boxed | ~13 days after the scope reduction above |
+
+The dependency argument favors **v2.8 first** — two consecutive versions
+deepening one governance mechanism, with the ML lineage tuple extending the
+contracts, lineage join, and audit bucket that v2.6.1 will have just made
+operational. The lower-cost argument favors **v2.7 first**.
+
+The decision follows the dependency argument. External feedback remains
+optional; it is not a release gate.
+
+### D2 — Entity split (`task.md`)
+
+**Status: deferred indefinitely.** `task.md` describes splitting this codebase
+into `finlakehouse` and `aviation-lakehouse` product entities. That track is a
+**design reference, not an active plan**. Its Phase-2+ checklists are not part of
+any version above. Do not reopen it as a primary backlog without an explicit
+decision recorded here.
+
+### D4 — Layer 1 remediation and a third streaming leg (`L3`, resolved 2026-09-03)
+
+**Status: decided.** `L1`/`L2` research
+(`docs/layer1-source-selection-criteria.md`, `docs/layer1-source-survey.md`)
+found no free/open DAX-equity source that passes gate `G2`, and recommended
+keeping the DAX sample CSV under a demo-only policy. **The Owner Decision
+overrides that recommendation: no leg may stay on a static file, in demo or
+production.**
+
+**Scope of the decision:**
+
+1. **ECB** — remediate in place per `L2` Option 1: extend beyond MRO to
+   DFR (and optionally MLF) on the existing ECB SDW API pattern. No change
+   to the source itself.
+2. **DAX → EWG.** The DAX sample CSV is retired from the production path
+   entirely — not kept even as a labeled demo fallback. Since no free,
+   license-clear, *live* source exists for the literal DAX index (STOXX
+   requires a paid license; Stooq/yfinance fail `G2`; Twelve Data's free
+   tier is US-markets-only; the Deutsche Börse AWS Open Data set is real
+   and free but confirmed discontinued/no-longer-updated — just a bigger
+   frozen file, not a live connection), the market leg is replaced with a
+   **live proxy instrument**: **EWG (iShares MSCI Germany ETF, NYSE Arca)**,
+   sourced via Alpha Vantage's free `TIME_SERIES_DAILY` endpoint (Twelve
+   Data documented as fallback). This is a genuine business-entity change
+   (index → ETF, Xetra → NYSE Arca, different currency/hours/liquidity), not
+   a provider swap, so it gets **new dataset IDs at all three medallion
+   layers** — `fin.german_equity_proxy_daily_bronze` / `_silver` /
+   `fin.ecb_german_equity_proxy_features_gold` — with the retired
+   `fin.dax_daily_bronze` / `_silver` / `fin.ecb_dax_features_gold`
+   contracts marked `deprecated: true` in place (physical tables kept as
+   frozen historical record, not deleted).
+3. **Add a third leg: cryptocurrency spot/trade data**, carrying the
+   streaming-ingestion half of the platform's governance story (contracts,
+   lineage evidence, quality gates covering **both** batch and streaming,
+   not batch alone) — the concrete "governed use case" that scopes the
+   "broad streaming expansion" line in "What Is Explicitly Deprioritized"
+   below without reversing it generally. Sourced from Kraken's free,
+   unauthenticated public trade WebSocket (`wss://ws.kraken.com/`; Binance
+   documented fallback), buffered through a **single-node Redpanda
+   dev-container**, consumed into `fin.crypto_trades_bronze` by a Dagster
+   asset on a bounded ~30–60s micro-batch cadence — a real Dagster run each
+   time, so lineage evidence flows through the *existing*
+   `DagsterRunAdapter`/`lineage_evidence_sensor` machinery automatically,
+   with no new lineage primitive invented for streaming.
+   `retention: 30_days_streaming_governance_probe` (not a long-term
+   archive) and `delivery_semantics: at_least_once` (the idempotent Kafka
+   producer prevents producer-side duplicates only; consumer
+   offset-commit-after-append can still duplicate on a crash — dedup is
+   deferred to a future Silver transform) are both stated explicitly in the
+   contract and ADR, not left implicit.
+
+**Non-goals explicitly lifted, scoped only as stated:** adding a streaming
+engine and a new platform service — but strictly as a **genuinely optional,
+isolated domain pack** (Redpanda + a separate `dagster_crypto` Dagster code
+location, its own image/requirements/workspace file), never merged into
+`COMPOSE_STACK`/`ALL_PROFILES`, and with **zero crypto-specific knowledge
+added to any Core file** (`ingestion/`, `governance/`, `dagster/`) — Core
+gains only one generic, backward-compatible extension point
+(`BronzeWriter.write()` accepting an explicit `schema`/`partition_spec`) so
+a future domain pack never needs to edit Core again. Redpanda follows the
+`docker-compose.polaris.yml`/ADR-017 optional-profile precedent rather than
+ADR-019's rejection of an optional profile for SeaweedFS — the
+distinguishing argument (recorded in full in ADR-024): SeaweedFS proposed
+*replacing* the already-frozen v2.5 object-storage path; Redpanda is wholly
+additive, touching no existing ECB/DAX/EWG write path.
+
+**Non-goals NOT lifted:** the D2 entity split, starting v3.0, any domain
+beyond ECB/German-equity-proxy/crypto.
+
+**Implementation sequencing (Owner Decision 2026-09-04):**
+
+| Phase | What | When |
+|---|---|---|
+| **Phase 1 — Batch (active)** | Sources **1** (ECB, extend DFR/MLF) and **2** (live EWG via Alpha Vantage); full medallion path; `make demo` / `make pipeline` on live batch data; retire DAX sample CSV | **Now** |
+| **Phase 2 — Streaming (deferred)** | Source **3** (Kraken WS → Redpanda → `crypto_bronze`); PR2 + PR3 | **After Phase 1 lands** |
+
+Phase 1 does **not** require Redpanda, a streaming engine, or the crypto
+profile. Personal demo and long-term batch operation are satisfied by Phase 1
+alone. Agents must not start Phase 2 in parallel with Phase 1 unless an Owner
+Decision reorders this sequence.
+
+Full task-level implementation plan: `TASKS.md` Block `L`, `L4` ("L4 execution
+phases"). ADR record for Phase 2:
+`docs/decisions/ADR-024-crypto-streaming-leg.md` (pending — `L4l`) plus a
+dated amendment paragraph in
+`docs/decisions/ADR-004-financial-dataset.md` (pending — `L4l`).
+
+### D5 — Finance-domain deepening before any new domain (resolved 2026-09-08)
+
+**2026-11-04 amendment:** the finance-first sequencing below is historical and superseded by D6. The delivered L5-L7 implementation and source boundaries remain; D6 documents the separately maintained aviation workload without adding its code to this reference repository.
+
+**Status: decided.** After `L4` Phase 1 lands, the next data work **deepens the
+finance domain rather than opening a new one**. Aviation sourcing starts only
+once the finance domain is stable, and any aviation source must stay cleanly
+separated from the externally controlled ADS-B data used elsewhere; that source
+selection is deferred and not decided here.
+
+**This decision opens no new domain.** It stays entirely inside the sources
+already named by `D4` (ECB SDW, Alpha Vantage EWG), so the Block `L` non-goal
+*"any domain beyond ECB/German-equity-proxy/crypto"* is **unchanged and not
+exercised**.
+
+**What prompted it.** Daily runs appeared to produce nothing new. Two live-API
+checks on 2026-09-08 showed the diagnosis in circulation was wrong on both
+counts:
+
+- The ECB policy-rate series is **daily-calendar, not event-driven** —
+  `FM/D.U2.EUR.4F.KR.MRR_RT.LEV` returns a value every calendar day, weekends
+  included, holding the last decided rate constant. Bronze and Silver already
+  gain a row per day. Only `gold.ecb_german_equity_proxy_features` is
+  event-grained (~8 rows/year). **The stagnation is a Gold-layer problem, not a
+  source-count problem.**
+- **Freshness was unmonitored, and tightening `max_gap_days` would not have
+  fixed it.** That rule measures gaps *inside* the observation history, over a
+  Bronze table rewritten as a full snapshot of source history on every run. A
+  source that stops publishing leaves the internal gap set unchanged, so the
+  check passes at any threshold.
+
+**Scope — three tasks, `L5`–`L7` in `TASKS.md` Block `L`, in this order:**
+
+| | Task | Why this position |
+|---|---|---|
+| 1 | `L5` freshness SLA (`max_staleness_days` + `update_pattern`, enforced as a `WARN` Dagster asset check, not a write gate) | Needs no new source, and is what makes "the pipeline ran today" a meaningful statement. Running `L6` first would add a source whose staleness is as undetectable as the current ones |
+| 2 | `L6` ECB EXR daily FX panel | Same source, same host, no API key, new dataflow. Keyed on `(observation_date, currency)` — the **first panel-shaped dataset in the warehouse**. `L4-ecb` (DFR/MLF) already landed; `L6` still needs EXR panel parse that retains currency keys |
+| 3 | `L7` `fin.eur_market_daily_gold` | One row per TARGET business day, carrying **EWG restated in EUR**. EWG is a USD-quoted NYSE ETF, so every return in the warehouse today is contaminated by EUR/USD; this makes the *existing* market leg interpretable. Definition of done includes a Superset tile |
+
+**Surveyed and explicitly not started.** FRED (`DCOILBRENTEU` Brent, `DGS10`)
+and SMARD/Energy-Charts German day-ahead electricity are genuinely new domains
+under the `D4` non-goals; **each requires its own Owner Decision before any
+implementation**. Brent is recorded as the intentional bridge toward the later
+aviation phase. SMARD would additionally be the first intraday source, changing
+Bronze partitioning assumptions across the layer. Rejected outright: further
+central-bank policy-rate tables (same shape, adds rows not information); crypto
+(already scoped as the isolated, deferred Phase 2 — do not conflate); more
+Alpha Vantage symbols (same 25 req/day quota the EWG collector consumes).
+
+Full design, with the evidence each decision rests on:
+[`docs/fin-domain-data-expansion.md`](fin-domain-data-expansion.md).
+Task-level plan: `TASKS.md` Block `L`, `L5`–`L7`.
+
+### D6: Personally operated platform and workload positioning (decided 2026-11-04)
+
+**Owner-approved scope:** make the platform's purpose visible in the public repository: a lakehouse foundation for a personally operated data and AI platform, with aviation as the main operated domain and finance as a complementary reference workload.
+
+- Publish the project story and a sanitized aviation workload guide; distinguish public reference code, operator-reported observations, and future plans.
+- Keep aviation implementation in its separate project. Reuse of shared platform services is not the D2 product split and does not authorize moving private code/data into this repository.
+- Replace the old finance-before-aviation prerequisite with an aviation evidence case, finance comparison, and reliability/data-correctness work selected from observed gaps. Financial maintenance and existing contracts remain.
+- Define AI through feature preparation, reproducible experiments, evaluation, and artifact handling. RecordChat remains a separate knowledge application; platform-wide integration is not claimed.
+- Record the three-node Proxmox idea as an infrastructure plan with unresolved placement, storage, backup, and recovery decisions. It neither deploys a cluster nor starts v3.0.
+- Preserve the v2.5 reference runtime, D2/D3 boundaries, source restrictions, privacy, and validation requirements. No runtime or release change is made by this decision.
+
+**Completion evidence for this documentation change:** coherent README and metadata, navigable published workload/architecture guides, matching roadmap/backlog/agent summaries, relative-link and agent-entry checks, and CI results with the existing Compose image-pull gap disclosed. The broader aviation case, independent reproduction, ground truth, recovery, and future infrastructure remain separately verifiable work.
+
+This is a positioning and documentation decision, so no runtime ADR is introduced. See [platform overview](platform-overview.md), [aviation workload](workloads/aviation.md), and [history](history/timeline.md).
+
+### D7: V3 repository preparation (decided 2026-11-10)
+
+**Owner-approved scope:** synchronize WSL `main` with GitHub, preserve the complete pre-v3 Git baseline, prepare cleanup of obsolete branches, and open the v3 development track. This supersedes the earlier queue priority without marking unfinished D6 or Block `K` work complete.
+
+- Preserve commit `2d8020ab4c5c6f81b0d44ad8bc91ecdc1bc20e0c` as annotated tag [`pre-v3-2026-11-10`](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10).
+- A full Git-history bundle has been verified through `git bundle verify`, mirror-clone recovery, `git fsck --full`, and baseline-tag resolution. It retains every pre-cleanup branch, including the closed PR #78 branch. This is a one-time Git snapshot; runtime volumes and ignored configuration are outside its coverage.
+- Use `v3/development` for the preparation changes. **Cleanup completed 2026-11-10 after exact-target owner confirmation:** nine obsolete remote branches and their nine local tracking refs are gone. Independent checks verified that only `main` and `v3/development` remain, all tags are retained, and every deleted tip remains recoverable from the verified bundle and mirror.
+- Before runtime implementation, define one bounded v3 slice with its target environment, storage/recovery assumptions, compatibility and rollback path, and observable validation. Existing Kubernetes/Helm/Terraform material remains a design direction, not a completed migration or authorization to deploy services.
+- Preserve D2/D3, the separate aviation implementation, finance isolation, source restrictions, and the reference demo/pipeline semantics. No release, new service, workload migration, or runtime acceptance is claimed here.
+- Completion evidence for preparation: a published baseline tag, verified restorable Git bundle, independently checked Windows copy, a dedicated development branch, coherent planning/agent/history records, and focused documentation checks.
+
+See [immediate actions](../TASKS.md#immediate-next-actions), [v3 planning amendment](history/v3-planning.md#2026-11-10-amendment-repository-preparation), and [history](history/timeline.md). No new runtime ADR is introduced by this repository-only preparation.
+
+### D3 — Portal / Keycloak exploration
+
+**Status: sandbox only.** Local `.env` carries `KEYCLOAK_*` and `PORTAL_OIDC_*`
+values for an exploratory self-service portal. `docs/v3-spec.md` explicitly lists
+a self-service portal as out of scope for v3.0. Until this decision changes, that
+work is a personal sandbox: it must not enter `docker/docker-compose.yml`,
+`.env.example`, or any version scope above.
+
+## External Validation
+
+**Status (Owner Decision 2026-08-15): cancelled as a blocking gate.** The
+protocol is retained as a historical trace, not as outstanding work:
+
+- [`docs/external-validation/integrated-v2.9-external-validation.md`](external-validation/integrated-v2.9-external-validation.md)
+- [`docs/external-validation/v2.6.1-external-validation.md`](external-validation/v2.6.1-external-validation.md)
+- [`docs/external-validation/outreach.md`](external-validation/outreach.md)
+
+Do not delete those files. Do not recruit an external validator as the next
+task. Internal validation remains mandatory for every change (`make test`,
+`make lint`, `make typecheck`, `make validate-contracts`, and `make verify` /
+`make demo` where applicable). Cancelling this gate does not authorize
+production, WORM, or regulatory-readiness claims, and does not start v3.0.
+
+**`D5` / `L5`–`L7` landed on `main` (`#87`).** D7 sets v3 repository
+preparation as the immediate work. Compose operation and Block `K` hardening
+remain carry-forward work; Phase 2 (streaming/crypto) stays deferred
+(`TASKS.md` Block `L`).
+
+## What Is Explicitly Deprioritized
+
+These items may happen later, but they are not primary success criteria now:
+
+- opening a second major domain track before the current governance path is
+  fully established
+- broad streaming expansion without a concrete governed use case
+- replacing MinIO purely for novelty
+- building chat UI or agent apps before governance and policy primitives are in
+  place
+- using Spark/dbt/Flink adoption as a proxy for platform maturity
+- **adding a new evidence category while the previous one is still manual,
+  single-dataset, or overwritable** (this is what v2.6.1 exists to prevent)
+- **customer-acquisition tooling** (migration PoCs, TCO calculators, proposal
+  generators) — these belong to a commercial track, not to a reference
+  implementation's roadmap
+
+## History References
+
+For historical context and retired planning material:
+
+- [history/timeline.md](history/timeline.md)
+- [history/architecture-evolution.md](history/architecture-evolution.md)
+- [history/legacy-overview.md](history/legacy-overview.md)
+
+### Superseded planning material
+
+These documents are **historical snapshots**. They are kept because they record
+what was believed at the time, and they are cross-linked from the timeline. They
+are **not** instructions, and where they conflict with this roadmap, this
+roadmap wins.
+
+| Document | Written | Superseded because |
+|---|---|---|
+| `history/v2.6-planning.md` *(local-only)* | 2026-05-05 | Delivered; two planned items (auto-emission, WORM) moved to v2.6.1 |
+| `history/v2.7-planning.md` *(local-only)* | 2026-05-05 | Makes a 4-engine demo the primary acceptance gate, which this roadmap rejects; ~17 days of scope dropped |
+| `history/v2.8-planning.md` *(local-only)* | 2026-05-05 | Its timing rationale (EU AI Act `2026-08-02`) has passed |
+| `history/v2.9-planning.md` *(local-only)* | 2026-05-05 | Written before v2.6 shipped; assumes the superseded milestone plan |
+| Enterprise evolution note *(local-only)* | 2026-05-05 | `P1–P5` framing remains useful; the `M1–M4` six-month milestone plan is invalid |
+
+All four v2.x planning notes were written on a single day (`2026-05-05`), before
+v2.6 implementation began. Specifying three future versions in task-level detail
+ahead of shipping the first one is the pattern this roadmap now avoids: plan the
+**next** version in detail, and the ones after it only as direction.

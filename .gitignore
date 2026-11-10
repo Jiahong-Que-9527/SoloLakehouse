@@ -65,3 +65,17 @@ docker/openmetadata/openmetadata.env
 docker/openmetadata/openmetadata.env.bak*
 tmp/
 .pre-rotation-*
+
+# [房玄龄·2026-11-10] Private v3 inputs and state; sanitized *.example files remain publishable.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform.tfstate.lock.info
+/infra/**/*.tfvars
+/infra/**/*.tfvars.json
+/bootstrap/**/inventory.local.*
+/bootstrap/**/group_vars/local/
+/gitops/**/kubeconfig*
+/gitops/**/age.key
+/secrets.local/

@@ -208,3 +208,11 @@ Historical migration and compatibility details remain documented for reference o
 - No runtime architecture alternative is selected by this preparation. Define the first bounded implementation slice and its storage, recovery, promotion, and rollback assumptions before changing services.
 - D2/D3, separate aviation implementation, finance isolation, reference-runtime semantics, and unfinished recovery checks remain. A Git-history restore is not a service-data restore.
 - No new ADR: this decision changes repository preparation and work order only. See [D7](../roadmap.md#d7-v3-repository-preparation-decided-2026-11-10) and [v3 planning amendment](v3-planning.md#2026-11-10-amendment-repository-preparation).
+
+## 2026-11-10: Monorepo ownership before hardware
+
+<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
+
+Selected one existing repository with infra/bootstrap/deploy/gitops responsibilities while retaining business and Compose paths. Rejected the earlier three-repository layout for this scope and postponed broad Python/Compose moves. Local PVC/NAS backup and S3 compatibility remain design/decision work, not deployed HA. ADR-024 records the choice.
+
+See [construction plan](../design/v3/README.md), [ADR-024](../decisions/ADR-024-v3-gitops-monorepo.md) and [original archive](pre-v3/README.md).
