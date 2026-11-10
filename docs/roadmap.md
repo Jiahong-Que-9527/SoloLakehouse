@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-10] Record owner-confirmed branch cleanup and independent verification. -->
+
 <!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation; no runtime implementation or release. -->
 
 <!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
@@ -511,7 +513,7 @@ This is a positioning and documentation decision, so no runtime ADR is introduce
 
 - Preserve commit `2d8020ab4c5c6f81b0d44ad8bc91ecdc1bc20e0c` as annotated tag [`pre-v3-2026-11-10`](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10).
 - A full Git-history bundle has been verified through `git bundle verify`, mirror-clone recovery, `git fsck --full`, and baseline-tag resolution. It retains every pre-cleanup branch, including the closed PR #78 branch. This is a one-time Git snapshot; runtime volumes and ignored configuration are outside its coverage.
-- Use `v3/development` for the preparation changes. Branch deletion remains pending the owner's exact-target confirmation under the existing file-safety rules.
+- Use `v3/development` for the preparation changes. **Cleanup completed 2026-11-10 after exact-target owner confirmation:** nine obsolete remote branches and their nine local tracking refs are gone. Independent checks verified that only `main` and `v3/development` remain, all tags are retained, and every deleted tip remains recoverable from the verified bundle and mirror.
 - Before runtime implementation, define one bounded v3 slice with its target environment, storage/recovery assumptions, compatibility and rollback path, and observable validation. Existing Kubernetes/Helm/Terraform material remains a design direction, not a completed migration or authorization to deploy services.
 - Preserve D2/D3, the separate aviation implementation, finance isolation, source restrictions, and the reference demo/pipeline semantics. No release, new service, workload migration, or runtime acceptance is claimed here.
 - Completion evidence for preparation: a published baseline tag, verified restorable Git bundle, independently checked Windows copy, a dedicated development branch, coherent planning/agent/history records, and focused documentation checks.

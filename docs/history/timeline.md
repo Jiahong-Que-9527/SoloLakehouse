@@ -318,3 +318,12 @@ Theme:
 - Opened `v3/development` for repository preparation and aligned the roadmap, active backlog, agent summary, and historical v3 plan. Obsolete-branch deletion remains pending exact-target approval.
 - Runtime implementation, workload migration, and a v3 release have not happened. The next decision defines the first bounded implementation slice and its acceptance/rollback evidence.
 - See [D7](../roadmap.md#d7-v3-repository-preparation-decided-2026-11-10) and [v3 planning amendment](v3-planning.md#2026-11-10-amendment-repository-preparation).
+
+## 2026-11-10: Obsolete-branch cleanup completed and independently verified
+
+<!-- [房玄龄·2026-11-10] Executed the owner's exact-target cleanup confirmation. -->
+
+- Removed nine approved obsolete remote branches and their nine local tracking refs. Both GitHub and WSL now retain only `main` and `v3/development`; all tags, backup files, and the recovery mirror remain.
+- Git push automatically removed the corresponding local tracking refs. The script's subsequent old-SHA deletion transaction stopped because those refs were already absent; no deletion retry or repair was needed.
+- Independent read-only checks confirmed the exact approved outcome, unchanged protected branch commits at cleanup time, a clean worktree, the unchanged WSL/Windows bundle SHA-256, and every deleted tip present in the recovery mirror.
+- `main` and `pre-v3-2026-11-10` remain at `2d8020a`. This follow-up records repository cleanup only; runtime implementation and v3 release remain unstarted.

@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-10] Record owner-confirmed branch cleanup and independent verification. -->
+
 <!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation; no runtime implementation or release. -->
 
 <!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
@@ -806,7 +808,7 @@ consumes).
 Current order under D7 ([roadmap decision](docs/roadmap.md#d7-v3-repository-preparation-decided-2026-11-10)):
 
 1. Preserve `main` at `2d8020ab4c5c6f81b0d44ad8bc91ecdc1bc20e0c` as annotated tag [`pre-v3-2026-11-10`](https://github.com/Jiahong-Que-9527/SoloLakehouse/releases/tag/pre-v3-2026-11-10). This is a repository checkpoint, not a new release or runtime acceptance result.
-2. Retain a verified full Git-history bundle before cleaning obsolete remote branches. Preserve the closed PR #78 branch, including its non-equivalent commits. Execute deletion only after the owner's exact-target approval; the bundle does not back up runtime data or ignored files.
+2. **Completed 2026-11-10:** after exact-target owner approval, removed nine obsolete remote branches and their nine local tracking refs. Independent verification confirmed that only `main` and `v3/development` remain, all tags are retained, and the worktree is clean. The verified full Git-history bundle and recovery mirror retain every deleted tip, including the closed PR #78 branch and its non-equivalent commits. The bundle does not back up runtime data or ignored files.
 3. Work on `v3/development`. Define the first bounded v3 implementation slice, its target environment, storage and recovery assumptions, compatibility/rollback path, and observable acceptance checks before changing the runtime.
 4. Carry forward the existing cold-clone/image-pull gap, unfinished reliability/recovery work, and reference-runtime validation requirements. No previous pipeline, restore, or deployment result is revalidated by this repository preparation.
 5. Keep D2/D3 boundaries, separate aviation implementation, finance isolation, and deferred sources unchanged. No new service, deployment, or migration is delivered by this preparation.

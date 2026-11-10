@@ -1,3 +1,5 @@
+<!-- [房玄龄·2026-11-10] Record owner-confirmed branch cleanup and independent verification. -->
+
 <!-- [房玄龄·2026-11-10] Owner-approved v3 repository preparation; no runtime implementation or release. -->
 
 <!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
@@ -53,7 +55,7 @@ Never treat a roadmap *target* as a delivered *capability*.
   discipline, and K8s readiness gate.
 - **Owner Decision (2026-08-15):** independent external sign-off is not a
   blocking gate; `docs/external-validation/` is retained as history.
-- **Current work:** D7 v3 repository preparation on `v3/development`: preserve the pre-v3 baseline and full branch history, prepare obsolete-branch cleanup, and define the first implementation slice. Runtime implementation has not started. Unfinished D6 aviation evidence and Block `K` work remain; finance L5-L7 landed (`#87`), crypto stays deferred, and aviation implementation remains separate. See `TASKS.md` immediate actions.
+- **Current work:** D7 v3 repository preparation on `v3/development`: the pre-v3 baseline and full branch history are preserved, and obsolete-branch cleanup is complete and verified after exact-target owner approval. Next, define the first implementation slice. Runtime implementation has not started. Unfinished D6 aviation evidence and Block `K` work remain; finance L5-L7 landed (`#87`), crypto stays deferred, and aviation implementation remains separate. See `TASKS.md` immediate actions.
 - **D5 (resolved 2026-09-08, implemented `#87`):** freshness SLA, ECB EXR FX
   panel, `fin.eur_market_daily_gold`. Same sources as `D4`. FRED and
   electricity surveyed, not started. D6 supersedes the old finance-first aviation prerequisite.
