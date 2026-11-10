@@ -6,6 +6,8 @@ different file first:
     Claude Code  -> CLAUDE.md
     Cursor       -> .cursor/rules/*.mdc
     Codex        -> AGENTS.md
+    Gemini       -> GEMINI.md
+    Copilot      -> .github/copilot-instructions.md
 
 They must all land on the same target. `AGENTS.md` is the single shared
 contract; the other entry points are pointers to it. This check fails the build
@@ -27,8 +29,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CONTRACT = "AGENTS.md"
 
 # Entry points that must exist, be published, and point at the contract.
+# [房玄龄·2026-11-10] Keep tool pointers on the shared TODO and roadmap.
 ENTRY_POINTS = {
     "CLAUDE.md": "Claude Code",
+    "GEMINI.md": "Gemini",
+    ".github/copilot-instructions.md": "GitHub Copilot",
     ".cursor/rules/sololakehouse.mdc": "Cursor",
     "AGENTS.md": "Codex (and any agent following the AGENTS.md convention)",
 }
@@ -41,6 +46,13 @@ CONTRACT_REQUIREMENTS = {
     "decision gates": r"\bD1\b.*\bD2\b|\bD2\b.*\bD3\b|Decision gates",
     "validation commands": r"make validate-contracts",
     "language policy": r"[Ee]nglish[- ]only",
+}
+
+# Every tool pointer must expose both authorities, not only mention AGENTS.
+POINTER_REQUIREMENTS = {
+    "development TODO": r"TASKS\.md",
+    "roadmap": r"docs/roadmap\.md",
+    "construction plan": r"docs/design/v3/README\.md",
 }
 
 # Only the contract may carry a version-status table; pointers must not, or the
@@ -88,6 +100,9 @@ def main() -> int:
         if path_str != CONTRACT:
             if CONTRACT not in text:
                 failures.append(f"{path_str} does not point at {CONTRACT} — {tool} may diverge")
+            for requirement, pattern in POINTER_REQUIREMENTS.items():
+                if not re.search(pattern, text):
+                    failures.append(f"{path_str} no longer points at the {requirement}")
             if VERSION_TABLE.search(text):
                 failures.append(
                     f"{path_str} duplicates the version table; keep version state in "
@@ -113,7 +128,7 @@ def main() -> int:
         for failure in failures:
             print(f"  - {failure}", file=sys.stderr)
         print(
-            f"\nSee the 'Multi-agent conventions' section of {CONTRACT}.",
+            f"\nSee 'Authority and reading route' in {CONTRACT}.",
             file=sys.stderr,
         )
         return 1

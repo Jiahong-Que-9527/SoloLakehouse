@@ -12,7 +12,8 @@
   <a href="docs/quickstart.md">Compose reference</a> &middot;
   <a href="docs/workloads/aviation.md">Aviation case</a> &middot;
   <a href="docs/README.md">Documentation</a> &middot;
-  <a href="TASKS.md">Next work</a>
+  <a href="docs/roadmap.md">Roadmap</a> &middot;
+  <a href="TASKS.md">Development TODO</a>
 </p>
 
 <!-- [房玄龄·2026-11-10] Owner-provided platform cover; reference and target boundaries preserved. -->
@@ -161,6 +162,18 @@ Start with the [complete construction plan](docs/design/v3/README.md),
 [target architecture](docs/design/v3/architecture.md), and
 [storage/recovery design](docs/design/v3/storage-and-recovery.md).
 The [roadmap](docs/roadmap.md) owns scope; [TASKS.md](TASKS.md) owns execution order.
+
+## Continue development
+
+<!-- [房玄龄·2026-11-10] Discoverable next-work route for people and coding agents. -->
+
+**Next: D1.1 construction-input decisions.** The D0 framework is merged;
+infrastructure and runtime implementation remain pending. Start with
+[development TODO](TASKS.md#start-here-in-the-next-session),
+[roadmap](docs/roadmap.md) and [AGENTS](AGENTS.md). TASKS owns the only active
+queue, deliverables, dependencies and acceptance. It also records later S3,
+VM/bootstrap, GitOps, hardware, migration and operational work. Tool-specific
+entrypoints point to these sources rather than duplicate their status.
 
 ## Inspect and validate the repository
 

@@ -47,7 +47,7 @@ claim a running cluster.
 
 | Stage | Work | Required output |
 |---|---|---|
-| D0 — now | Repository layout, authoritative planning, archive, safe commands and documentation checks | Coherent reviewed design with preserved history |
+| D0 — merged framework | Repository layout, authoritative planning, archive, safe commands and documentation checks | Coherent reviewed design with preserved history |
 | D1 — before hardware | Resolve open decisions; implement only a bounded static configuration slice when authorized | Reproducible render/validation records for actual files |
 | H0 — hardware | Accept hardware, install and configure PVE, establish reliable networking | Inventory and tested host/network baseline |
 | H1 — cluster | Provision three VMs, install K3s, establish API endpoint and recovery inputs | Rebuild and single-host-failure evidence |
@@ -59,6 +59,15 @@ claim a running cluster.
 Hardware arrival is not a reason to skip storage or credential recovery design.
 Complete the first isolated state restore before admitting important state.
 Stage names establish ordering, not an eight-week completion commitment.
+
+<!-- [房玄龄·2026-11-10] Single next-action source and bounded pre-hardware slices. -->
+
+The immediate next output is [D1.1 construction inputs](../../../TASKS.md#d11-inputs-and-acceptance).
+The [active queue](../../../TASKS.md#next-bounded-work) defines pending IDs,
+dependencies and acceptance for S3 compatibility, one VM/cloud-init slice and
+minimal GitOps configuration. These are planned artifacts, not implemented
+definitions; runtime checks still depend on the corresponding isolated or
+hardware environment. Do not maintain another checklist in this plan.
 
 ## Decisions that must remain open
 

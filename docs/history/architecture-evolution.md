@@ -216,3 +216,14 @@ Historical migration and compatibility details remain documented for reference o
 Selected one existing repository with infra/bootstrap/deploy/gitops responsibilities while retaining business and Compose paths. Rejected the earlier three-repository layout for this scope and postponed broad Python/Compose moves. Local PVC/NAS backup and S3 compatibility remain design/decision work, not deployed HA. ADR-024 records the choice.
 
 See [construction plan](../design/v3/README.md), [ADR-024](../decisions/ADR-024-v3-gitops-monorepo.md) and [original archive](pre-v3/README.md).
+
+## 2026-11-10: Discoverable construction inputs before implementation
+
+<!-- [房玄龄·2026-11-10] Owner-requested task recording; architecture unchanged. -->
+
+Kept TASKS as the single execution queue and roadmap as scope authority.
+Detailed D1.1 inputs precede one VM/cloud-init definition and a stateless GitOps
+slice; isolated S3 compatibility is required before data migration. New agent
+pointers share the same start/handoff protocol. No runtime architecture choice
+or new ADR is introduced. See [roadmap](../roadmap.md#order-and-acceptance) and
+[pending work](../../TASKS.md#next-bounded-work).

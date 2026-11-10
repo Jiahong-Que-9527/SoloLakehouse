@@ -13,6 +13,28 @@ invoking workspace instructions, including exact-target file/data approval.
 - [CLAUDE.md](CLAUDE.md): code-level patterns; pointer tools defer here for state.
 - [docs/README.md](docs/README.md): bounded reference navigation.
 
+<!-- [房玄龄·2026-11-10] Shared next-session and completion protocol for coding agents. -->
+
+### Starting and handing off work
+
+1. Read roadmap scope and TASKS current stage/next-session output before edits.
+   TASKS is the only active TODO, including dependencies and acceptance; do not
+   choose a task from a dated prompt, archive, generated graph or tool-local list.
+2. Follow the owner's requested scope. Otherwise use the first pending task
+   whose required inputs are available. A task being listed is not deployment
+   authorization. If an input is missing, record the gap and only advance
+   independent authorized work; never invent addresses, versions or credentials.
+3. State the task ID, concrete output and verification for the bounded change.
+4. In the same PR, update TASKS with actual evidence (commit/PR, command/result,
+   remaining gaps and next ID). Check off only proven outputs. Update roadmap
+   and detailed design when scope/state/decisions change; do not copy the queue
+   into tool-specific entrypoints, skill notes or a second TODO file.
+
+Codex uses this file; Claude Code, Cursor, Gemini and GitHub Copilot have thin
+entrypoints pointing here and to roadmap/TASKS. Other agents must use this shared
+route. `make check-agent-docs` checks those published pointers; it cannot prove
+that every agent product automatically loads or obeys them.
+
 History, old specs, ADR proposals and generated graphs are context, not a
 competing backlog. Never treat a target as delivered capability. Use the
 smallest relevant source set; do not load the entire history/compendium.
@@ -23,7 +45,7 @@ smallest relevant source set; do not load the entire history/compendium.
   all-layer Iceberg + Trino + MLflow + OpenMetadata/Superset paths remain.
 - **Released tag:** v2.6.1 predates Block J; evidence work through v2.9 and
   finance L4 phase 1/L5-L7 are on main. This is not current runtime proof.
-- **Current work:** D7 single-repository v3 design and repository preparation.
+- **Current work:** D7 framework merged; D1 construction-input decisions are next (see TASKS).
   Three planned 32GB/1TB Mini PCs are not provisioned. New infra/bootstrap/
   deploy/gitops areas are responsibility documents, not implemented deployment.
 - The reference cold-clone/image-supply gap remains open; no new Compose or

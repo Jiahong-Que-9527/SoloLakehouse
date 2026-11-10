@@ -5,6 +5,22 @@
 Read [AGENTS](../AGENTS.md), [roadmap](roadmap.md) and [TASKS](../TASKS.md).
 Prompts route to current authority rather than hard-coding a stale work block.
 
+<!-- [房玄龄·2026-11-10] Stable prompt for subsequent development sessions. -->
+
+## Resume the next bounded task
+
+```text
+Read AGENTS.md, docs/roadmap.md and TASKS.md before changing files.
+Use TASKS' next-session output and task IDs; honor the owner's current request.
+Read only the relevant v3 design sections and implementation/test files.
+State the task ID, dependencies, concrete output and applicable validation.
+Keep unknown inputs open rather than inventing executable configuration.
+After the change, update TASKS in the same PR with observed checks, evidence,
+remaining gaps and the next ID. Check off only outputs actually accepted.
+Update roadmap/design if scope, state or a decision changes.
+Do not deploy, change hosts, migrate state or delete files because a plan lists it.
+```
+
 ## Design task
 
 ```text

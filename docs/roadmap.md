@@ -75,6 +75,27 @@ evidence-based decisions. No Ceph or Longhorn installation is included now.
 
 ## Order and acceptance
 
+<!-- [房玄龄·2026-11-10] Owner-requested actionable roadmap and next-session route. -->
+
+D0 repository preparation is merged (#100), with the diagram (#101) and cover
+(#102). **Next: D1.1 construction inputs**, still pending. Before hardware,
+resolve network/switch requirements, compatible versions, capacity, NAS backup
+access, private/public configuration and independent key/state/bootstrap recovery.
+The output is a recorded decision set and a bounded first-VM implementation contract.
+
+Then implement small, independently verifiable slices: isolated fixture S3
+compatibility (D1.2), one static VM/cloud-init definition (D1.3), and minimal
+Flux configuration for a stateless test app (D1.4). D1.2 and D1.3 can proceed
+independently once their respective inputs are ready; S3 acceptance is required
+before W0 data migration, not before declaring a VM. Runtime validation of the
+GitOps configuration happens in H2 after a real cluster exists.
+
+Use [TASKS](../TASKS.md#next-bounded-work) for the single actionable queue,
+dependencies, deliverables and acceptance; use its
+[D1.1 inputs](../TASKS.md#d11-inputs-and-acceptance) for the next session.
+Listing future work does not authorize target-host operations or migration.
+No D1 implementation is claimed by this roadmap update.
+
 Follow [construction stages](design/v3/migration-and-validation.md):
 repository design → bounded static implementation → hardware acceptance →
 reproducible cluster → GitOps test workload → fixture reference data →
