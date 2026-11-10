@@ -27,6 +27,83 @@ the contracts, lineage, quality checks, and experiment evidence built around it.
 The next step is to make that foundation reproducible and operable through
 infrastructure as code and GitOps.
 
+## Architecture at a glance
+
+<!-- [房玄龄·2026-11-10] Reference capabilities and planned v3 delivery/placement; no deployment claim. -->
+
+```mermaid
+%%{init: {"flowchart": {"curve": "basis", "nodeSpacing": 24, "rankSpacing": 32, "htmlLabels": false}}}%%
+flowchart TB
+    accTitle: SoloLakehouse reference capabilities and planned v3 architecture
+    accDescr: Four layers separate code delivery, planned infrastructure, retained data capabilities, and planned operations. Solid elements are reference capabilities; dashed elements are future work.
+
+    subgraph delivery["01  |  Code and delivery"]
+        direction LR
+        repo["SoloLakehouse monorepo"] --> checks["CI checks"]
+        checks -.-> images[("Immutable images")]
+        images -.-> release["GitOps configuration PR"]
+        release -.-> flux["Flux reconciliation"]
+    end
+
+    subgraph foundation["02  |  V3 infrastructure - planned"]
+        direction LR
+        provision["OpenTofu + cloud-init / Ansible"]
+        hostOne["PVE 01 + K3s VM 01"]
+        hostTwo["PVE 02 + K3s VM 02"]
+        hostThree["PVE 03 + K3s VM 03"]
+        cluster["K3s server / worker cluster"]
+
+        provision -.-> hostOne & hostTwo & hostThree
+        hostOne & hostTwo & hostThree -.-> cluster
+    end
+
+    subgraph capabilities["03  |  Retained SLH capabilities - migration planned"]
+        direction LR
+        sources["ECB rates + FX + EWG"] --> dagster["Dagster orchestration"]
+        quality["Contracts / quality / lineage"] --> dagster
+        dagster --> lake[("S3 + Iceberg tables")]
+        catalog[("PostgreSQL + Hive catalog")] --> lake
+        lake --> trino["Trino SQL"]
+        trino --> consumers["OpenMetadata + Superset"]
+        dagster --> mlflow["MLflow + model evidence"]
+    end
+
+    subgraph operations["04  |  Operations and recovery - planned"]
+        direction LR
+        telemetry["Metrics / alerts / runbooks"]
+        backups[("Independent NAS backups")]
+        restore["Consistent catalog + data restore"]
+        telemetry ~~~ backups
+        backups -.-> restore
+    end
+
+    delivery -.->|"Provision and deploy"| foundation
+    foundation -.->|"Target runtime"| capabilities
+    capabilities -.->|"Observe and protect state"| operations
+
+    classDef existing fill:#e8f3ef,stroke:#527c6c,color:#17392b,stroke-width:1px;
+    classDef data fill:#fbf2df,stroke:#ae9158,color:#503d1b,stroke-width:1px;
+    classDef planned fill:#edf1fb,stroke:#7488b5,color:#253b60,stroke-width:1px,stroke-dasharray:5 4;
+    classDef recovery fill:#fff5e7,stroke:#b78d50,color:#553e1c,stroke-width:1px,stroke-dasharray:5 4;
+
+    class repo,checks,sources,dagster,quality,trino,consumers,mlflow existing;
+    class lake,catalog data;
+    class images,release,flux,provision,hostOne,hostTwo,hostThree,cluster,telemetry planned;
+    class backups,restore recovery;
+
+    style delivery fill:none,stroke:#94a3b8,stroke-width:1px
+    style foundation fill:none,stroke:#94a3b8,stroke-width:1px,stroke-dasharray:5 4
+    style capabilities fill:none,stroke:#729887,stroke-width:1px
+    style operations fill:none,stroke:#b99a68,stroke-width:1px,stroke-dasharray:5 4
+```
+
+Solid elements describe retained reference capabilities; dashed elements describe
+planned delivery, hosting and recovery. Kubernetes placement is a target design,
+not a running deployment. Each planned host carries one server/worker VM; the
+S3 implementation and backup procedures still require their scoped validation.
+See the [target architecture](docs/design/v3/architecture.md) for responsibilities
+and failure-domain boundaries.
+
 ## What is here today
 
 | Area | Implemented reference / boundary |
