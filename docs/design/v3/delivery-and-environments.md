@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design and construction plan; hardware not provisioned. -->
-
 # Delivery and environment design
 
 **Design only.** No Flux objects, chart release, CI deployment credential or

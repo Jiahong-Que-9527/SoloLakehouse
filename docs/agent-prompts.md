@@ -1,11 +1,7 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # Agent task reference
 
 Read [AGENTS](../AGENTS.md), [roadmap](roadmap.md) and [TASKS](../TASKS.md).
 Prompts route to current authority rather than hard-coding a stale work block.
-
-<!-- [房玄龄·2026-11-10] Stable prompt for subsequent development sessions. -->
 
 ## Resume the next bounded task
 

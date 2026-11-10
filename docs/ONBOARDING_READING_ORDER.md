@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # Reading order
 
 1. Read [README](../README.md): actual reference code, v3 design and workload boundaries.
@@ -12,8 +10,6 @@
    [runbook](../RUNBOOK.md), with their image-supply and destructive-command limits.
 6. For historical rationale, follow explicit links through the
    [archive index](history/pre-v3/README.md) or [ADRs](decisions/README.md).
-
-<!-- [房玄龄·2026-11-10] Find next work without reviving historical queues. -->
 
 For a fresh development session, use
 [TASKS start/handoff](../TASKS.md#start-here-in-the-next-session) and the

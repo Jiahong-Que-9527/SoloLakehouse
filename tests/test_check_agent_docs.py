@@ -78,7 +78,7 @@ class TestRepositoryEntryPoints:
             )
 
 
-# [房玄龄·2026-11-10] Regress missing task routes and unpublished new-tool entrypoints.
+# Regress missing task routes and unpublished new-tool entrypoints.
 class TestSharedWorkDiscovery:
     @pytest.mark.parametrize(
         "pointer", [p for p in check_agent_docs.ENTRY_POINTS if p != "AGENTS.md"],

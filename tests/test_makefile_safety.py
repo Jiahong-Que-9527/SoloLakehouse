@@ -1,4 +1,4 @@
-# [房玄龄·2026-11-10] Regression checks: legacy convenience targets must not destroy state.
+# Regression checks: legacy convenience targets must not destroy state.
 from __future__ import annotations
 
 import os

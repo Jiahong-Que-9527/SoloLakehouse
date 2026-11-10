@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
-
 # Owner decision sources and evidence
 
 Use the smallest set needed for the decision.

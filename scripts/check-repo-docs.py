@@ -1,4 +1,4 @@
-# [房玄龄·2026-11-10] Validate active documentation, immutable archives and retained-task coverage.
+# Validate active documentation, immutable archives and retained-task coverage.
 from __future__ import annotations
 
 import hashlib
@@ -13,7 +13,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[1]
 ACTIVE_FILES = (
     "README.md", "AGENTS.md", "CLAUDE.md", "TASKS.md", "CONTRIBUTING.md",
-    # [房玄龄·2026-11-10] Validate agent-pointer links and handoff navigation too.
+    # Validate agent-pointer links and handoff navigation too.
     "GEMINI.md", ".github/copilot-instructions.md", ".cursor/rules/sololakehouse.mdc",
     ".agents/skills/slh-context-router/references/routing-map.md",
     "docs/README.md", "docs/roadmap.md", "docs/ONBOARDING_READING_ORDER.md",

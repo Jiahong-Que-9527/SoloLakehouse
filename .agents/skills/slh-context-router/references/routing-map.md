@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved monorepo design and safe repository entrypoints. -->
-
 # Routing map
 
 Roadmap defines scope; TASKS defines the next output. Current authorization and AGENTS override historical defaults.

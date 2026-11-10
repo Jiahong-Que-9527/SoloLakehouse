@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved design-only monorepo scaffold. -->
-
 # SLH environment release contract
 
 **Status: design only; hardware not provisioned.**

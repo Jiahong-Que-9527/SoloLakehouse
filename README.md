@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design and construction plan; hardware not provisioned. -->
-
 <p align="center"><img src="docs/img/slh-brand.png" width="220" alt="SoloLakehouse logo"></p>
 
 <h1 align="center">SoloLakehouse</h1>
@@ -15,8 +13,6 @@
   <a href="docs/roadmap.md">Roadmap</a> &middot;
   <a href="TASKS.md">Development TODO</a>
 </p>
-
-<!-- [房玄龄·2026-11-10] Owner-provided platform cover; reference and target boundaries preserved. -->
 
 ![SoloLakehouse platform overview: finance reference, separate aviation workload, and planned v3 infrastructure](docs/img/sololakehouse-platform-overview.png)
 
@@ -37,8 +33,6 @@ The next step is to make that foundation reproducible and operable through
 infrastructure as code and GitOps.
 
 ## Architecture at a glance
-
-<!-- [房玄龄·2026-11-10] Reference capabilities and planned v3 delivery/placement; no deployment claim. -->
 
 ```mermaid
 %%{init: {"flowchart": {"curve": "basis", "nodeSpacing": 24, "rankSpacing": 32, "htmlLabels": false}}}%%
@@ -164,8 +158,6 @@ Start with the [complete construction plan](docs/design/v3/README.md),
 The [roadmap](docs/roadmap.md) owns scope; [TASKS.md](TASKS.md) owns execution order.
 
 ## Continue development
-
-<!-- [房玄龄·2026-11-10] Discoverable next-work route for people and coding agents. -->
 
 **Next: D1.1 construction-input decisions.** The D0 framework is merged;
 infrastructure and runtime implementation remain pending. Start with

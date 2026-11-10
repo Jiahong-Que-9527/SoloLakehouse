@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # Roadmap
 
 This file decides **what the repository builds**. [TASKS](../TASKS.md) decides
@@ -74,8 +72,6 @@ protocol, network allocations, exact versions and RPO/RTO/SLO targets still need
 evidence-based decisions. No Ceph or Longhorn installation is included now.
 
 ## Order and acceptance
-
-<!-- [房玄龄·2026-11-10] Owner-requested actionable roadmap and next-session route. -->
 
 D0 repository preparation is merged (#100), with the diagram (#101) and cover
 (#102). **Next: D1.1 construction inputs**, still pending. Before hardware,

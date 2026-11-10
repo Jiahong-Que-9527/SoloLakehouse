@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # Agent guide — SoloLakehouse
 
 Read this before changing the repository. Honor the owner's current task and
@@ -12,8 +10,6 @@ invoking workspace instructions, including exact-target file/data approval.
 - [docs/design/v3/README.md](docs/design/v3/README.md): detailed v3 construction design.
 - [CLAUDE.md](CLAUDE.md): code-level patterns; pointer tools defer here for state.
 - [docs/README.md](docs/README.md): bounded reference navigation.
-
-<!-- [房玄龄·2026-11-10] Shared next-session and completion protocol for coding agents. -->
 
 ### Starting and handing off work
 

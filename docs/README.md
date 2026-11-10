@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # Documentation
 
 Start with the [project README](../README.md). Current work is single-repository

@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # ADR-024: Single-repository v3 construction design
 
 **Status:** Accepted for repository/design scope; runtime choices remain conditional.  

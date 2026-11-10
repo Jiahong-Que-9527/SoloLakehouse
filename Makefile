@@ -280,7 +280,7 @@ wait:
 		sleep 10; \
 	done
 
-# [房玄龄·2026-11-10] Repository-only entrypoints; no deployment or cleanup.
+# Repository-only entrypoints; no deployment or cleanup.
 help:
 	@{ printf '%s\n' 'SoloLakehouse: design and reference-code commands' 'No cluster is deployed by this scaffold.' 'make docs-check / check-agent-docs: repository integrity' 'make lint / typecheck / validate-contracts / test: installed Python checks' 'make setup / verify / demo / pipeline: explicit Compose reference operations' 'make down: stop the reference stack, retaining bind-mounted state' 'clean / reset-mlflow-db / purge-legacy-docker-volumes: disabled'; }
 

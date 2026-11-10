@@ -1,4 +1,4 @@
-# [房玄龄·2026-11-10] Check code fences, heading anchors and preserved source coverage.
+# Check code fences, heading anchors and preserved source coverage.
 from __future__ import annotations
 
 import importlib.util

@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Shared project entrypoint for Gemini agents. -->
-
 # SoloLakehouse agent entrypoint
 
 Read [AGENTS](AGENTS.md) before work, then [roadmap](docs/roadmap.md) for scope

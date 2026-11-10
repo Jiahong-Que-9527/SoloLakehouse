@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved design-only monorepo scaffold. -->
-
 # Platform component ownership
 
 **Status: design only; hardware not provisioned.**

@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design; no hardware deployment. -->
-
 # Active work
 
 [Roadmap](docs/roadmap.md) owns scope. This file owns the execution order.
@@ -13,8 +11,6 @@ next and not yet implemented.** The framework landed in PR #100; PRs #101 and
 #102 added the architecture diagram and platform cover. Hardware is not
 provisioned. Infra/bootstrap/deploy/gitops still contain responsibility documents,
 not Terraform resources, Ansible plays, Helm charts or Flux manifests.
-
-<!-- [房玄龄·2026-11-10] Owner-requested next-work record and shared agent handoff. -->
 
 ## Start here in the next session
 

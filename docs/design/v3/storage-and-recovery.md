@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design and construction plan; hardware not provisioned. -->
-
 # Storage and recovery design
 
 **Design only.** No disk, NAS export, bucket, PVC or backup job is configured

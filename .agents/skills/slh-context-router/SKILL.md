@@ -3,8 +3,6 @@ name: slh-context-router
 description: "Route SoloLakehouse work through Graphify to the smallest authoritative context, appropriate tools or agents, and focused validation plan. Use for backlog questions, code changes, architecture analysis, operations, documentation, GitHub work, or multi-agent delegation—especially after an Owner Decision or whenever broad repository loading would be wasteful."
 ---
 
-<!-- [房玄龄·2026-11-04] Owner-approved platform positioning; documentation only. -->
-
 # SoloLakehouse Context Router
 
 Select only the context needed to answer or execute the request. For unapproved significant work, ask for or create an Owner Decision through `$slh-platform-owner` before routing implementation.

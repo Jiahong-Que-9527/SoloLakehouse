@@ -1,5 +1,3 @@
-<!-- [房玄龄·2026-11-10] Owner-approved single-repository v3 design and construction plan; hardware not provisioned. -->
-
 # V3 construction plan
 
 **Stage: design and repository preparation.** Hardware is not provisioned.
@@ -59,8 +57,6 @@ claim a running cluster.
 Hardware arrival is not a reason to skip storage or credential recovery design.
 Complete the first isolated state restore before admitting important state.
 Stage names establish ordering, not an eight-week completion commitment.
-
-<!-- [房玄龄·2026-11-10] Single next-action source and bounded pre-hardware slices. -->
 
 The immediate next output is [D1.1 construction inputs](../../../TASKS.md#d11-inputs-and-acceptance).
 The [active queue](../../../TASKS.md#next-bounded-work) defines pending IDs,
