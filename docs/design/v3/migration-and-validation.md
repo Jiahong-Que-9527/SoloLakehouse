@@ -42,6 +42,14 @@ Keep real tfvars, inventory, plans/state, private keys and kubeconfig outside
 public commits. Preserve encrypted recovery copies. No auto-apply or scheduled
 deployment is part of D0.
 
+<!-- [房玄龄·2026-11-10] Pending D1 slices are owned by the active queue. -->
+
+Use [TASKS](../../../TASKS.md#next-bounded-work) for D1.1 inputs, D1.2 S3
+compatibility, D1.3 first VM/cloud-init and D1.4 minimal GitOps configuration.
+D1.2 and D1.3 can proceed independently after their respective inputs; S3
+compatibility blocks W0 state migration rather than the VM definition. D1.4
+static render/schema checks do not satisfy H2 reconciliation/drift/rollback.
+
 ## H0 — physical acceptance and PVE
 
 1. Accept the first machine's actual RAM/SSD/NIC configuration and BIOS options.

@@ -2,6 +2,12 @@
 
 For current design scope and the next output, follow [AGENTS](AGENTS.md), [TASKS](TASKS.md) and the [construction plan](docs/design/v3/README.md). This file supplies code patterns for retained reference paths.
 
+<!-- [房玄龄·2026-11-10] Use the shared handoff protocol; never maintain a tool-local backlog. -->
+
+For pending task IDs, dependencies and acceptance, use TASKS; for scope use
+[roadmap](docs/roadmap.md). Follow the start/handoff protocol in AGENTS and
+record actual completion evidence in TASKS in the same PR.
+
 # Agent Guide for SoloLakehouse
 
 This file carries the **code-level patterns** for this repository: layout,

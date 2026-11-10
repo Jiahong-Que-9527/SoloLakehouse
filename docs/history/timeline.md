@@ -335,3 +335,14 @@ Theme:
 Owner approved complete construction design, README/navigation rewrite, responsibility scaffolds, byte-preserved historical archive and safe command changes. All previous unchecked task sources are indexed. Hardware is not provisioned; no IaC/chart/Flux or runtime migration is claimed.
 
 See [construction plan](../design/v3/README.md), [ADR-024](../decisions/ADR-024-v3-gitops-monorepo.md) and [original archive](pre-v3/README.md).
+
+## 2026-11-10: Next development work and shared agent handoff
+
+<!-- [房玄龄·2026-11-10] Owner requested future work and roadmap discoverability. -->
+
+Recorded D0 framework/README completion (#100-#102) and pending D1.1 construction
+inputs, isolated S3 compatibility, first VM/cloud-init and minimal GitOps slices.
+TASKS remains the sole active queue; roadmap owns scope and the construction
+plan owns stage procedures. Expanded thin agent pointers and CI checks for
+TODO/roadmap discovery. No IaC, deployment, hardware or migration is delivered.
+See [next work](../../TASKS.md#start-here-in-the-next-session).

@@ -11,4 +11,10 @@ Read [AGENTS.md](../../AGENTS.md), then the relevant section of [roadmap](../../
 
 Honor current owner authorization, exact-target file/data safety, English-only public docs and private workload/source boundaries. Read historical originals only as explicitly linked reference. New deployment design is not runtime proof. No automatic installs, host operations or data cleanup follow from reading this entrypoint.
 
+<!-- [房玄龄·2026-11-10] Use the shared task-ID and evidence handoff protocol. -->
+
+Use TASKS as the single TODO for pending IDs, dependencies, outputs and
+acceptance. Follow AGENTS' start/handoff protocol and update TASKS with observed
+checks, gaps and next ID in the same PR; do not keep a separate Cursor backlog.
+
 Choose verification proportional to the task; preserve archive hashes and unresolved work. make check-agent-docs verifies common entrypoints.

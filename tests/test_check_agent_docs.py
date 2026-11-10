@@ -76,3 +76,31 @@ class TestRepositoryEntryPoints:
             assert check_agent_docs.VERSION_TABLE.search(text) is None, (
                 f"{path_str} duplicates the version table"
             )
+
+
+# [房玄龄·2026-11-10] Regress missing task routes and unpublished new-tool entrypoints.
+class TestSharedWorkDiscovery:
+    @pytest.mark.parametrize(
+        "pointer", [p for p in check_agent_docs.ENTRY_POINTS if p != "AGENTS.md"],
+    )
+    @pytest.mark.parametrize("target", ["TASKS.md", "docs/roadmap.md"])
+    def test_rejects_pointer_without_work_authority(
+        self, pointer: str, target: str, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        original = Path.read_text
+        affected = check_agent_docs.REPO_ROOT / pointer
+
+        def read_text(path: Path, *args: object, **kwargs: object) -> str:
+            text = original(path, *args, **kwargs)  # type: ignore[arg-type]
+            return text.replace(target, "missing-route") if path == affected else text
+
+        monkeypatch.setattr(Path, "read_text", read_text)
+        assert check_agent_docs.main() == 1
+
+    @pytest.mark.parametrize("pointer", ["GEMINI.md", ".github/copilot-instructions.md"])
+    def test_rejects_unpublished_tool_entrypoint(
+        self, pointer: str, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        published = check_agent_docs._published_files() - {pointer}
+        monkeypatch.setattr(check_agent_docs, "_published_files", lambda: published)
+        assert check_agent_docs.main() == 1

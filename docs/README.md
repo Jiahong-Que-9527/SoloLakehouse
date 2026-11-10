@@ -11,7 +11,8 @@ operated-workload reports and future deployment plans have different evidence.
 | Question | Source |
 |---|---|
 | What is in scope? | [Roadmap](roadmap.md) |
-| What comes next? | [Active work](../TASKS.md) |
+| What comes next? | [Development TODO and handoff](../TASKS.md#start-here-in-the-next-session) |
+| How should a coding agent begin and finish? | [Shared agent protocol](../AGENTS.md#starting-and-handing-off-work) |
 | How will the entire platform be constructed? | [V3 construction plan](design/v3/README.md) |
 | How are hosts/resources/network and responsibilities arranged? | [Target architecture](design/v3/architecture.md) |
 | Where does state live and how is it recovered? | [Storage and recovery](design/v3/storage-and-recovery.md) |

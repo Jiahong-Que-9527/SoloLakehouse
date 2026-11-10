@@ -6,6 +6,7 @@ Roadmap defines scope; TASKS defines the next output. Current authorization and 
 
 | Task | Minimal source | Validation |
 |---|---|---|
+| Next development task / handoff | TASKS.md next-session output and acceptance, docs/roadmap.md scope, AGENTS.md shared protocol | record task ID, actual checks/evidence, gaps and next ID in the same PR |
 | Repository design | docs/design/v3/README.md and one detailed design section | docs-check, check-agent-docs |
 | Runtime/code | affected module, CLAUDE patterns and matching tests | applicable lint/type/contract/unit checks; explicitly scoped runtime evidence |
 | Infrastructure/bootstrap | infra/ or bootstrap/ README, architecture and recovery design | actual static definitions first; provisioning only in an authorized target scope |
