@@ -211,6 +211,18 @@ is selected for execution, record its owner, dependencies, intended artifacts,
 acceptance method and resulting evidence here. Cloud and private Aviation
 execution remain subject to their project and environment scope.
 
+### Project-scoped CI
+
+[Codex · 2026-11-13] Branch pushes and PRs use the
+[project scope selector](scripts/ci_scope.py). Finance runs the existing
+reference checks, public Aviation docs have scoped link validation, and
+shared or unknown changes run full CI. The stable `checks` job evaluates
+the selected jobs. Deployment and repository rules are separate follow-up
+work in the [project delivery design](docs/design/project-delivery.md).
+Validation: project entry points, lint, types, contracts, 231 tests with
+76.59% coverage, both documentation checks, and seven event scenarios using
+real Git history passed locally.
+
 ## Execution rules
 
 - Work one bounded slice with a stated output and verification method.

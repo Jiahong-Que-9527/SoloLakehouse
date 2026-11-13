@@ -1,14 +1,16 @@
 # Project-scoped CI/CD design
 
-<!-- [Codex · 2026-11-13] Documentation-only design. -->
+<!-- [Codex · 2026-11-13] Project CI scope and future release design. -->
 
 [Finance](../../projects/finance/roadmap.md) and
 [Aviation](../../projects/aviation/roadmap.md) have independent ownership,
 milestones and acceptance evidence. The
 [project index](../../projects/README.md) locates each source of truth.
-The current public [CI](../../.github/workflows/test.yml) runs on pull requests.
-The [Compose Demo](../../.github/workflows/compose-demo.yml) is manual.
-The following sections describe the intended behavior.
+The public [CI](../../.github/workflows/test.yml) runs on branch pushes and
+pull requests. The [scope selector](../../scripts/ci_scope.py) maps changed
+paths to Finance checks and to either Aviation or repository documentation
+checks. The [Compose Demo](../../.github/workflows/compose-demo.yml) stays
+manual. Release steps below describe future work.
 
 ## Trigger and change range
 
@@ -22,20 +24,19 @@ The following sections describe the intended behavior.
   result. Run applicable checks without cloud or private release credentials.
   An applicable failure, cancellation or unexpected skip fails the required
   result. A deliberately inapplicable job may be skipped.
-- **Update to protected `main`:** Re-evaluate the full before/after range.
+- **Future release on update to protected `main`:** Re-evaluate the full before/after range.
   Build immutable artifacts only for projects with release-affecting changes.
   Deploy selected artifacts only to configured targets through the appropriate
   deployment identity and environment controls. Ambiguous release impact needs
   review before dispatch. Documentation-only changes run validation.
 - **Change classification:** Include deleted paths and both sides of a rename.
-  Evaluate transitive dependencies on shared files. Unknown paths or an
-  incomplete diff select broader tests. Ignore branch-deletion events.
+  Shared or unclassified paths and unavailable diffs select full CI. Ignore
+  branch-deletion events.
 
 Avoid filtering out the entire required PR workflow. GitHub can leave a
-path-filtered required check pending. The existing always-triggered CI
-provides a baseline while the selection logic is validated. Enable the required
-status check in the repository ruleset during implementation and verify actual
-merge behavior. See [GitHub required status checks](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks).
+path-filtered required check pending. The workflow reports a stable `checks`
+result after the selected jobs. Enforcing that result at merge requires
+configuring and verifying the repository ruleset. See [GitHub required status checks](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks).
 
 ## Ownership and affected paths
 
@@ -52,6 +53,17 @@ root dependency files. Test-only changes validate their consumers without
 publishing artifacts. Keep the mapping aligned with actual import and build
 dependencies. Public Aviation documentation and synthetic fixtures have
 separate ownership from the private implementation.
+
+The current layout keeps project ownership and navigation under
+`projects/finance/` and `projects/aviation/`. Finance CI also follows the
+existing root-level runtime and contract paths. Shared code, tests, build
+configuration and unfamiliar non-documentation paths keep full validation.
+Run the same project entry points locally with `make -C projects/finance
+check` (after installing the reference dependencies) and
+`make -C projects/aviation check`. Aviation-only Markdown uses the scoped
+link checker. The repository docs check includes both project trees. Add new runnable
+components and their dependency paths to the selector and tests when they
+are introduced.
 
 ## Deployment and evidence
 

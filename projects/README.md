@@ -21,6 +21,16 @@ Each project has its own learning and delivery roadmap. See the
 [project CI/CD design](../docs/design/project-delivery.md) for shared trigger
 rules and acceptance scenarios.
 
+## Project checks
+
+[GitHub Actions](../.github/workflows/test.yml) selects checks on branch
+pushes and pull requests. [Finance](finance/README.md) code and contracts
+run Finance reference checks. [Aviation](aviation/README.md) public docs
+have their own link check. Run these checks locally with
+`make -C projects/finance check` or `make -C projects/aviation check`.
+Shared and unclassified changes run the complete set. The [path and release design](../docs/design/project-delivery.md)
+explains ownership and future deployment.
+
 ## Managing projects in this repository
 
 Give each project a page that identifies its engineering source of truth.

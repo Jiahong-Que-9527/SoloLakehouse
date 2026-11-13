@@ -1,6 +1,7 @@
 # Validate active documentation, immutable archives and retained-task coverage.
 from __future__ import annotations
 
+import argparse
 import hashlib
 import html
 import json
@@ -17,12 +18,13 @@ ACTIVE_FILES = (
     "GEMINI.md", ".github/copilot-instructions.md", ".cursor/rules/sololakehouse.mdc",
     ".agents/skills/slh-context-router/references/routing-map.md",
     "docs/README.md", "docs/roadmap.md", "docs/ONBOARDING_READING_ORDER.md",
+    "docs/design/project-delivery.md", "docs/workloads/aviation.md",
     "docs/agent-prompts.md", "docs/decisions/ADR-024-v3-gitops-monorepo.md",
     "task.md", "docs/v3-spec.md", "docs/governance-v3-matrix.md",
     "docs/governance-v3-runbook.md", "docs/v3-governance-navigation.md",
     "docs/architecture-review-2026-08-11.md", "docs/history/pre-v3/README.md",
 )
-ACTIVE_TREES = ("docs/design/v3", "infra", "bootstrap", "deploy", "gitops")
+ACTIVE_TREES = ("docs/design/v3", "infra", "bootstrap", "deploy", "gitops", "projects")
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 HTML_LINK = re.compile(r"""(?:href|src)\s*=\s*["']([^"']+)["']""", re.IGNORECASE)
 
@@ -74,9 +76,12 @@ def published_paths() -> set[str]:
     return set(result.stdout.splitlines())
 
 
-def check_links() -> tuple[list[str], int]:
-    paths = {ROOT / rel for rel in ACTIVE_FILES}
-    for tree in ACTIVE_TREES:
+def check_links(
+    files: tuple[str, ...] = ACTIVE_FILES,
+    trees: tuple[str, ...] = ACTIVE_TREES,
+) -> tuple[list[str], int]:
+    paths = {ROOT / rel for rel in files}
+    for tree in trees:
         paths.update((ROOT / tree).rglob("*.md"))
     errors: list[str] = []
     published = published_paths()
@@ -137,6 +142,16 @@ def check_retained_work() -> tuple[list[str], int]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--aviation", action="store_true", help="check public Aviation links only")
+    if parser.parse_args().aviation:
+        errors, count = check_links(("docs/workloads/aviation.md",), ("projects/aviation",))
+        if errors:
+            print("\n".join(errors), file=sys.stderr)
+            return 1
+        print(f"Aviation docs OK: {count} local links.")
+        return 0
+
     errors, count = check_links()
     archived, archive_count = check_archive()
     retained, retained_count = check_retained_work()
