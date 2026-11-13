@@ -7,6 +7,11 @@ rates and exchange rates and uses Alpha Vantage EWG as a German-equity proxy.
 The reference processes these inputs through Bronze, Silver, and Gold Iceberg
 tables, with Dagster orchestration and Trino queries.
 
+<!-- [Codex · 2026-11-13] Finance roadmap navigation. -->
+
+The [Finance roadmap](roadmap.md) defines the Local, GCP and Databricks
+learning and delivery milestones.
+
 ## Sources of truth
 
 - **Inputs and transformations.** [Collectors](../../ingestion/collectors) own
