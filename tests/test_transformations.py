@@ -7,50 +7,8 @@ import pytest
 
 from transformations.build_eur_market_daily import build_eur_market_daily
 from transformations.dax_bronze_to_silver import transform_dax_bronze_to_silver
-from transformations.ecb_bronze_to_silver import transform_ecb_bronze_to_silver
 from transformations.ecb_fx_bronze_to_silver import transform_ecb_fx_bronze_to_silver
 from transformations.silver_to_gold_features import build_gold_features
-
-
-class TestECBTransform:
-    def test_transform_ecb_dedup_drops_null_rates(self) -> None:
-        df = pd.DataFrame(
-            {
-                "observation_date": ["2024-01-01", "2024-01-02", "2024-01-02", "2024-01-03"],
-                "rate_pct": [4.0, None, 4.25, 4.25],
-                "_ingestion_timestamp": [dt.datetime.now(dt.timezone.utc)] * 4,
-                "_source": ["ECB_SDW"] * 4,
-            }
-        )
-
-        out = transform_ecb_bronze_to_silver(df)
-
-        assert "rate_change_bps" in out.columns
-        assert len(out) == 3
-        assert out["rate_pct"].isnull().sum() == 0
-        assert out["observation_date"].duplicated().sum() == 0
-        rate_change = out.loc[
-            out["observation_date"] == dt.date(2024, 1, 2),
-            "rate_change_bps",
-        ].item()
-        assert rate_change == 25.0
-
-    def test_transform_ecb_prefers_dfr_when_present(self) -> None:
-        df = pd.DataFrame(
-            {
-                "observation_date": ["2024-01-01", "2024-01-01", "2024-01-02", "2024-01-02"],
-                "rate_pct": [4.0, 3.5, 4.25, 3.75],
-                "rate_type": ["MRO", "DFR", "MRO", "DFR"],
-                "_ingestion_timestamp": [dt.datetime.now(dt.timezone.utc)] * 4,
-                "_source": ["ECB_SDW"] * 4,
-            }
-        )
-
-        out = transform_ecb_bronze_to_silver(df)
-
-        assert len(out) == 2
-        assert out.iloc[0]["rate_pct"] == 3.5
-        assert out.iloc[1]["rate_pct"] == 3.75
 
 
 class TestDAXTransform:

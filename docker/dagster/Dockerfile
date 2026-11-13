@@ -10,6 +10,9 @@ RUN pip install --no-cache-dir -r requirements.txt -r requirements-dagster.txt
 COPY ingestion ./ingestion
 COPY governance ./governance
 COPY transformations ./transformations
+COPY projects/__init__.py ./projects/__init__.py
+COPY projects/finance/__init__.py ./projects/finance/__init__.py
+COPY projects/finance/src ./projects/finance/src
 COPY ml ./ml
 COPY scripts ./scripts
 COPY dagster ./dagster

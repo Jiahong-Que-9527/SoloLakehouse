@@ -217,15 +217,15 @@ fix-om-ingestion-db:
 	@bash scripts/fix-om-ingestion-db.sh
 
 test:
-	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration
+	$(PYTHON) -m pytest tests/ projects/finance/tests/ -v --tb=short --ignore=tests/integration
 
-TEST_COV_PACKAGES := --cov=ingestion --cov=transformations --cov=ml --cov=governance --cov=dagster
+TEST_COV_PACKAGES := --cov=ingestion --cov=transformations --cov=ml --cov=governance --cov=dagster --cov=projects.finance.src
 
 test-cov:
-	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-fail-under=70
+	$(PYTHON) -m pytest tests/ projects/finance/tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-fail-under=70
 
 test-cov-html:
-	$(PYTHON) -m pytest tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-report=html --cov-fail-under=70
+	$(PYTHON) -m pytest tests/ projects/finance/tests/ -v --tb=short --ignore=tests/integration $(TEST_COV_PACKAGES) --cov-report=term-missing --cov-report=html --cov-fail-under=70
 
 test-integration:
 	$(PYTHON) -m pytest tests/integration/ -v --tb=short -m integration
@@ -240,7 +240,7 @@ lint:
 
 # Requires Dagster on PYTHONPATH (same as CI): pip install -r requirements.txt -r requirements-dagster.txt
 typecheck:
-	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/
+	$(PYTHON) -m mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/ projects/finance/src/
 
 dagster-install:
 	$(PYTHON) -m pip install -r requirements-dagster.txt

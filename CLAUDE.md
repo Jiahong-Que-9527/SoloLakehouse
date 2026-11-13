@@ -70,7 +70,7 @@ make dagster-ui  # Open Dagster UI (http://localhost:3000)
 make verify      # Health-check all services
 make test        # Run unit tests (pytest, no Docker needed)
 make lint        # ruff (CI)
-make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/, governance/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
+make typecheck   # mypy on ingestion/, transformations/, ml/, scripts/, dagster/, governance/, projects/finance/src/ (install requirements-dagster.txt so the local dagster/ folder does not shadow PyPI dagster)
 make docs-check  # Active links, immutable archive hashes and retained-task coverage
 # clean/reset/purge targets are disabled; use make down for non-destructive shutdown.
 
@@ -120,8 +120,10 @@ ingestion/
   iceberg_schemas.py  # Iceberg Schema + PartitionSpec for all six tables
   trino_sql.py        # Trino REST utility (execute_trino_sql only; Hive staging removed)
 
+projects/finance/src/
+  ecb_bronze_to_silver.py   # ECB: type cleanup, deduplication, rate_change_bps
+
 transformations/
-  ecb_bronze_to_silver.py   # ECB: type cleanup, forward-fill, rate_change_bps
   dax_bronze_to_silver.py   # DAX: weekend filter, daily_return
   silver_to_gold_features.py # Join ECB+DAX, build event-study features
 

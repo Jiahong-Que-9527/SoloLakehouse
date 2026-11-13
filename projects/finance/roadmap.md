@@ -13,7 +13,7 @@ owns implementation status.
 
 Use a versioned public or synthetic ECB Bronze fixture and the existing
 [ECB Silver contract](../../governance/datasets/fin.ecb_rates_silver.yaml).
-The [reference conversion](../../transformations/ecb_bronze_to_silver.py)
+The [reference conversion](src/ecb_bronze_to_silver.py)
 establishes the starting behavior. Record the input checksum, date window,
 expected rows, and comparison rules for ordering, nulls and numeric precision.
 Cover DFR preference and fallback, duplicate dates, first-row null change and
