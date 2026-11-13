@@ -92,6 +92,36 @@ outside a dependency cycle with Flux. Apply dependency ordering for controllers,
 CRDs, storage, secrets, databases and applications. Do not put persistent-data
 resources under an unrestricted routine prune policy.
 
+## D1.1 state and credential ownership
+
+[Codex · 2026-11-13] Use a single-writer administration environment outside
+the target cluster for the first VM. The platform operator owns the state
+and recovery inventory. For the first VM, select the
+[OpenTofu local backend](https://opentofu.org/docs/language/state/backends/)
+on that administration environment and retain an encrypted independent
+copy after every state-changing run. Serialize writes on that environment
+and keep normal state locking enabled. Select a locking remote backend
+before introducing concurrent automation. The exact administration host,
+private backup destination and access procedure remain open and must be
+verified before a live state-changing operation.
+
+| Material | Classification and recovery input |
+|---|---|
+| Resource shape, version pins and sanitized examples | Public Git. Recover from the reviewed commit |
+| PVE identity, real input inventory, OpenTofu state and plans | Private. Recover from the independent operator-controlled store using the backup and access record |
+| Flux Git credential and bootstrap access | Private. Define read access for reconciliation and use a separate bootstrap identity if writes are needed. Verify credential reissue and Git reachability from outside the cluster before H2 |
+| SOPS declarations and age keys | Suitable SOPS ciphertext may live in Git. Keep the age private key and any required recovery copy outside the cluster and Git. Confirm independent decryption of a test declaration before D1.4/H2 |
+| K3s server token and snapshots | Private. Keep the matching token with a recoverable snapshot reference in the independent inventory and rehearse isolated restoration in H1. See [K3s backup and restore](https://docs.k3s.io/datastore/backup-restore) |
+
+Recovery order: obtain administration access, Git and the private recovery
+inventory outside the cluster. Recover infrastructure state and the
+required PVE access. Recover K3s using the selected compatible version,
+snapshot and token when restoring an existing cluster. Reestablish Flux
+Git access and age decryption before reconciling applications. Verify actual
+locations, access and recovery with a disposable test before relying on
+them. D1.4 still needs the cluster endpoint, Git identity and recovery
+inputs. H2 owns runtime reconciliation and rollback evidence.
+
 ## Promotion and rollback
 
 Promote the same artifacts only after the defined checks for the destination
