@@ -1,27 +1,86 @@
 name: CI
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  checks:
+  scope:
+    if: github.event_name != 'push' || !github.event.deleted
+    runs-on: ubuntu-latest
+    outputs:
+      finance: ${{ steps.paths.outputs.finance }}
+      docs: ${{ steps.paths.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: paths
+        run: python3 scripts/ci_scope.py
+
+  docs:
+    name: ${{ needs.scope.outputs.docs == 'aviation' && 'Aviation public documentation' || 'Repository documentation' }}
+    needs: scope
+    if: needs.scope.outputs.docs != 'none'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      # Install Dagster so mypy resolves imports to the installed package.
-      - run: pip install -r requirements.txt -r requirements-dagster.txt
-      - run: ruff check .
-      - run: python scripts/check-agent-docs.py
-      - run: python scripts/check-repo-docs.py
-      - run: python scripts/validate-dataset-contracts.py
-      - run: mypy ingestion/ transformations/ ml/ scripts/ dagster/ governance/
-      - run: >-
-          pytest tests/ -v --tb=short --ignore=tests/integration
-          --cov=ingestion --cov=transformations --cov=ml --cov=governance
-          --cov=dagster --cov-report=term-missing --cov-fail-under=70
+      - if: needs.scope.outputs.docs == 'aviation'
+        run: make -C projects/aviation check
+      - if: needs.scope.outputs.docs == 'repository'
+        run: make docs-check check-agent-docs
+
+  finance:
+    name: Finance reference
+    needs: scope
+    if: needs.scope.outputs.finance == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -r requirements.txt -r requirements-dagster.txt
+      - run: make -C projects/finance check
+
+  checks:
+    needs: [scope, docs, finance]
+    if: always() && (github.event_name != 'push' || !github.event.deleted)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify selected jobs
+        env:
+          SCOPE_RESULT: ${{ needs.scope.result }}
+          DOCS_SCOPE: ${{ needs.scope.outputs.docs }}
+          DOCS_RESULT: ${{ needs.docs.result }}
+          FINANCE_SELECTED: ${{ needs.scope.outputs.finance }}
+          FINANCE_RESULT: ${{ needs.finance.result }}
+        run: |
+          set -eu
+          test "$SCOPE_RESULT" = success
+          case "$DOCS_SCOPE" in
+            aviation|repository) test "$DOCS_RESULT" = success ;;
+            none) test "$DOCS_RESULT" = skipped ;;
+            *) exit 1 ;;
+          esac
+          case "$FINANCE_SELECTED" in
+            true) test "$FINANCE_RESULT" = success ;;
+            false) test "$FINANCE_RESULT" = skipped ;;
+            *) exit 1 ;;
+          esac
