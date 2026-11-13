@@ -157,6 +157,16 @@ The legacy DAX dataset contracts and Python names are still referenced.
 A later rename requires its own compatibility change; no broad code deletion
 is authorized by documentation cleanup.
 
+## Project delivery design references
+
+[Codex · 2026-11-13] See [Finance](projects/finance/roadmap.md),
+[Aviation](projects/aviation/roadmap.md), and
+[project CI/CD](docs/design/project-delivery.md) for designed milestones and
+acceptance scenarios. Keep D1.1 as the active Local work. When a project slice
+is selected for execution, record its owner, dependencies, intended artifacts,
+acceptance method and resulting evidence here. Cloud and private Aviation
+execution remain subject to their project and environment scope.
+
 ## Execution rules
 
 - Work one bounded slice with a stated output and verification method.

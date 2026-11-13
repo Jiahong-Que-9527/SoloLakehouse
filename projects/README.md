@@ -10,14 +10,20 @@ environments.
   owns the Finance reference code, dataset contracts, tests, and Compose
   definitions. The project page links to the reproduction path and its current
   limitations.
-- [Aviation](../docs/workloads/aviation.md) is a separately operated workload.
+- [Aviation](aviation/README.md) is a separately operated workload.
   This repository owns the public case description. Its private implementation,
   data, and operational evidence stay with that workload. The public case links
   to the available evidence and describes the limits of reproduction.
 
+<!-- [Codex · 2026-11-13] Project roadmap and delivery design navigation. -->
+
+Each project has its own learning and delivery roadmap. See the
+[project CI/CD design](../docs/design/project-delivery.md) for shared trigger
+rules and acceptance scenarios.
+
 ## Managing projects in this repository
 
-Give each public implementation a project page when it joins the repository.
+Give each project a page that identifies its engineering source of truth.
 Record its scope, canonical code and contracts, test and reproduction entry
 points, and environment status. Link to existing sources so that each artifact
 has one maintained definition. For a separately maintained workload, link to

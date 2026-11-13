@@ -102,6 +102,15 @@ Distinguish design, static validation and actual runtime validation. No producti
 SLA, regulatory certification, immutability or HA claim is inferred from diagrams,
 installed tools or historical runs.
 
+## Project delivery design
+
+[Codex · 2026-11-13] The [project index](../projects/README.md) links the
+independent Finance and Aviation roadmaps. The
+[project delivery design](design/project-delivery.md) defines common trigger,
+release and evidence requirements. Finance GCP and Databricks are design
+tracks. Aviation retains its independent private implementation. Existing
+Local milestones and the active task order remain authoritative.
+
 ## Retained and deferred work
 
 [TASKS](../TASKS.md) owns the active queue.
