@@ -1,0 +1,62 @@
+name: Project CI
+
+on:
+  pull_request:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
+
+jobs:
+  scope:
+    if: github.event_name != 'push' || !github.event.deleted
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.paths.outputs.projects }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: paths
+        run: python3 .github/scripts/project_scope.py
+
+  project:
+    name: ${{ matrix.project }}
+    needs: scope
+    if: needs.scope.outputs.projects != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.scope.outputs.projects) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check project
+        working-directory: ${{ matrix.project }}
+        run: |
+          test -s README.md
+          if [ -f ci.sh ]; then
+            bash ci.sh
+          fi
+
+  checks:
+    needs: [scope, project]
+    if: always() && (github.event_name != 'push' || !github.event.deleted)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify selected jobs
+        env:
+          SCOPE_RESULT: ${{ needs.scope.result }}
+          PROJECTS: ${{ needs.scope.outputs.projects }}
+          PROJECT_RESULT: ${{ needs.project.result }}
+        run: |
+          test "$SCOPE_RESULT" = success
+          if [ "$PROJECTS" = '[]' ]; then
+            test "$PROJECT_RESULT" = skipped
+          else
+            test "$PROJECT_RESULT" = success
+          fi
