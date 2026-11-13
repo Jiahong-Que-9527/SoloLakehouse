@@ -13,6 +13,53 @@ the engineering roadmap. The six projects below are planned. The earlier
 self-hosted lakehouse is retained as a versioned reference.
 [Legacy reference snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a)
 
+<!-- [Codex · 2026-11-13] Monorepo overview and target delivery flow. -->
+
+## Architecture
+
+![SoloLakehouse monorepo overview with project-level delivery across Google Cloud, Databricks and Local](docs/images/sololakehouse-monorepo-architecture.png)
+
+The illustration shows the target architecture. Its Local lane depicts Argo CD.
+The current [roadmap](docs/roadmap.md) uses Flux for the planned K3s milestones.
+
+### Project delivery flow
+
+```mermaid
+flowchart TB
+    accTitle: SoloLakehouse target project delivery
+    accDescr: GitHub holds project definitions. Planned Actions checks select affected projects. Each project can release independently to Google Cloud, Databricks, or local infrastructure.
+
+    repo["GitHub repository<br/>Code · contracts · configuration"]
+    scope["GitHub Actions<br/>Select affected projects"]
+    verify["Project checks<br/>Test · validate · build"]
+    cloud["Google Cloud<br/>Cloud Run Jobs · BigQuery"]
+    managed["Databricks<br/>Bundles · Jobs · Delta Lake"]
+    home["Local<br/>Compose or K3s with Flux"]
+    evidence["Run evidence<br/>Source revision · output · validation"]
+
+    repo --> scope --> verify
+    verify -.-> cloud & managed & home
+    cloud --> evidence
+    managed --> evidence
+    home --> evidence
+
+    classDef source fill:#143454,stroke:#467293,color:#fff,stroke-width:1.5px
+    classDef automation fill:#e9f0f7,stroke:#587491,color:#16324b
+    classDef gcp fill:#e6f3e9,stroke:#498362,color:#184932
+    classDef databricks fill:#fff0e6,stroke:#a75935,color:#64321c
+    classDef local fill:#efeafd,stroke:#7659a3,color:#3d2866
+    classDef result fill:#edf2f5,stroke:#617586,color:#203a4a
+    class repo source
+    class scope,verify automation
+    class cloud gcp
+    class managed databricks
+    class home local
+    class evidence result
+```
+
+Dashed links mark planned release paths. Each project can validate and release
+independently. Runtime evidence links the deployed revision to its result.
+
 ## Projects
 
 ### Aviation
