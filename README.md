@@ -8,7 +8,7 @@
   <a href="docs/design/v3/README.md">V3 construction plan</a> &middot;
   <a href="docs/architecture.md">Reference architecture</a> &middot;
   <a href="docs/quickstart.md">Compose reference</a> &middot;
-  <a href="docs/workloads/aviation.md">Aviation case</a> &middot;
+  <a href="projects/README.md">Projects</a> &middot;
   <a href="docs/README.md">Documentation</a> &middot;
   <a href="docs/roadmap.md">Roadmap</a> &middot;
   <a href="TASKS.md">Development TODO</a>
@@ -31,6 +31,23 @@ recovery? The repository contains the finance reference implementation and
 the contracts, lineage, quality checks, and experiment evidence built around it.
 The next step is to make that foundation reproducible and operable through
 infrastructure as code and GitOps.
+
+<!-- [Codex · 2026-11-13] Project entry points and source ownership. -->
+
+## Projects and engineering sources
+
+- [Finance](projects/finance/README.md) is the public reference implementation.
+  Its project page maps the canonical code and contracts, reproduction steps,
+  and environment status.
+- [Aviation](docs/workloads/aviation.md) is a separately operated workload.
+  SoloLakehouse maintains the public case description. The private pipeline,
+  datasets, and detailed operating evidence remain with that workload.
+
+The [project index](projects/README.md) records each project's ownership and
+entry points. Git versions code, contracts, architecture decisions, and
+deployment definitions. Live data, runtime state, credentials, and backups
+are managed in their respective systems. The [roadmap](docs/roadmap.md)
+defines scope, and [TASKS.md](TASKS.md) defines execution order.
 
 ## Architecture at a glance
 
