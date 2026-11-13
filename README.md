@@ -10,3 +10,5 @@ Each named directory describes a planned project. The project briefs state the
 first milestone. The third slot under each platform is reserved.
 
 <!-- [Codex · 2026-11-13] Named projects and milestones. -->
+
+[Project template](project-template/README.md) for new projects.
