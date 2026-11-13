@@ -12,6 +12,8 @@ class ProjectCiTest(unittest.TestCase):
     def test_project_routing(self) -> None:
         cases = [
             (["projects/finance/runtimes/gcp/job.py"], (True, "none")),
+            (["projects/finance/src/ecb_bronze_to_silver.py"], (True, "none")),
+            (["projects/finance/tests/test_ecb_bronze_to_silver.py"], (True, "none")),
             (["transformations/ecb_bronze_to_silver.py"], (True, "none")),
             (["governance/datasets/fin.ecb_rates_silver.yaml"], (True, "none")),
             (["projects/aviation/roadmap.md", "docs/workloads/aviation.md"], (False, "aviation")),

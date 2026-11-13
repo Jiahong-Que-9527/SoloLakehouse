@@ -223,6 +223,21 @@ Validation: project entry points, lint, types, contracts, 231 tests with
 76.59% coverage, both documentation checks, and seven event scenarios using
 real Git history passed locally.
 
+### Finance ECB Silver module migration
+
+[Codex · 2026-11-13] The canonical [ECB Silver module](projects/finance/src/ecb_bronze_to_silver.py)
+and [its tests](projects/finance/tests/test_ecb_bronze_to_silver.py) live in the
+Finance project. The legacy Python entry points forward to the project module.
+Dagster uses the canonical module, its image copies the Finance source, and
+the Finance check entry point includes the migrated tests and source coverage.
+The D1.1 infrastructure inputs remain open.
+
+Local validation passed: 231 tests, 76.53% coverage, lint, type and contract
+checks, documentation checks, and Dagster workspace validation. Exact
+old/new DataFrame comparisons passed on four fixtures. Finance CI also
+builds the Dagster image and validates its definitions in an isolated
+container.
+
 ## Execution rules
 
 - Work one bounded slice with a stated output and verification method.

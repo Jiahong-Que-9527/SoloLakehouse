@@ -15,8 +15,9 @@ learning and delivery milestones.
 ## Sources of truth
 
 - **Inputs and transformations.** [Collectors](../../ingestion/collectors) own
-  source ingestion, and [transformations](../../transformations) own the
-  processing logic. [Dagster definitions](../../dagster/definitions.py) and
+  source ingestion. [ECB Silver](src/ecb_bronze_to_silver.py) owns the rate
+  conversion. Other [transformations](../../transformations) remain at the
+  repository root. [Dagster definitions](../../dagster/definitions.py) and
   [assets](../../dagster/assets.py) wire that logic into the reference runtime.
 - **Dataset contracts.** The maintained YAML files are in
   [`governance/datasets/`](../../governance/datasets). Start with the
@@ -24,7 +25,8 @@ learning and delivery milestones.
   the [EUR market Gold contract](../../governance/datasets/fin.eur_market_daily_gold.yaml).
 - **Verification.** The [test suite](../../tests) includes
   [contract tests](../../tests/test_governance_contracts.py),
-  [transformation tests](../../tests/test_transformations.py), and
+  [ECB Silver tests](tests/test_ecb_bronze_to_silver.py),
+  [other transformation tests](../../tests/test_transformations.py), and
   [Dagster asset tests](../../tests/test_dagster_assets.py). The
   [PR workflow](../../.github/workflows/test.yml) defines automated checks.
 

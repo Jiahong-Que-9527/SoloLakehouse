@@ -58,6 +58,11 @@ jobs:
           python-version: "3.13"
       - run: python -m pip install -r requirements.txt -r requirements-dagster.txt
       - run: make -C projects/finance check
+      - name: Build the Dagster image and validate definitions
+        run: |
+          docker build --file docker/dagster/Dockerfile --tag slh-dagster-ci .
+          docker run --network none --env DAGSTER_HOME=/tmp slh-dagster-ci \
+            dagster definitions validate -w dagster/workspace.yaml
 
   checks:
     needs: [scope, docs, finance]

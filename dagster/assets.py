@@ -36,10 +36,10 @@ from ingestion.collectors.ecb_fx_collector import ECBFxCollector
 from ingestion.collectors.ewg_collector import EWGCollector
 from ml.evaluate import run_experiment_set
 from ml.train_ecb_dax_model import FEATURE_VERSION
+from projects.finance.src import ecb_bronze_to_silver
 from transformations import (
     build_eur_market_daily,
     dax_bronze_to_silver,
-    ecb_bronze_to_silver,
     ecb_fx_bronze_to_silver,
     silver_to_gold_features,
 )
