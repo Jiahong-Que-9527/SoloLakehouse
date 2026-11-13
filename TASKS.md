@@ -6,19 +6,18 @@ scope. Do not maintain parallel active queues in archived specifications.
 
 ## Current stage
 
-**D0 repository preparation is merged; D1.1 construction-input decisions are
-next and not yet implemented.** The framework landed in PR #100; PRs #101 and
-#102 added the architecture diagram and platform cover. Hardware is not
+**D0 repository preparation is merged. D1.1 has a first decision record and
+a single-guest input contract; target-specific inputs remain open.** The
+framework landed in PR #100; PRs #101 and #102 added the architecture diagram and platform cover. Hardware is not
 provisioned. Infra/bootstrap/deploy/gitops still contain responsibility documents,
 not Terraform resources, Ansible plays, Helm charts or Flux manifests.
 
 ## Start here in the next session
 
 Read [AGENTS](AGENTS.md), [roadmap](docs/roadmap.md), this file and only the
-relevant [construction-plan section](docs/design/v3/README.md). The default
-next output is **D1.1: a construction-input decision record, sanitized example
-specification, and the scope/acceptance commands for one VM definition**.
-Start with existing evidence and leave unverified inputs explicitly open.
+relevant [construction-plan section](docs/design/v3/README.md). Continue
+**D1.1** by resolving the [outstanding inputs](#d11-outstanding-inputs)
+against the recorded single-guest specification.
 Recording this queue does not implement or authorize every listed operation.
 
 Use the stable IDs below in branches/PRs and handoffs. After a bounded change,
@@ -123,7 +122,52 @@ implementation scope and commands; do not mark D1.1 complete merely for listing
 questions. No current version choice, address allocation, NAS export or recovery
 success is implied by this task record.
 
+### D1.1 outstanding inputs
+
+| Work affected | Missing input | Evidence to record |
+|---|---|---|
+| D1.3 first VM definition | First guest's network model and bridge/VLAN intent, Debian cloud image build and checksum, candidate OpenTofu/provider selection | Private route comparison and documented network intent, upstream image verification and compatibility rationale. Use placeholders for site-specific values in the static definition. Verify the provider schema in D1.3 |
+| H0 and first live VM run | Actual PVE build and hardware, switch/router VLAN capability, VM ID and storage mapping, available resources, API privileges and TLS trust | Target inventory, private site allocations, measured capacity and confirmed access. Verify the external administration host, single-writer state and independent recovery destination before changing live state |
+| D1.4 and H1/H2 | K3s release and add-on compatibility, API and ingress ownership, Flux Git access, independent age-key recovery, K3s snapshot and matching token | Version and endpoint decisions, credential and recovery procedure, then actual reconciliation and isolated restore evidence in the relevant runtime stages |
+| H0 backup access and W0 recovery | NAS protocol/export, permissions, quota, retention, independent copy and proposed RPO/RTO | Verify access from the intended backup client and measure throughput and restore time during the approved isolated drill |
+| D1.2 storage compatibility | Isolated fixture environment and candidate S3 image with verifiable provenance | Select a test target and record compatibility results. This can proceed independently of the first VM definition and NAS configuration |
+
+### D1.3 static acceptance commands
+
+[Codex · 2026-11-13] Once the D1.3 files exist, use the chosen OpenTofu CLI
+and selected guest's cloud-init version. Run from the repository root:
+
+```bash
+tofu -chdir=infra/proxmox fmt -check -recursive
+tofu -chdir=infra/proxmox init -backend=false -input=false
+tofu -chdir=infra/proxmox validate
+cloud-init schema --config-file <rendered-sanitized-user-data>
+```
+
+Replace the final placeholder with the rendered file path. Record the
+tool/provider versions and the actual results. Init resolves the
+provider locally without a remote backend. Validation covers the
+configuration and provider schema. Host API permissions, guest boot and
+live network access require later authorized runtime checks. See
+[OpenTofu validate](https://opentofu.org/docs/cli/commands/validate/) and
+[cloud-init user-data validation](https://docs.cloud-init.io/en/latest/howto/debug_user_data.html).
+
 ## Handoff record
+
+[Codex · 2026-11-13] Ported the initial D1.1 record from the local
+`41aca7b` draft onto `main` at `f992d3f`. The existing project design
+references below remain in place. The three linked design records above hold
+the network observations, version candidates, backup and state decisions,
+and the first VM contract.
+
+- **D1.1 remains open.** Use the [outstanding inputs](#d11-outstanding-inputs)
+  to distinguish design decisions from target-specific and runtime evidence.
+- GCP and Databricks remain project design tracks independent of D1.1.
+- Repository checks passed: `make docs-check check-agent-docs` (247 local
+  links, 34 unchanged archived originals, 32 retained tasks and five agent
+  entrypoints) and `git diff --check`.
+
+### Previous handoff
 
 Latest completed repository work: D0 framework (#100), architecture diagram
 (#101) and platform cover (#102). This follow-up records future work and agent

@@ -40,6 +40,31 @@ shares its own chassis, disks and local site. Multiple copies on that NAS do
 not establish offsite protection. Plan an additional independent copy for
 important recovery material.
 
+## D1.1 backup destination and recovery inputs
+
+[Codex · 2026-11-13] The recorded 2026-11-10 NAS observation above supports
+keeping the NAS as an independent backup destination for the compute hosts.
+Keep the initial runtime PVCs local and size a dedicated backup destination
+separately. Treat VM archives as rebuild/whole-guest inputs, and application
+backups as the inputs for recovering service databases, the Hive catalog,
+Iceberg objects and required MLflow artifacts. Keep a further independent
+copy of critical recovery material outside the NAS failure domain.
+
+| Input | Status and dependent work |
+|---|---|
+| NAS protocol and access | Open. Confirm supported protocol, dedicated export/share, permissions, quota and administrative owner with the NAS operator. This blocks NAS backup configuration and its H0 access check |
+| Placement and consistency | Use local PVCs initially. Keep the catalog/database and required object versions tied to one recorded recovery point. Test isolated catalog/object restore and validate the Gold query before admitting important state in W0 |
+| Retention and independent copy | Open. Choose retention windows, copy destination and failure-domain separation after checking available capacity and data classification. Required before admitting important state |
+| RPO/RTO | Open. Set objectives based on acceptable data loss and downtime. Measure backup age, payload size, elapsed backup/restore time and validation time using an isolated fixture. Record measured results separately from objectives |
+
+Verify NAS reachability and the approved test identity's access from the
+planned backup client before measuring representative backup and restore
+volumes. The prior link observation supplies a planning ceiling. Measured
+throughput, usable backup scope and restore results remain pending. D1.2 can
+evaluate an isolated S3 candidate with fixture data independently of NAS
+configuration. S3 selection and a successful isolated restore are inputs
+to W0.
+
 ## Object storage decision
 
 Current Compose references MinIO and an unpinned client image. The MinIO

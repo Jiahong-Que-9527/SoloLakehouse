@@ -82,6 +82,81 @@ competing K3s ServiceLB and keep any API-VIP mechanism scoped to the API.
 Finalize versions, ownership and TLS behavior before writing bootstrap files.
 Do not deploy two controllers to own the same endpoint.
 
+## D1.1 network and VM decision record
+
+[Codex · 2026-11-13] First-pass evidence from the Windows IPv4 route table
+(`route print -4`) and WSL Ubuntu IPv4 routes/addresses (`ip -j -4 route
+show table main`, `ip -j -4 addr show scope global`). The source routes
+are private. This view covers the workstation and its visible routes.
+
+| Observed or planned network | K3s default Pod and Service CIDR comparison | Remaining validation |
+|---|---|---|
+| Workstation LAN, Hyper-V subnet and visible WSL container bridge networks, including down bridges | Neither default intersects the observed prefixes | Repeat on the target PVE host, router and recovery workstation |
+| Tailscale interface and visible peer host routes | Neither default intersects the observed routes | Compare all approved/advertised subnet routes and reconnect any relevant VPN before the final comparison |
+| Target PVE management and VM networks, NAS route and ingress address pool | Open | Obtain the actual private allocation and compare all routed prefixes pairwise. Verify that individual endpoint addresses are reserved on the intended subnet and outside DHCP/dynamic pools |
+
+The [K3s defaults](https://docs.k3s.io/cli/server) are `10.42.0.0/16` for
+Pods and `10.43.0.0/16` for Services. Keep them as candidates until the
+target comparison is complete. Record the final result privately with
+the sources, date and any conflict resolution. Use distinct DNS identities
+for the PVE node, VM, API endpoint and app ingress. Bootstrap owns the API
+endpoint and its TLS SANs. Traefik owns HTTP ingress. Leave the VIP and
+LoadBalancer implementation open until the router/VLAN and ownership checks
+are complete. If MetalLB is selected, the design already requires ServiceLB
+to be disabled.
+
+Switch requirement: managed 2.5GbE with 802.1Q VLAN support and at least
+eight usable ports for six host links, one NAS link and one uplink. An
+eight-port layout uses every port at that count. Verify the actual uplink,
+spare ports and compatible media before selecting a model. The recorded
+NAS link was 1 Gbps. Confirm whether the router can route and filter the
+planned VLANs and whether the chosen uplink can carry them. Until then,
+switch model, bridge mapping, VLAN IDs and address allocations are open.
+
+### First-VM compatibility and sizing
+
+Sources checked 2026-11-13. Select these as the **initial validation
+candidates**. Exact host build, guest image checksum and installed tool
+versions must be recorded before first use.
+
+| Component | Candidate or design decision | Remaining evidence |
+|---|---|---|
+| Host | [PVE 9.2](https://www.proxmox.com/en/about/company-details/press-releases/proxmox-virtual-environment-9-2) release line | Confirm the installed build, kernel, NIC/storage behavior and update path in H0 |
+| Guest | [Debian 13 amd64](https://www.debian.org/releases/trixie/amd64/) cloud image with cloud-init and QEMU Guest Agent | Pin a Debian cloud image build and checksum. Verify cloud-init data source, agent support and boot in the first authorized runtime slice |
+| VM definition | [OpenTofu 1.13.9](https://github.com/opentofu/opentofu/releases/tag/v1.13.9) and [bpg/proxmox 0.122.0](https://github.com/bpg/terraform-provider-proxmox/releases/tag/v0.122.0) as a candidate pair. [Provider documentation](https://github.com/bpg/terraform-provider-proxmox) targets PVE 9.x | Confirm the pinned provider schema for VM disks, NIC, cloud-init and agent in D1.3. Verify required API privileges and TLS against the selected PVE build before use |
+| K3s | Use a supported stable release with an exact version recorded before H1, following the [K3s requirements](https://docs.k3s.io/installation/requirements) and [upgrade order](https://docs.k3s.io/upgrades/manual) | Select the exact release with the actual guest kernel and chosen add-ons. Bootstrap the first server and validate DNS/CNI before extending to the remaining hosts |
+
+Record the previous validated image and tool/provider pins before a change.
+For the disposable first guest, validate a rebuild with the prior guest image
+and configuration. For a later stateful K3s upgrade, confirm the supported
+version path, back up etcd with its matching token and use the documented
+rollback and restore procedure. Stop after the first node if the health checks
+fail.
+
+Carry forward the draft budget of 8 vCPU, fixed 24 GiB RAM, about 80 GiB
+system disk and initially about 500 GiB data disk. Before provisioning, compare
+actual usable RAM and disk capacity in GiB with the host reserve, both VM disks,
+and space for images, logs and snapshots. Keep the data disk separately
+identified and leave its filesystem and workload placement for the
+appropriate implementation slice. H0 measures available capacity and link
+behavior. H1 measures VM usage and cluster headroom.
+
+### D1.3 single-guest input contract
+
+| Input | Sanitized specification |
+|---|---|
+| Placement | One x86-64 PVE node. Use placeholders `PVE_NODE`, `VM_ID`, `VM_STORAGE` and `SNIPPET_STORAGE` |
+| Guest | Example name `slh-test-01`, verified Debian 13 cloud image and checksum, cloud-init user-data, QEMU Guest Agent |
+| Resources | 8 vCPU, 24 GiB fixed RAM, 80 GiB system and 500 GiB data disk as initial example values |
+| Network | `VM_BRIDGE`, optional `VM_VLAN_ID`, reserved guest address or documented DHCP reservation, DNS and gateway. The static example uses placeholders |
+| Access | Dedicated least-privilege PVE identity, trusted CA, operator public SSH key supplied as input, unique VM ID and admin access from outside the target cluster |
+
+Before a live run, an operator checks the host build, storage capabilities
+and space, cloud-image provenance, VM ID availability, network allocation,
+API privileges and trust chain. D1.3 scopes the static definition to
+`infra/proxmox/` and `bootstrap/cloud-init/`. See the
+[TASKS acceptance commands](../../../TASKS.md#d13-static-acceptance-commands).
+
 ## Bootstrap and external recovery dependencies
 
 1. Prepare physical hosts, management access and networking.
