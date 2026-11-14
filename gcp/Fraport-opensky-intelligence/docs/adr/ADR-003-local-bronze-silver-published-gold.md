@@ -7,7 +7,7 @@
 Earlier drafts placed Bronze and Silver in Cloud Storage and ran the
 transformation as a Cloud Run Job. Two facts change that:
 
-- The dataset is small. The 2026-10-15 pilot day scales to about 52 GB of
+- The dataset is small. The busiest benchmark day, 2026-07-15, scales to about 55 GB of
   Parquet for two years. That fits on one machine, and DuckDB processes it
   without a cluster.
 - The raw research data is the programme's source of record. Keeping it in

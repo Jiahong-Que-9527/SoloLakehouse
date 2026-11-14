@@ -28,10 +28,10 @@ lakehouse ETL. It is not a cloud deployment.
 | Period | `[2024-11-01, 2026-11-01)` UTC, 17,520 hours |
 | Format | Parquet, ZSTD, explicit schema |
 | Layout | State vectors `dt=YYYY-MM-DD/hour-HH.parquet`. Flights `dt=YYYY-MM-DD/flights.parquet` |
-| `serials` column | Decided by a pilot A/B test before the monthly batches |
+| `serials` column | Excluded from v1 after the 2026-07-15 A/B test |
 | Local root | `/home/bill/slh-data/aviation` (outside the repository) |
 | Backup | `/mnt/e/slh-backup/aviation` |
-| Size | State vectors: 71 MB on 2026-10-15, about 52 GB for two years. Flights: 7.4 MB a day in the pilot week, about 5.4 GB for 731 days |
+| Size | State vectors: 75 MB on the busiest benchmark day (2026-07-15), about 55 GB for two years. Flights: about 7 MB a day, about 5.4 GB for 731 days |
 
 Bronze keeps source columns with their original meaning and units. It does not
 filter, clean, deduplicate or interpolate.

@@ -71,6 +71,11 @@ maximum event time, and ground rows. The compared box is latitude 49.98 to
 50.07 and longitude 8.48 to 8.62. Report:
 `reports/cross-check/20261114T223121Z-dde3.json`.
 
+The recovery test used `2024-11-15T00`. The file was published and the process
+stopped before the manifest. Resume quarantined that file, collected the hour
+again, and committed it. The new file matches the quarantined SHA256. A second
+run skipped all 24 hours of that day and did not change the manifests.
+
 ### B0: benchmark days
 
 Collect one full day for each date, state vectors and flights:
@@ -90,27 +95,29 @@ replaces the estimates in the design.
 
 ### S0: `serials` A/B test
 
-On one benchmark day collect the state vectors twice, with and without
-`serials`. Compare Parquet size, query time, download time and memory. Record
-the decision and the reasons in the dataset contract. If `serials` is included
-and the pilot week was collected without it, collect the pilot week again.
+On 2026-07-15 the state vectors were collected again with `serials` and
+compared with the v1 files. Row counts match on all 24 hours. Parquet grew
+from 75.1 MB to 117.6 MB (1.57×). Query-plus-download grew from 95 s to 168 s
+(1.76×). Peak memory was 1.08 GB. **v1 excludes `serials`.** The comparison
+files are `reports/serials-ab/2026-07-15/`. A later version can add the column.
 
 ### Measurements and thresholds
 
-| Measure | Earlier estimate | Measured 2026-10-15 | Review threshold |
-|---------|------------------|---------------------|------------------|
-| Rows per day | 3.5 M | 3.64 M | above 6 M |
-| Parquet per day | 43 MB | 71 MB | above 100 MB |
-| Query time per hour | 8 to 12 s | 1.7 to 7.5 s | above 60 s |
-| Scan per hour | about 0.7 GB | 0.53 to 1.15 GB | above 5 GB |
-| Hours failed | 0 | 0 | any unexplained |
+| Measure | Earlier estimate | Measured 2026-10-15 | Busiest day, 2026-07-15 | Review threshold |
+|---------|------------------|---------------------|-------------------------|------------------|
+| Rows per day | 3.5 M | 3.64 M | 3.86 M | above 6 M |
+| Parquet per day | 43 MB | 71 MB | 75 MB | above 100 MB |
+| Query time per hour | 8 to 12 s | 1.7 to 7.5 s | up to 6.2 s | above 60 s |
+| Scan per hour | about 0.7 GB | 0.53 to 1.15 GB | up to 1.16 GB | above 5 GB |
+| Hours failed | 0 | 0 | 0 | any unexplained |
 
-`2026-10-15` is under every review threshold: 24 committed hours, 3,640,281
-rows, 71 MB of Parquet, 90 s of query time, 19.6 GB scanned, 2,296 distinct
-aircraft, no duplicate keys. The query keeps only rows with a position inside
-the box, so null positions are absent by construction. If the other pilot days
-stay near this one, a 30-day month is about 2.1 GB and 45 minutes of query
-time, and the two-year set is about 52 GB and 18 hours of query time.
+All five benchmark days are under every review threshold. The busiest is
+`2026-07-15`: 3,857,551 rows, 75 MB of Parquet, 95 s of query time, 19.7 GB
+scanned, 2,351 distinct aircraft, no duplicate keys. Null positions are absent
+by construction. Scaled from that day, a 30-day month is about 2.3 GB and 48
+minutes of query time, and the two-year set is about 55 GB and 19 hours of
+query time. The day-by-day figures are in
+[benchmark-report.md](benchmark-report.md).
 
 If a threshold is crossed, stop and review options before more batches: a
 smaller box, a shorter period, an altitude cut as a documented extraction rule,
@@ -162,8 +169,8 @@ with b01.
 all four seasons. If collection is interrupted, these months matter most.
 
 Scaled from the measured pilot day, one month is about 45 minutes of query
-time and 2.1 GB of Parquet. The two-year set is about 18 hours of query time
-and 52 GB. The calendar time depends on how often you log in. Two to four
+time and 2.3 GB of Parquet. The two-year set is about 19 hours of query time
+and 55 GB. The calendar time depends on how often you log in. Two to four
 weeks is realistic.
 
 ## Gate per batch
