@@ -1,0 +1,13 @@
+# Permanent data losses documented by OpenSky (all times UTC).
+# Source: https://openskynetwork.github.io/opensky-api/trino.html ("Known Data Gaps"),
+# transcribed on 2026-11-14. An hour is affected if it overlaps [start, end).
+gaps:
+  - { start: "2023-01-02T23:00:00Z", end: "2023-01-03T10:00:00Z" }
+  - { start: "2023-01-18T11:00:00Z", end: "2023-01-23T07:00:00Z" }
+  - { start: "2023-06-21T13:00:00Z", end: "2023-06-21T22:00:00Z" }
+  - { start: "2023-11-15T06:00:00Z", end: "2023-11-16T08:00:00Z" }
+  - { start: "2023-11-20T01:00:00Z", end: "2023-11-20T03:00:00Z" }
+  - { start: "2023-12-02T08:00:00Z", end: "2023-12-05T03:00:00Z" }
+  - { start: "2024-05-20T10:00:00Z", end: "2024-05-21T05:00:00Z" }
+  - { start: "2026-01-02T19:00:00Z", end: "2026-01-03T18:00:00Z" }
+  - { start: "2026-01-24T08:00:00Z", end: "2026-01-24T17:00:00Z" }

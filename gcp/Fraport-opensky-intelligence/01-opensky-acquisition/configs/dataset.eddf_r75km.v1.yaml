@@ -1,0 +1,89 @@
+# Dataset definition for subproject 01. No credentials belong in this file.
+# Environment overrides: SLH_DATA_ROOT, SLH_BACKUP_ROOT, SLH_TOKEN_DIR, OPENSKY_USERNAME.
+
+source:
+  host: trino.opensky-network.org
+  port: 443
+  catalog: minio
+  schema: osky
+  query_timeout_seconds: 300
+  login_timeout_seconds: 600
+
+paths:
+  data_root: ~/slh-data/aviation
+  backup_root: /mnt/e/slh-backup/aviation
+  token_dir: ~/.config/sololakehouse/opensky
+
+region:
+  id: eddf_r75km
+  version: v1
+  airport: EDDF
+  center:
+    latitude: 50.0333
+    longitude: 8.5706
+  radius_km: 75
+  bbox:
+    south: 49.36
+    north: 50.71
+    west: 7.52
+    east: 9.62
+
+period:
+  start: "2024-11-01"   # inclusive, UTC
+  end: "2026-11-01"     # exclusive, UTC
+
+state_vectors:
+  table: state_vectors_data4
+  columns:
+    - time
+    - icao24
+    - lat
+    - lon
+    - velocity
+    - heading
+    - vertrate
+    - callsign
+    - onground
+    - alert
+    - spi
+    - squawk
+    - baroaltitude
+    - geoaltitude
+    - lastposupdate
+    - lastcontact
+    - hour
+  optional_columns:
+    - serials   # decided by the pilot A/B test
+
+flights:
+  table: flights_data4
+  dataset_id: eddf_flights
+  version: v1
+  day_end: "2026-11-02"   # exclusive source day, one day past the period
+
+discovery:
+  # Hours (UTC) probed for existence in the global hour partition.
+  hour_probes:
+    - "2024-11-01T00:00:00Z"
+    - "2024-11-15T12:00:00Z"
+    - "2025-01-15T12:00:00Z"
+    - "2025-07-15T12:00:00Z"
+    - "2026-01-03T12:00:00Z"   # inside a documented source gap
+    - "2026-07-15T12:00:00Z"
+    - "2026-10-15T12:00:00Z"
+    - "2026-10-31T23:00:00Z"
+  # Hours where the rows inside the box are counted. These are benchmark days.
+  rowcount_probe_hours:
+    - "2024-11-15T12:00:00Z"
+    - "2025-01-15T12:00:00Z"
+    - "2025-07-15T12:00:00Z"
+    - "2026-07-15T12:00:00Z"
+    - "2026-10-15T12:00:00Z"
+  # Source days where flights for the airport are counted.
+  flight_probe_days:
+    - "2024-11-15"
+    - "2025-01-15"
+    - "2025-07-15"
+    - "2026-07-15"
+    - "2026-10-15"
+    - "2026-11-01"

@@ -34,13 +34,12 @@ Phases 3 and 4 can run in parallel after phase 2.
 ## Phase 0: Preparation
 
 - Confirm OpenSky account, Trino access and query limits.
-- Read the OpenSky terms on retention and cloud storage. Record the result.
 - Decide the geographic bounds and fields for dataset `v1`.
 - Accept ADR-001.
 - Create the data root outside the repository and check free disk space.
 - Add the `.gitignore` rules that keep data and credentials out of Git.
 
-**Exit:** access confirmed, terms understood, ADR accepted.
+**Exit:** access confirmed, ADR accepted.
 
 ## Phase 1: 01 OpenSky Acquisition
 
@@ -54,11 +53,11 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 | M1 | Collect and commit protocol against the fake client | Crash-injection and repeat-run tests pass |
 | M2 | Live pilot: one hour, one day, one week | Gate G0: reconciled, cross-checked, measured, recovery tested |
 | M3 | Monthly batches with reports, acceptance and backup | Each batch accepted and backed up |
-| M4 | GCS upload, manifest export, DuckDB catalog | Upload verified, after OpenSky confirmation |
+| M4 | GCS upload, manifest export, DuckDB catalog | Upload verified, after the local dataset is complete |
 | M5 | Dataset sign-off | Full verify, dataset summary, restore tested |
 
 CI: tests and lint on pull requests that touch this directory.
-GCS upload waits for the licensing check.
+GCS upload runs once, after the local dataset is complete.
 
 ## Phase 2: 02 Aviation Transformation
 
@@ -122,15 +121,14 @@ GCS upload waits for the licensing check.
 - **Evidence.** Record commit, run ID, data version and quality results for
   each milestone.
 - **Cost.** Track observed cloud cost from phase 2 onward.
-- **Data governance.** Keep raw data out of Git. Review licensing before
-  any publication.
+- **Data governance.** Keep raw data out of Git and out of public storage.
 
 ## Risks
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
 | OpenSky Trino limits or downtime | Slow or incomplete backfill | Hourly batches, retries, resumable checkpoint |
-| OpenSky terms restrict retention or cloud copies | Cannot store data in GCS | Check in phase 0, keep local backup, use synthetic data publicly |
+| Collection is interrupted | Incomplete dataset | Run the most valuable months first, back up each batch when accepted |
 | Data volume above estimate | Disk shortage | Seven-day size test before the full backfill |
 | Proxy labels are noisy | Weak model or overclaimed results | Report coverage, validate a sample independently |
 | Scope growth | Programme stalls | Finish each phase exit criterion before starting the next |
@@ -139,7 +137,6 @@ GCS upload waits for the licensing check.
 ## Open decisions
 
 - Final geographic bounds and the field list for `v1`.
-- Whether GCS upload is allowed under the OpenSky terms.
 - Cloud Run Jobs or Dataproc Serverless for phase 2.
 - GCP Workflows or Dagster for phase 7.
 - Whether this directory should stay under `gcp/` or move, since project 01

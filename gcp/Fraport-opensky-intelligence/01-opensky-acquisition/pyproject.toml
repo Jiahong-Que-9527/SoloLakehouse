@@ -1,0 +1,42 @@
+[project]
+name = "opensky-ingest"
+version = "0.1.0"
+description = "Reproducible, fault-tolerant historical ADS-B acquisition from OpenSky Trino"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "trino>=0.336",
+    "pyarrow>=23",
+    "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+gcs = ["google-cloud-storage>=2"]
+analysis = ["duckdb>=1.1"]
+
+[project.scripts]
+opensky-ingest = "opensky_ingest.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/opensky_ingest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

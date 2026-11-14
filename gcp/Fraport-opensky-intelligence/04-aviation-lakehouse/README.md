@@ -15,8 +15,7 @@ the data contract and the integration with GCS.
   Gold tables.
 - Verify event identity, proxy label coverage and the feature cutoff on a
   small batch, then on a larger slice.
-- Document governance: ownership, access and data retention under the
-  OpenSky terms.
+- Document governance: ownership, access and retention.
 
 ## Milestones
 

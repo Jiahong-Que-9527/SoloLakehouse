@@ -13,7 +13,7 @@ shared cloud location.
 ## Decision
 
 Run historical extraction locally. Persist validated datasets in Google Cloud
-Storage, after confirming that the OpenSky terms allow it.
+Storage once the local dataset is complete.
 
 ## Rationale
 
@@ -28,7 +28,6 @@ Storage, after confirming that the OpenSky terms allow it.
 - Subproject 01 gets CI (tests and lint) but no cloud deployment pipeline.
 - The first real GCP CI/CD pipeline moves to subproject 02.
 - Local backup and restore need an explicit procedure.
-- Retention and cloud storage must follow the OpenSky terms.
 
 ## Revisit when
 

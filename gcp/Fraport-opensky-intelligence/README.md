@@ -50,6 +50,5 @@ duplicate those projects.
 - **Proxy labels are not ground truth.** Taxi-in values derived from ADS-B
   state vectors are proxies. Claims about airport ground truth need
   independent validation.
-- **Data licensing.** OpenSky terms limit retention and redistribution.
-  Confirm permitted use before storing data in the cloud or beyond the
-  research period. Public work uses code, architecture and synthetic data.
+- **Public work.** Raw data stays out of Git and public storage. Public work
+  uses code, architecture and synthetic data.
