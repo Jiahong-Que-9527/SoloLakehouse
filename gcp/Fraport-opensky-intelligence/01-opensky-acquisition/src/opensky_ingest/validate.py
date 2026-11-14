@@ -12,6 +12,16 @@ from .errors import SourceError
 
 
 @dataclass(frozen=True)
+class FlightStats:
+    rows: int
+    aircraft: int
+    departures: int
+    arrivals: int
+    duplicate_key_rows: int
+    nulls: dict[str, int]
+
+
+@dataclass(frozen=True)
 class HourStats:
     rows: int
     aircraft: int
@@ -34,13 +44,7 @@ def validate_hour_table(
     if not table.schema.equals(schema, check_metadata=False):
         raise SourceError("VALIDATION", "schema does not match the contract")
 
-    indices = pc.sort_indices(
-        table,
-        sort_keys=[("icao24", "ascending", "at_end"), ("time", "ascending", "at_end")],
-    )
-    expected = pa.array(range(table.num_rows), type=pa.int64())
-    if table.num_rows and not pc.all(pc.equal(indices, expected)).as_py():
-        raise SourceError("VALIDATION", "rows are not sorted by icao24, time")
+    _sorted(table, [("icao24", "ascending", "at_end"), ("time", "ascending", "at_end")])
 
     lat_ok = pc.and_(
         pc.greater_equal(table.column("lat"), bbox.south),
@@ -81,4 +85,44 @@ def validate_hour_table(
         nulls={name: table.column(name).null_count for name in table.column_names},
         min_time=None if times.null_count == table.num_rows else int(pc.min(times).as_py()),
         max_time=None if times.null_count == table.num_rows else int(pc.max(times).as_py()),
+    )
+
+
+def _sorted(table: pa.Table, keys: list[tuple]) -> None:
+    if not table.num_rows:
+        return
+    indices = pc.sort_indices(table, sort_keys=keys)
+    expected = pa.array(range(table.num_rows), type=pa.int64())
+    if not pc.all(pc.equal(indices, expected)).as_py():
+        names = ", ".join(key[0] for key in keys)
+        raise SourceError("VALIDATION", f"rows are not sorted by {names}")
+
+
+def validate_flight_table(
+    table: pa.Table, *, schema: pa.Schema, day_epoch: int, airport: str
+) -> FlightStats:
+    """Check one flight day. Raise SourceError('VALIDATION') on any violation."""
+    if not table.schema.equals(schema, check_metadata=False):
+        raise SourceError("VALIDATION", "schema does not match the contract")
+    _sorted(
+        table,
+        [("icao24", "ascending", "at_end"), ("firstseen", "ascending", "at_end")],
+    )
+    day_ok = pc.equal(table.column("day"), day_epoch)
+    departure = pc.equal(table.column("estdepartureairport"), airport)
+    arrival = pc.equal(table.column("estarrivalairport"), airport)
+    airport_ok = pc.or_(pc.fill_null(departure, False), pc.fill_null(arrival, False))
+    inside = pc.and_(pc.fill_null(day_ok, False), airport_ok)
+    bad = pc.sum(pc.if_else(inside, 0, 1)).as_py()
+    if _as_int(bad):
+        raise SourceError("VALIDATION", "a row is outside the day or does not use the airport")
+    grouped = table.group_by(["icao24", "firstseen"]).aggregate([([], "count_all")])
+    extras = pc.sum(pc.subtract(grouped.column("count_all"), 1)).as_py()
+    return FlightStats(
+        rows=table.num_rows,
+        aircraft=_as_int(pc.count_distinct(table.column("icao24")).as_py()),
+        departures=_as_int(pc.sum(pc.if_else(pc.fill_null(departure, False), 1, 0)).as_py()),
+        arrivals=_as_int(pc.sum(pc.if_else(pc.fill_null(arrival, False), 1, 0)).as_py()),
+        duplicate_key_rows=_as_int(extras),
+        nulls={name: table.column(name).null_count for name in table.column_names},
     )

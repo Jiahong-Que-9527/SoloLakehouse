@@ -13,6 +13,7 @@ from typing import Any
 
 from . import __version__, auth
 from .config import Config, ConfigError, load_config
+from .crosscheck import cross_check_hours
 from .discover import discover, save_record, summarise
 from .errors import (
     EXIT_AUTH_REQUIRED,
@@ -23,8 +24,10 @@ from .errors import (
     IngestError,
 )
 from .fetch import collect_hour
+from .flights import collect_flight_range
+from .reconcile import reconcile_hours
 from .run import collect_range, parse_duration
-from .util import parse_utc_hour
+from .util import parse_utc_day, parse_utc_hour
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -44,6 +47,22 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--max-duration", default="3h", help="stop cleanly after this long, for example 3h"
     )
+    flights = sub.add_parser("collect-flights", help="collect pending flight days in a UTC range")
+    flights.add_argument("--from", dest="start", required=True, help="first day, inclusive")
+    flights.add_argument("--until", required=True, help="day at which to stop, exclusive")
+    flights.add_argument(
+        "--max-duration", default="3h", help="stop cleanly after this long, for example 3h"
+    )
+    reconcile = sub.add_parser("reconcile", help="compare committed hours with source aggregates")
+    reconcile.add_argument("--from", dest="start", required=True, help="first hour, inclusive")
+    reconcile.add_argument("--until", required=True, help="hour at which to stop, exclusive")
+    reconcile.add_argument(
+        "--max-duration", default="3h", help="stop cleanly after this long, for example 3h"
+    )
+    check = sub.add_parser("cross-check", help="compare the legacy small box with fin receipts")
+    check.add_argument("--from", dest="start", required=True, help="first hour, inclusive")
+    check.add_argument("--until", required=True, help="hour at which to stop, exclusive")
+    check.add_argument("--receipts", required=True, help="directory of {epoch}.receipt.json files")
     return parser
 
 
@@ -171,6 +190,120 @@ def cmd_run(
     return EXIT_ERROR
 
 
+def cmd_collect_flights(
+    cfg: Config,
+    factory: Callable[..., Any],
+    start_text: str,
+    until_text: str,
+    max_duration: str,
+) -> int:
+    try:
+        start = parse_utc_day(start_text)
+        until = parse_utc_day(until_text)
+        limit = parse_duration(max_duration)
+    except ValueError as exc:
+        raise ConfigError(str(exc)) from exc
+    ensure_free_disk(cfg)
+    lock = acquire_lock(cfg.paths.data_root)
+    connection = None
+    try:
+        connection = factory(cfg, interactive=False)
+        summary = collect_flight_range(
+            connection,
+            cfg,
+            start,
+            until,
+            max_duration=limit,
+            pause_seconds=0.5,
+            progress=print,
+            on_day=_print_hour,
+        )
+    finally:
+        close = getattr(connection, "close", None)
+        if close:
+            close()
+        os.close(lock)
+    print(
+        f"flights outcome: {summary['outcome']} reason: {summary['reason']} "
+        f"committed: {summary['committed']} skipped: {summary['skipped']}"
+    )
+    if summary["next_day"]:
+        print(f"next_day: {summary['next_day']}")
+    if summary["error_class"]:
+        print(f"error_class: {summary['error_class']}")
+    if summary["outcome"] == "finished" or summary["reason"] == "max_duration":
+        return EXIT_OK
+    return EXIT_ERROR
+
+
+def _print_reconcile(item: dict[str, Any]) -> None:
+    if item["match"]:
+        print(f"{item['hour']} match")
+        return
+    names = ",".join(item["mismatches"])
+    print(f"{item['hour']} mismatch {names}")
+
+
+def cmd_reconcile(
+    cfg: Config,
+    factory: Callable[..., Any],
+    start_text: str,
+    until_text: str,
+    max_duration: str,
+) -> int:
+    try:
+        start = parse_utc_hour(start_text)
+        until = parse_utc_hour(until_text)
+        limit = parse_duration(max_duration)
+    except ValueError as exc:
+        raise ConfigError(str(exc)) from exc
+    lock = acquire_lock(cfg.paths.data_root)
+    connection = None
+    try:
+        connection = factory(cfg, interactive=False)
+        summary = reconcile_hours(
+            connection,
+            cfg,
+            start,
+            until,
+            max_duration=limit,
+            pause_seconds=0.5,
+            on_hour=_print_reconcile,
+        )
+    finally:
+        close = getattr(connection, "close", None)
+        if close:
+            close()
+        os.close(lock)
+    print(
+        f"reconcile outcome: {summary['outcome']} checked: {summary['checked']} "
+        f"matched: {summary['matched']} mismatched: {summary['mismatched']}"
+    )
+    if summary["next_hour"]:
+        print(f"next_hour: {summary['next_hour']}")
+    print(f"report: {summary['path']}")
+    return EXIT_OK if summary["outcome"] == "matched" else EXIT_ERROR
+
+
+def cmd_cross_check(cfg: Config, start_text: str, until_text: str, receipts: str) -> int:
+    try:
+        start = parse_utc_hour(start_text)
+        until = parse_utc_hour(until_text)
+    except ValueError as exc:
+        raise ConfigError(str(exc)) from exc
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        summary = cross_check_hours(cfg, start, until, Path(receipts))
+    finally:
+        os.close(lock)
+    print(
+        f"cross-check outcome: {summary['outcome']} checked: {summary['checked']} "
+        f"matched: {summary['matched']} mismatched: {summary['mismatched']}"
+    )
+    print(f"report: {summary['path']}")
+    return EXIT_OK if summary["outcome"] == "matched" else EXIT_ERROR
+
+
 def main(
     argv: Sequence[str] | None = None,
     connection_factory: Callable[..., Any] = auth.make_connection,
@@ -182,6 +315,8 @@ def main(
         return int(exc.code) if isinstance(exc.code, int) else EXIT_USAGE
     try:
         cfg = load_config(args.config)
+        if args.command == "cross-check":
+            return cmd_cross_check(cfg, args.start, args.until, args.receipts)
         _ = cfg.username  # fail early if OPENSKY_USERNAME is not set
         if args.command == "login":
             return cmd_login(cfg, connection_factory)
@@ -191,6 +326,12 @@ def main(
             return cmd_collect_hour(cfg, connection_factory, args.hour)
         if args.command == "run":
             return cmd_run(cfg, connection_factory, args.start, args.until, args.max_duration)
+        if args.command == "collect-flights":
+            return cmd_collect_flights(
+                cfg, connection_factory, args.start, args.until, args.max_duration
+            )
+        if args.command == "reconcile":
+            return cmd_reconcile(cfg, connection_factory, args.start, args.until, args.max_duration)
     except AuthRequired as exc:
         print(str(exc), file=sys.stderr)
         return EXIT_AUTH_REQUIRED

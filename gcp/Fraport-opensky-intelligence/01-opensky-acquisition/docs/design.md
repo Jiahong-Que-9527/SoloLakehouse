@@ -166,6 +166,7 @@ Design:
 | Unit of work | One source `day` partition: one query, one file, one manifest |
 | Filter | `day = :day AND (estdepartureairport = 'EDDF' OR estarrivalairport = 'EDDF')` |
 | Columns | All source columns, including nested `track` and candidate arrays |
+| Sort | `icao24`, `firstseen`. State vectors stay sorted by `icao24`, `time` |
 | Types | Fixed from `DESCRIBE`, with nested Arrow types |
 | Period | Source days `[2024-11-01, 2026-11-02)`, 731 days |
 
@@ -178,8 +179,9 @@ this way. Silver reconstructs them from the state vectors. Bronze does not try.
 
 Flights follow the same commit protocol, manifests, statuses, batches and
 reports as state vectors. Each monthly batch collects its state-vector hours
-and then its flight days. Expected volume is small, around one million rows in
-total (*estimate*).
+and then its flight days. The pilot week averaged 1,330 flights and 7.4 MB a
+day, with no duplicate `(icao24, firstseen)` keys. Scaled across 731 days that
+is about 0.97 million rows and 5.4 GB.
 
 ## 4. Hour lifecycle and commit protocol
 
@@ -426,9 +428,11 @@ Commands:
 | `benchmark` | Collect chosen days, record rows, timings, size and quality counters |
 | `plan` | Expand batches into hours and show what is pending |
 | `run --from T --until T [--max-duration]` | Collect pending state-vector hours. `--until` is exclusive. A batch id is added with the monthly batches |
+| `collect-flights --from D --until D [--max-duration]` | Collect pending flight days. `--until` is exclusive |
 | `status [--batch B]` | Progress by state |
 | `validate --batch B` | Batch checks |
-| `reconcile --batch B [--sample N \| --all]` | Compare with source aggregates |
+| `reconcile --from T --until T` | Compare every hour in the range with source aggregates. A batch sample is added with the monthly batches |
+| `cross-check --from T --until T --receipts DIR` | Compare the legacy 10 km box in each hour with fin receipts |
 | `report --batch B` | Write the batch report |
 | `accept --batch B` | Record acceptance |
 | `publish --batch B` | Back up an accepted batch to `E:` and verify it |

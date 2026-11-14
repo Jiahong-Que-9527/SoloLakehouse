@@ -1,10 +1,10 @@
-"""Hour manifest paths. The manifest file is the commit marker."""
+"""Manifest paths. The manifest file is the commit marker."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 from .util import write_json_atomic
@@ -21,6 +21,15 @@ def hour_parquet_rel(dataset_id: str, version: str, hour: datetime) -> str:
 
 def hour_manifest_rel(hour: datetime) -> str:
     return f"metadata/manifests/hours/dt={hour:%Y-%m-%d}/hour-{hour:%H}.json"
+
+
+def flight_parquet_rel(airport: str, version: str, day: date) -> str:
+    folder = f"bronze/opensky/flights/{airport.lower()}/{version}/dt={day.isoformat()}"
+    return f"{folder}/flights.parquet"
+
+
+def flight_manifest_rel(day: date) -> str:
+    return f"metadata/manifests/days/dt={day.isoformat()}/flights.json"
 
 
 def read_manifest(path: Path) -> dict | None:

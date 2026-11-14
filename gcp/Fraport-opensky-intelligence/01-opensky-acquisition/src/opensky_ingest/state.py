@@ -20,6 +20,18 @@ CREATE TABLE IF NOT EXISTS hours (
     run_id TEXT,
     updated_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS flight_days (
+    day INTEGER PRIMARY KEY,
+    status TEXT NOT NULL,
+    attempts INTEGER NOT NULL,
+    rows INTEGER,
+    bytes INTEGER,
+    sha256 TEXT,
+    relative_path TEXT,
+    error_class TEXT,
+    run_id TEXT,
+    updated_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS runs (
     run_id TEXT PRIMARY KEY,
     started_at TEXT NOT NULL,
@@ -57,6 +69,42 @@ def record_hour(db: sqlite3.Connection, manifest: dict, *, error_class: str | No
         """,
         (
             manifest["hour"],
+            manifest["status"],
+            manifest.get("rows"),
+            manifest.get("bytes"),
+            manifest.get("sha256"),
+            manifest.get("path"),
+            error_class,
+            manifest.get("run_id"),
+            manifest["collected_at"],
+        ),
+    )
+    db.commit()
+
+
+def record_flight_day(
+    db: sqlite3.Connection, manifest: dict, *, error_class: str | None = None
+) -> None:
+    """Index one flight day. Kept apart from `hours` because a day epoch equals hour 00."""
+    db.execute(
+        """
+        INSERT INTO flight_days (
+            day, status, attempts, rows, bytes, sha256, relative_path,
+            error_class, run_id, updated_at
+        ) VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(day) DO UPDATE SET
+            status = excluded.status,
+            attempts = flight_days.attempts + 1,
+            rows = excluded.rows,
+            bytes = excluded.bytes,
+            sha256 = excluded.sha256,
+            relative_path = excluded.relative_path,
+            error_class = excluded.error_class,
+            run_id = excluded.run_id,
+            updated_at = excluded.updated_at
+        """,
+        (
+            manifest["day"],
             manifest["status"],
             manifest.get("rows"),
             manifest.get("bytes"),

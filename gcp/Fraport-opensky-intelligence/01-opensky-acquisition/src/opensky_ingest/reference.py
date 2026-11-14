@@ -49,6 +49,16 @@ def load_epochs(path: Path | None = None) -> tuple[Epoch, ...]:
     return tuple(sorted(epochs, key=lambda e: (e.start is not None, e.start or floor)))
 
 
+def day_gap_status(gaps: tuple[Gap, ...], day_start: datetime) -> str:
+    """Return 'inside', 'overlap' or 'none' for the UTC day beginning at `day_start`."""
+    day_end = day_start + timedelta(days=1)
+    if any(g.contains(day_start, day_end) for g in gaps):
+        return "inside"
+    if any(g.overlaps(day_start, day_end) for g in gaps):
+        return "overlap"
+    return "none"
+
+
 def hour_gap_status(gaps: tuple[Gap, ...], hour_start: datetime) -> str:
     """Return 'inside', 'overlap' or 'none' for the hour beginning at `hour_start`."""
     hour_end = hour_start + timedelta(hours=1)
@@ -59,12 +69,22 @@ def hour_gap_status(gaps: tuple[Gap, ...], hour_start: datetime) -> str:
     return "none"
 
 
+def _epoch_label(
+    epochs: tuple[Epoch, ...], start: datetime, end: datetime
+) -> tuple[str, bool]:
+    current = epochs[0].id
+    for item in epochs:
+        if item.start is not None and item.start <= start:
+            current = item.id
+    boundary = any(item.start is not None and start < item.start < end for item in epochs)
+    return current, boundary
+
+
 def hour_epoch_label(epochs: tuple[Epoch, ...], hour_start: datetime) -> tuple[str, bool]:
     """Return (epoch id at the hour start, True if a boundary falls inside the hour)."""
-    hour_end = hour_start + timedelta(hours=1)
-    current = epochs[0].id
-    for epoch in epochs:
-        if epoch.start is not None and epoch.start <= hour_start:
-            current = epoch.id
-    boundary = any(e.start is not None and hour_start < e.start < hour_end for e in epochs)
-    return current, boundary
+    return _epoch_label(epochs, hour_start, hour_start + timedelta(hours=1))
+
+
+def day_epoch_label(epochs: tuple[Epoch, ...], day_start: datetime) -> tuple[str, bool]:
+    """Return (epoch id at the day start, True if a boundary falls inside the day)."""
+    return _epoch_label(epochs, day_start, day_start + timedelta(days=1))
