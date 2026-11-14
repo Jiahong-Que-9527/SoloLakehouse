@@ -7,6 +7,61 @@ vectors for a 75 km region around `EDDF` and keeps them as a traceable Parquet
 dataset. The deliverable is the tool plus the dataset, ready for later
 lakehouse ETL. It is not a cloud deployment.
 
+## Status (2026-11-14)
+
+Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
+(pull requests #123 to #125). The next session collects batch **b01
+(2026-10)** after the missing batch-gate commands exist. Do not start b02.
+
+Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
+git.
+
+- State vectors, `eddf_r75km` v1: the pilot week 2026-10-12 through 2026-10-18
+  (168 hours), plus benchmark days 2024-11-15, 2025-01-15, 2025-07-15 and
+  2026-07-15. 2026-10-15 is already inside the pilot week.
+- Flights, `eddf_flights` v1: the same seven pilot days and the four benchmark
+  days above.
+- Hour reconciliation matched 168/168:
+  `reports/reconcile/20261114T221544Z-3852.json`.
+- The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
+  longitude 8.48–8.62): `reports/cross-check/20261114T223121Z-dde3.json`.
+- Benchmark report: [docs/benchmark-report.md](docs/benchmark-report.md). The
+  busiest day, 2026-07-15, is under every review threshold. Two years scales
+  to about 55 GB and 19 hours of query time.
+- `serials` stays out of v1. The 2026-07-15 comparison is in
+  `reports/serials-ab/2026-07-15/`.
+- Recovery: `2024-11-15T00` was interrupted after the Parquet file was
+  published and before the manifest. Resume quarantined that file, committed
+  the hour again with the same SHA256, and a repeat run left the day's
+  manifests unchanged.
+
+The CLI has `login`, `discover`, `collect-hour`, `run`, `collect-flights`,
+`reconcile` and `cross-check`. The batch plan still requires `validate`,
+`report`, `accept` and a verified backup to `/mnt/e/slh-backup/aviation`.
+Those commands are not built. There is no GitHub Actions workflow yet.
+
+Next session:
+
+1. Add `validate`, `report`, `accept` and the verified backup, with tests
+   against the fake Trino client. Keep the current commit protocol.
+2. Collect b01. State vectors:
+   `run --from 2026-10-01T00:00:00Z --until 2026-11-01T00:00:00Z`.
+   Flights: `collect-flights --from 2026-10-01 --until 2026-11-02`
+   (the 2026-11-01 flight day belongs to b01). Committed hours and days are
+   skipped.
+3. Run the new gate on b01 and back it up. Stop the backfill if a day exceeds
+   6 million rows, 100 MB of Parquet, 60 seconds per hour, or 5 GB scanned
+   per hour.
+4. Leave `serials` out. Do not upload Bronze. Commit only when asked.
+
+`OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run
+`opensky-ingest login` and resume the same range. Do not print the username,
+the token, or the login URL.
+
+Silver for the pilot week (vertical slice V0 in the project plan) can start
+once b01 is underway. It is not the next acquisition step. ADR-001 to ADR-003
+are still Proposed. ADR-004 stays blocked on its spike.
+
 ## Documents
 
 - [Design](docs/design.md): storage layout, dataset contract, commit protocol,
