@@ -33,8 +33,7 @@ connects it to the Frankfurt model and its data.
 
 ## Depends on
 
-Project 05 model artifact. Use synthetic requests until use of real inputs and
-artifacts is approved.
+Project 05 model artifact. Contract tests use synthetic requests.
 
 ## Outputs
 

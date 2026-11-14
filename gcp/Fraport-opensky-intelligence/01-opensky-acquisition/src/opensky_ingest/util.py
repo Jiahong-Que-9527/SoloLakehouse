@@ -25,6 +25,30 @@ def day_epoch(day: date) -> int:
     return epoch(datetime(day.year, day.month, day.day, tzinfo=UTC))
 
 
+def fsync_dir(path: Path) -> None:
+    """Flush a directory entry so a rename is durable."""
+    fd = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def parse_utc_hour(value: str) -> datetime:
+    """Parse an hour-aligned UTC timestamp. `Z` and offsets are both accepted."""
+    text = str(value).replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError as exc:
+        raise ValueError(f"invalid timestamp: {value!r}") from exc
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    parsed = parsed.astimezone(UTC)
+    if parsed.minute or parsed.second or parsed.microsecond:
+        raise ValueError(f"timestamp is not on an hour boundary: {value!r}")
+    return parsed
+
+
 def write_json_atomic(path: Path, payload: object, *, mode: int = 0o644) -> None:
     """Write JSON through a temporary file and rename it into place."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -37,6 +61,7 @@ def write_json_atomic(path: Path, payload: object, *, mode: int = 0o644) -> None
             os.fsync(stream.fileno())
         os.chmod(tmp_name, mode)
         os.replace(tmp_name, path)
+        fsync_dir(path.parent)
     except BaseException:
         try:
             os.unlink(tmp_name)

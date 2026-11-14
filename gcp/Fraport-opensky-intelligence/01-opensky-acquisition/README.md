@@ -1,6 +1,6 @@
 # 01 · OpenSky Acquisition
 
-**Runtime:** WSL Ubuntu, with Google Cloud Storage as the shared copy.
+**Runtime:** WSL Ubuntu. Data stays on this machine, backed up to a second disk.
 
 Build a reliable, reproducible tool that collects two years of OpenSky state
 vectors for a 75 km region around `EDDF` and keeps them as a traceable Parquet
@@ -47,8 +47,8 @@ filter, clean, deduplicate or interpolate.
    first twelve give twelve complete months.
 3. **Per-batch record.** Hour manifests, a batch manifest, a report, ledger
    events and an acceptance record.
-4. **Publish.** Verified backup after acceptance. GCS upload after OpenSky
-   confirms that cloud storage is allowed.
+4. **Publish.** Verified backup to the second disk after acceptance. Bronze
+   is not uploaded to the cloud.
 
 ## Scope
 
@@ -64,10 +64,9 @@ filter, clean, deduplicate or interpolate.
 | Validation, reconciliation and batch reports | Required |
 | pytest and GitHub Actions CI | Required |
 | Local backup and verification | Required |
-| GCS upload, run once after the local dataset is complete | Required |
 | DuckDB catalog and manifest export | Recommended |
 | Docker | Optional |
-| Cloud Run, Cloud Scheduler, Kubernetes | Out of scope |
+| Cloud upload of Bronze, Cloud Run, Cloud Scheduler, Kubernetes | Out of scope |
 
 ## Acceptance
 
@@ -79,7 +78,7 @@ filter, clean, deduplicate or interpolate.
 - Every batch has a report and an acceptance record before it is published.
 - The dataset summary lists expected, complete, empty, gap-flagged and failed
   hours.
-- A restore from backup and from GCS reproduces the manifest hashes.
+- A restore from the backup reproduces the manifest hashes.
 
 ## Risks
 
@@ -94,4 +93,5 @@ filter, clean, deduplicate or interpolate.
 ## Outputs for later projects
 
 An accepted Bronze dataset, manifests, a dataset contract and a dataset
-summary. Project 02 reads the accepted hours through the manifests.
+summary. Project 02 reads the accepted hours through the manifests, on this
+machine.

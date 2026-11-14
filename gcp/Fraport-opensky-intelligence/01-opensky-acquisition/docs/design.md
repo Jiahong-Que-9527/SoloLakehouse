@@ -2,8 +2,8 @@
 
 Implementation design for subproject 01. It covers a two-year, 75 km regional
 Bronze dataset on WSL Ubuntu, collected in monthly batches and prepared for
-later lakehouse ETL. No code exists yet. Figures marked *estimate* are replaced
-by pilot measurements. See the [batch plan](batch-plan.md) for the run order.
+later lakehouse ETL. The code is built in the order of section 13. Figures
+marked *estimate* are replaced by pilot measurements. See the [batch plan](batch-plan.md) for the run order.
 
 ## 1. Decisions
 
@@ -20,7 +20,7 @@ by pilot measurements. See the [batch plan](batch-plan.md) for the run order.
 | Truth of state | Hour manifests. SQLite is a rebuildable index |
 | Local data root | `/home/bill/slh-data/aviation` |
 | Backup | `/mnt/e/slh-backup/aviation`, after each accepted batch |
-| Cloud copy | GCS mirror of the same relative paths, uploaded once after the local dataset is complete |
+| Cloud | None for this subproject. Bronze and Silver stay on this machine. Only Gold is published to the cloud ([ADR-003](../../docs/adr/ADR-003-local-bronze-silver-published-gold.md)) |
 | Bronze content | Source columns only. No filtering, cleaning or derived fields |
 | `serials` column | Decided by a pilot A/B test before the monthly batches (section 3) |
 ## 2. Storage layout
@@ -369,27 +369,17 @@ planned -> running -> paused (auth, errors, time limit) -> running
         -> collected -> validated -> accepted -> published
 ```
 
-## 8. Publish: backup and cloud
+## 8. Publish: local backup
 
 `publish` means a verified local backup. It starts only after `accept`.
 
-**Local backup.** `rsync` the batch files and metadata to
-`/mnt/e/slh-backup/aviation/`, then verify sizes and SHA256 against manifests.
-Back up SQLite with its backup API or after the run ends.
+`rsync` the batch files and metadata to `/mnt/e/slh-backup/aviation/`, then
+verify sizes and SHA256 against the manifests. Back up SQLite with its backup
+API or after the run ends.
 
-**GCS mirror.** The owner creates the bucket after the whole local dataset is
-signed off. The upload is one dataset-level step (`upload`), not part of each
-batch.
-
-- Same relative paths under `gs://<bucket>/aviation/`.
-- Region `europe-west3`, Standard class, uniform bucket-level access.
-- Upload through the Python storage client with a create-only precondition so
-existing objects are never overwritten.
-- Order within each batch: Parquet files, then hour manifests, then the batch
-  manifest. The batch manifest marks the batch as uploaded.
-- After upload, compare object count, size and CRC32C with the manifests.
-- Authentication uses Application Default Credentials. No key files in Git.
-- `gcs.enabled` stays `false` until the owner turns it on for the upload step.
+Nothing from this subproject goes to the cloud. Bronze is the private source
+of record. Later subprojects read it from this machine, and only the Gold
+product is released to cloud storage under its own contract (ADR-003).
 
 ## 9. Lakehouse readiness
 
@@ -410,7 +400,8 @@ compacted copy goes to a separate directory, never next to the hourly files.
 
 ## 10. Tool structure
 
-Planned layout inside this subproject (not yet created):
+Layout inside this subproject. `config`, `auth`, `trino_client`, `discover` and
+`reference` exist. The rest follows the build order in section 13:
 
 ```text
 pyproject.toml
@@ -418,7 +409,8 @@ configs/dataset.eddf_r75km.v1.yaml     bounds, columns, limits, paths
 configs/batches.yaml                   batch list and order
 configs/reference/                     known gaps, processing epochs
 src/opensky_ingest/
-  cli.py  config.py  auth.py  trino_client.py  query.py
+  cli.py  config.py  auth.py  trino_client.py  discover.py  reference.py
+  query.py
   plan.py  fetch.py  parquet_writer.py  schema.py  validate.py
   manifest.py  state.py  batch.py  report.py  publish.py  catalog.py
 tests/
@@ -440,13 +432,12 @@ Commands:
 | `report --batch B` | Write the batch report |
 | `accept --batch B` | Record acceptance |
 | `publish --batch B` | Back up an accepted batch to `E:` and verify it |
-| `upload` | Upload the signed-off dataset to GCS and verify it |
 | `verify` | Re-hash all committed files and check manifests |
 | `rebuild-state` | Recreate SQLite from manifests |
 | `export-manifests`, `catalog` | Lakehouse helpers |
 
 Python target: 3.12 or newer, managed with `uv`. Dependencies: `trino`,
-`pyarrow`, `duckdb`, `pyyaml`, `google-cloud-storage`, `pytest`.
+`pyarrow`, `duckdb`, `pyyaml`, `pytest`.
 
 ## 11. Failure handling
 
@@ -486,15 +477,14 @@ enters the repository.
    Replace estimates with measurements. Build `discover` first so live checks
    can start before the rest of the tool is finished.
 4. **M3, batches.** Reports, acceptance, backup and the monthly runs.
-5. **M4, upload.** GCS upload after the local dataset is complete. Manifest
-   export and DuckDB catalog.
-6. **M5, dataset sign-off.** Full verify, dataset summary, restore test.
+5. **M4, lakehouse helpers.** Manifest export and the DuckDB catalog, so
+   later local subprojects can read accepted hours.
+6. **M5, dataset sign-off.** Full verify, dataset summary, restore test from
+   the `E:` backup.
 
 ## 14. Open items
 
 - `E:` is confirmed as a separate physical disk, so it counts as an independent
   backup.
-- The GCS project, bucket name and region are set by the owner when the bucket
-  is created after the local dataset is complete.
 - The `serials` decision comes from the pilot A/B test (section 3). Adding the
   column later needs a new dataset version.

@@ -16,7 +16,8 @@ Target calendar, to be adjusted after the pilot:
 | Nov 26 to Dec 20 | Batches b01 to b24, about one batch per working day, one login every few days |
 | Dec 21 to 31 | Buffer, remaining flight days, `verify`, backups, dataset summary |
 
-The GCS upload is a separate step after the local dataset is complete.
+Nothing is uploaded to the cloud from this subproject. Bronze stays local
+and is backed up to `E:`.
 
 Protect the work against an interrupted collection:
 
@@ -187,9 +188,7 @@ After b24 and a final `verify`:
 - Dataset summary for both datasets: expected, complete, empty, `source_gap`
   and failed hours or days, totals for rows and bytes, unique aircraft,
   per-month table.
-- Upload to GCS (bucket created by the owner), then verify it.
-- Restore test: recover a month from the `E:` backup and from GCS and compare
-  hashes.
+- Restore test: recover a month from the `E:` backup and compare hashes.
 - Record the processing-epoch split and the known gaps in the summary.
 
 ## After the window

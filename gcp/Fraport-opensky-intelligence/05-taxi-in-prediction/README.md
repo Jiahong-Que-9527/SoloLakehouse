@@ -14,8 +14,8 @@ airport ground truth. Report label coverage and definition with every result.
 ## Scope
 
 - Define the target: start and end events, and the rules for edge cases.
-- Build features from the Gold or analytics layer with a strict prediction
-  cutoff.
+- Use the per-flight features from the Gold release, with a strict prediction
+  cutoff. Features and labels are built in project 02.
 - Use a time-ordered split. Never shuffle across time.
 - Establish baselines first (historical mean or median by condition), then a
   gradient-boosted model.
@@ -33,14 +33,15 @@ airport ground truth. Report label coverage and definition with every result.
 
 ## Acceptance
 
-- Training is reproducible from a data version and a commit.
+- Training is reproducible from a release ID, table snapshot and commit.
 - No feature uses information from after the cutoff.
 - The model beats the baseline on the held-out period, or the report says it
   does not.
 
 ## Depends on
 
-Features from project 03 or 04.
+Gold releases from project 02, ingested by project 03. Training reads the
+table version that matches a release ID.
 
 ## Outputs
 
