@@ -27,15 +27,16 @@ def _as_int(value) -> int:
     return 0 if value is None else int(value)
 
 
-def validate_hour_table(table: pa.Table, *, schema: pa.Schema, hour_epoch: int, bbox: BBox) -> HourStats:
+def validate_hour_table(
+    table: pa.Table, *, schema: pa.Schema, hour_epoch: int, bbox: BBox
+) -> HourStats:
     """Check the contract. Raise SourceError('VALIDATION') on any violation."""
     if not table.schema.equals(schema, check_metadata=False):
         raise SourceError("VALIDATION", "schema does not match the contract")
 
     indices = pc.sort_indices(
         table,
-        sort_keys=[("icao24", "ascending"), ("time", "ascending")],
-        null_placement="at_end",
+        sort_keys=[("icao24", "ascending", "at_end"), ("time", "ascending", "at_end")],
     )
     expected = pa.array(range(table.num_rows), type=pa.int64())
     if table.num_rows and not pc.all(pc.equal(indices, expected)).as_py():
@@ -72,7 +73,9 @@ def validate_hour_table(table: pa.Table, *, schema: pa.Schema, hour_epoch: int, 
     return HourStats(
         rows=table.num_rows,
         aircraft=_as_int(pc.count_distinct(table.column("icao24")).as_py()),
-        ground_rows=_as_int(pc.sum(pc.if_else(pc.fill_null(table.column("onground"), False), 1, 0)).as_py()),
+        ground_rows=_as_int(
+            pc.sum(pc.if_else(pc.fill_null(table.column("onground"), False), 1, 0)).as_py()
+        ),
         stale_or_unknown_rows=_as_int(pc.sum(pc.if_else(pc.fill_null(stale, False), 1, 0)).as_py()),
         duplicate_key_rows=_as_int(extras),
         nulls={name: table.column(name).null_count for name in table.column_names},
