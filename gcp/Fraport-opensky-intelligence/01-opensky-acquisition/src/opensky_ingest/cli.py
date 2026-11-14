@@ -23,6 +23,7 @@ from .errors import (
     IngestError,
 )
 from .fetch import collect_hour
+from .run import collect_range, parse_duration
 from .util import parse_utc_hour
 
 
@@ -37,6 +38,12 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("discover", help="read-only check of tables, schemas and partitions")
     collect = sub.add_parser("collect-hour", help="collect one state-vector hour and commit it")
     collect.add_argument("--hour", required=True, help="UTC hour, for example 2026-10-15T12:00:00Z")
+    run = sub.add_parser("run", help="collect pending state-vector hours in a UTC range")
+    run.add_argument("--from", dest="start", required=True, help="first hour, inclusive")
+    run.add_argument("--until", required=True, help="hour at which to stop, exclusive")
+    run.add_argument(
+        "--max-duration", default="3h", help="stop cleanly after this long, for example 3h"
+    )
     return parser
 
 
@@ -108,6 +115,62 @@ def cmd_collect_hour(cfg: Config, factory: Callable[..., Any], hour_text: str) -
     return EXIT_OK if result["outcome"] in {"committed", "skipped"} else EXIT_ERROR
 
 
+def _print_hour(result: dict[str, Any]) -> None:
+    print(
+        f"{result.get('window_start')} outcome: {result['outcome']} "
+        f"status: {result.get('status')} rows: {result.get('rows')} "
+        f"bytes: {result.get('bytes')} elapsed_seconds: {result.get('elapsed_seconds')}"
+    )
+    if result.get("error_class"):
+        print(f"error_class: {result['error_class']}")
+
+
+def cmd_run(
+    cfg: Config,
+    factory: Callable[..., Any],
+    start_text: str,
+    until_text: str,
+    max_duration: str,
+) -> int:
+    try:
+        start = parse_utc_hour(start_text)
+        until = parse_utc_hour(until_text)
+        limit = parse_duration(max_duration)
+    except ValueError as exc:
+        raise ConfigError(str(exc)) from exc
+    ensure_free_disk(cfg)
+    lock = acquire_lock(cfg.paths.data_root)
+    connection = None
+    try:
+        connection = factory(cfg, interactive=False)
+        summary = collect_range(
+            connection,
+            cfg,
+            start,
+            until,
+            max_duration=limit,
+            pause_seconds=0.5,
+            progress=print,
+            on_hour=_print_hour,
+        )
+    finally:
+        close = getattr(connection, "close", None)
+        if close:
+            close()
+        os.close(lock)
+    print(
+        f"run outcome: {summary['outcome']} reason: {summary['reason']} "
+        f"committed: {summary['committed']} skipped: {summary['skipped']}"
+    )
+    if summary["next_hour"]:
+        print(f"next_hour: {summary['next_hour']}")
+    if summary["error_class"]:
+        print(f"error_class: {summary['error_class']}")
+    if summary["outcome"] == "finished" or summary["reason"] == "max_duration":
+        return EXIT_OK
+    return EXIT_ERROR
+
+
 def main(
     argv: Sequence[str] | None = None,
     connection_factory: Callable[..., Any] = auth.make_connection,
@@ -126,6 +189,8 @@ def main(
             return cmd_discover(cfg, connection_factory)
         if args.command == "collect-hour":
             return cmd_collect_hour(cfg, connection_factory, args.hour)
+        if args.command == "run":
+            return cmd_run(cfg, connection_factory, args.start, args.until, args.max_duration)
     except AuthRequired as exc:
         print(str(exc), file=sys.stderr)
         return EXIT_AUTH_REQUIRED

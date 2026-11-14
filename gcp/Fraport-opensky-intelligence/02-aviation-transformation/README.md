@@ -8,10 +8,10 @@ locally. Publish Gold through a Release Gate. See
 
 ## Why local
 
-The data is about 31 GB of Parquet, which DuckDB processes on one machine. The
-raw data stays under local control, and nothing in this subproject needs a
-cluster. The code is containerised and tested in CI so the same logic runs
-anywhere.
+The data is about 52 GB of Parquet, scaled from the 2026-10-15 pilot day.
+DuckDB processes that on one machine. The raw data stays under local control,
+and nothing in this subproject needs a cluster. The code is containerised and
+tested in CI so the same logic runs anywhere.
 
 ## Scope
 

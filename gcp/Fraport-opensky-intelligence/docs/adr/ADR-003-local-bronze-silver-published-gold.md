@@ -7,8 +7,9 @@
 Earlier drafts placed Bronze and Silver in Cloud Storage and ran the
 transformation as a Cloud Run Job. Two facts change that:
 
-- The dataset is small. About 31 GB of Parquet for two years fits on one
-  machine, and DuckDB processes it without a cluster.
+- The dataset is small. The 2026-10-15 pilot day scales to about 52 GB of
+  Parquet for two years. That fits on one machine, and DuckDB processes it
+  without a cluster.
 - The raw research data is the programme's source of record. Keeping it in
   one place under local control is simpler than keeping cloud copies in step.
 

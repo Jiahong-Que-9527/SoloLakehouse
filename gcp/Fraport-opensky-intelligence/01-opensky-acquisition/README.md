@@ -31,7 +31,7 @@ lakehouse ETL. It is not a cloud deployment.
 | `serials` column | Decided by a pilot A/B test before the monthly batches |
 | Local root | `/home/bill/slh-data/aviation` (outside the repository) |
 | Backup | `/mnt/e/slh-backup/aviation` |
-| Size | About 31 GB Parquet (estimate, to be measured in the pilot) |
+| Size | 71 MB on 2026-10-15. About 52 GB for two years if every day matches that day |
 
 Bronze keeps source columns with their original meaning and units. It does not
 filter, clean, deduplicate or interpolate.
