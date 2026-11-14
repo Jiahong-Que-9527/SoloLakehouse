@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import fcntl
+import os
+import shutil
 import sys
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import Any
 
 from . import __version__, auth
@@ -18,6 +22,8 @@ from .errors import (
     AuthRequired,
     IngestError,
 )
+from .fetch import collect_hour
+from .util import parse_utc_hour
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -29,6 +35,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("login", help="log in to OpenSky in the browser and cache the session")
     sub.add_parser("discover", help="read-only check of tables, schemas and partitions")
+    collect = sub.add_parser("collect-hour", help="collect one state-vector hour and commit it")
+    collect.add_argument("--hour", required=True, help="UTC hour, for example 2026-10-15T12:00:00Z")
     return parser
 
 
@@ -52,6 +60,54 @@ def cmd_discover(cfg: Config, factory: Callable[..., Any]) -> int:
     return EXIT_OK if record["window_available"] else EXIT_ERROR
 
 
+def ensure_free_disk(cfg: Config, minimum: int = 50 * 1024**3) -> None:
+    free = shutil.disk_usage(cfg.paths.data_root).free
+    if free < minimum:
+        raise IngestError("LOW_DISK")
+
+
+def acquire_lock(root: Path) -> int:
+    path = root / "_locks" / "ingest.lock"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(path, os.O_CREAT | os.O_RDWR, 0o644)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        os.close(fd)
+        raise IngestError("CONCURRENT_RUN") from None
+    return fd
+
+
+def cmd_collect_hour(cfg: Config, factory: Callable[..., Any], hour_text: str) -> int:
+    try:
+        hour = parse_utc_hour(hour_text)
+    except ValueError as exc:
+        raise ConfigError(str(exc)) from exc
+    ensure_free_disk(cfg)
+    lock = acquire_lock(cfg.paths.data_root)
+    print(hour.strftime("Collecting %Y-%m-%dT%H:%M:%SZ"), flush=True)
+    connection = factory(cfg, interactive=False)
+    try:
+        result = collect_hour(connection, cfg, hour, pause_seconds=0.5, progress=print)
+    finally:
+        close = getattr(connection, "close", None)
+        if close:
+            close()
+        os.close(lock)
+    print(f"outcome: {result['outcome']}")
+    print(f"status: {result.get('status')}")
+    if result.get("error_class"):
+        print(f"error_class: {result['error_class']}")
+    print(f"rows: {result.get('rows')}")
+    print(f"bytes: {result.get('bytes')}")
+    print(f"sha256: {result.get('sha256')}")
+    print(f"path: {result.get('path')}")
+    print(f"query_id: {result.get('query_id')}")
+    print(f"processed_bytes: {result.get('processed_bytes')}")
+    print(f"elapsed_seconds: {result.get('elapsed_seconds')}")
+    return EXIT_OK if result["outcome"] in {"committed", "skipped"} else EXIT_ERROR
+
+
 def main(
     argv: Sequence[str] | None = None,
     connection_factory: Callable[..., Any] = auth.make_connection,
@@ -68,6 +124,8 @@ def main(
             return cmd_login(cfg, connection_factory)
         if args.command == "discover":
             return cmd_discover(cfg, connection_factory)
+        if args.command == "collect-hour":
+            return cmd_collect_hour(cfg, connection_factory, args.hour)
     except AuthRequired as exc:
         print(str(exc), file=sys.stderr)
         return EXIT_AUTH_REQUIRED
