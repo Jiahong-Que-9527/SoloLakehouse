@@ -10,8 +10,10 @@ individual stages are stable.
 
 - Compare GCP Workflows and Dagster on the real pipeline. Record the decision
   in an ADR.
-- Model the pipeline: acquisition status, transformation, load, feature build,
-  training and serving release.
+- Model the pipeline. Local stages (acquisition, Silver, Gold, release) stay
+  scripts and are only observed. Cloud stages (release detection, validation,
+  ingestion, analytics, training and serving release) are orchestrated.
+- Detect a new release by its `_SUCCESS` file and trigger ingestion.
 - Add scheduling, retry policy, failure alerts and run history.
 - Link every run to its source commit, input data version and output.
 - Write and test a recovery runbook for a failed stage.
@@ -19,7 +21,8 @@ individual stages are stable.
 ## Milestones
 
 - **M1.** Orchestrator ADR and a dependency graph of existing stages.
-- **M2.** Orchestrate transformation and analytics load end to end.
+- **M2.** Orchestrate release detection, ingestion and analytics load end to
+  end.
 - **M3.** Add feature build and training.
 - **M4.** Failure injection, recovery exercise and runbook.
 
@@ -31,8 +34,8 @@ individual stages are stable.
 
 ## Depends on
 
-Projects 02 to 06. Project 01 stays a local tool unless continuous unattended
-ingestion becomes a requirement.
+Projects 03 to 06. Projects 01 and 02 stay local tools unless continuous
+unattended ingestion becomes a requirement.
 
 ## Outputs
 

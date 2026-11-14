@@ -1,40 +1,57 @@
 # 03 · Airport Analytics
 
-**Runtime:** BigQuery.
+**Runtime:** Google Cloud: Cloud Storage, BigQuery and the Gold table layer.
+Managed with Terraform.
 
-Model the Silver layer as analytical tables and answer operational questions
-about Frankfurt Airport traffic with SQL. The focus is data modeling and SQL,
-not infrastructure.
+Receive Gold releases from project 02, turn them into managed cloud tables and
+answer operational questions about Frankfurt Airport traffic with SQL. This is
+the main GCP infrastructure and CI/CD project in the programme.
 
 ## Scope
 
-- Load Silver data from GCS into BigQuery, with partitioning and clustering
-  chosen from the query patterns.
-- Define a dimensional or wide-table model for aircraft, arrivals and
-  surface movement. Document grain, keys and definitions.
-- Write reusable views or models for traffic volume, arrival rate by hour,
-  runway-area activity and surface-time distributions.
-- Check results against the Silver quality report and record row counts.
-- Record query cost for the main queries.
+- **Infrastructure as code.** Terraform for the Landing bucket, the Gold
+  storage, identities with least privilege, budget alerts and the BigQuery
+  datasets. A GitHub Actions pipeline runs plan and apply.
+- **Landing.** A private bucket that receives releases with a create-only
+  upload. The upload identity cannot read other data.
+- **Release ingestion.** A job checks the manifest, contract and checksums,
+  then materialises the Gold tables. Ingesting a release twice does not
+  duplicate rows. Each table row carries its release ID.
+- **Table format.** Apache Iceberg if the spike in
+  [ADR-004](../docs/adr/ADR-004-gold-table-format-and-catalog.md) passes,
+  otherwise BigQuery native tables.
+- **Analytics.** A documented model with grain and keys. Reusable views for
+  traffic volume, arrival rate by hour, runway-area activity and surface-time
+  distributions. Query cost recorded for the main queries.
+- **Synthetic data.** The full flow runs on synthetic releases, so a fork needs
+  only its own GCP project.
 
 ## Milestones
 
-- **M1.** Load one month of Silver into BigQuery and document the model.
-- **M2.** Core analytics queries with expected results on a fixed sample.
-- **M3.** Full-year model, cost record and short findings report.
+- **M1.** ADR-004 spike on synthetic data, with the result recorded.
+- **M2.** Terraform creates the bucket, identities and budget alerts. CI runs
+  plan on pull requests.
+- **M3.** Ingest the synthetic release and then release `v001`. A repeat
+  ingestion adds no rows.
+- **M4.** Analytics model and core queries with expected results on a fixed
+  sample.
+- **M5.** Full dataset release, cost record and findings report.
 
 ## Acceptance
 
+- A repeat ingestion of the same release adds no rows.
+- A release that fails validation is not ingested.
 - Every table has a documented grain and a uniqueness check.
-- Query results reconcile with Silver row counts.
+- Query results reconcile with the release manifest row counts.
 - Findings state the data period, source and known limits. Surface times are
   proxies from state vectors, not airport ground truth.
+- Deployment and runtime identities are separate and documented.
 
 ## Depends on
 
-Project 02 Silver output.
+Project 02 Gold releases. M1 to M3 can start with the synthetic release.
 
 ## Outputs
 
-BigQuery dataset, model documentation and an analytics report. Project 05 can
-use the same definitions for features.
+Cloud infrastructure code, Gold tables, a model description and an analytics
+report. Project 05 uses the same definitions for features.

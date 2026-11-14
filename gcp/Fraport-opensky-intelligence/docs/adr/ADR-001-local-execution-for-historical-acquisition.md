@@ -1,19 +1,19 @@
 # ADR-001: Local execution for historical data acquisition
 
-**Status:** Proposed
+**Status:** Proposed. Amended by [ADR-003](ADR-003-local-bronze-silver-published-gold.md).
 
 ## Context
 
-The first subproject downloads about one year of OpenSky state vectors for
-`EDDF`. This is a one-time historical backfill. Throughput is limited by
-OpenSky Trino queries, not by local compute. Unattended cloud authentication
-against OpenSky is unverified. The downstream projects need the data in a
-shared cloud location.
+The first subproject downloads two years of OpenSky state vectors for `EDDF`.
+This is a one-time historical backfill. Throughput is limited by OpenSky Trino
+queries, not by local compute. Unattended cloud authentication against OpenSky
+is unverified.
 
 ## Decision
 
-Run historical extraction locally. Persist validated datasets in Google Cloud
-Storage once the local dataset is complete.
+Run historical extraction locally. Keep the Bronze dataset on the local disk
+and back it up to a second physical disk. Bronze is not uploaded to cloud
+storage. Cloud storage receives only published Gold releases (ADR-003).
 
 ## Rationale
 
@@ -21,13 +21,15 @@ Storage once the local dataset is complete.
 - It is a one-time backfill with no requirement for always-on infrastructure.
 - Local execution has lower operational complexity. It avoids Cloud Run,
   Artifact Registry, Secret Manager and Cloud Scheduler for this task.
-- Shared cloud storage gives BigQuery, Databricks and Vertex AI one copy.
+- About 31 GB of Parquet fits a single machine. A local copy plus a backup
+  disk is enough for the source of record.
 
 ## Consequences
 
 - Subproject 01 gets CI (tests and lint) but no cloud deployment pipeline.
-- The first real GCP CI/CD pipeline moves to subproject 02.
 - Local backup and restore need an explicit procedure.
+- Later subprojects that need Bronze or Silver run on this machine. Cloud
+  subprojects consume Gold releases only.
 
 ## Revisit when
 

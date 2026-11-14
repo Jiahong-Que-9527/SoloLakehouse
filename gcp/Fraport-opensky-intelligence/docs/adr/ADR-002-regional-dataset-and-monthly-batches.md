@@ -40,8 +40,8 @@ each. Its OAuth session expires after a few days.
   collection is interrupted.
 - Keep Bronze as source columns with no cleaning. Flag documented OpenSky
   gaps and processing changes instead of altering data.
-- Back up to `/mnt/e` after each accepted batch. Upload to GCS once, after the
-  local dataset is complete.
+- Back up to `/mnt/e` after each accepted batch. Bronze is not uploaded to
+  the cloud (ADR-003).
 
 ## Rationale
 

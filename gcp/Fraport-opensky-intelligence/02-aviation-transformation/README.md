@@ -1,57 +1,73 @@
 # 02 · Aviation Transformation
 
-**Runtime:** Google Cloud. Cloud Run Jobs first, Dataproc Serverless if
-single-job compute is not enough.
+**Runtime:** Local machine (WSL Ubuntu). Python and DuckDB, driven by a CLI.
 
-Read Bronze state vectors from Cloud Storage and write a cleaned Silver layer:
-validated observations, reconstructed trajectories and arrival events. This
-is the main GCP CI/CD project in the programme.
+Read the Bronze dataset from project 01 and build the Silver and Gold layers
+locally. Publish Gold through a Release Gate. See
+[ADR-003](../docs/adr/ADR-003-local-bronze-silver-published-gold.md).
 
-## Why GCP
+## Why local
 
-The raw data already sits in GCS, so compute runs next to it. Transformation
-logic changes often, so a build and release pipeline pays off. The job no
-longer depends on OpenSky authentication.
+The data is about 31 GB of Parquet, which DuckDB processes on one machine. The
+raw data stays under local control, and nothing in this subproject needs a
+cluster. The code is containerised and tested in CI so the same logic runs
+anywhere.
 
 ## Scope
 
-- Clean and type Bronze observations. Record every rule that removes or
-  repairs a row.
-- Reconstruct per-aircraft trajectories with documented gap handling.
-- Identify arrival candidates and surface-movement events with documented
-  thresholds.
-- Run data-quality checks and write a quality report for each run.
-- Compare processing options on the same input: single-node Polars, Spark and
-  BigQuery SQL. Record runtime, cost and complexity.
-- Release through GitHub Actions to Artifact Registry and Cloud Run Jobs.
+- **Silver.** Clean and type Bronze observations and record every rule that
+  removes or repairs a row. Reconstruct per-aircraft trajectories with
+  documented gap handling. Select the airport area (runways, taxiways and
+  surroundings) from reference geometry. Identify arrival candidates and
+  surface-movement events with documented thresholds.
+- **Quality.** Run checks and write a report for each run: completeness,
+  trajectory coverage and anomaly rates. Report how many flights have a usable
+  ground track, because ADS-B ground coverage limits taxi-in times.
+- **Gold.** Build flight-level taxi-in features and labels, hourly traffic
+  statistics and the training dataset. Report label coverage.
+- **Release Gate.** Export Gold under a data contract, with a field policy,
+  checks, manifest, checksums and release ID. Block a release that fails a
+  check. See the release layout in ADR-003.
+- **Reference data.** Airport geometry from open data, with its source and
+  version recorded.
+- **Synthetic data.** A generator that produces data in the same schema, so
+  the whole flow runs without real data.
 
 ## Layers
 
 ```text
-GCS Bronze    raw OpenSky state vectors (from project 01)
-GCS Silver    clean observations, trajectories, arrival events
+Bronze   raw OpenSky state vectors and flights (from project 01)
+Silver   clean observations, trajectories, arrival events
+Gold     taxi-in features, hourly traffic, training dataset
+Release  versioned Gold folder with manifest, contract and checks
 ```
 
 ## Milestones
 
-- **M1.** Transform one day of Bronze into Silver locally with tests.
-- **M2.** Package as a container and run it as a Cloud Run Job on one day.
-- **M3.** CI/CD from GitHub to Artifact Registry to Cloud Run.
-- **M4.** Process the full year. Record run ID, source window, quality
-  results and the outcome of a repeat run.
-- **M5.** Engine comparison report.
+- **M1.** Silver for one day with tests, on the pilot-week data.
+- **M2.** Gold features and labels for the pilot week, with a coverage report.
+- **M3.** Data contract and Release Gate. Release `v001` from the pilot week,
+  and a rejected release shown from a failing fixture.
+- **M4.** Full dataset. Record run ID, source window, quality results and the
+  outcome of a repeat run.
+- **M5.** Container image and CI. Optional engine comparison (DuckDB, Polars,
+  Spark) on the same input.
 
 ## Acceptance
 
 - A repeat run on the same input and code revision gives the same output.
-- Quality checks fail the run visibly, and the failure has a documented
-  rerun procedure.
-- Deployment and runtime identities are separate and documented.
+- Quality checks fail the run visibly, and the failure has a documented rerun
+  procedure.
+- A release is immutable. `_SUCCESS` is written last, after every file is
+  verified against the manifest.
+- A release that fails the contract is blocked and the reason is recorded.
+- Gold carries per-flight features and reports label coverage.
 
 ## Depends on
 
-Project 01 Bronze dataset in GCS.
+Project 01 Bronze dataset. The pilot week is enough for M1 to M3.
 
 ## Outputs
 
-Silver tables, a quality report and a run record, used by projects 03 to 05.
+Silver and Gold datasets, quality reports, run records and Gold releases for
+projects 03 to 05.

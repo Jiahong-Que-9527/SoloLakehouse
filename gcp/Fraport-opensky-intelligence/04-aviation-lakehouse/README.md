@@ -1,25 +1,28 @@
 # 04 · Aviation Lakehouse Integration
 
-**Runtime:** Databricks, reading and writing Cloud Storage.
+**Runtime:** Databricks, reading Gold releases from Cloud Storage.
 
-Connect this programme's Bronze and Silver data to the Databricks
+Connect this programme's Gold releases to the Databricks
 [Aviation Lakehouse](../../../databricks/aviation-lakehouse/README.md)
 project. That project owns the Delta transformation code. This subproject owns
-the data contract and the integration with GCS.
+the data contract and the integration with Cloud Storage.
 
 ## Scope
 
-- Define how Databricks reads the Bronze and Silver datasets from GCS
-  (external locations, credentials, governance).
-- Map project 01 and 02 schemas to the Aviation Lakehouse Bronze, Silver and
-  Gold tables.
+- Define how Databricks reads the Gold releases from Cloud Storage
+  (external locations, credentials, governance). Bronze and Silver stay
+  local and are not available here.
+- Map the project 02 Gold schemas to the Aviation Lakehouse Bronze, Silver and
+  Gold tables. The release is the input, so its Delta tables start from the
+  published Gold data.
 - Verify event identity, proxy label coverage and the feature cutoff on a
   small batch, then on a larger slice.
 - Document governance: ownership, access and retention.
 
 ## Milestones
 
-- **M1.** Schema mapping document and a fixture batch read from GCS.
+- **M1.** Schema mapping document and a synthetic release read from Cloud
+  Storage.
 - **M2.** One month through Bronze, Silver and Gold with checks.
 - **M3.** Feature table contract agreed with project 05.
 
@@ -31,7 +34,7 @@ the data contract and the integration with GCS.
 
 ## Depends on
 
-Projects 01 and 02. Coordinate with the Databricks Aviation Lakehouse project.
+Project 02 Gold releases and the Landing bucket from project 03. Coordinate with the Databricks Aviation Lakehouse project.
 
 ## Outputs
 
