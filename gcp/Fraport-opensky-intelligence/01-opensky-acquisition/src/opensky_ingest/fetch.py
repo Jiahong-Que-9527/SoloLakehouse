@@ -136,7 +136,15 @@ def collect_hour(
     gap = hour_gap_status(gaps, hour)
     label, boundary = hour_epoch_label(epochs, hour)
     common = _common(
-        cfg, hour, run_id, moment, sql, info.query_id, info.processed_bytes, info.elapsed_seconds, label
+        cfg,
+        hour,
+        run_id,
+        moment,
+        sql,
+        info.query_id,
+        info.processed_bytes,
+        info.elapsed_seconds,
+        label,
     )
 
     if not rows:
@@ -161,7 +169,9 @@ def collect_hour(
         _quarantine(staged, root, run_id)
         return _fail(cfg, hour, run_id, "VALIDATION", moment, query_id=info.query_id)
     try:
-        stats = validate_hour_table(read_back, schema=schema, hour_epoch=epoch(hour), bbox=cfg.region.bbox)
+        stats = validate_hour_table(
+            read_back, schema=schema, hour_epoch=epoch(hour), bbox=cfg.region.bbox
+        )
     except SourceError:
         _quarantine(staged, root, run_id)
         return _fail(cfg, hour, run_id, "VALIDATION", moment, query_id=info.query_id)
@@ -340,7 +350,13 @@ def _index(cfg: Config, manifest: dict, *, error_class: str | None, kind: str) -
     root = cfg.paths.data_root
     db = connect(root / "metadata" / "state.db")
     try:
-        record_run(db, manifest["run_id"], manifest["collected_at"], __version__, manifest.get("git_commit", ""))
+        record_run(
+            db,
+            manifest["run_id"],
+            manifest["collected_at"],
+            __version__,
+            manifest.get("git_commit", ""),
+        )
         record_hour(db, manifest, error_class=error_class)
     finally:
         db.close()

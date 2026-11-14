@@ -70,7 +70,9 @@ def record_hour(db: sqlite3.Connection, manifest: dict, *, error_class: str | No
     db.commit()
 
 
-def record_run(db: sqlite3.Connection, run_id: str, started_at: str, tool_version: str, git_commit: str) -> None:
+def record_run(
+    db: sqlite3.Connection, run_id: str, started_at: str, tool_version: str, git_commit: str
+) -> None:
     db.execute(
         """
         INSERT INTO runs (run_id, started_at, tool_version, git_commit)
