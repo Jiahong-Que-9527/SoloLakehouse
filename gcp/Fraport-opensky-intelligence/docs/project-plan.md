@@ -44,14 +44,21 @@ Phases 3 and 4 can run in parallel after phase 2.
 
 ## Phase 1: 01 OpenSky Acquisition
 
+Scope: dataset `eddf_r75km` v1, 75 km region, `[2024-11-01, 2026-11-01)`,
+24 monthly batches. See the [design](../01-opensky-acquisition/docs/design.md)
+and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
+
 | Milestone | Content | Exit criterion |
 |-----------|---------|----------------|
-| V0.1 | One day to hourly Parquet, DuckDB query | Row counts match the source query |
-| V0.2 | Schema, checkpoint, manifest, checksum, resume | Interrupted run resumes, repeat run adds nothing |
-| V1.0 | Seven-day size test, one-month backfill, full year, summary, backup | Summary lists all expected batches and states, restore tested |
+| M0 | Skeleton: config, schema, manifest, state, fake client, CLI shell | Unit tests pass |
+| M1 | Collect and commit protocol against the fake client | Crash-injection and repeat-run tests pass |
+| M2 | Live pilot: one hour, one day, one week | Gate G0: reconciled, cross-checked, measured, recovery tested |
+| M3 | Monthly batches with reports, acceptance and backup | Each batch accepted and backed up |
+| M4 | GCS upload, manifest export, DuckDB catalog | Upload verified, after OpenSky confirmation |
+| M5 | Dataset sign-off | Full verify, dataset summary, restore tested |
 
 CI: tests and lint on pull requests that touch this directory.
-GCS upload is added once the licensing check passes.
+GCS upload waits for the licensing check.
 
 ## Phase 2: 02 Aviation Transformation
 

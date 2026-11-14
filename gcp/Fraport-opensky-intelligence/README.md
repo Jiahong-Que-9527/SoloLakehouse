@@ -31,6 +31,11 @@ duplicate those projects.
   and exit criteria.
 - [ADR-001](docs/adr/ADR-001-local-execution-for-historical-acquisition.md)
   records why historical acquisition runs locally.
+- [ADR-002](docs/adr/ADR-002-regional-dataset-and-monthly-batches.md) records
+  the 75 km regional dataset and the monthly batch approach.
+- [01 design](01-opensky-acquisition/docs/design.md) and
+  [batch plan](01-opensky-acquisition/docs/batch-plan.md) describe how the
+  first dataset is collected.
 - [chatgpt-consulting.md](chatgpt-consulting.md) is the original discussion
   these decisions come from. It is background, not a specification.
 
