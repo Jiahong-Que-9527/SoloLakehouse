@@ -6,7 +6,7 @@ import pyarrow as pa
 
 SCHEMA_VERSION = "1.0"
 
-# Selected columns, in query order. `serials` is excluded until the pilot A/B test.
+# Selected columns, in query order. `serials` is excluded from v1.
 STATE_VECTOR_COLUMNS = (
     "time",
     "icao24",

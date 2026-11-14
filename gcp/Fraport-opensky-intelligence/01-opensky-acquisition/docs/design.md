@@ -22,7 +22,7 @@ marked *estimate* are replaced by pilot measurements. See the [batch plan](batch
 | Backup | `/mnt/e/slh-backup/aviation`, after each accepted batch |
 | Cloud | None for this subproject. Bronze and Silver stay on this machine. Only Gold is published to the cloud ([ADR-003](../../docs/adr/ADR-003-local-bronze-silver-published-gold.md)) |
 | Bronze content | Source columns only. No filtering, cleaning or derived fields |
-| `serials` column | Decided by a pilot A/B test before the monthly batches (section 3) |
+| `serials` column | Excluded from v1. The 2026-07-15 A/B made files 1.57× larger and collection 1.76× slower |
 ## 2. Storage layout
 
 The data root sits on the WSL ext4 disk. Do not use `/mnt/c` or `/mnt/e` for
@@ -100,13 +100,13 @@ WHERE hour = :hour_epoch
 ```
 
 - `hour` is the partition column. Trino rejects queries without it.
-- `serials` is **undecided**. It lists the receivers that heard a message and is
-the best source for analysing ground coverage. It is an array and may
-enlarge the Parquet files a lot. The pilot collects one day with and one day
-without it. Compare size, query time and download time, then record the
-decision in the dataset contract before the first monthly batch. Adding it
-afterwards means collecting again. If included, publication rules require
-anonymising receiver identifiers.
+- `serials` is **excluded from v1**. On 2026-07-15 the same rows were collected
+  with and without it. With the column, Parquet grew from 75.1 MB to 117.6 MB
+  (1.57×) and query-plus-download grew from 95 s to 168 s (1.76×). Peak
+  collection memory was 1.08 GB. Every hour's row count matched. The column
+  is a list of receiver identifiers, and publication would have to anonymise
+  them. v1 keeps the position record. Adding the column later needs a new
+  dataset version. The comparison is in `reports/serials-ab/2026-07-15/`.
 - Stale and null-contact rows stay in the data. The manifest counts rows with
 `lastcontact IS NULL OR time - lastcontact > 15` so Silver can decide.
 - The SQL template and its SHA256 are part of the dataset contract and every
@@ -132,7 +132,7 @@ PyArrow schema, not inferred.
 | baroaltitude, geoaltitude | float64 | m |
 | lastposupdate, lastcontact | float64 | Unix seconds |
 | hour | int64 | source partition, Unix seconds at hour start |
-| serials | list of integers | only if the pilot A/B decision includes it. Element type is fixed after `DESCRIBE` |
+| serials | list of int32 | excluded from v1 by the 2026-07-15 A/B test |
 
 All columns are nullable. A schema drift check runs at the start of each run
 (`DESCRIBE`) and stops the run on any difference.
@@ -283,6 +283,7 @@ including queueing.
 | Free disk check | at least 50 GB before each run |
 
 The pilot day 2026-10-15 scanned 0.53 to 1.15 GB per hour for this box.
+The busiest benchmark day, 2026-07-15, scanned up to 1.16 GB per hour.
 Fin measured about 0.7 GB per hour for the smaller box.
 
 ### Freshness
@@ -490,5 +491,5 @@ enters the repository.
 
 - `E:` is confirmed as a separate physical disk, so it counts as an independent
   backup.
-- The `serials` decision comes from the pilot A/B test (section 3). Adding the
-  column later needs a new dataset version.
+- The `serials` column is excluded from v1. The 2026-07-15 comparison is in
+  section 3. Adding it later needs a new dataset version.

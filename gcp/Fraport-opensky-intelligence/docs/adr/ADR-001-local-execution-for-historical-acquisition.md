@@ -21,7 +21,7 @@ storage. Cloud storage receives only published Gold releases (ADR-003).
 - It is a one-time backfill with no requirement for always-on infrastructure.
 - Local execution has lower operational complexity. It avoids Cloud Run,
   Artifact Registry, Secret Manager and Cloud Scheduler for this task.
-- The 2026-10-15 pilot day scales to about 52 GB of Parquet. That still fits a
+- The busiest benchmark day, 2026-07-15, scales to about 55 GB of Parquet. That still fits a
   single machine. A local copy plus a backup disk is enough for the source of
   record.
 

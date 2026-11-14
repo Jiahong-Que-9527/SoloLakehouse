@@ -12,7 +12,7 @@ congestion features and trajectory work.
 An OpenSky Trino query scans a whole hour partition, so its cost depends on
 the number of hours queried far more than on the box size. A later change of
 region means repeating every query. Parquet storage for two years is small
-(about 52 GB, scaled from the 2026-10-15 pilot day).
+(about 55 GB, scaled from the busiest benchmark day, 2026-07-15).
 
 OpenSky limits queries to 100 GB scan, two concurrent queries and 30 minutes
 each. Its OAuth session expires after a few days.
@@ -32,8 +32,8 @@ each. Its OAuth session expires after a few days.
 - Run discovery, a seven-day pilot and five benchmark days first. Measure
   volume, query time and scan, and check the results against the legacy
   receipts.
-- Decide whether to keep the `serials` column with an A/B test in the pilot,
-  before the monthly batches.
+- `serials` is excluded from `eddf_r75km` v1. The 2026-07-15 A/B test is the
+  record of that decision.
 - Account for hours inside documented OpenSky gaps with an explicit
   `source_gap` state.
 - Order batches so that twelve complete months finish first, in case the

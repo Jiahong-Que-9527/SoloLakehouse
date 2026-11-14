@@ -18,7 +18,7 @@ def _number(value: float) -> str:
 
 
 def state_vector_sql(cfg: Config, hour: datetime) -> str:
-    """One hour, no ORDER BY and no row limit. `serials` is not selected."""
+    """One hour, no ORDER BY and no row limit. `serials` is not part of v1."""
     box = cfg.region.bbox
     columns = ", ".join(STATE_VECTOR_COLUMNS)
     table = cfg.source.table(cfg.state_vectors.table)

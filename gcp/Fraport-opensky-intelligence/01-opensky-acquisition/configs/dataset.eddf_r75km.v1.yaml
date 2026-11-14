@@ -53,7 +53,15 @@ state_vectors:
     - lastcontact
     - hour
   optional_columns:
-    - serials   # decided by the pilot A/B test
+    - serials
+  # A/B on 2026-07-15: excluded from v1. Same rows became 118 MB instead of
+  # 75 MB (1.57x) and took 168 s instead of 95 s (1.76x). Receiver identifiers
+  # would also have to be anonymised before publication. A later version can
+  # add the column; the comparison files are in reports/serials-ab/.
+  serials_decision:
+    include: false
+    decided_on: "2026-11-14"
+    compared_day: "2026-07-15"
 
 flights:
   table: flights_data4
