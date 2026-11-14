@@ -1,0 +1,50 @@
+# Fraport OpenSky Intelligence
+
+Build an aviation data foundation for Frankfurt Airport (ICAO `EDDF`) from
+OpenSky Network state vectors. The programme starts with a reliable historical
+acquisition tool and grows through transformation, analytics, a lakehouse,
+a taxi-in time model, serving and orchestration.
+
+Each subproject chooses the runtime that fits its workload and shares data
+assets through Cloud Storage. Not every subproject runs on Google Cloud.
+
+## Subprojects
+
+| # | Subproject | Runtime | Focus |
+|---|------------|---------|-------|
+| 01 | [OpenSky Acquisition](01-opensky-acquisition/README.md) | Local + GCS | Ingestion, reliability, data manifest |
+| 02 | [Aviation Transformation](02-aviation-transformation/README.md) | GCP Cloud Run Jobs or Dataproc Serverless | Cleaning, trajectories, events, CI/CD |
+| 03 | [Airport Analytics](03-airport-analytics/README.md) | BigQuery | SQL, data modeling |
+| 04 | [Aviation Lakehouse Integration](04-aviation-lakehouse/README.md) | Databricks + GCS | Spark, Delta Lake, governance |
+| 05 | [Taxi-in Prediction](05-taxi-in-prediction/README.md) | Vertex AI | Features, training, evaluation |
+| 06 | [Model Serving Integration](06-model-serving/README.md) | Cloud Run | API, versioning, monitoring |
+| 07 | [Platform Orchestration](07-platform-orchestration/README.md) | GCP Workflows or Dagster | Scheduling, lineage, recovery |
+
+Subprojects 04 and 06 connect this programme to the existing
+[Aviation Lakehouse](../../databricks/aviation-lakehouse/README.md) and
+[Aviation ML Serving](../aviation-ml-serving/README.md) projects. They do not
+duplicate those projects.
+
+## Documents
+
+- [Project plan](docs/project-plan.md) covers phases, milestones, dependencies
+  and exit criteria.
+- [ADR-001](docs/adr/ADR-001-local-execution-for-historical-acquisition.md)
+  records why historical acquisition runs locally.
+- [chatgpt-consulting.md](chatgpt-consulting.md) is the original discussion
+  these decisions come from. It is background, not a specification.
+
+## Principles
+
+- **Workload placement.** Run each workload where it is cheapest and simplest
+  to operate. Move it only when a real requirement changes.
+- **Code, data and backups are separate.** Git holds code, schemas,
+  configuration and documentation. Raw data never goes into this repository.
+- **Bronze stays raw.** Acquisition keeps source fields, types and units.
+  Cleaning, filtering and inference belong to later subprojects.
+- **Proxy labels are not ground truth.** Taxi-in values derived from ADS-B
+  state vectors are proxies. Claims about airport ground truth need
+  independent validation.
+- **Data licensing.** OpenSky terms limit retention and redistribution.
+  Confirm permitted use before storing data in the cloud or beyond the
+  research period. Public work uses code, architecture and synthetic data.
