@@ -1,0 +1,8 @@
+# OpenSky processing pipeline changes (all times UTC). Data from each start time
+# onwards comes from the new version. Hours that contain a boundary are flagged.
+# Source: https://openskynetwork.github.io/opensky-api/trino.html ("Processing Changes"),
+# transcribed on 2026-11-14.
+epochs:
+  - { id: A, start: null, note: "before 2026-08-13T12:10Z" }
+  - { id: B, start: "2026-08-13T12:10:00Z", note: "ADS-B decoder fixes and state vector fixes" }
+  - { id: C, start: "2026-08-14T08:10:00Z", note: "refactored code for better performance" }

@@ -22,12 +22,13 @@ lakehouse ETL. It is not a cloud deployment.
 
 | Item | Value |
 |------|-------|
-| Dataset | `eddf_r75km` v1 |
-| Source | OpenSky Trino, `state_vectors_data4` |
+| Datasets | `eddf_r75km` v1 (state vectors) and `eddf_flights` v1 (flights) |
+| Source | OpenSky Trino, `state_vectors_data4` and `flights_data4` |
 | Region | About 150 km square around EDDF (49.36–50.71 N, 7.52–9.62 E) |
 | Period | `[2024-11-01, 2026-11-01)` UTC, 17,520 hours |
-| Format | Parquet, ZSTD, explicit schema, one file per hour |
-| Layout | `dt=YYYY-MM-DD/hour-HH.parquet` |
+| Format | Parquet, ZSTD, explicit schema |
+| Layout | State vectors `dt=YYYY-MM-DD/hour-HH.parquet`. Flights `dt=YYYY-MM-DD/flights.parquet` |
+| `serials` column | Decided by a pilot A/B test before the monthly batches |
 | Local root | `/home/bill/slh-data/aviation` (outside the repository) |
 | Backup | `/mnt/e/slh-backup/aviation` |
 | Size | About 31 GB Parquet (estimate, to be measured in the pilot) |
@@ -37,10 +38,13 @@ filter, clean, deduplicate or interpolate.
 
 ## Approach
 
-1. **Pilot.** One week, reconciled against the source and the legacy fin
-   receipts, with a deliberate interruption and resume test.
-2. **Monthly batches.** Twenty-four batches. The first four cover all seasons.
-   The rest run newest to oldest.
+1. **Discovery and benchmark.** Read-only schema and availability checks, a
+   pilot week reconciled against the source and the legacy fin receipts, five
+   benchmark days across seasons, a `serials` A/B test, and a deliberate
+   interruption and resume test.
+2. **Monthly batches.** Twenty-four batches, each with state-vector hours and
+   flight days. The first four cover all seasons, then newest to oldest. The
+   first twelve give twelve complete months.
 3. **Per-batch record.** Hour manifests, a batch manifest, a report, ledger
    events and an acceptance record.
 4. **Publish.** Verified backup after acceptance. GCS upload after OpenSky
@@ -51,6 +55,8 @@ filter, clean, deduplicate or interpolate.
 | Capability | Status |
 |------------|--------|
 | OpenSky Trino connection with OAuth login | Required |
+| State vectors and flights datasets | Required |
+| Discovery and benchmark report | Required |
 | CLI and configuration files | Required |
 | Hourly collection with retry and resume | Required |
 | Parquet with explicit schema | Required |
@@ -58,7 +64,7 @@ filter, clean, deduplicate or interpolate.
 | Validation, reconciliation and batch reports | Required |
 | pytest and GitHub Actions CI | Required |
 | Local backup and verification | Required |
-| GCS upload | Required, gated on OpenSky approval |
+| GCS upload, run once after the local dataset is complete | Required |
 | DuckDB catalog and manifest export | Recommended |
 | Docker | Optional |
 | Cloud Run, Cloud Scheduler, Kubernetes | Out of scope |
@@ -77,10 +83,8 @@ filter, clean, deduplicate or interpolate.
 
 ## Risks
 
-- **Licence and eligibility.** OpenSky's free Trino access targets
-  non-profit research and education, forbids passing data on, and requires
-  deletion when the research ends. Ask OpenSky before the monthly batches and
-  before any cloud upload.
+- **Interrupted collection.** The batch plan runs the most valuable months
+  first and backs up each accepted batch.
 - **Volume and load.** Row counts and scan size for the large region are
   estimates. The pilot decides.
 - **Login expiry.** Sessions last a few days and need a manual login.

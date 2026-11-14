@@ -10,7 +10,8 @@ by pilot measurements. See the [batch plan](batch-plan.md) for the run order.
 | Topic | Decision |
 |-------|----------|
 | Runtime | WSL Ubuntu, local Python CLI, one process at a time |
-| Source | OpenSky Trino, `minio.osky.state_vectors_data4` |
+| Source | OpenSky Trino, `minio.osky.state_vectors_data4` and `minio.osky.flights_data4` |
+| Datasets | `eddf_r75km` (state vectors) and `eddf_flights` (flights, section 3.1) |
 | Region | Rectangle around EDDF, about 75 km in each direction |
 | Period | `[2024-11-01, 2026-11-01)` UTC, 730 days, 17,520 hours |
 | Format | Parquet, ZSTD, explicit schema, sorted by `icao24, time` |
@@ -19,9 +20,9 @@ by pilot measurements. See the [batch plan](batch-plan.md) for the run order.
 | Truth of state | Hour manifests. SQLite is a rebuildable index |
 | Local data root | `/home/bill/slh-data/aviation` |
 | Backup | `/mnt/e/slh-backup/aviation`, after each accepted batch |
-| Cloud copy | GCS mirror of the same relative paths, gated on OpenSky approval |
+| Cloud copy | GCS mirror of the same relative paths, uploaded once after the local dataset is complete |
 | Bronze content | Source columns only. No filtering, cleaning or derived fields |
-
+| `serials` column | Decided by a pilot A/B test before the monthly batches (section 3) |
 ## 2. Storage layout
 
 The data root sits on the WSL ext4 disk. Do not use `/mnt/c` or `/mnt/e` for
@@ -32,12 +33,15 @@ backups only. The Git repository holds no data and no credentials.
 /home/bill/slh-data/aviation/
   bronze/opensky/state_vectors/eddf_r75km/v1/
     dt=2025-01-01/hour-00.parquet ... hour-23.parquet
+  bronze/opensky/flights/eddf/v1/
+    dt=2025-01-01/flights.parquet
   metadata/
     datasets/eddf_r75km_v1.json        dataset contract (section 3)
     schemas/state_vectors_v1.json      column names, types, units
     reference/known_gaps.yaml          OpenSky documented data gaps
     reference/processing_epochs.yaml   OpenSky pipeline change times
     manifests/hours/dt=2025-01-01/hour-00.json
+    manifests/days/dt=2025-01-01/flights.json
     manifests/batches/b01-2026-10.json
     ledger/events.jsonl                append-only event log
     state.db                           SQLite index
@@ -58,9 +62,9 @@ Outside the data root:
 Dataset path rules:
 
 - `eddf_r75km` names the region and `v1` names the extraction contract. A change
-  to bounds, columns or query meaning creates a new dataset, not an overwrite.
+to bounds, columns or query meaning creates a new dataset, not an overwrite.
 - `dt=` is the UTC date. Hour is the file name. This gives 730 partitions and
-  17,520 files of roughly 2 MB each (*estimate*).
+17,520 files of roughly 2 MB each (*estimate*).
 - Committed files are never modified.
 - Hours with zero rows get a manifest and no data file.
 
@@ -96,11 +100,17 @@ WHERE hour = :hour_epoch
 ```
 
 - `hour` is the partition column. Trino rejects queries without it.
-- `serials` is excluded: it is large and identifies receivers.
+- `serials` is **undecided**. It lists the receivers that heard a message and is
+the best source for analysing ground coverage. It is an array and may
+enlarge the Parquet files a lot. The pilot collects one day with and one day
+without it. Compare size, query time and download time, then record the
+decision in the dataset contract before the first monthly batch. Adding it
+afterwards means collecting again. If included, publication rules require
+anonymising receiver identifiers.
 - Stale and null-contact rows stay in the data. The manifest counts rows with
-  `lastcontact IS NULL OR time - lastcontact > 15` so Silver can decide.
+`lastcontact IS NULL OR time - lastcontact > 15` so Silver can decide.
 - The SQL template and its SHA256 are part of the dataset contract and every
-  hour manifest.
+hour manifest.
 
 ### Schema
 
@@ -122,6 +132,7 @@ PyArrow schema, not inferred.
 | baroaltitude, geoaltitude | float64 | m |
 | lastposupdate, lastcontact | float64 | Unix seconds |
 | hour | int64 | source partition, Unix seconds at hour start |
+| serials | list of integers | only if the pilot A/B decision includes it. Element type is fixed after `DESCRIBE` |
 
 All columns are nullable. A schema drift check runs at the start of each run
 (`DESCRIBE`) and stops the run on any difference.
@@ -130,9 +141,45 @@ All columns are nullable. A schema drift check runs at the start of each run
 
 - ZSTD, compression level configurable (default 9, as used in the size test).
 - Rows sorted by `icao24, time` before writing. This helps compression and
-  trajectory scans.
+trajectory scans.
 - Row groups of about 100k rows. Dictionary encoding and statistics on.
 - No file-level metadata is required for correctness. Lineage lives in manifests.
+
+### 3.1 Flights dataset
+
+`flights_data4` holds one row per flight that OpenSky reconstructed from state
+vectors. It adds flight-level context that state vectors lack, because a
+callsign or an `icao24` alone does not identify a flight.
+
+Limits to keep in mind (from the OpenSky documentation):
+
+- `firstseen` and `lastseen` are not true take-off and landing times.
+- Airports are inferred. They can be null or wrong.
+- A callsign is not a unique flight identifier.
+
+Design:
+
+| Item | Decision |
+|------|----------|
+| Dataset | `eddf_flights` v1 |
+| Path | `bronze/opensky/flights/eddf/v1/dt=YYYY-MM-DD/flights.parquet` |
+| Unit of work | One source `day` partition: one query, one file, one manifest |
+| Filter | `day = :day AND (estdepartureairport = 'EDDF' OR estarrivalairport = 'EDDF')` |
+| Columns | All source columns, including nested `track` and candidate arrays |
+| Types | Fixed from `DESCRIBE`, with nested Arrow types |
+| Period | Source days `[2024-11-01, 2026-11-02)`, 731 days |
+
+The source `day` is the UTC day of `lastseen`. A flight that leaves EDDF late
+on the last day ends on the next day, so the period runs one day past the
+state-vector window. Silver selects flights by overlap with the window.
+
+Flights with null or wrong airports that actually used EDDF cannot be found
+this way. Silver reconstructs them from the state vectors. Bronze does not try.
+
+Flights follow the same commit protocol, manifests, statuses, batches and
+reports as state vectors. Each monthly batch collects its state-vector hours
+and then its flight days. Expected volume is small, around one million rows in
+total (*estimate*).
 
 ## 4. Hour lifecycle and commit protocol
 
@@ -141,10 +188,12 @@ Hour states:
 ```text
 pending -> fetching -> staged -> validated -> complete
                                             -> empty
+                                            -> source_gap
 failed (retryable)        quarantined (needs inspection)
 ```
 
-`complete` and `empty` are committed states.
+`complete`, `empty` and `source_gap` are committed states. Flight days use the
+same states.
 
 Commit steps for one hour:
 
@@ -163,7 +212,7 @@ Commit steps for one hour:
 Recovery rules after a crash:
 
 - Final file without a manifest is an orphan. Move it to `quarantine/` and redo
-  the hour.
+the hour.
 - Manifest without a file, or with a checksum mismatch, marks the hour `failed`.
 - `staging/` content is always disposable.
 - `rebuild-state` recreates SQLite from manifests and verified files.
@@ -204,13 +253,13 @@ tracks progress and powers `status`. It is never the only record of a commit.
 ### Authentication
 
 - OAuth2 browser login through the Trino client. The login URL is printed and
-  stored with mode `0600`. The user opens it in the Windows browser. The URL,
-  token and password never go to logs, chat or Git.
+stored with mode `0600`. The user opens it in the Windows browser. The URL,
+token and password never go to logs, chat or Git.
 - `login` is a separate interactive command. `run` never prompts. If the token
-  is missing or expired, it stops the batch cleanly with exit code 75 and the
-  message `AUTH_REQUIRED`.
+is missing or expired, it stops the batch cleanly with exit code 75 and the
+message `AUTH_REQUIRED`.
 - fin's records show a session lasting about three days. Plan one login per
-  working session and treat expiry as normal.
+working session and treat expiry as normal.
 
 ### Pacing and limits
 
@@ -244,20 +293,25 @@ today. Later incremental runs only collect hours older than 48 h.
 ### Reference data
 
 - `known_gaps.yaml` lists OpenSky's documented permanent gaps. Two fall in the
-  window: 2026-01-02 19:00 to 2026-01-03 18:00 and 2026-01-24 08:00 to 17:00.
+window: 2026-01-02 19:00 to 2026-01-03 18:00 and 2026-01-24 08:00 to 17:00.
 - `processing_epochs.yaml` marks pipeline changes at 2026-08-13 12:10 and
-  2026-08-14 08:10 UTC. Each hour gets an epoch label. Hours across a boundary
-  are flagged.
+2026-08-14 08:10 UTC. Each hour gets an epoch label. Hours across a boundary
+are flagged.
 - Hours overlapping a gap are still queried and flagged `known_gap_overlap`.
-  They do not count as missing.
+They do not count as missing.
 
 ### Hour status for zero rows
 
 | Situation | Status |
 |-----------|--------|
 | Zero rows, probe shows the global hour has data | `empty` |
-| Zero rows, global hour also empty | `failed` with class `SOURCE_MISSING`, unless inside a known gap |
-| Query error | `failed` |
+| Zero rows, global hour also empty, hour fully inside a known gap | `source_gap` |
+| Zero rows, global hour also empty, not inside a known gap | `failed` with class `SOURCE_MISSING` |
+| Rows returned for an hour inside a known gap | `complete` with flag `known_gap_overlap` |
+| Query error | `failed`, retried up to the attempt limit |
+
+A `source_gap` hour has a manifest and no data file. It counts as accounted
+for in completeness checks, and it is listed in the dataset summary.
 
 The probe is `SELECT 1 FROM ... WHERE hour = :hour LIMIT 1`.
 
@@ -270,7 +324,7 @@ Hour level, always:
 - Every row is inside the box and inside the hour window.
 - `hour` column equals the partition hour.
 - Counters: nulls per column, duplicate `(icao24, time)` keys, stale rows.
-  Duplicates are counted, not removed.
+Duplicates are counted, not removed.
 
 Batch level, `validate`:
 
@@ -279,19 +333,19 @@ Batch level, `validate`:
 - Batch sums equal the sum of hour manifests.
 - A random sample of files is re-hashed.
 - Row-count anomalies: hours far below the median for the same weekday and hour
-  in the batch are listed for review.
+in the batch are listed for review.
 
 Source reconciliation, `reconcile`:
 
 - Run aggregate queries (count, distinct aircraft, min and max time) for a
-  sample of hours and compare them to the files. Default sample is one random
-  day per batch. The pilot reconciles every hour.
+sample of hours and compare them to the files. Default sample is one random
+day per batch. The pilot reconciles every hour.
 
 Pilot cross-check against the legacy small box:
 
 - The fin receipts for 2026-10 give rows, aircraft and time range for the
-  small box. Counting the same inner box in the new Parquet must match them.
-  Differences are reported and investigated, not silently accepted.
+small box. Counting the same inner box in the new Parquet must match them.
+Differences are reported and investigated, not silently accepted.
 
 ## 7. Records per batch
 
@@ -300,7 +354,7 @@ Each batch produces:
 1. Hour manifests and SQLite rows.
 2. `manifests/batches/<batch_id>.json`: window, expected, complete, empty,
    gap-flagged and failed hours, totals for rows, bytes, scan bytes and
-   duration, run IDs, tool version, git commit, config hash and SQL hash.
+    duration, run IDs, tool version, git commit, config hash and SQL hash.
 3. `reports/batches/<batch_id>/report.md` and `report.json`: a per-day table,
    anomalies, flags, validation and reconciliation results.
 4. Ledger events: batch started, paused, resumed, validated, accepted,
@@ -317,44 +371,41 @@ planned -> running -> paused (auth, errors, time limit) -> running
 
 ## 8. Publish: backup and cloud
 
-Publishing starts only after `accept`.
+`publish` means a verified local backup. It starts only after `accept`.
 
 **Local backup.** `rsync` the batch files and metadata to
 `/mnt/e/slh-backup/aviation/`, then verify sizes and SHA256 against manifests.
 Back up SQLite with its backup API or after the run ends.
 
-**GCS mirror.**
+**GCS mirror.** The owner creates the bucket after the whole local dataset is
+signed off. The upload is one dataset-level step (`upload`), not part of each
+batch.
 
 - Same relative paths under `gs://<bucket>/aviation/`.
 - Region `europe-west3`, Standard class, uniform bucket-level access.
 - Upload through the Python storage client with a create-only precondition so
-  existing objects are never overwritten.
-- Order: Parquet files, then hour manifests, then the batch manifest. The
-  batch manifest marks the batch as published.
+existing objects are never overwritten.
+- Order within each batch: Parquet files, then hour manifests, then the batch
+  manifest. The batch manifest marks the batch as uploaded.
 - After upload, compare object count, size and CRC32C with the manifests.
 - Authentication uses Application Default Credentials. No key files in Git.
-- `gcs.enabled` stays `false` until the OpenSky authorization record is stored
-  in the dataset contract (section 14).
-
-Retention and deletion obligations from the OpenSky terms are recorded in the
-dataset contract.
+- `gcs.enabled` stays `false` until the owner turns it on for the upload step.
 
 ## 9. Lakehouse readiness
 
 - **Layout.** Hive-style `dt=` partitions work as is in DuckDB, Spark,
-  Databricks and BigQuery external tables. Column names and units match the
-  source.
+Databricks and BigQuery external tables. Column names and units match the
+source.
 - **Contract.** `metadata/datasets/eddf_r75km_v1.json` records bounds, SQL
-  template, schema, partitioning, version, known gaps, epochs and licence
-  notes.
+template, schema, partitioning, version, known gaps and epochs.
 - **Read through manifests.** Silver reads the list of `complete` hours from
-  the manifests, not a directory listing, and only from accepted batches.
-  Uncommitted or quarantined files are then never read.
+the manifests, not a directory listing, and only from accepted batches.
+Uncommitted or quarantined files are then never read.
 - **Lineage tables.** `export-manifests` writes `hour_manifest.parquet` and
-  `batch_manifest.parquet` so lineage can be queried with the data.
+`batch_manifest.parquet` so lineage can be queried with the data.
 - **DuckDB catalog.** Views for `state_vectors`, `hour_manifest`, `known_gaps`.
 - **No compaction in Bronze.** Silver can rewrite to larger daily files. Any
-  compacted copy goes to a separate directory, never next to the hourly files.
+compacted copy goes to a separate directory, never next to the hourly files.
 - **Later formats.** Delta or Iceberg conversion can read the same Parquet.
 
 ## 10. Tool structure
@@ -379,6 +430,8 @@ Commands:
 | Command | Purpose |
 |---------|---------|
 | `login` | Interactive OpenSky login |
+| `discover` | Read-only checks: tables, `DESCRIBE`, hour and day partition availability across the window |
+| `benchmark` | Collect chosen days, record rows, timings, size and quality counters |
 | `plan` | Expand batches into hours and show what is pending |
 | `run --batch B [--max-duration]` | Collect pending hours of a batch |
 | `status [--batch B]` | Progress by state |
@@ -386,7 +439,8 @@ Commands:
 | `reconcile --batch B [--sample N \| --all]` | Compare with source aggregates |
 | `report --batch B` | Write the batch report |
 | `accept --batch B` | Record acceptance |
-| `publish --batch B [--backup] [--gcs]` | Backup and cloud upload |
+| `publish --batch B` | Back up an accepted batch to `E:` and verify it |
+| `upload` | Upload the signed-off dataset to GCS and verify it |
 | `verify` | Re-hash all committed files and check manifests |
 | `rebuild-state` | Recreate SQLite from manifests |
 | `export-manifests`, `catalog` | Lakehouse helpers |
@@ -427,21 +481,20 @@ enters the repository.
    tests, CLI shell.
 2. **M1, collect and commit.** Fetch, Parquet writer, validation and commit
    protocol against the fake client.
-3. **M2, live pilot.** One hour, then one day, then the pilot week (see the
-   batch plan). Replace estimates with measurements.
+3. **M2, live checks.** Discovery, then one hour, one day, the pilot week and
+   the benchmark days (see the batch plan). Settle the `serials` decision.
+   Replace estimates with measurements. Build `discover` first so live checks
+   can start before the rest of the tool is finished.
 4. **M3, batches.** Reports, acceptance, backup and the monthly runs.
-5. **M4, publish.** GCS upload after OpenSky confirmation. Manifest export and
-   DuckDB catalog.
+5. **M4, upload.** GCS upload after the local dataset is complete. Manifest
+   export and DuckDB catalog.
 6. **M5, dataset sign-off.** Full verify, dataset summary, restore test.
 
 ## 14. Open items
 
-- OpenSky permission: the owner states that authorization for two-year regional
-  collection and cloud storage is confirmed. Record the basis (date and
-  correspondence reference) in the dataset contract before the first GCS upload.
-  `gcs.enabled` stays `false` until that record exists.
 - `E:` is confirmed as a separate physical disk, so it counts as an independent
   backup.
-- GCP project, bucket name and region are still open.
-- Whether any later Silver step needs `serials`. It is excluded now and would
-  need a new dataset version.
+- The GCS project, bucket name and region are set by the owner when the bucket
+  is created after the local dataset is complete.
+- The `serials` decision comes from the pilot A/B test (section 3). Adding the
+  column later needs a new dataset version.

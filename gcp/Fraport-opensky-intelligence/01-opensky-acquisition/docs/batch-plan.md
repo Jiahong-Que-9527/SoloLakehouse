@@ -1,33 +1,94 @@
 # Batch plan
 
-Run order, gates and session routine for collecting `eddf_r75km` v1 over
-`[2024-11-01, 2026-11-01)`. See the [design](design.md) for the mechanics.
-Durations are *estimates* until the pilot gives measured values.
+Run order, gates and session routine for collecting `eddf_r75km` v1 (state
+vectors) and `eddf_flights` v1 over `[2024-11-01, 2026-11-01)`. See the
+[design](design.md) for the mechanics. Durations are *estimates* until the
+pilot gives measured values.
+
+## Schedule
+
+Target calendar, to be adjusted after the pilot:
+
+| Dates | Work |
+|-------|------|
+| Nov 15 to 21 | Build M0 and M1. Build `discover` first and run it as soon as it exists |
+| Nov 22 to 25 | Discovery, pilot week, benchmark days, `serials` A/B test, gate G0 |
+| Nov 26 to Dec 20 | Batches b01 to b24, about one batch per working day, one login every few days |
+| Dec 21 to 31 | Buffer, remaining flight days, `verify`, backups, dataset summary |
+
+The GCS upload is a separate step after the local dataset is complete.
+
+Protect the work against an interrupted collection:
+
+- **Cut line.** b01 to b12 give twelve complete months (2025-11 to 2026-10) and
+  all seasons. They run first. b13 to b24 add the second year.
+- **Back up each batch when accepted.** Do not leave backups for the end.
 
 ## Units
 
 - **Hour:** one query, one Parquet file, one manifest. 17,520 hours in total.
+- **Flight day:** one `flights_data4` day partition, one query, one file, one
+  manifest. 731 days in total.
 - **Batch:** one calendar month, about 720 hours. A batch can span several
   sessions and several days.
 - **Session:** one `run` invocation, capped at about three hours to fit the
   OpenSky login lifetime.
 
-## Pilot P0
+## Discovery, pilot and benchmark
+
+Everything here must finish and pass gate G0 before the monthly batches.
+
+### D0: discovery (read only)
+
+1. List the tables available to the account.
+2. `DESCRIBE` `state_vectors_data4` and `flights_data4`. Compare with the
+   documented schemas and fix the Arrow types, including `serials` and the
+   nested flight columns.
+3. Probe that hour partitions exist at several points across the window,
+   starting with 2024-11, and that `flights_data4` has day partitions there.
+4. Check the Trino scan and queue behaviour with one cheap query.
+
+Output: a schema record and an availability record. Stop if anything in the
+window is unavailable.
+
+### P0: pilot week
 
 Window: 2026-10-12 to 2026-10-18 UTC, seven days, 168 hours. The week lies in
 the period covered by the legacy small-box receipts on fin.
 
-Steps:
-
 1. Collect one hour. Inspect rows, file size, scan bytes and query time.
 2. Collect one day.
-3. Collect the remaining six days.
+3. Collect the remaining six days, plus the seven flight days.
 4. Reconcile every hour against source aggregates.
 5. Cross-check the inner small box against the fin receipts.
 6. Interrupt a run on purpose, resume it, then repeat the whole week. Confirm
    no duplicates and no changed manifests.
 
-Measure and record:
+### B0: benchmark days
+
+Collect one full day for each date, state vectors and flights:
+
+| Date | Why |
+|------|-----|
+| 2024-11-15 | Start of the window, tests old data availability |
+| 2025-01-15 | Winter operations |
+| 2025-07-15 | Summer peak |
+| 2026-07-15 | Second-year summer, before the OpenSky processing change |
+| 2026-10-15 | Recent data after the processing change (inside the pilot week) |
+
+For every day record: rows, query duration, download duration, Parquet size,
+distinct aircraft, null positions, ground rows, minimum and maximum event time,
+peak memory. The benchmark report is a deliverable of this subproject. It
+replaces the estimates in the design.
+
+### S0: `serials` A/B test
+
+On one benchmark day collect the state vectors twice, with and without
+`serials`. Compare Parquet size, query time, download time and memory. Record
+the decision and the reasons in the dataset contract. If `serials` is included
+and the pilot week was collected without it, collect the pilot week again.
+
+### Measurements and thresholds
 
 | Measure | Estimate | Review threshold |
 |---------|----------|------------------|
@@ -42,9 +103,9 @@ smaller box, a shorter period, an altitude cut as a documented extraction rule,
 or a conversation with OpenSky. Update the estimates in this document and in
 the design with the measured values.
 
-**Gate G0 (pilot accepted):** all hours committed, reconciliation matches,
-cross-check matches or is explained, recovery test passed, measurements
-recorded, OpenSky authorization reference stored in the dataset contract.
+**Gate G0 (pilot accepted):** discovery recorded, all pilot hours committed,
+reconciliation matches, cross-check matches or is explained, recovery test
+passed, benchmark report written, `serials` decision recorded.
 
 ## Monthly batches
 
@@ -78,7 +139,13 @@ newest to oldest.
 | b23 | 2024-12 | |
 | b24 | 2024-11 | Oldest |
 
-Hours already committed in the pilot are skipped in b01.
+Hours and flight days already committed in the pilot and benchmark are skipped.
+Each batch collects its state-vector hours first, then the flight days whose
+source `day` falls in the same month. The last flight day (2026-11-01) goes
+with b01.
+
+**Cut line:** b01 to b12 cover 2025-11 to 2026-10, twelve complete months and
+all four seasons. If collection is interrupted, these months matter most.
 
 Estimated per batch: 2 to 3 hours of query time, about 1.3 GB of Parquet.
 Estimated total: about 55 hours of query time and 31 GB. The calendar time
@@ -88,12 +155,13 @@ depends on how often you log in. Two to four weeks is realistic.
 
 A batch moves on only when each step passes:
 
-1. `run` finished with no pending hours, or with documented gap flags only.
+1. `run` finished with no pending hours or flight days. Only `source_gap`
+   states and gap flags remain as exceptions.
 2. `validate` passed with no unexplained anomalies.
 3. `reconcile` matched the source on the sampled hours.
 4. `report` written and reviewed.
 5. `accept` recorded.
-6. `publish --backup` verified. `--gcs` once cloud upload is allowed.
+6. `publish` (verified backup to `E:`).
 
 Early stop rules:
 
@@ -116,12 +184,13 @@ Early stop rules:
 
 After b24 and a final `verify`:
 
-- Dataset summary: expected, complete, empty, gap-flagged and failed hours,
-  totals for rows and bytes, unique aircraft, per-month table.
+- Dataset summary for both datasets: expected, complete, empty, `source_gap`
+  and failed hours or days, totals for rows and bytes, unique aircraft,
+  per-month table.
+- Upload to GCS (bucket created by the owner), then verify it.
 - Restore test: recover a month from the `E:` backup and from GCS and compare
   hashes.
 - Record the processing-epoch split and the known gaps in the summary.
-- Record the OpenSky retention obligations and the review date.
 
 ## After the window
 

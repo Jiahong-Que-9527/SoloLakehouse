@@ -50,7 +50,7 @@ GCS Silver    clean observations, trajectories, arrival events
 
 ## Depends on
 
-Project 01 Bronze dataset in GCS, subject to the OpenSky data terms.
+Project 01 Bronze dataset in GCS.
 
 ## Outputs
 

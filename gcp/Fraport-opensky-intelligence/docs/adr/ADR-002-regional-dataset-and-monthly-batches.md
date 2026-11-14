@@ -15,8 +15,7 @@ region means repeating every query. Parquet storage for two years is small
 (about 31 GB estimated).
 
 OpenSky limits queries to 100 GB scan, two concurrent queries and 30 minutes
-each. Its OAuth session expires after a few days. Its terms restrict use to
-non-profit research and education and require deletion when the research ends.
+each. Its OAuth session expires after a few days.
 
 ## Decision
 
@@ -27,12 +26,22 @@ non-profit research and education and require deletion when the research ends.
 - Collect hour by hour and deliver in 24 monthly batches. Each batch is
   validated, reconciled, reported and accepted before the next is published.
 - Use hour manifests as the commit record and SQLite as a rebuildable index.
-- Run a seven-day pilot first. Measure volume, query time and scan, and check
-  the results against the legacy receipts.
+- Also collect `flights_data4` for EDDF arrivals and departures as dataset
+  `eddf_flights` v1, one file per source day, so Silver has flight-level
+  context.
+- Run discovery, a seven-day pilot and five benchmark days first. Measure
+  volume, query time and scan, and check the results against the legacy
+  receipts.
+- Decide whether to keep the `serials` column with an A/B test in the pilot,
+  before the monthly batches.
+- Account for hours inside documented OpenSky gaps with an explicit
+  `source_gap` state.
+- Order batches so that twelve complete months finish first, in case the
+  collection is interrupted.
 - Keep Bronze as source columns with no cleaning. Flag documented OpenSky
   gaps and processing changes instead of altering data.
-- Back up to `/mnt/e` after each accepted batch. Upload to GCS only after
-  OpenSky confirms that cloud storage is allowed.
+- Back up to `/mnt/e` after each accepted batch. Upload to GCS once, after the
+  local dataset is complete.
 
 ## Rationale
 
@@ -50,10 +59,12 @@ non-profit research and education and require deletion when the research ends.
 - Two documented OpenSky gaps and one processing change fall inside the window
   and need flags in the data contract.
 - Collection depends on manual logins every few days.
-- Cloud upload and long-term retention depend on OpenSky's answer.
+- The schedule is tight, so the most valuable months run first.
+- `flights_data4` shows inferred airports and times. It does not replace
+  airport ground truth.
 
 ## Revisit when
 
 - The pilot crosses a review threshold.
-- OpenSky declines the two-year regional plan or cloud storage.
+- OpenSky limits or access change during collection.
 - A use case needs `serials`, a wider region or another airport.
