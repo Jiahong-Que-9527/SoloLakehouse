@@ -1,94 +1,93 @@
 # 01 · OpenSky Acquisition
 
-**Runtime:** Local, with Google Cloud Storage as the shared data store.
+**Runtime:** WSL Ubuntu, with Google Cloud Storage as the shared copy.
 
-Build a reliable, reproducible tool that downloads historical OpenSky state
-vectors for `EDDF` and keeps them as a traceable local Parquet dataset. The
-deliverable is the tool plus a documented one-year dataset, not a cloud
-deployment.
+Build a reliable, reproducible tool that collects two years of OpenSky state
+vectors for a 75 km region around `EDDF` and keeps them as a traceable Parquet
+dataset. The deliverable is the tool plus the dataset, ready for later
+lakehouse ETL. It is not a cloud deployment.
 
-## Why local
+## Documents
 
-The task is a one-time historical backfill limited by OpenSky Trino query
-speed, not by local compute. See
-[ADR-001](../docs/adr/ADR-001-local-execution-for-historical-acquisition.md).
+- [Design](docs/design.md): storage layout, dataset contract, commit protocol,
+  validation, publishing and tool structure.
+- [Batch plan](docs/batch-plan.md): pilot, 24 monthly batches, gates and the
+  session routine.
+- [ADR-001](../docs/adr/ADR-001-local-execution-for-historical-acquisition.md):
+  why acquisition runs locally.
+- [ADR-002](../docs/adr/ADR-002-regional-dataset-and-monthly-batches.md): why a
+  regional dataset in monthly batches.
+
+## Dataset
+
+| Item | Value |
+|------|-------|
+| Dataset | `eddf_r75km` v1 |
+| Source | OpenSky Trino, `state_vectors_data4` |
+| Region | About 150 km square around EDDF (49.36–50.71 N, 7.52–9.62 E) |
+| Period | `[2024-11-01, 2026-11-01)` UTC, 17,520 hours |
+| Format | Parquet, ZSTD, explicit schema, one file per hour |
+| Layout | `dt=YYYY-MM-DD/hour-HH.parquet` |
+| Local root | `/home/bill/slh-data/aviation` (outside the repository) |
+| Backup | `/mnt/e/slh-backup/aviation` |
+| Size | About 31 GB Parquet (estimate, to be measured in the pilot) |
+
+Bronze keeps source columns with their original meaning and units. It does not
+filter, clean, deduplicate or interpolate.
+
+## Approach
+
+1. **Pilot.** One week, reconciled against the source and the legacy fin
+   receipts, with a deliberate interruption and resume test.
+2. **Monthly batches.** Twenty-four batches. The first four cover all seasons.
+   The rest run newest to oldest.
+3. **Per-batch record.** Hour manifests, a batch manifest, a report, ledger
+   events and an acceptance record.
+4. **Publish.** Verified backup after acceptance. GCS upload after OpenSky
+   confirms that cloud storage is allowed.
 
 ## Scope
 
 | Capability | Status |
 |------------|--------|
-| OpenSky Trino connection | Required |
-| CLI and configuration file | Required |
-| Hourly batch download | Required |
-| Parquet output with an explicit schema | Required |
-| Retry and checkpoint | Required |
-| Data manifest and checksum | Required |
-| Tests and GitHub Actions CI | Required |
-| GCS upload | Recommended |
+| OpenSky Trino connection with OAuth login | Required |
+| CLI and configuration files | Required |
+| Hourly collection with retry and resume | Required |
+| Parquet with explicit schema | Required |
+| Hour and batch manifests with checksums | Required |
+| Validation, reconciliation and batch reports | Required |
+| pytest and GitHub Actions CI | Required |
+| Local backup and verification | Required |
+| GCS upload | Required, gated on OpenSky approval |
+| DuckDB catalog and manifest export | Recommended |
 | Docker | Optional |
 | Cloud Run, Cloud Scheduler, Kubernetes | Out of scope |
 
-## Design
-
-- **Layout.** Hive-style partitions under a versioned dataset path:
-  `bronze/opensky/state_vectors/v1/airport=EDDF/year=/month=/day=/hour-HH.parquet`.
-- **Format.** Parquet with ZSTD, UTC time, one file per hour.
-- **Versioning.** A change to the geographic bounds, fields or query logic
-  that changes data meaning creates a new dataset version (`v2`).
-- **State.** SQLite tracks batch status. The manifest records committed files.
-  If SQLite is lost, rebuild its state from manifests and file checksums.
-- **Query.** DuckDB reads the committed Parquet files for inspection.
-- **Raw fields.** Keep source meaning, types and units. Do not drop missing
-  callsigns, filter by `onground`, deduplicate or interpolate.
-
-Planned data root, kept outside the repository:
-
-```text
-slh-data/aviation/
-  bronze/opensky/state_vectors/v1/...
-  metadata/{manifests, schemas, checkpoint.db, catalog.duckdb}
-  staging/       in-flight downloads
-  quarantine/    files that failed validation
-  reports/       dataset summary
-```
-
-## Milestones
-
-- **V0.1 Local dataset.** Download one day, write hourly Parquet and query it
-  with DuckDB.
-- **V0.2 Managed dataset.** Date partitions, explicit schema, SQLite
-  checkpoint, manifest and checksum. Verify repeat runs and failure recovery.
-- **V1.0 Annual data asset.** Measure seven days of size, backfill one month,
-  complete the year, write the dataset summary, set up backup and restore and
-  publish a run report.
-
-## Planned interface
-
-These commands describe the target interface. They are not implemented yet.
-
-```text
-opensky-ingest download --airport EDDF --start 2025-01-01 --end 2025-02-01
-opensky-ingest status
-opensky-ingest validate
-opensky-ingest report
-```
-
 ## Acceptance
 
-- A repeat run produces no duplicate files or manifest entries.
-- An interrupted run resumes from the last committed batch.
-- Empty batches (query succeeded, zero rows) are distinct from failed batches.
-- Every committed file has a manifest entry with row count, size, checksum,
+- A repeat run produces no duplicate files and no changed manifests.
+- An interrupted run resumes from the last committed hour.
+- Empty hours, failed hours and documented source gaps are kept distinct.
+- Every committed file has a manifest with rows, size, checksum, SQL hash,
   schema version and source commit.
-- The dataset summary reports expected, completed, empty and failed batches.
+- Every batch has a report and an acceptance record before it is published.
+- The dataset summary lists expected, complete, empty, gap-flagged and failed
+  hours.
+- A restore from backup and from GCS reproduces the manifest hashes.
 
 ## Risks
 
-- OpenSky Trino access, authentication and query limits.
-- OpenSky terms on retention and cloud storage. Confirm before upload.
-- Data volume. Estimate from a seven-day sample before buying storage.
+- **Licence and eligibility.** OpenSky's free Trino access targets
+  non-profit research and education, forbids passing data on, and requires
+  deletion when the research ends. Ask OpenSky before the monthly batches and
+  before any cloud upload.
+- **Volume and load.** Row counts and scan size for the large region are
+  estimates. The pilot decides.
+- **Login expiry.** Sessions last a few days and need a manual login.
+- **Source changes.** Two documented data gaps and one decoder change fall in
+  the window.
 
 ## Outputs for later projects
 
-A validated Bronze dataset, manifests and a dataset summary. Project 02 reads
-them from GCS.
+An accepted Bronze dataset, manifests, a dataset contract and a dataset
+summary. Project 02 reads the accepted hours through the manifests.
