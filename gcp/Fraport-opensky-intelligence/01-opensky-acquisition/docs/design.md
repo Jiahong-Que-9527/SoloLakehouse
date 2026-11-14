@@ -64,7 +64,7 @@ Dataset path rules:
 - `eddf_r75km` names the region and `v1` names the extraction contract. A change
 to bounds, columns or query meaning creates a new dataset, not an overwrite.
 - `dt=` is the UTC date. Hour is the file name. This gives 730 partitions and
-17,520 files of roughly 2 MB each (*estimate*).
+17,520 files. The pilot day 2026-10-15 averaged 2.9 MB per file.
 - Committed files are never modified.
 - Hours with zero rows get a manifest and no data file.
 
@@ -280,8 +280,8 @@ including queueing.
 | Run duration | `--max-duration`, default 3 h |
 | Free disk check | at least 50 GB before each run |
 
-Fin measured about 0.7 GB scanned per hour for a small box. The scan for the
-large box is unmeasured and must be recorded in the pilot.
+The pilot day 2026-10-15 scanned 0.53 to 1.15 GB per hour for this box.
+Fin measured about 0.7 GB per hour for the smaller box.
 
 ### Freshness
 
@@ -425,7 +425,7 @@ Commands:
 | `discover` | Read-only checks: tables, `DESCRIBE`, hour and day partition availability across the window |
 | `benchmark` | Collect chosen days, record rows, timings, size and quality counters |
 | `plan` | Expand batches into hours and show what is pending |
-| `run --batch B [--max-duration]` | Collect pending hours of a batch |
+| `run --from T --until T [--max-duration]` | Collect pending state-vector hours. `--until` is exclusive. A batch id is added with the monthly batches |
 | `status [--batch B]` | Progress by state |
 | `validate --batch B` | Batch checks |
 | `reconcile --batch B [--sample N \| --all]` | Compare with source aggregates |

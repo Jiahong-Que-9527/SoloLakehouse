@@ -91,18 +91,25 @@ and the pilot week was collected without it, collect the pilot week again.
 
 ### Measurements and thresholds
 
-| Measure | Estimate | Review threshold |
-|---------|----------|------------------|
-| Rows per day | 3.5 M | above 6 M |
-| Parquet per day | 43 MB | above 100 MB |
-| Query time per hour | 8 to 12 s | above 60 s |
-| Scan per hour | about 0.7 GB | above 5 GB |
-| Hours failed | 0 | any unexplained |
+| Measure | Earlier estimate | Measured 2026-10-15 | Review threshold |
+|---------|------------------|---------------------|------------------|
+| Rows per day | 3.5 M | 3.64 M | above 6 M |
+| Parquet per day | 43 MB | 71 MB | above 100 MB |
+| Query time per hour | 8 to 12 s | 1.7 to 7.5 s | above 60 s |
+| Scan per hour | about 0.7 GB | 0.53 to 1.15 GB | above 5 GB |
+| Hours failed | 0 | 0 | any unexplained |
+
+`2026-10-15` is under every review threshold: 24 committed hours, 3,640,281
+rows, 71 MB of Parquet, 90 s of query time, 19.6 GB scanned, 2,296 distinct
+aircraft, no duplicate keys. The query keeps only rows with a position inside
+the box, so null positions are absent by construction. If the other pilot days
+stay near this one, a 30-day month is about 2.1 GB and 45 minutes of query
+time, and the two-year set is about 52 GB and 18 hours of query time.
 
 If a threshold is crossed, stop and review options before more batches: a
 smaller box, a shorter period, an altitude cut as a documented extraction rule,
-or a conversation with OpenSky. Update the estimates in this document and in
-the design with the measured values.
+or a conversation with OpenSky. Replace the measured column when a later day
+differs.
 
 **Gate G0 (pilot accepted):** discovery recorded, all pilot hours committed,
 reconciliation matches, cross-check matches or is explained, recovery test
@@ -148,9 +155,10 @@ with b01.
 **Cut line:** b01 to b12 cover 2025-11 to 2026-10, twelve complete months and
 all four seasons. If collection is interrupted, these months matter most.
 
-Estimated per batch: 2 to 3 hours of query time, about 1.3 GB of Parquet.
-Estimated total: about 55 hours of query time and 31 GB. The calendar time
-depends on how often you log in. Two to four weeks is realistic.
+Scaled from the measured pilot day, one month is about 45 minutes of query
+time and 2.1 GB of Parquet. The two-year set is about 18 hours of query time
+and 52 GB. The calendar time depends on how often you log in. Two to four
+weeks is realistic.
 
 ## Gate per batch
 

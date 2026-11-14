@@ -21,8 +21,9 @@ storage. Cloud storage receives only published Gold releases (ADR-003).
 - It is a one-time backfill with no requirement for always-on infrastructure.
 - Local execution has lower operational complexity. It avoids Cloud Run,
   Artifact Registry, Secret Manager and Cloud Scheduler for this task.
-- About 31 GB of Parquet fits a single machine. A local copy plus a backup
-  disk is enough for the source of record.
+- The 2026-10-15 pilot day scales to about 52 GB of Parquet. That still fits a
+  single machine. A local copy plus a backup disk is enough for the source of
+  record.
 
 ## Consequences
 
