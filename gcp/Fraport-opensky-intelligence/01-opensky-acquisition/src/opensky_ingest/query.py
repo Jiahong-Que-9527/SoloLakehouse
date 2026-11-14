@@ -1,13 +1,16 @@
-"""SQL for one state-vector hour. The text and its hash are part of the contract."""
+"""SQL for one state-vector hour or one flight day.
+
+The text and its hash are part of the contract.
+"""
 
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime
+from datetime import date, datetime
 
-from .config import Config
-from .schema import STATE_VECTOR_COLUMNS
-from .util import epoch
+from .config import Config, ConfigError
+from .schema import FLIGHT_COLUMNS, STATE_VECTOR_COLUMNS
+from .util import day_epoch, epoch
 
 
 def _number(value: float) -> str:
@@ -24,6 +27,20 @@ def state_vector_sql(cfg: Config, hour: datetime) -> str:
         f"WHERE hour = {epoch(hour)} "
         f"AND lat BETWEEN {_number(box.south)} AND {_number(box.north)} "
         f"AND lon BETWEEN {_number(box.west)} AND {_number(box.east)}"
+    )
+
+
+def flight_sql(cfg: Config, day: date) -> str:
+    """One source day, airport filter, no ORDER BY and no row limit."""
+    airport = cfg.region.airport
+    if not airport.isascii() or not airport.isalnum():
+        raise ConfigError("airport code is not a simple identifier")
+    columns = ", ".join(FLIGHT_COLUMNS)
+    table = cfg.source.table(cfg.flights.table)
+    return (
+        f"SELECT {columns} FROM {table} "
+        f"WHERE day = {day_epoch(day)} "
+        f"AND (estdepartureairport = '{airport}' OR estarrivalairport = '{airport}')"
     )
 
 

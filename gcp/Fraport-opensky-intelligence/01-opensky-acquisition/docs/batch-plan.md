@@ -65,6 +65,12 @@ the period covered by the legacy small-box receipts on fin.
 6. Interrupt a run on purpose, resume it, then repeat the whole week. Confirm
    no duplicates and no changed manifests.
 
+The 2026-10-12 to 2026-10-18 cross-check matched all 168 hours against the fin
+receipts in `history-20261102-raw`: rows, distinct aircraft, minimum and
+maximum event time, and ground rows. The compared box is latitude 49.98 to
+50.07 and longitude 8.48 to 8.62. Report:
+`reports/cross-check/20261114T223121Z-dde3.json`.
+
 ### B0: benchmark days
 
 Collect one full day for each date, state vectors and flights:

@@ -22,13 +22,10 @@ def table_from_rows(rows: list[tuple], schema: pa.Schema) -> pa.Table:
     return pa.Table.from_arrays(arrays, schema=schema)
 
 
-def write_hour_table(table: pa.Table, path: Path) -> None:
-    """Sort by `icao24, time` and write. The caller publishes the file."""
+def write_sorted_table(table: pa.Table, path: Path, sort_keys: list[tuple]) -> None:
+    """Sort and write. The caller publishes the file."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    indices = pc.sort_indices(
-        table,
-        sort_keys=[("icao24", "ascending", "at_end"), ("time", "ascending", "at_end")],
-    )
+    indices = pc.sort_indices(table, sort_keys=sort_keys)
     ordered = table.take(indices)
     pq.write_table(
         ordered,
@@ -38,4 +35,22 @@ def write_hour_table(table: pa.Table, path: Path) -> None:
         row_group_size=ROW_GROUP_SIZE,
         use_dictionary=True,
         write_statistics=True,
+    )
+
+
+def write_hour_table(table: pa.Table, path: Path) -> None:
+    """Sort by `icao24, time` and write. The caller publishes the file."""
+    write_sorted_table(
+        table,
+        path,
+        [("icao24", "ascending", "at_end"), ("time", "ascending", "at_end")],
+    )
+
+
+def write_flight_table(table: pa.Table, path: Path) -> None:
+    """Sort by `icao24, firstseen` and write. Flights have no `time` column."""
+    write_sorted_table(
+        table,
+        path,
+        [("icao24", "ascending", "at_end"), ("firstseen", "ascending", "at_end")],
     )

@@ -31,7 +31,7 @@ lakehouse ETL. It is not a cloud deployment.
 | `serials` column | Decided by a pilot A/B test before the monthly batches |
 | Local root | `/home/bill/slh-data/aviation` (outside the repository) |
 | Backup | `/mnt/e/slh-backup/aviation` |
-| Size | 71 MB on 2026-10-15. About 52 GB for two years if every day matches that day |
+| Size | State vectors: 71 MB on 2026-10-15, about 52 GB for two years. Flights: 7.4 MB a day in the pilot week, about 5.4 GB for 731 days |
 
 Bronze keeps source columns with their original meaning and units. It does not
 filter, clean, deduplicate or interpolate.

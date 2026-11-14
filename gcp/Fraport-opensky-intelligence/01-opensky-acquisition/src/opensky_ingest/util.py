@@ -34,6 +34,17 @@ def fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
+def parse_utc_day(value: str) -> date:
+    """Parse a UTC calendar day. Hour timestamps are rejected."""
+    text = str(value)
+    if "T" in text:
+        raise ValueError(f"expected a date, got a timestamp: {value!r}")
+    try:
+        return date.fromisoformat(text)
+    except ValueError as exc:
+        raise ValueError(f"invalid date: {value!r}") from exc
+
+
 def parse_utc_hour(value: str) -> datetime:
     """Parse an hour-aligned UTC timestamp. `Z` and offsets are both accepted."""
     text = str(value).replace("Z", "+00:00")
