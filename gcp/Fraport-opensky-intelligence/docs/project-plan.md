@@ -81,6 +81,14 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 | M4 | Manifest export and DuckDB catalog | Accepted hours readable through the catalog |
 | M5 | Dataset sign-off | Full verify, dataset summary, backup restore tested |
 
+**Status (2026-11-14):** M0 to M2 are done. Gate G0 passed on the pilot week
+2026-10-12 to 2026-10-18, the five benchmark days, and the `serials` decision
+(excluded from v1). Next is M3, starting with batch b01 (2026-10). Build
+`validate`, `report`, `accept` and the verified `E:` backup first; those
+commands do not exist yet. The working list is the
+[acquisition status](../01-opensky-acquisition/README.md#status-2026-11-14).
+Vertical slice V0 (Silver for the pilot week) waits until b01 is underway.
+
 CI: tests and lint on pull requests that touch this directory.
 Bronze is not uploaded to the cloud.
 
