@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Secrets and local environment.
+# Keep committed templates such as .env.example.
+.env
+.env.*
+!.env.example
+token.json
+login-url.txt
+*.pem
+*.key
+credentials*.json
+
+# Datasets and local state. uv.lock stays tracked.
+*.parquet
+*.duckdb
+*.sqlite
+*.sqlite3
+*.db
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# OS
+.DS_Store
+Thumbs.db
