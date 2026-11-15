@@ -27,10 +27,10 @@ are in the
 | 06 | [Model Serving Integration](06-model-serving/README.md) | Cloud Run | API, versioning, monitoring |
 | 07 | [Platform Orchestration](07-platform-orchestration/README.md) | GCP Workflows or Dagster | Scheduling, lineage, recovery |
 
-Subprojects 04 and 06 connect this programme to the existing
-[Aviation Lakehouse](../databricks/aviation-lakehouse/README.md) and
-[Aviation ML Serving](../gcp/aviation-ml-serving/README.md) projects. They do not
-duplicate those projects.
+Subprojects 04 and 06 are the aviation workloads on the
+[Databricks](../databricks/README.md) and [Google Cloud](../gcp/README.md)
+roadmaps. They reuse those platforms' delivery and governance practices. They
+do not duplicate a separate lakehouse or serving project.
 
 ## Documents
 

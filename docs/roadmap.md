@@ -36,19 +36,19 @@ available in a pinned snapshot.
 
 - **Aviation.** [Fraport ADS-B Intelligence](../Fraport-adsb-intelligence/README.md)
   collects the Frankfurt historical ADS-B record locally and publishes Gold.
-  [Databricks Aviation Lakehouse](../databricks/aviation-lakehouse/README.md)
-  owns the planned observation-to-feature exercise. [GCP Aviation ML
-  Serving](../gcp/aviation-ml-serving/README.md) owns the planned prediction
-  interface and model-version checks. Connect them when the feature and model
-  contracts have verified inputs and outputs.
+  Lakehouse and serving work stay in that programme as
+  [Aviation Lakehouse Integration](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
+  and [Model Serving Integration](../Fraport-adsb-intelligence/06-model-serving/README.md).
 - **European energy.** The [GCP European Energy
   Pipeline](../gcp/european-energy-pipeline/README.md) starts with one German
-  electricity-market metric in a fixed date window, with the source, unit,
-  time zone and quality rules recorded.
+  electricity-market metric in a fixed date window. The
+  [Energy Data API](../gcp/energy-data-api/README.md) and
+  [Energy Event Pipeline](../gcp/energy-event-pipeline/README.md) add a
+  read-only interface and a correction-handling path.
 - **Finance.** The [Local ECB Silver Pipeline](../local/ecb-silver-pipeline/README.md)
-  specifies and verifies cleaned policy-rate rows. The [Databricks Financial
-  ML Pipeline](../databricks/financial-ml-pipeline/README.md) starts with a
-  time-ordered split and a versioned baseline.
+  specifies and verifies cleaned policy-rate rows. The [Databricks ECB Delta
+  Lakehouse](../databricks/ecb-delta-lakehouse/README.md) builds a versioned
+  Gold product from one daily exchange-rate series.
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture
   query in Compose. K3s, Flux and recovery remain later project milestones.

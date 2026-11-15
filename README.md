@@ -41,26 +41,31 @@ independent validation.
 
 ### Aviation integrations
 
-- [Aviation Lakehouse](databricks/aviation-lakehouse/README.md) (Databricks).
-  Trace aircraft observations through candidate arrivals, proxy labels and
-  features. The first milestone checks reproducibility, label coverage and
-  feature cutoff on synthetic or approved data.
-- [Aviation ML Serving](gcp/aviation-ml-serving/README.md) (Google Cloud).
-  Define a prediction interface and trace each response to a model version.
-  Start with a synthetic request and response contract.
+- [Aviation Lakehouse Integration](Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
+  (Databricks). Read Gold releases into Spark and Delta Lake, then check
+  event identity, proxy-label coverage and the feature cutoff.
+- [Model Serving Integration](Fraport-adsb-intelligence/06-model-serving/README.md)
+  (Google Cloud). Serve a pinned taxi-in model version from Cloud Run and
+  trace each response to that version.
 
 ### European energy
 
 - [European Energy Pipeline](gcp/european-energy-pipeline/README.md) (Google
   Cloud). Validate one German electricity-market metric over a fixed date
   range before connecting the pipeline to cloud storage and analytics.
+- [Energy Data API](gcp/energy-data-api/README.md) (Google Cloud). Expose an
+  approved load indicator through a read-only Cloud Run API.
+- [Energy Event Pipeline](gcp/energy-event-pipeline/README.md) (Google Cloud).
+  Test corrections, retries and dead-letter recovery against an isolated
+  BigQuery target.
 
 ### Finance
 
 - [ECB Silver Pipeline](local/ecb-silver-pipeline/README.md) (Local). Convert
   a fixed set of ECB policy-rate inputs into clean, comparable Silver rows.
-- [Financial ML Pipeline](databricks/financial-ml-pipeline/README.md)
-  (Databricks). Build a time-ordered baseline using versioned financial series.
+- [ECB Delta Lakehouse](databricks/ecb-delta-lakehouse/README.md)
+  (Databricks). Build a versioned Gold product from one ECB daily
+  exchange-rate series.
 
 ### Platform engineering
 

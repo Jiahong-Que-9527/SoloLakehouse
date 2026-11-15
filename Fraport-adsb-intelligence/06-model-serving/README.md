@@ -2,10 +2,9 @@
 
 **Runtime:** Cloud Run.
 
-Serve the taxi-in model from project 05 through an API. The generic API
-contract and versioning work belongs to
-[Aviation ML Serving](../../gcp/aviation-ml-serving/README.md). This subproject
-connects it to the Frankfurt model and its data.
+Serve the taxi-in model from project 05 through an API. This is the aviation
+path of [GCP milestone G05](../../gcp/README.md). This subproject owns the
+Frankfurt model contract, version pinning and rollback.
 
 ## Scope
 
