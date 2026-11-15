@@ -4,7 +4,7 @@
 
 Serve the taxi-in model from project 05 through an API. The generic API
 contract and versioning work belongs to
-[Aviation ML Serving](../../aviation-ml-serving/README.md). This subproject
+[Aviation ML Serving](../../gcp/aviation-ml-serving/README.md). This subproject
 connects it to the Frankfurt model and its data.
 
 ## Scope

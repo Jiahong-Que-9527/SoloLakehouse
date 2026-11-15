@@ -34,7 +34,9 @@ available in a pinned snapshot.
 
 ## Project portfolio
 
-- **Aviation.** [Databricks Aviation Lakehouse](../databricks/aviation-lakehouse/README.md)
+- **Aviation.** [Fraport ADS-B Intelligence](../Fraport-adsb-intelligence/README.md)
+  collects the Frankfurt historical ADS-B record locally and publishes Gold.
+  [Databricks Aviation Lakehouse](../databricks/aviation-lakehouse/README.md)
   owns the planned observation-to-feature exercise. [GCP Aviation ML
   Serving](../gcp/aviation-ml-serving/README.md) owns the planned prediction
   interface and model-version checks. Connect them when the feature and model

@@ -64,6 +64,9 @@ independently. Runtime evidence links the deployed revision to its result.
 
 ### Aviation
 
+- [Fraport ADS-B Intelligence](Fraport-adsb-intelligence/README.md). Historical
+  ADS-B acquisition for Frankfurt, then local Silver and Gold and a governed
+  cloud release. Acquisition gate G0 has passed; the next batch is 2026-10.
 - [Aviation Lakehouse](databricks/aviation-lakehouse/README.md) (Databricks).
   Trace aircraft observations through candidate arrivals, proxy labels and
   features. The first milestone checks reproducibility, label coverage and

@@ -1,6 +1,6 @@
 # Project plan
 
-Plan for the Fraport OpenSky Intelligence programme. Durations are rough
+Plan for the Fraport ADS-B Intelligence programme. Durations are rough
 estimates for one person working part-time. Replace them with measured
 values after the first phase.
 
@@ -203,5 +203,3 @@ against the baseline.
 - Gold table format and catalog, decided by the ADR-004 spike.
 - GCP Workflows or Dagster for phase 7.
 - Cloud region for the bucket and BigQuery, checked against service support.
-- Whether this directory should stay under `gcp/` or move, since projects 01
-  and 02 run locally.
