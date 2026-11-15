@@ -36,23 +36,22 @@ git.
   manifests unchanged.
 
 The CLI has `login`, `discover`, `collect-hour`, `run`, `collect-flights`,
-`reconcile` and `cross-check`. The batch plan still requires `validate`,
-`report`, `accept` and a verified backup to `/mnt/e/slh-backup/aviation`.
-Those commands are not built. There is no GitHub Actions workflow yet.
+`reconcile`, `cross-check`, `validate`, `report`, `accept` and `publish`.
+`publish` copies an accepted batch to `/mnt/e/slh-backup/aviation` and checks
+SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Add `validate`, `report`, `accept` and the verified backup, with tests
-   against the fake Trino client. Keep the current commit protocol.
-2. Collect b01. State vectors:
+1. Collect b01. State vectors:
    `run --from 2026-10-01T00:00:00Z --until 2026-11-01T00:00:00Z`.
    Flights: `collect-flights --from 2026-10-01 --until 2026-11-02`
    (the 2026-11-01 flight day belongs to b01). Committed hours and days are
    skipped.
-3. Run the new gate on b01 and back it up. Stop the backfill if a day exceeds
-   6 million rows, 100 MB of Parquet, 60 seconds per hour, or 5 GB scanned
-   per hour.
-4. Leave `serials` out. Do not upload Bronze. Commit only when asked.
+2. `validate --batch b01`, `report --batch b01`, then `accept` and `publish`.
+   A validation outcome of `review` needs `--notes`. Stop the backfill if a
+   day exceeds 6 million rows, 100 MB of Parquet, 60 seconds per hour, or
+   5 GB scanned per hour.
+3. Leave `serials` out. Do not upload Bronze. Commit only when asked.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run
 `opensky-ingest login` and resume the same range. Do not print the username,

@@ -3,70 +3,44 @@
 <!-- [Codex · 2026-11-13] Initial platform and project layout. -->
 <!-- [Codex · 2026-11-13] Named projects and milestones. -->
 <!-- [Codex · 2026-11-13] Project positioning and domain navigation. -->
+<!-- [房玄龄·2026-11-15] Document the OpenSky pilot, batch development and current project layout. -->
 
-SoloLakehouse is a Git-first Data & AI engineering initiative. It brings
-independent projects together across Google Cloud, Databricks and self-hosted
-infrastructure, with an emphasis on reproducible data and ML workflows.
+SoloLakehouse is a Git-first repository for reproducible data and AI projects.
+The first implementation under the current layout acquires historical aircraft
+observations around Frankfurt Airport (FRA / EDDF). The repository also
+contains project briefs for Google Cloud, Databricks and local infrastructure.
 
-The current `main` contains project briefs, a reusable project template and
-the engineering roadmap. The six projects below are planned. The earlier
-self-hosted lakehouse is retained as a versioned reference.
-[Legacy reference snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a)
+## Fraport ADS-B Intelligence
 
-<!-- [Codex · 2026-11-13] Monorepo overview and target delivery flow. -->
+[Fraport ADS-B Intelligence](Fraport-adsb-intelligence/README.md) starts with
+[OpenSky Acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md).
+The Python CLI collects hourly ADS-B state vectors and daily flight records
+from OpenSky Trino, writes Parquet with checksummed manifests, and resumes
+from the last committed hour.
 
-## Architecture
+- **Pilot verified.** All 168 hours of the pilot week matched the source during
+  reconciliation. An interrupted hour was recovered with the same SHA-256
+  checksum, and a repeat run left the manifests unchanged.
+  [Acquisition status](Fraport-adsb-intelligence/01-opensky-acquisition/README.md#status-2026-11-14)
+  · [Benchmark report](Fraport-adsb-intelligence/01-opensky-acquisition/docs/benchmark-report.md)
+- **Monthly batch workflow in development.** The local implementation adds
+  `validate`, `report`, `accept` and `publish` for batch checks, reporting,
+  acceptance records and a checksum-verified backup. The next milestone is to
+  collect, validate, accept and back up the October 2026 batch (`b01`).
+  [Batch plan](Fraport-adsb-intelligence/01-opensky-acquisition/docs/batch-plan.md)
+- **Downstream work planned.** Build Silver and Gold locally, then release an
+  approved, versioned Gold dataset for cloud analytics and lakehouse
+  integration. Later stages cover taxi-in modeling, serving and orchestration.
+  [Aviation project plan](Fraport-adsb-intelligence/docs/project-plan.md)
 
-![SoloLakehouse monorepo overview with project-level delivery across Google Cloud, Databricks and Local](docs/images/sololakehouse-monorepo-architecture.png)
+Raw research data stays private. Public examples use synthetic or approved
+data. ADS-B-derived taxi-in labels are proxies. Airport ground truth requires
+independent validation.
 
-The illustration shows the target architecture. Its Local lane depicts Argo CD.
-The current [roadmap](docs/roadmap.md) uses Flux for the planned K3s milestones.
+## Planned projects
 
-### Project delivery flow
+### Aviation integrations
 
-```mermaid
-flowchart TB
-    accTitle: SoloLakehouse target project delivery
-    accDescr: GitHub holds project definitions. Planned Actions checks select affected projects. Each project can release independently to Google Cloud, Databricks, or local infrastructure.
-
-    repo["GitHub repository<br/>Code · contracts · configuration"]
-    scope["GitHub Actions<br/>Select affected projects"]
-    verify["Project checks<br/>Test · validate · build"]
-    cloud["Google Cloud<br/>Cloud Run Jobs · BigQuery"]
-    managed["Databricks<br/>Bundles · Jobs · Delta Lake"]
-    home["Local<br/>Compose or K3s with Flux"]
-    evidence["Run evidence<br/>Source revision · output · validation"]
-
-    repo --> scope --> verify
-    verify -.-> cloud & managed & home
-    cloud --> evidence
-    managed --> evidence
-    home --> evidence
-
-    classDef source fill:#143454,stroke:#467293,color:#fff,stroke-width:1.5px
-    classDef automation fill:#e9f0f7,stroke:#587491,color:#16324b
-    classDef gcp fill:#e6f3e9,stroke:#498362,color:#184932
-    classDef databricks fill:#fff0e6,stroke:#a75935,color:#64321c
-    classDef local fill:#efeafd,stroke:#7659a3,color:#3d2866
-    classDef result fill:#edf2f5,stroke:#617586,color:#203a4a
-    class repo source
-    class scope,verify automation
-    class cloud gcp
-    class managed databricks
-    class home local
-    class evidence result
-```
-
-Dashed links mark planned release paths. Each project can validate and release
-independently. Runtime evidence links the deployed revision to its result.
-
-## Projects
-
-### Aviation
-
-- [Fraport ADS-B Intelligence](Fraport-adsb-intelligence/README.md). Historical
-  ADS-B acquisition for Frankfurt, then local Silver and Gold and a governed
-  cloud release. Acquisition gate G0 has passed; the next batch is 2026-10.
 - [Aviation Lakehouse](databricks/aviation-lakehouse/README.md) (Databricks).
   Trace aircraft observations through candidate arrivals, proxy labels and
   features. The first milestone checks reproducibility, label coverage and
@@ -92,6 +66,54 @@ independently. Runtime evidence links the deployed revision to its result.
 
 - [Self-hosted Lakehouse](local/self-hosted-lakehouse/README.md) (Local).
   Reproduce a small data flow using Compose, Dagster, Iceberg and Trino.
+  [Legacy reference snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a)
+
+<!-- [Codex · 2026-11-13] Monorepo overview and target delivery flow. -->
+
+## Architecture
+
+![SoloLakehouse monorepo overview with project-level delivery across Google Cloud, Databricks and Local](docs/images/sololakehouse-monorepo-architecture.png)
+
+The illustration shows the target platform. GitOps tooling will be selected
+at the K3s milestone.
+
+### Project delivery flow
+
+```mermaid
+flowchart TB
+    accTitle: SoloLakehouse target project delivery
+    accDescr: GitHub holds project definitions. Planned Actions checks select affected projects. Each project can release independently to Google Cloud, Databricks, or local infrastructure.
+
+    repo["GitHub repository<br/>Code · contracts · configuration"]
+    scope["GitHub Actions<br/>Select affected projects"]
+    verify["Project checks<br/>Test · validate · build"]
+    cloud["Google Cloud<br/>Cloud Run Jobs · BigQuery"]
+    managed["Databricks<br/>Bundles · Jobs · Delta Lake"]
+    home["Local<br/>Compose or K3s"]
+    evidence["Run evidence<br/>Source revision · output · validation"]
+
+    repo --> scope --> verify
+    verify -.-> cloud & managed & home
+    cloud --> evidence
+    managed --> evidence
+    home --> evidence
+
+    classDef source fill:#143454,stroke:#467293,color:#fff,stroke-width:1.5px
+    classDef automation fill:#e9f0f7,stroke:#587491,color:#16324b
+    classDef gcp fill:#e6f3e9,stroke:#498362,color:#184932
+    classDef databricks fill:#fff0e6,stroke:#a75935,color:#64321c
+    classDef local fill:#efeafd,stroke:#7659a3,color:#3d2866
+    classDef result fill:#edf2f5,stroke:#617586,color:#203a4a
+    class repo source
+    class scope,verify automation
+    class cloud gcp
+    class managed databricks
+    class home local
+    class evidence result
+```
+
+Dashed links mark planned release paths. Each project can validate and release
+independently. Runtime evidence links the deployed revision to its result.
 
 ## Engineering and delivery
 
@@ -100,9 +122,10 @@ configuration and architecture decisions. Data, credentials and runtime
 state belong in their respective systems. Each project owns its inputs,
 tests and delivery lifecycle.
 
-- [Engineering roadmap](docs/roadmap.md) covers scope, delivery order and
-  evidence for each milestone.
+- [Engineering roadmap](docs/roadmap.md) covers the platform milestones.
+  The [aviation project plan](Fraport-adsb-intelligence/docs/project-plan.md)
+  tracks the current OpenSky delivery sequence.
 - [Project template](project-template/README.md) provides a starting
   structure for a new project.
-- [Google Cloud](gcp/) · [Databricks](databricks/) · [Local](local/) browse
-  the repository by runtime. Each platform has a reserved third slot.
+- Browse projects by runtime in [Google Cloud](gcp/), [Databricks](databricks/)
+  and [Local](local/).
