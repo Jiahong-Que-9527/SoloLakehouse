@@ -35,6 +35,9 @@ credentials*.json
 *.tfstate
 *.tfstate.*
 
+# Local consulting notes. Keep designs in project docs/.
+chatgpt-consulting-subprojects-design.md
+
 # OS
 .DS_Store
 Thumbs.db
