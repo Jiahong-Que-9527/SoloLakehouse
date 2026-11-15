@@ -316,6 +316,12 @@ They do not count as missing.
 A `source_gap` hour has a manifest and no data file. It counts as accounted
 for in completeness checks, and it is listed in the dataset summary.
 
+A flight day is one source partition. When that partition is empty and the
+day overlaps a documented gap, including a gap that covers only part of the
+day, the day is committed as `source_gap`. The `known_gap_overlap` flag records
+that the gap did not cover the whole day. An empty partition on a day with no
+documented gap stays `SOURCE_MISSING`.
+
 The probe is `SELECT 1 FROM ... WHERE hour = :hour LIMIT 1`.
 
 ### Checks
