@@ -21,12 +21,12 @@ from the last committed hour.
 - **Pilot verified.** All 168 hours of the pilot week matched the source during
   reconciliation. An interrupted hour was recovered with the same SHA-256
   checksum, and a repeat run left the manifests unchanged.
-  [Acquisition status](Fraport-adsb-intelligence/01-opensky-acquisition/README.md#status-2026-11-14)
+  [Acquisition status](Fraport-adsb-intelligence/01-opensky-acquisition/README.md#status-2026-11-15)
   · [Benchmark report](Fraport-adsb-intelligence/01-opensky-acquisition/docs/benchmark-report.md)
-- **Monthly batch workflow in development.** The local implementation adds
-  `validate`, `report`, `accept` and `publish` for batch checks, reporting,
-  acceptance records and a checksum-verified backup. The next milestone is to
-  collect, validate, accept and back up the October 2026 batch (`b01`).
+- **Monthly batches underway.** `validate`, `report`, `accept` and `publish`
+  check a batch, write its report, record acceptance and copy it to a second
+  disk with SHA-256 verification. Batches b01 (2026-10) and b02 (2026-07) are
+  accepted and backed up. The next batch is b03 (2026-01).
   [Batch plan](Fraport-adsb-intelligence/01-opensky-acquisition/docs/batch-plan.md)
 - **Downstream work planned.** Build Silver and Gold locally, then release an
   approved, versioned Gold dataset for cloud analytics and lakehouse
