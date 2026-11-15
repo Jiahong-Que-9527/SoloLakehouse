@@ -81,9 +81,9 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 | M4 | Manifest export and DuckDB catalog | Accepted hours readable through the catalog |
 | M5 | Dataset sign-off | Full verify, dataset summary, backup restore tested |
 
-**Status (2026-11-15):** M0 to M2 are done. Batches b01 (2026-10) through b05
-(2026-09) are collected, validated, accepted and backed up. Next is M3 batch
-b06 (2026-08). The working list is the
+**Status (2026-11-15):** M0 to M2 are done. Batches b01 (2026-10) through b06
+(2026-08) are collected, validated, accepted and backed up. Next is M3 batch
+b07 (2026-06). The working list is the
 [acquisition status](../01-opensky-acquisition/README.md#status-2026-11-15).
 Vertical slice V0 (Silver for the pilot week) can start in parallel. It is
 not the next acquisition step.
