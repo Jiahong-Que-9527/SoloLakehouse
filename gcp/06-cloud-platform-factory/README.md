@@ -1,0 +1,24 @@
+# Cloud Platform Factory
+
+<!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
+
+**G06 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md)
+
+Use experience from deployed GCP workloads to provide a documented way to provision, deploy, verify and retire isolated test environments.
+
+## Technical scope
+
+Terraform, Workload Identity Federation, GitHub Actions, IAM and cloud cost tracking.
+
+## Input and output
+
+- **Input.** An environment definition and one small reference workload. Compare deployment needs from [G01](../01-european-energy-pipeline/README.md) and [G02](../02-energy-analytics-api/README.md).
+- **Output.** A reusable environment template, an opt-in deployment and teardown workflow, scoped identities and provisioning, smoke-test and cost evidence.
+
+## Acceptance
+
+1. Provision two isolated test environments with the same template and verify that their workloads and identities are scoped independently.
+2. Deploy from GitHub Actions using short-lived credentials. Record resources, ownership, expected costs and available spending signals.
+3. Verify teardown of the selected disposable environment and inventory remaining resources. Retain the second environment as a check on scope.
+
+[Identity federation for deployment pipelines](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines)

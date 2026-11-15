@@ -40,14 +40,14 @@ available in a pinned snapshot.
   [Aviation Lakehouse Integration](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
   and [Model Serving Integration](../Fraport-adsb-intelligence/06-model-serving/README.md).
 - **European energy.** The [GCP European Energy
-  Pipeline](../gcp/european-energy-pipeline/README.md) starts with one German
+  Pipeline](../gcp/01-european-energy-pipeline/README.md) starts with one German
   electricity-market metric in a fixed date window. The
-  [Energy Data API](../gcp/energy-data-api/README.md) and
-  [Energy Event Pipeline](../gcp/energy-event-pipeline/README.md) add a
+  [Energy Analytics API](../gcp/02-energy-analytics-api/README.md) and
+  [Aviation Event Processing](../gcp/03-aviation-event-processing/README.md) add a
   read-only interface and a correction-handling path.
 - **Finance.** The [Local ECB Silver Pipeline](../local/ecb-silver-pipeline/README.md)
   specifies and verifies cleaned policy-rate rows. The [Databricks ECB Delta
-  Lakehouse](../databricks/ecb-delta-lakehouse/README.md) builds a versioned
+  Lakehouse](../databricks/01-ecb-delta-lakehouse/README.md) builds a versioned
   Gold product from one daily exchange-rate series.
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture

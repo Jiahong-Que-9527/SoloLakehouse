@@ -10,17 +10,20 @@ lakehouse ETL. It is not a cloud deployment.
 ## Status (2026-11-14)
 
 Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
-(pull requests #123 to #125). The next session collects batch **b01
-(2026-10)** after the missing batch-gate commands exist. Do not start b02.
+(pull requests #123 to #125). Batch **b01 (2026-10)** is accepted and backed
+up. The next session collects batch **b02 (2026-07)**. Do not start b03.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
 
-- State vectors, `eddf_r75km` v1: the pilot week 2026-10-12 through 2026-10-18
-  (168 hours), plus benchmark days 2024-11-15, 2025-01-15, 2025-07-15 and
-  2026-07-15. 2026-10-15 is already inside the pilot week.
-- Flights, `eddf_flights` v1: the same seven pilot days and the four benchmark
-  days above.
+- State vectors, `eddf_r75km` v1: all 744 hours of 2026-10, plus benchmark
+  days 2024-11-15, 2025-01-15, 2025-07-15 and 2026-07-15.
+- Flights, `eddf_flights` v1: 2026-10-01 through 2026-11-01, plus the four
+  benchmark days above.
+- Batch b01: 109,641,931 state-vector rows, 2.13 GB, 40,844 flights. Validation
+  outcome `review` for six early-morning hours after the 2026-10-25 clock
+  change; every hour is complete. Accepted and published.
+  Report: `reports/batches/b01/report.md`.
 - Hour reconciliation matched 168/168:
   `reports/reconcile/20261114T221544Z-3852.json`.
 - The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
@@ -42,12 +45,11 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Collect b01. State vectors:
-   `run --from 2026-10-01T00:00:00Z --until 2026-11-01T00:00:00Z`.
-   Flights: `collect-flights --from 2026-10-01 --until 2026-11-02`
-   (the 2026-11-01 flight day belongs to b01). Committed hours and days are
-   skipped.
-2. `validate --batch b01`, `report --batch b01`, then `accept` and `publish`.
+1. Collect b02, July 2026. State vectors:
+   `run --from 2026-07-01T00:00:00Z --until 2026-08-01T00:00:00Z`.
+   Flights: `collect-flights --from 2026-07-01 --until 2026-08-01`.
+   The benchmark day 2026-07-15 is already committed and is skipped.
+2. `validate --batch b02`, `report --batch b02`, then `accept` and `publish`.
    A validation outcome of `review` needs `--notes`. Stop the backfill if a
    day exceeds 6 million rows, 100 MB of Parquet, 60 seconds per hour, or
    5 GB scanned per hour.

@@ -9,10 +9,9 @@ The raw research data stays on the local machine. Bronze and Silver are built
 locally, and only the Gold data product crosses to Google Cloud, as a versioned
 release. Each subproject chooses the runtime that fits its workload.
 
-**Status (2026-11-15):** acquisition gate G0 has passed. Batch commands
-`validate`, `report`, `accept` and `publish` exist. The next work is to
-collect batch b01 (2026-10), then validate, accept and back it up. Details
-are in the
+**Status (2026-11-15):** acquisition gate G0 has passed. Batch b01 (2026-10)
+is validated, accepted and backed up to `E:`. The next work is batch b02
+(2026-07). Details are in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-14).
 
 ## Subprojects

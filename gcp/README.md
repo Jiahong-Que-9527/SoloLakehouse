@@ -1,66 +1,53 @@
 # Google Cloud project roadmap
 
 <!-- [房玄龄·2026-11-15] Record the platform projects, milestones and acceptance criteria. -->
+<!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-Use a single German electricity-load dataset to practice batch delivery, API access,
-event processing and governance. The aviation project provides a separate workload
-for model training and serving. The milestones below are planned.
+Build cloud infrastructure and batch delivery first. Add API access, event handling, governance and MLOps, then reuse proven deployment steps. The energy metric
+provides a common workload for G01 to G05. Each numbered directory is a standalone planned project. `docs/design.md` is the design. The README is the short brief. These directories do not contain application code yet.
 
-## Projects
+## Projects in learning order
 
-- [European Energy Pipeline](european-energy-pipeline/README.md) owns the batch pipeline,
-  the BigQuery data product and its release checks.
-- [Energy Data API](energy-data-api/README.md) exposes approved indicators through a
-  read-only interface.
-- [Energy Event Pipeline](energy-event-pipeline/README.md) uses synthetic corrections
-  to test event handling and recovery against an isolated BigQuery target.
-- The aviation model delivery path connects [Taxi-in Prediction](../Fraport-adsb-intelligence/05-taxi-in-prediction/README.md)
-  and [Model Serving Integration](../Fraport-adsb-intelligence/06-model-serving/README.md).
+1. **G01** · [European Energy Pipeline](01-european-energy-pipeline/README.md)
+   Deploy a scheduled batch job and publish a repeatable electricity-load table.
+   [Design](01-european-energy-pipeline/docs/design.md)
+2. **G02** · [Energy Analytics API](02-energy-analytics-api/README.md)
+   Serve approved indicators through an authenticated, measured REST API.
+   [Design](02-energy-analytics-api/docs/design.md)
+3. **G03** · [Aviation Event Processing](03-aviation-event-processing/README.md)
+   Test duplicate and late events, retries, dead-letter handling and replay.
+   [Design](03-aviation-event-processing/docs/design.md)
+4. **G04** · [Governed Energy Data Product](04-governed-energy-data-product/README.md)
+   Release a quality-checked data product with access and provenance evidence.
+   [Design](04-governed-energy-data-product/docs/design.md)
+5. **G05** · [Energy Forecasting MLOps](05-energy-forecasting-mlops/README.md)
+   Train, register, batch-score and roll back a versioned model.
+   [Design](05-energy-forecasting-mlops/docs/design.md)
+6. **G06** · [Cloud Platform Factory](06-cloud-platform-factory/README.md)
+   Provision isolated environments and demonstrate repeatable deployment, cost tracking and retirement.
+   [Design](06-cloud-platform-factory/docs/design.md)
 
-## Milestones
+## Project handoffs and independent delivery
 
-1. **G01 · Deploy a batch pipeline.** Start with one week of SMARD actual total
-   load. Record the source, unit, interval and source time zone. Normalize interval
-   keys to UTC and test the local-time transition. Use a Cloud Run Job and retain
-   source inputs in Cloud Storage. Publish one queryable BigQuery table. Run the
-   same window twice and compare the keys, row count and query result. After
-   the first test deployment, reproduce it through GitHub Actions using
-   Terraform and a federated deployment identity. Capture the source revision,
-   deployment record, job run ID and observed cost.
-2. **G02 · Expose a read-only API.** Read a date-bounded metric from an approved
-   BigQuery view. Test an allowed request, a denied request and request tracing.
-3. **G03 · Process corrections and recover from failures.** Send duplicate,
-   out-of-order and failing synthetic messages through Pub/Sub. Check the final
-   table and record one dead-letter recovery.
-4. **G04 · Publish with governance.** Use versioned schema and quality rules in
-   the batch pipeline. Record the release ID, source window, checksum, code
-   revision and validation result. Show that an incompatible input stops
-   publication, the API identity can only read the approved view, and a query
-   result can be traced to its release and source batch. Verify catalog or lineage
-   evidence when configured.
-5. **G05 · Deliver a versioned aviation model.** Start with the flagship's local
-   baseline. Then plan Vertex AI training and model registration, and a Cloud Run
-   service that loads a pinned model version. Trace a synthetic prediction back
-   to the model, evaluation and training-data release. Exercise rollback to a
-   prior model version. Report ADS-B taxi-in proxy-label coverage separately
-   from airport-verified labels.
-6. **G06 · Reuse deployment configuration.** Once two workloads have been
-   deployed, extract repeated Terraform, GitHub Actions and identity setup into
-   the [project template](../project-template/README.md). Validate reuse by
-   deploying the second workload into its own test environment and recording
-   the result and observed cost.
+G01 publishes a versioned metric schema and a data release. G02 consumes a
+read-only view. G03 reuses the schema in a synthetic event fixture and has
+its own output table. G04 can validate a release from G01. G05 can train on
+a fixed G04 release. G06 reuses deployment steps from working projects.
 
-## Project handoffs
+Each consumer can use a small compatible fixture to validate or deploy in
+its own environment. Integration uses explicit release IDs or a pinned
+model version. A fork includes the whole repository and can select one
+project's checks and deployment. Cloud deployment requires the operator's
+own environment and permissions.
 
-The batch pipeline publishes a versioned schema and an approved view. The API
-can seed a fixture into its own test environment and use the approved batch
-release when testing integration. The event project shares the metric contract
-and writes to its own target. A repository fork can validate each project with
-its own fixture. Cloud deployment uses the operator's own GCP environment.
+The separate [aviation serving integration](../Fraport-adsb-intelligence/06-model-serving/README.md)
+can apply G05 delivery practices to the flagship model.
 
-OpenSky Data Ingestion is the first public SoloLakehouse delivery. The first
-GCP milestone is the bounded G01 run described above.
+## Delivery priorities
 
-[SMARD source documentation](https://www.smard.de/home/ueber-smard) ·
-[Cloud Run Jobs](https://docs.cloud.google.com/run/docs/execute/jobs) ·
-[Identity federation for deployment pipelines](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines)
+Build G01 first. G04 and G06 are the other platform engineering priorities.
+G02 and G03 cover consumption and operational reliability. G05 adds the
+model lifecycle. Start from a small baseline and record observed cloud cost.
+
+OpenSky Data Ingestion is the first public SoloLakehouse delivery. G01
+starts the GCP-specific route.

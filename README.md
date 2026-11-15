@@ -50,22 +50,26 @@ independent validation.
 
 ### European energy
 
-- [European Energy Pipeline](gcp/european-energy-pipeline/README.md) (Google
+- [European Energy Pipeline](gcp/01-european-energy-pipeline/README.md) (Google
   Cloud). Validate one German electricity-market metric over a fixed date
   range before connecting the pipeline to cloud storage and analytics.
-- [Energy Data API](gcp/energy-data-api/README.md) (Google Cloud). Expose an
+  [Design](gcp/01-european-energy-pipeline/docs/design.md)
+- [Energy Analytics API](gcp/02-energy-analytics-api/README.md) (Google Cloud). Expose an
   approved load indicator through a read-only Cloud Run API.
-- [Energy Event Pipeline](gcp/energy-event-pipeline/README.md) (Google Cloud).
+  [Design](gcp/02-energy-analytics-api/docs/design.md)
+- [Aviation Event Processing](gcp/03-aviation-event-processing/README.md) (Google Cloud).
   Test corrections, retries and dead-letter recovery against an isolated
   BigQuery target.
+  [Design](gcp/03-aviation-event-processing/docs/design.md)
 
 ### Finance
 
 - [ECB Silver Pipeline](local/ecb-silver-pipeline/README.md) (Local). Convert
   a fixed set of ECB policy-rate inputs into clean, comparable Silver rows.
-- [ECB Delta Lakehouse](databricks/ecb-delta-lakehouse/README.md)
+- [ECB Delta Lakehouse](databricks/01-ecb-delta-lakehouse/README.md)
   (Databricks). Build a versioned Gold product from one ECB daily
   exchange-rate series.
+  [Design](databricks/01-ecb-delta-lakehouse/docs/design.md)
 
 ### Platform engineering
 

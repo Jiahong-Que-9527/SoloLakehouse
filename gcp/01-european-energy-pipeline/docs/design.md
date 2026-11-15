@@ -1,0 +1,112 @@
+# Design: European Energy Data Pipeline
+
+**G01 · Design only.** No application code in this directory yet.
+
+Build one repeatable batch path from a public electricity metric to a queryable BigQuery table. The path is the thing this project proves: parameterised ingestion, raw retention, a quality gate, an idempotent publish, and a deployment that can be run again.
+
+The source for this scope is the G01 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the first dataset.
+
+## 1. Decisions
+
+| Topic | Decision |
+|-------|----------|
+| First dataset | German actual total load, one fixed week. The brief already chose this slice. |
+| Source | A versioned sample shaped like a SMARD export. A live SMARD or ENTSO-E read is a later adapter behind the same raw contract. |
+| Later metrics | Day-ahead price and generation mix use the same table and a different `metric` value. They are not required for G01 acceptance. |
+| Runtime | Cloud Run Job. One execution has a start and an end. It is not a Cloud Run Service. |
+| Raw store | Cloud Storage, partitioned by source date. Objects are immutable. |
+| Publish | BigQuery table `energy.metric_observation`, loaded for the requested window only. |
+| Business key | `(area, metric, interval_start)` |
+| Repeat run | Same window and same input checksum: no key changes, a new run record. Corrected rows for that window replace those keys. |
+| Schedule | Cloud Scheduler starts the job in the test project. CI uses the sample and does not need the scheduler. |
+| Identity | The job runs as its own service account. GitHub Actions deploys with Workload Identity Federation. No long-lived service-account key. |
+| IaC | Terraform creates the bucket, dataset, table, job, scheduler, and runtime identity. |
+
+## 2. Boundary
+
+In scope: one metric, one country (`DE`), one declared interval, a fixed historical window, local tests, and one deployed test environment.
+
+Out of scope: the HTTP API (G02), event corrections (G03), the release catalog and IAM product model (G04), training (G05), and a reusable project factory (G06). This project publishes a versioned table and a release record. It does not grant consumer roles.
+
+## 3. Architecture
+
+```text
+Sample CSV  or  later live adapter
+            |
+            v
+Cloud Run Job
+  ingest -> land raw -> validate -> publish -> write release
+            |
+            v
+Cloud Storage raw/smard/de_load/dt=YYYY-MM-DD/
+            |
+            v
+BigQuery energy.metric_observation
+            |
+            v
+energy.load_release          queryable by G02 and G04
+```
+
+One process does the whole window. There is no queue in this project. Cloud Scheduler passes the window as job arguments. A manual execution uses the same arguments.
+
+## 4. Contracts
+
+### Raw object
+
+```text
+gs://<bucket>/raw/smard/de_load/dt=YYYY-MM-DD/<run_id>.csv
+gs://<bucket>/raw/smard/de_load/dt=YYYY-MM-DD/<run_id>.manifest.json
+```
+
+The manifest records `source`, `metric`, `area`, `interval`, `window_start`, `window_end`, `sha256`, `row_count`, and `retrieved_at`. A later run writes a new object. It does not overwrite a committed object.
+
+### Observation table
+
+| Column | Type | Meaning |
+|--------|------|---------|
+| `interval_start` | TIMESTAMP | Start of the interval, UTC |
+| `interval_end` | TIMESTAMP | End of the interval, UTC |
+| `area` | STRING | `DE` for v1 |
+| `metric` | STRING | `actual_load_mw` for v1 |
+| `value` | FLOAT64 | Source value, original unit |
+| `unit` | STRING | `MW` |
+| `source` | STRING | `smard` or `sample` |
+| `release_id` | STRING | Id of the publish that wrote the row |
+| `ingested_at` | TIMESTAMP | Write time |
+
+v1 interval is 15 minutes, which is the SMARD actual-load resolution. The sample file declares that interval. Expected row count is the window length divided by the interval, with the DST fixture stating its own expected count. Price data, which is hourly, is a later metric. It does not change this grain.
+
+### Release record
+
+`energy.load_release` has one row per attempted publish: `release_id`, window, input checksum, row count, `git_sha`, Cloud Run execution id, quality status (`passed` or `failed`), and `published_at`. A failed validation still writes this row and does not change `metric_observation`.
+
+## 5. Behaviour
+
+1. Resolve the window from arguments. Refuse an open-ended window.
+2. Read the sample, or the live adapter when that mode is selected. Write the raw object and its manifest.
+3. Validate before any publish: column set, types, `interval_start < interval_end`, no null measure, no duplicate business key, row count matches the declared interval. A DST sample is part of the fixture set.
+4. On failure, write `quality_status=failed` and stop. The previous rows for that window stay as they are.
+5. On success, merge the window on the business key inside one load. A second successful run of the same checksum reports the same keys and the same row count.
+6. Record the execution id, checksum, and git revision on the release row.
+
+Overlapping scheduler runs are prevented by a job concurrency limit of one.
+
+## 6. Delivery and cost
+
+Terraform owns the resources listed in the decisions table. GitHub Actions runs the unit tests, then `terraform plan`. Apply on `main` uses a federated identity scoped to the test project.
+
+The sample is small enough to run in CI without a cloud call. The scheduled cloud run uses that same week, not a growing backfill. Cloud Run scales to zero between executions. The release row records bytes billed for the load.
+
+Minimum runtime identity: read the sample or the source secret, write the raw prefix, and edit the two BigQuery tables. It cannot delete the bucket and it cannot read other datasets.
+
+## 7. Acceptance
+
+1. Fixtures cover a normal week, a duplicate key, a missing interval, a null value, and a local-time change. The bad fixtures fail validation and leave the published table unchanged.
+2. Deploy the job from GitHub Actions with Terraform and Workload Identity Federation. Record the execution id of one scheduled run in the test project.
+3. Run the same window twice. Keys, row count, and a reference query match. Both runs have release rows. Record the execution ids, the checksum, and the observed cost.
+
+## 8. Handoff
+
+G02 and G04 may read `energy.metric_observation` through a view and join `energy.load_release`. They must also ship a fixture with this schema so they can be tested without this job deployed.
+
+A second metric is a new `metric` value and a new raw prefix. It is not a new pipeline and not a new table.
