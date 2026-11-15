@@ -45,9 +45,8 @@ do not duplicate a separate lakehouse or serving project.
   Gold table format decision and the check that must pass first.
 - [01 design](01-opensky-acquisition/docs/design.md) and
   [batch plan](01-opensky-acquisition/docs/batch-plan.md) describe how the
-  first dataset is collected.
-- [Notebooks](Notebooks/README.md) query the local Bronze with DuckDB, one
-  UTC day of Parquet at a time. Original consulting notes stay local.
+  first dataset is collected. Original consulting notes and exploration
+  notebooks stay local.
 
 ## Principles
 

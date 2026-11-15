@@ -38,6 +38,9 @@ credentials*.json
 # Local consulting notes. Keep designs in project docs/.
 chatgpt-consulting*.md
 
+# Local exploration notebooks.
+Fraport-adsb-intelligence/Notebooks/
+
 # OS
 .DS_Store
 Thumbs.db
