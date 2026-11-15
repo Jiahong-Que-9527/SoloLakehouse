@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from . import __version__, auth
+from .batch import get_batch, validate_batch
 from .config import Config, ConfigError, load_config
 from .crosscheck import cross_check_hours
 from .discover import discover, save_record, summarise
@@ -25,7 +26,9 @@ from .errors import (
 )
 from .fetch import collect_hour
 from .flights import collect_flight_range
+from .publish import accept_batch, publish_batch
 from .reconcile import reconcile_hours
+from .report import write_report
 from .run import collect_range, parse_duration
 from .util import parse_utc_day, parse_utc_hour
 
@@ -63,6 +66,15 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--from", dest="start", required=True, help="first hour, inclusive")
     check.add_argument("--until", required=True, help="hour at which to stop, exclusive")
     check.add_argument("--receipts", required=True, help="directory of {epoch}.receipt.json files")
+    validate = sub.add_parser("validate", help="check one monthly batch against its manifests")
+    validate.add_argument("--batch", required=True, help="batch id, for example b01")
+    report = sub.add_parser("report", help="write the batch report from the last validation")
+    report.add_argument("--batch", required=True, help="batch id, for example b01")
+    accept = sub.add_parser("accept", help="record acceptance of a validated batch")
+    accept.add_argument("--batch", required=True, help="batch id, for example b01")
+    accept.add_argument("--notes", default="", help="required when validation listed anomalies")
+    publish = sub.add_parser("publish", help="back up an accepted batch and verify checksums")
+    publish.add_argument("--batch", required=True, help="batch id, for example b01")
     return parser
 
 
@@ -304,6 +316,55 @@ def cmd_cross_check(cfg: Config, start_text: str, until_text: str, receipts: str
     return EXIT_OK if summary["outcome"] == "matched" else EXIT_ERROR
 
 
+def cmd_validate(cfg: Config, batch_id: str) -> int:
+    batch = get_batch(batch_id)
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        summary = validate_batch(cfg, batch)
+    finally:
+        os.close(lock)
+    print(
+        f"validate outcome: {summary['outcome']} hours: {summary['expected_hours']} "
+        f"complete: {summary['complete']} problems: {len(summary['problems'])} "
+        f"anomalies: {len(summary['anomalies'])}"
+    )
+    print(f"manifest: {summary['path']}")
+    return EXIT_OK if summary["outcome"] != "failed" else EXIT_ERROR
+
+
+def cmd_report(cfg: Config, batch_id: str) -> int:
+    batch = get_batch(batch_id)
+    summary = write_report(cfg, batch)
+    print(f"report outcome: {summary['outcome']}")
+    print(f"report: {summary['path']}")
+    return EXIT_OK
+
+
+def cmd_accept(cfg: Config, batch_id: str, notes: str) -> int:
+    batch = get_batch(batch_id)
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        summary = accept_batch(cfg, batch, notes=notes)
+    finally:
+        os.close(lock)
+    print(f"accept outcome: {summary['outcome']} who: {summary['who']}")
+    return EXIT_OK
+
+
+def cmd_publish(cfg: Config, batch_id: str) -> int:
+    batch = get_batch(batch_id)
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        summary = publish_batch(cfg, batch)
+    finally:
+        os.close(lock)
+    print(
+        f"publish outcome: {summary['outcome']} copied: {summary['copied']} "
+        f"checked: {summary['checked']}"
+    )
+    return EXIT_OK if summary["outcome"] == "published" else EXIT_ERROR
+
+
 def main(
     argv: Sequence[str] | None = None,
     connection_factory: Callable[..., Any] = auth.make_connection,
@@ -317,6 +378,14 @@ def main(
         cfg = load_config(args.config)
         if args.command == "cross-check":
             return cmd_cross_check(cfg, args.start, args.until, args.receipts)
+        if args.command == "validate":
+            return cmd_validate(cfg, args.batch)
+        if args.command == "report":
+            return cmd_report(cfg, args.batch)
+        if args.command == "accept":
+            return cmd_accept(cfg, args.batch, args.notes)
+        if args.command == "publish":
+            return cmd_publish(cfg, args.batch)
         _ = cfg.username  # fail early if OPENSKY_USERNAME is not set
         if args.command == "login":
             return cmd_login(cfg, connection_factory)
