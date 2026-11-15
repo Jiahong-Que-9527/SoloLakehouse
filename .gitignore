@@ -5,6 +5,7 @@ __pycache__/
 venv/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
 *.egg-info/
 dist/
 build/
@@ -24,11 +25,22 @@ login-url.txt
 credentials*.json
 
 # Datasets and local state. uv.lock stays tracked.
+# Source tables stay on disk. Fixture notes such as fixtures/README.md stay tracked.
 *.parquet
 *.duckdb
 *.sqlite
 *.sqlite3
 *.db
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.xml
+*.log
+
+# Local editor and agent state.
+.cursor/
+.claude/
 
 # Terraform
 .terraform/

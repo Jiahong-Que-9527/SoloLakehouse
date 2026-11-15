@@ -14,7 +14,7 @@ Python, Cloud Storage, BigQuery, Cloud Run Jobs, Terraform and GitHub Actions.
 
 ## Input and output
 
-- **Input.** A fixed source export and a small test fixture. Record the source, metric, unit, interval and time zone.
+- **Input.** The fixed SMARD exports in [fixtures](fixtures/README.md): one week of German actual total load, plus the 2026-10-25 local-time change. Quarter-hour energy in MWh, Europe/Berlin.
 - **Output.** A normalized metric table and a versioned release record with the source window, input checksum, code revision and quality results. G02 and G04 can consume that release.
 
 ## Acceptance
