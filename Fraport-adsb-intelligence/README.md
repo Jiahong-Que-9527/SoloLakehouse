@@ -46,8 +46,8 @@ do not duplicate a separate lakehouse or serving project.
 - [01 design](01-opensky-acquisition/docs/design.md) and
   [batch plan](01-opensky-acquisition/docs/batch-plan.md) describe how the
   first dataset is collected.
-- [chatgpt-consulting.md](chatgpt-consulting.md) is the original discussion
-  these decisions come from. It is background, not a specification.
+- [Notebooks](Notebooks/README.md) query the local Bronze with DuckDB, one
+  UTC day of Parquet at a time. Original consulting notes stay local.
 
 ## Principles
 
