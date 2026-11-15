@@ -196,7 +196,9 @@ def collect_flight_day(
         _checkpoint("probed", crash_after)
         if probe["has_rows"]:
             status = "empty"
-        elif gap == "inside":
+        elif gap in {"inside", "overlap"}:
+            # Flight rows live in one partition per source day. A documented gap
+            # that covers only part of the day still drops that whole partition.
             status = "source_gap"
         else:
             return _fail(cfg, day, run_id, "SOURCE_MISSING", moment, query_id=info.query_id)

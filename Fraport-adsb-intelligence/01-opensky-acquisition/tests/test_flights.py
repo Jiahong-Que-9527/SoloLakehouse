@@ -149,6 +149,16 @@ def test_missing_source_day_is_failed_not_committed(cfg):
     assert not manifest_path(cfg).exists()
 
 
+def test_empty_partition_on_a_gap_day_is_a_source_gap(cfg):
+    day = date(2026, 1, 2)
+    result = collect_flight_day(FlightSource([], global_exists=False), cfg, day, pause_seconds=0)
+    assert result["outcome"] == "committed"
+    assert result["status"] == "source_gap"
+    assert "known_gap_overlap" in result["flags"]
+    assert not parquet_path(cfg, day).exists()
+    assert manifest_path(cfg, day).exists()
+
+
 def test_crash_after_publish_is_redone_without_leaving_the_orphan(cfg):
     source = FlightSource([sample_flight()])
     with pytest.raises(InjectedCrash):
