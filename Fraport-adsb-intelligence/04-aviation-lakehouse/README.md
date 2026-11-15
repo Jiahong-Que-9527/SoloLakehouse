@@ -3,7 +3,7 @@
 **Runtime:** Databricks, reading Gold releases from Cloud Storage.
 
 Connect this programme's Gold releases to the Databricks
-[Aviation Lakehouse](../../../databricks/aviation-lakehouse/README.md)
+[Aviation Lakehouse](../../databricks/aviation-lakehouse/README.md)
 project. That project owns the Delta transformation code. This subproject owns
 the data contract and the integration with Cloud Storage.
 

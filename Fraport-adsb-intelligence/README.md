@@ -1,4 +1,4 @@
-# Fraport OpenSky Intelligence
+# Fraport ADS-B Intelligence
 
 Build an aviation data foundation for Frankfurt Airport (ICAO `EDDF`) from
 OpenSky Network state vectors. The programme starts with a reliable historical
@@ -27,8 +27,8 @@ command exist. Details and the collected days are in the
 | 07 | [Platform Orchestration](07-platform-orchestration/README.md) | GCP Workflows or Dagster | Scheduling, lineage, recovery |
 
 Subprojects 04 and 06 connect this programme to the existing
-[Aviation Lakehouse](../../databricks/aviation-lakehouse/README.md) and
-[Aviation ML Serving](../aviation-ml-serving/README.md) projects. They do not
+[Aviation Lakehouse](../databricks/aviation-lakehouse/README.md) and
+[Aviation ML Serving](../gcp/aviation-ml-serving/README.md) projects. They do not
 duplicate those projects.
 
 ## Documents
