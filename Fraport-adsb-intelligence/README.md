@@ -10,8 +10,9 @@ locally, and only the Gold data product crosses to Google Cloud, as a versioned
 release. Each subproject chooses the runtime that fits its workload.
 
 **Status (2026-11-16):** acquisition gate G0 has passed. Batches b01 (2026-10)
-through b11 (2025-12) are validated, accepted and backed up to `E:`. The next
-work is batch b12 (2025-11). Details are in the
+through b12 (2025-11) are validated, accepted and backed up to `E:`. That
+completes the twelve-month cut line. The next work is batch b13 (2025-10).
+Details are in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-16).
 
 ## Subprojects
