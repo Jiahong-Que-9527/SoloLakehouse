@@ -4,7 +4,7 @@
 
 Turn an append-only stream of synthetic transaction changes into one current row per transaction, including updates and deletes, and recover that state after a checkpoint restart. The project proves incremental state. It does not prove a CDC product inside Auto Loader.
 
-The source for this scope is the D03 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) adds the observation-key fixture.
+The project [brief](../README.md) adds the observation-key fixture.
 
 ## 1. Decisions
 
@@ -109,3 +109,7 @@ Record the checkpoint path, the Bronze version, and the query id.
 ## 9. Handoff
 
 D04 may grant an analyst read access to `gold.transaction_metrics` and deny `bronze.cdc_event`. This project does not create those grants.
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D06 · Planned** · [Databricks roadmap](../README.md) · [Design](docs/design.md)
+**D06 · Planned** · [Databricks roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Turn recurring Databricks environment and delivery work into a reusable setup for a second data team.
 
@@ -20,3 +20,5 @@ Terraform, Unity Catalog, Declarative Automation Bundles and CI/CD.
 1. Provision two isolated test environments from the same template and deploy a reference job into each.
 2. Verify a representative team can run its own job and read its allowed data, and is denied access to the other team's data.
 3. Record the owning tool for each resource, the CI deployment result and the procedure for retiring a disposable environment.
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->

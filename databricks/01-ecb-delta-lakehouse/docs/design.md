@@ -4,7 +4,7 @@
 
 Land ECB public series in Delta, clean them to one grain, and publish a versioned Gold table that a later job can rerun without duplicating observations. The project proves Bronze, Silver, Gold, MERGE, and time travel on a small fixed extract.
 
-The source for this scope is the D01 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the first series.
+The project [brief](../README.md) fixes the first series.
 
 ## 1. Decisions
 
@@ -87,3 +87,7 @@ v1 runs as a Python job on a small warehouse or on local PySpark for the unit te
 ## 8. Handoff
 
 D02 packages these transforms as tasks. D03 may reuse `(series_key, observation_date)` as a business key in a fixture. D05 reads a pinned `silver_version`. Each of those projects ships its own sample.
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

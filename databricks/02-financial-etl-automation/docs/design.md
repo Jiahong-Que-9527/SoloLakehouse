@@ -4,7 +4,7 @@
 
 Run the D01 transforms as a job with explicit task order, a failed-task stop, and a deployment that comes from Git. The project proves that a person does not have to start the notebook for a release to exist.
 
-The source for this scope is the D02 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the tasks.
+The project [brief](../README.md) fixes the tasks.
 
 ## 1. Decisions
 
@@ -84,3 +84,7 @@ Free Edition limits on concurrent tasks are respected: four tasks in one job, on
 ## 8. Handoff
 
 D06 may copy this bundle layout into a template after this job has deployed once. D04 can grant read access to the published schema. This job's deploy identity is not reused as a reader's identity.
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

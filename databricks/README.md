@@ -10,26 +10,26 @@ data and versioned releases connect the projects. Each numbered directory is a s
 
 1. **D01** · [ECB Delta Lakehouse](01-ecb-delta-lakehouse/README.md)
    Model ECB rates with Delta and verify versioned Bronze, Silver and Gold outputs.
-   [Design](01-ecb-delta-lakehouse/docs/design.md)
+   [Design](01-ecb-delta-lakehouse/docs/design.md) · [Implementation plan](01-ecb-delta-lakehouse/docs/implementation.md)
 2. **D02** · [Financial ETL Automation](02-financial-etl-automation/README.md)
    Deploy scheduled tasks and verify retries, recovery and publication.
-   [Design](02-financial-etl-automation/docs/design.md)
+   [Design](02-financial-etl-automation/docs/design.md) · [Implementation plan](02-financial-etl-automation/docs/implementation.md)
 3. **D03** · [Financial CDC Lakehouse](03-financial-cdc-lakehouse/README.md)
    Apply incremental updates and withdrawals and reconcile after a checkpoint restart.
-   [Design](03-financial-cdc-lakehouse/docs/design.md)
+   [Design](03-financial-cdc-lakehouse/docs/design.md) · [Implementation plan](03-financial-cdc-lakehouse/docs/implementation.md)
 4. **D04** · [Unity Catalog Governance](04-unity-catalog-governance/README.md)
    Verify permissions, lineage and the evidence behind a governed data release.
-   [Design](04-unity-catalog-governance/docs/design.md)
+   [Design](04-unity-catalog-governance/docs/design.md) · [Implementation plan](04-unity-catalog-governance/docs/implementation.md)
 5. **D05** · [Financial Forecasting MLOps](05-financial-forecasting-mlops/README.md)
    Track time-series training, register a model and validate batch predictions.
-   [Design](05-financial-forecasting-mlops/docs/design.md)
+   [Design](05-financial-forecasting-mlops/docs/design.md) · [Implementation plan](05-financial-forecasting-mlops/docs/implementation.md)
 6. **D06** · [Lakehouse Platform Factory](06-lakehouse-platform-factory/README.md)
    Provision a repeatable catalog, permissions and job environment for another team.
-   [Design](06-lakehouse-platform-factory/docs/design.md)
+   [Design](06-lakehouse-platform-factory/docs/design.md) · [Implementation plan](06-lakehouse-platform-factory/docs/implementation.md)
 
 ## Project handoffs and independent delivery
 
-D01 publishes a versioned financial data product. D02 can package its
+The planned D01 release will identify a versioned financial data product. D02 can package its
 transformations, D03 can reuse its key conventions in correction fixtures,
 and D04 can apply governance to its Gold schema. D05 selects a pinned Gold
 snapshot. D06 combines delivery and governance patterns exercised by the
@@ -53,3 +53,5 @@ in D02. D03 and D04 are the priority demonstrations for a data platform
 role. D05 adds model delivery after the data path is proven. D06 follows
 verified deployment and governance. Use a workspace with the permissions
 needed for each milestone and record the scope of actual cloud evidence.
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
