@@ -53,6 +53,10 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   specifies and verifies cleaned policy-rate rows. The [Databricks ECB Delta
   Lakehouse](../databricks/01-ecb-delta-lakehouse/README.md) builds a versioned
   Gold product from one daily exchange-rate series.
+- **DevOps delivery.** [DevOps Delivery
+  Engineering](../Devops-engineering/README.md) plans a self-contained path
+  from local development through CI, release, GitOps and recovery for one
+  reference service. D01 is the next implementation.
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture
   query in Compose. K3s, Flux and recovery remain later project milestones.

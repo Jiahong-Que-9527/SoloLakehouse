@@ -220,10 +220,12 @@ local CSV exports are absent. Each project README documents the operational CLI.
 | [Energy pipeline](gcp/01-european-energy-pipeline/README.md) | Local downloader, normalization, tests and CI implemented | Cloud Run Jobs, Cloud Storage and BigQuery delivery |
 | [Aviation lakehouse](Fraport-adsb-intelligence/04-aviation-lakehouse/README.md) and [model serving](Fraport-adsb-intelligence/06-model-serving/README.md) | Project briefs and designs | Consume versioned Gold in Databricks; later serve a pinned model on Cloud Run |
 | [Finance](databricks/01-ecb-delta-lakehouse/README.md) | Project briefs in the current layout | ECB Silver / Delta Lakehouse workloads |
+| [DevOps delivery](Devops-engineering/README.md) | Planning scaffold; D01 is next | Reproducible development of the energy quality service |
 | [Self-hosted lakehouse](local/self-hosted-lakehouse/README.md) | Historical implementation in a [pinned snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a) | Reproduce a fixture flow; evaluate K3s and GitOps at a later milestone |
 
 Further navigation: [Aviation plan](Fraport-adsb-intelligence/docs/project-plan.md)
 · [Engineering roadmap](docs/roadmap.md)
 · [Google Cloud projects](gcp/README.md)
 · [Databricks projects](databricks/README.md)
+· [DevOps delivery](Devops-engineering/README.md)
 · [Project template](project-template/README.md)
