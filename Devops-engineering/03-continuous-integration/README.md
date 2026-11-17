@@ -23,3 +23,19 @@ D04 consumes an approved candidate from this workflow.
 ## Evidence
 
 Pending implementation and acceptance runs.
+
+<!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
+
+## Development sequence
+
+Start with D02's image build and smoke check. Use a project-specific workflow, GHCR package and disposable candidate tag for the negative test.
+
+1. Define the event and permission matrix. PRs run read-only checks, while a designated trusted ref may publish after checks succeed. Scope paths to this project and its dedicated workflow.
+2. Run locked lint and tests. Build one candidate image and preserve its OCI artifact and checksum for the downstream jobs. Smoke-test and scan that artifact, generate its SBOM and record the severity policy used.
+3. Publish the checked artifact without rebuilding it. Record the registry digest, source SHA, CI run, artifact checksum and SBOM association. Pull by digest and repeat the smoke check.
+4. On a trusted test ref eligible to publish, use a unique candidate tag and deliberately fail a required check. Verify the publish job is skipped and the tag is absent. Repeat with a corrected candidate and collect both run links.
+5. Hand D04 the qualified digest and evidence record. Record which checks block promotion and where the registry credential is available.
+
+## Interview evidence
+
+Software supply chain and delivery controls. Trace one running image back to its tested commit and explain the negative test that proves publication is conditional.

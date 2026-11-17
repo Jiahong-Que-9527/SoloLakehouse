@@ -25,3 +25,19 @@ D02 consumes the service startup command, runtime configuration and tested contr
 ## Evidence
 
 Pending implementation and acceptance runs.
+
+<!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
+
+## Development sequence
+
+Start in reference-service/ with Python and uv available in WSL. Use the fixture specification in the reference service README as the test oracle.
+
+1. Write down the v1 input fields, their types and constraints, then prepare the two synthetic audit reports. Record the expected response for each before building the reader.
+2. Pin the Python minor version and dependencies. Define a locked installation, a Ruff check and a pytest invocation from the service directory. Document the working directory for each.
+3. Build the parser first. Cover missing fields, invalid counts, unsupported schema versions and unreadable inputs. Select the report through AUDIT_REPORT_PATH so the same application can run in each environment.
+4. Expose the configured audit at GET /v1/quality/latest. Implement /live and /ready separately. A valid failed audit returns HTTP 200 with its failed result. Missing or invalid input returns 503 for readiness and the quality route while liveness stays 200.
+5. Run unit tests, then start the service in a fresh checkout and exercise all three routes over HTTP. Record exact commands, fixture identity, setup time and observed responses. Give D02 the startup command and expected smoke responses.
+
+## Interview evidence
+
+Data contracts and test design. Show one failed audit and one unreadable report side by side. Explain what action a downstream data consumer takes for each.

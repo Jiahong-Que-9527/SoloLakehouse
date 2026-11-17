@@ -23,3 +23,19 @@ Summarize the measured onboarding and recovery results alongside links to the ph
 ## Evidence
 
 Pending implementation and acceptance runs.
+
+<!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
+
+## Development sequence
+
+Start with the proven D03 workflow, D05 deployment settings and D06 operating checks. Use a second synthetic workload within this project, such as a report-freshness service that flags stale meter snapshots.
+
+1. List the common inputs required for a new service, including service name, image package, entry point, probe paths, environment settings and ownership. Keep freshness rules and fixture semantics in the second application.
+2. Extract only the delivery pieces already exercised. Document how to instantiate the template, run its checks, pick a template revision and apply an upgrade to an existing consumer.
+3. Define onboarding timing from receiving a prepared service and its contract to its first verified deployment with metrics. Record operator steps, manual edits and elapsed time. Use the same start and end conditions for any comparison.
+4. Onboard the second workload with its own package and deployment identity. Verify its release, smoke response and monitoring signals. Upgrade or roll back that workload and recheck the original service.
+5. Record teardown steps and residual resources for the disposable deployment. Deliver the onboarding transcript, template revision and remaining manual decisions as the final project evidence.
+
+## Interview evidence
+
+Platform engineering and developer experience. Show what another service owner needs to supply, which steps the platform carries out and which manual decisions the observed onboarding still required.
