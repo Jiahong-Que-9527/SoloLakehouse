@@ -4,7 +4,7 @@
 
 Publish an energy table only after its contract and quality gate pass, and make that publication traceable to a source release, a commit, and an allowed reader. The project proves a release boundary. It does not prove a company-wide catalog.
 
-The source for this scope is the G04 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the first release.
+The project [brief](../README.md) fixes the first release.
 
 ## 1. Decisions
 
@@ -96,3 +96,7 @@ The dataset is the small G01 week or a smaller fixture. Grants are Terraform res
 ## 8. Handoff
 
 G05 trains only on a release id whose status is `passed`. G02 may point its view at `_current`. Neither inherits this project's producer identity.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

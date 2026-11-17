@@ -4,13 +4,13 @@
 
 Train, evaluate, register, and batch-score one forecasting model, and refuse to register a model that loses to the baseline. The project proves the lifecycle. It does not prove forecast skill.
 
-The source for this scope is the G05 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the first target.
+The project [brief](../README.md) fixes the first target.
 
 ## 1. Decisions
 
 | Topic | Decision |
 |-------|----------|
-| Target | Next 15-minute `actual_load_mw` for `DE`. Price forecasting is the same pipeline with a different label once `energy-prices` is a passed release. |
+| Target | Next 15-minute average load in MW for `DE`, derived from G01 interval energy (`actual_load_mwh`) divided by its duration in hours. Price forecasting is the same pipeline with a different label once `energy-prices` is a passed release. |
 | Split | Time ordered. The holdout is the last contiguous part of the window. Rows are not shuffled. |
 | Cutoff | Features for an interval use only observations whose `interval_end` is at or before that interval's start. |
 | Baseline | Seasonal naive: the value at the same interval seven days earlier. If the v1 window is one week, the fixture is extended with a second week so the baseline exists. |
@@ -79,3 +79,7 @@ Training uses the small fixture and CPU. The pipeline runs on demand. The online
 ## 8. Handoff
 
 G06 may template the pipeline trigger later. This project keeps its own registry and its own prediction table.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G06 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md)
+**G06 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Use experience from deployed GCP workloads to provide a documented way to provision, deploy, verify and retire isolated test environments.
 
@@ -22,3 +22,5 @@ Terraform, Workload Identity Federation, GitHub Actions, IAM and cloud cost trac
 3. Verify teardown of the selected disposable environment and inventory remaining resources. Retain the second environment as a check on scope.
 
 [Identity federation for deployment pipelines](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines)
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->

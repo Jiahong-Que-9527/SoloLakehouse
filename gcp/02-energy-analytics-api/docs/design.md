@@ -4,7 +4,7 @@
 
 Serve the published energy observations over an authenticated HTTP API. The project proves that a BigQuery table can be exposed with a fixed contract, a denied-by-default identity, and guards against unbounded queries.
 
-The source for this scope is the G02 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the first consumer.
+The project [brief](../README.md) fixes the first consumer.
 
 ## 1. Decisions
 
@@ -13,7 +13,7 @@ The source for this scope is the G02 section of the [subproject design note](../
 | Runtime | Cloud Run Service, FastAPI, one stateless revision |
 | Access | Not public. Cloud Run invoker IAM is the v1 gate. An OIDC client map is a later addition. |
 | Data | A read-only BigQuery view. The service never reads the raw bucket. |
-| First metric | `actual_load_mw` for `DE`, matching the G01 release. Price and generation mix use the same handler when those metrics exist. |
+| First metric | `actual_load_mwh` for `DE`, matching the G01 release. Price and generation mix use the same handler when those metrics exist. |
 | Missing metric | A metric with no published release returns a stable `404` and `code=metric_not_published`. |
 | Query guard | A required time range, a maximum span, a statement timeout, and a maximum bytes billed. A request past a guard is rejected before the query runs, or the query fails closed. |
 | Independence | Tests and deploy use a seeded view. A live G01 release is optional. |
@@ -49,7 +49,7 @@ The view exposes the G01 observation columns plus `release_id`. The seed job for
 | `GET /v1/summary` | Row count, min, max, and unit for the same filter. |
 | `GET /openapi.json` | Generated OpenAPI document. |
 
-`GET /v1/prices` and `GET /v1/generation-mix` are aliases of `/v1/metrics` with the metric fixed. They exist so the consulting contract stays addressable. Until a release for that metric is loaded, they return `metric_not_published`.
+`GET /v1/prices` and `GET /v1/generation-mix` are aliases of `/v1/metrics` with the metric fixed. Until a release for that metric is loaded, they return `metric_not_published`.
 
 Query parameters:
 
@@ -88,3 +88,7 @@ The load check is a short fixed-rate run against the deployed test revision, the
 ## 8. Handoff
 
 G04 owns who may be granted invoker and who may read the view. This service assumes that grant already exists. G05 does not call this API for training data; it reads a released table.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

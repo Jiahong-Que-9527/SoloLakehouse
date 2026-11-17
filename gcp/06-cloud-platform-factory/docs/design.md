@@ -4,7 +4,7 @@
 
 Give a new data project a standard GCP footprint: identity, storage, warehouse, a place to run, logs, and a budget signal, created and destroyed from GitHub. The project proves that a second environment can be made from the same template without copying keys or sharing another project's data.
 
-The source for this scope is the G06 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the first proof.
+The project [brief](../README.md) fixes the first proof.
 
 ## 1. Decisions
 
@@ -82,3 +82,7 @@ Budgets are small and named per stack. Resources are destroyed at the end of the
 ## 8. Handoff
 
 When G02 and G04 are stable, their resource lists become the `api` and `governed` modules. A module is added here only after that project has one successful apply of its own. This factory does not become a hidden dependency of G01.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

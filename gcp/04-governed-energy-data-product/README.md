@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G04 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md)
+**G04 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Publish an approved energy dataset with a versioned schema, documented quality rules, restricted access and auditable release records.
 
@@ -20,3 +20,5 @@ BigQuery, IAM, data quality checks, catalog and lineage.
 1. Block publication when a required field or quality rule fails. Retain the failed check and keep the preceding release queryable.
 2. Show a reader accessing the approved view and being denied raw data access. Capture the tested identities and results.
 3. Trace a published query result to its release, input and code revision. Record verifiable catalog, lineage and audit evidence from the test environment.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->

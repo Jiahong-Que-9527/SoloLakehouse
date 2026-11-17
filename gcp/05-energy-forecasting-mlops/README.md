@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G05 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md)
+**G05 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Build a traceable model delivery workflow. Use released or synthetic energy data to train a simple load-forecast baseline, register a model and serve a selected
 version.
@@ -21,3 +21,5 @@ Vertex AI training, Model Registry, Cloud Run and Cloud Monitoring.
 1. Evaluate a baseline and candidate on the same time-ordered holdout. Document feature cutoffs and the exact training data version.
 2. Deploy a pinned model version. Trace a prediction to its model, evaluation, dataset release and code revision.
 3. Measure serving latency and errors. Exercise a rollback in the test environment and verify the version after rollback.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
