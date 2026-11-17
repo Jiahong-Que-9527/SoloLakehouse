@@ -14,33 +14,9 @@ SoloLakehouse is a personal portfolio of independent Data and AI platform engine
 
 ## Portfolio architecture
 
-```mermaid
-flowchart LR
-    accTitle: SoloLakehouse project portfolio
-    accDescr: The repository contains two flagship cases, two platform series and local reference projects. Branches indicate repository organization. Each project owns its runtime and evidence.
-    SLH(["SoloLakehouse<br/>Data and AI platform engineering"])
-    SLH --- CASES["Flagship cases"]
-    SLH --- SERIES["Platform series"]
-    SLH --- REF["Local references"]
-    CASES --- FRA["Fraport ADS-B Intelligence<br/>Operational data and recovery<br/>OpenSky acquisition implemented"]
-    CASES --- OPS["DevOps Engineering<br/>Software delivery and reliability<br/>Seven stages planned"]
-    SERIES --- GCP["Google Cloud<br/>Energy data and cloud delivery<br/>G01 local pipeline implemented"]
-    SERIES --- DBX["Databricks<br/>Financial data and governance<br/>Six projects planned"]
-    REF --- LOCAL["Self-hosted lakehouse and ECB<br/>Historical snapshot and local briefs"]
+![Aviation intelligence airport illustration](docs/images/aviation-intelligence-airport-illustration.png)
 
-    classDef root fill:#17324D,stroke:#102338,color:#FFFFFF,stroke-width:2px
-    classDef group fill:#F1F5F9,stroke:#8193A6,color:#17324D
-    classDef flagship fill:#DBF3EE,stroke:#24796C,color:#13463E,stroke-width:2px
-    classDef platform fill:#E7EDFC,stroke:#516FA9,color:#213963,stroke-width:2px
-    classDef reference fill:#F6F1E9,stroke:#9A8769,color:#51422E
-    class SLH root
-    class CASES,SERIES,REF group
-    class FRA,OPS flagship
-    class GCP,DBX platform
-    class LOCAL reference
-```
-
-Branches show how to navigate the repository. Each project specifies its own inputs, environment and acceptance checks. Git versions code, contracts, designs and evidence summaries. Raw research data, credentials and runtime state stay with their owners.
+Each project specifies its own inputs, environment and acceptance checks. Git versions code, contracts, designs and evidence summaries. Raw research data, credentials and runtime state stay with their owners.
 
 ## Two flagship cases
 
