@@ -4,7 +4,7 @@
 <!-- [Codex · 2026-11-13] Project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G01 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md)
+**G01 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Data use and compliance](docs/data-use.md)
 
 Deliver a repeatable batch pipeline for German electricity-market data. Start with one week of SMARD actual total load and publish a queryable BigQuery table.
 
@@ -16,6 +16,12 @@ Python, Cloud Storage, BigQuery, Cloud Run Jobs, Terraform and GitHub Actions.
 
 - **Input.** The fixed SMARD exports in [fixtures](fixtures/README.md): one week of German actual total load, plus the 2026-10-25 local-time change. Quarter-hour energy in MWh, Europe/Berlin.
 - **Output.** A normalized metric table and a versioned release record with the source window, input checksum, code revision and quality results. G02 and G04 can consume that release.
+
+SMARD actual total load is available under CC BY 4.0. Published data and
+derived outputs must retain attribution, source and licence links, and a
+description of changes. Automated downloads must not impair the service for
+other users. See [data use and compliance](docs/data-use.md) for the scope,
+publication requirements and the separate review needed for wholesale prices.
 
 ## Acceptance
 

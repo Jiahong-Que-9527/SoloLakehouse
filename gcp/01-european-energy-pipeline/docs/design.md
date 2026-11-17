@@ -6,6 +6,11 @@ Build one repeatable batch path from a public electricity metric to a queryable 
 
 The source for this scope is the G01 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the first dataset.
 
+[Data use and compliance](data-use.md) records the SMARD licence, attribution,
+automated-download practices and scope limits. Carry source and licence
+notices into release metadata and downstream documentation. Review the
+current wholesale-price terms before adding the later day-ahead price metric.
+
 ## 1. Decisions
 
 | Topic | Decision |
