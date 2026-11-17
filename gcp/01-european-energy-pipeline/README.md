@@ -150,6 +150,73 @@ See [data use and compliance](docs/data-use.md) for the reviewed terms and
 check. A full-year coverage audit and continuous availability measurements
 remain pending. CI uses fake HTTP responses and does not call SMARD.
 
+## Offline coverage acceptance
+
+The [coverage verification](docs/coverage-verification.md) records the live
+June 2026 month and both 2026 clock-change days: 2,880, 92 and 100 rows.
+Each window passed coverage and cached repeat checks. These bounded samples
+do not establish year-round completeness, source-value accuracy or uptime.
+
+After normalizing each selected window twice into the same run root, audit
+the written artifacts without source or cloud access:
+
+```bash
+uv run --locked energy-pipeline audit \
+  --runs-root output/coverage --output output/coverage-reports
+```
+
+The auditor checks Parquet schema and checksum, unique observation keys,
+complete ordered UTC intervals, 15-minute durations, finite/non-null values,
+dimensions, daily counts and consistency with the manifest and quality report.
+A window needs at least two distinct run IDs with identical inputs,
+observations, Parquet checksums and recorded retrieval time. Copying a run
+directory does not count as a repeat execution.
+
+Each audit writes a new directory containing `report.json` and `report.md`,
+with per-run checks, daily coverage, hashes and code provenance. Failures
+still produce reports and exit code 1. Missing/unreadable run artifacts are
+reported as errors rather than ignored. Hidden staging directories are excluded.
+Use a dedicated run root; keep audit output outside that root.
+
+## Annual preparation
+
+[2025 acceptance](docs/year-2025-verification.md): all 12 monthly windows
+passed, yielding 35,040 unique continuous UTC intervals. All monthly cached
+replays and 11 cross-month boundaries passed; the offline annual re-export
+has the same checksum. This is a local snapshot, with raw and derived data
+kept outside Git.
+
+Prepare one completed calendar year with sequential monthly windows:
+
+```bash
+uv run --locked energy-pipeline prepare-year --year 2025 \
+  --cache downloads --output output/year-2025
+```
+
+This explicit command uses the same bounded downloader and persistent cache;
+it does not raise request limits or create parallel workers. Each month is
+normalized once, then read from the verified cache and normalized again.
+A validation error, provider denial or cooldown stops before the next month.
+After resolving the cause, rerunning reuses cached months and preserves all
+prior runs. Do not reset cache/control state to bypass a provider restriction.
+
+Only a passing annual audit publishes `observations-2025.parquet` beside the
+report. It requires exactly 12 monthly windows, the complete ordered yearly
+UTC grid, all monthly repeat checks and 11 continuous month boundaries.
+A normal year has 35,040 quarter-hour observations; a leap year has 35,136.
+All raw exports, monthly runs and annual artifacts stay outside Git.
+
+Re-audit existing runs without source requests:
+
+```bash
+uv run --locked energy-pipeline audit --year 2025 \
+  --runs-root output/year-2025/runs --output output/year-2025/reports
+```
+
+This creates a new local snapshot and report; it is not a cloud release or a
+freshness check. Historical corrections still require a controlled refresh
+policy, and cloud delivery remains planned.
+
 ## Cloud acceptance (planned)
 
 1. Test interval boundaries, missing intervals and duplicate keys. Include a fixture around a local-time change.

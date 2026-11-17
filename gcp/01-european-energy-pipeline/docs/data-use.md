@@ -86,8 +86,11 @@ The local downloader implements the following project operating practices:
 These limits are conservative project choices, not a numeric rate allowance,
 API contract or approval published by SMARD. The website's export endpoint
 may change. Reassess terms and provider guidance before changing the metric,
-increasing volume or enabling unattended scheduling. This version has no
-automatic full-year backfill. See the [live check](download-verification.md).
+increasing volume or enabling unattended scheduling. An explicitly invoked
+`prepare-year` command sequences 12 monthly windows under these same limits;
+it does not add parallelism, unattended scheduling or a larger per-request
+window. Stop on the first restriction or failed validation, and preserve
+control state on reruns. See the [live check](download-verification.md).
 
 ## Scope changes and remaining boundaries
 
