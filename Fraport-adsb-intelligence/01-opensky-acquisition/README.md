@@ -10,18 +10,18 @@ lakehouse ETL. It is not a cloud deployment.
 ## Status (2026-11-16)
 
 Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
-(pull requests #123 to #125). Batches **b01 (2026-10)** through **b12 (2025-11)**
-are accepted and backed up. That completes the twelve-month cut line from
-2025-11 through 2026-10. The next session collects batch **b13 (2025-10)**.
-Do not start b14.
+(pull requests #123 to #125). Batches **b01 (2026-10)** through **b14 (2025-09)**
+are accepted and backed up. b01 through b12 completed the twelve-month cut
+line from 2025-11 through 2026-10. The next session collects batch **b15
+(2025-08)**. Do not start b16.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
 
-- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2025-11, plus
+- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2025-09, plus
   benchmark days 2024-11-15, 2025-01-15 and 2025-07-15.
 - Flights, `eddf_flights` v1: 2026-10-01 through 2026-11-01, and all of
-  2026-09 through 2025-11, plus the three benchmark days above.
+  2026-09 through 2025-09, plus the three benchmark days above.
 - Batch b01: 109,641,931 state-vector rows, 2.13 GB, 40,844 flights. Validation
   outcome `review` for six early-morning hours after the 2026-10-25 clock
   change; every hour is complete. Accepted and published.
@@ -80,6 +80,14 @@ git.
   and published (`copied: 1502`, `checked: 750`). This batch finishes the
   twelve-month cut line.
   Report: `reports/batches/b12/report.md`.
+- Batch b13: 120,362,843 state-vector rows, 2.23 GB, 41,349 flights. Validation
+  outcome `passed` (744/744 hours, 0 problems, 0 anomalies). Accepted and
+  published (`copied: 1552`, `checked: 775`).
+  Report: `reports/batches/b13/report.md`.
+- Batch b14: 123,070,660 state-vector rows, 2.28 GB, 41,225 flights. Validation
+  outcome `passed` (720/720 hours, 0 problems, 0 anomalies). Accepted and
+  published (`copied: 1502`, `checked: 750`).
+  Report: `reports/batches/b14/report.md`.
 - Hour reconciliation matched 168/168:
   `reports/reconcile/20261114T221544Z-3852.json`.
 - The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
@@ -101,10 +109,10 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Collect b13, October 2025. State vectors:
-   `run --from 2025-10-01T00:00:00Z --until 2025-11-01T00:00:00Z`.
-   Flights: `collect-flights --from 2025-10-01 --until 2025-11-01`.
-2. `validate --batch b13`, `report --batch b13`, then `accept` and `publish`.
+1. Collect b15, August 2025. State vectors:
+   `run --from 2025-08-01T00:00:00Z --until 2025-09-01T00:00:00Z`.
+   Flights: `collect-flights --from 2025-08-01 --until 2025-09-01`.
+2. `validate --batch b15`, `report --batch b15`, then `accept` and `publish`.
    A validation outcome of `review` needs `--notes`. A `failed` outcome stops
    the gate. Stop the backfill if a day exceeds 6 million rows, 100 MB of
    Parquet, 60 seconds per hour, or 5 GB scanned per hour.

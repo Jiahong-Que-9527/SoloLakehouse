@@ -11,6 +11,10 @@ with `moduleIds` `[5000410]` (Realisierter Stromverbrauch, Gesamt / Netzlast),
 
 Attribution: Bundesnetzagentur | SMARD.de. The market-data download is published
 under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+See the provider's [data-use notice](https://www.smard.de/home/datennutzung)
+and the project's [data use and compliance note](../docs/data-use.md) for
+redistribution, attribution and automated-download requirements. The data
+licence is separate from the repository's software licence.
 
 | | Normal week | Local-time change |
 |---|---|---|
