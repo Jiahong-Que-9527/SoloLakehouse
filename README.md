@@ -73,7 +73,7 @@ survive partial downloads without silently treating incomplete data as complete.
 The [acquisition status dated 2026-11-16](Fraport-adsb-intelligence/01-opensky-acquisition/README.md#status-2026-11-16)
 records:
 
-- **18 monthly batches accepted and backed up**, covering May 2025
+- **19 monthly batches accepted and backed up**, covering April 2025
   through October 2026. October 2026 alone contains **109,641,931 state-vector
   rows** and **40,844 flight records**.
 - **168/168 pilot hours matched source aggregates**, with a separate
@@ -158,7 +158,7 @@ local CSV exports are absent. Each project README documents the operational CLI.
 
 | Area | Current status | Next delivery |
 |---|---|---|
-| [Aviation acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md) | Implemented locally; 18 accepted monthly batches recorded as of 2026-11-17 | Continue the two-year backfill; build local Silver / Gold |
+| [Aviation acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md) | Implemented locally; 19 accepted monthly batches recorded as of 2026-11-17 | Continue the two-year backfill; build local Silver / Gold |
 | [Energy pipeline](gcp/01-european-energy-pipeline/README.md) | Local downloader, normalization, tests and CI implemented | Cloud Run Jobs, Cloud Storage and BigQuery delivery |
 | [Aviation lakehouse](Fraport-adsb-intelligence/04-aviation-lakehouse/README.md) and [model serving](Fraport-adsb-intelligence/06-model-serving/README.md) | Project briefs and designs | Consume versioned Gold in Databricks; later serve a pinned model on Cloud Run |
 | [Finance](databricks/01-ecb-delta-lakehouse/README.md) | Project briefs in the current layout | ECB Silver / Delta Lakehouse workloads |
