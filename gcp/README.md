@@ -3,8 +3,11 @@
 <!-- [房玄龄·2026-11-15] Record the platform projects, milestones and acceptance criteria. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-Build cloud infrastructure and batch delivery first. Add API access, event handling, governance and MLOps, then reuse proven deployment steps. The energy metric
-provides a common workload for G01 to G05. Each numbered directory owns its delivery. `docs/design.md` is the design. The README is the short brief. G01 has an implemented local pipeline, scoped CI and a verified 2025 snapshot. GCP deployment is planned. G02 through G06 have designs and phased implementation plans.
+This series explores how to deliver, govern and operate data products on Google Cloud. German electricity load provides the main dataset. The event-processing project also uses synthetic airport events.
+
+**Implemented locally:** G01 downloads SMARD data, normalizes quarter-hour energy to UTC and audits replay. The 2025 snapshot contains 35,040 continuous intervals. Two annual exports produced the same checksum. [Annual acceptance](01-european-energy-pipeline/docs/year-2025-verification.md) · [Project CI](../.github/workflows/energy-pipeline.yml)
+
+**Planned cloud delivery:** G01's first cloud milestone is a Cloud Run Job with Cloud Storage and BigQuery. G02–G06 have design and implementation guides. The numbered list gives a learning order. Each project can exercise its own bounded fixture.
 
 ## Projects in learning order
 
@@ -13,43 +16,34 @@ provides a common workload for G01 to G05. Each numbered directory owns its deli
    [Design](01-european-energy-pipeline/docs/design.md)
 2. **G02** · [Energy Analytics API](02-energy-analytics-api/README.md)
    Serve approved indicators through an authenticated, measured REST API.
-   [Design](02-energy-analytics-api/docs/design.md)
+   [Design](02-energy-analytics-api/docs/design.md) · [Implementation plan](02-energy-analytics-api/docs/implementation.md)
 3. **G03** · [Aviation Event Processing](03-aviation-event-processing/README.md)
    Test duplicate and late events, retries, dead-letter handling and replay.
-   [Design](03-aviation-event-processing/docs/design.md)
+   [Design](03-aviation-event-processing/docs/design.md) · [Implementation plan](03-aviation-event-processing/docs/implementation.md)
 4. **G04** · [Governed Energy Data Product](04-governed-energy-data-product/README.md)
    Release a quality-checked data product with access and provenance evidence.
-   [Design](04-governed-energy-data-product/docs/design.md)
+   [Design](04-governed-energy-data-product/docs/design.md) · [Implementation plan](04-governed-energy-data-product/docs/implementation.md)
 5. **G05** · [Energy Forecasting MLOps](05-energy-forecasting-mlops/README.md)
    Train, register, batch-score and roll back a versioned model.
-   [Design](05-energy-forecasting-mlops/docs/design.md)
+   [Design](05-energy-forecasting-mlops/docs/design.md) · [Implementation plan](05-energy-forecasting-mlops/docs/implementation.md)
 6. **G06** · [Cloud Platform Factory](06-cloud-platform-factory/README.md)
    Provision isolated environments and demonstrate repeatable deployment, cost tracking and retirement.
-   [Design](06-cloud-platform-factory/docs/design.md)
+   [Design](06-cloud-platform-factory/docs/design.md) · [Implementation plan](06-cloud-platform-factory/docs/implementation.md)
 
 ## Project handoffs and independent delivery
 
-G01 publishes a versioned metric schema and a data release. G02 consumes a
-read-only view. G03 reuses the schema in a synthetic event fixture and has
-its own output table. G04 can validate a release from G01. G05 can train on
-a fixed G04 release. G06 reuses deployment steps from working projects.
-
-Each consumer can use a small compatible fixture to validate or deploy in
-its own environment. Integration uses explicit release IDs or a pinned
-model version. A fork includes the whole repository and can select one
-project's checks and deployment. Cloud deployment requires the operator's
-own environment and permissions.
+- **Data product and forecasting (G01 → G04 → G05).** G01 currently produces local Parquet and manifests. Its planned cloud publication adds a source release ID and ingestion timestamp. G04 will validate that input, preserve its identity in a separately versioned product release, and expose the approved data. G05 will pin the product release for training and derive average MW from interval energy in MWh and interval duration.
+- **API access (G02).** G02 can start with its own seeded read-only view and test identities. In an integrated deployment, callers need permission to invoke the API and its runtime identity needs permission to query G04's approved view. Verify those permissions separately.
+- **Event processing (G03).** Seeded energy revisions and synthetic airport events exercise duplicate delivery, retries and replay against independently expected results. G03 owns its output table and can run alongside the batch projects.
+- **Environment provisioning (G06).** The factory will reuse verified deployment patterns and exercise its batch template with a one-row reference workload. Its acceptance evidence covers two isolated environments, scoped identities and retirement.
 
 The separate [aviation serving integration](../Fraport-adsb-intelligence/06-model-serving/README.md)
 can apply G05 delivery practices to the flagship model.
 
 ## Delivery priorities
 
-Build G01 first. G04 and G06 are the other platform engineering priorities.
-G02 and G03 cover consumption and operational reliability. G05 adds the
-model lifecycle. Start from a small baseline and record observed cloud cost.
-
-OpenSky Data Ingestion is the first public SoloLakehouse delivery. G01
-starts the GCP-specific route.
+Start with one G01 cloud run over a window already verified locally. Record the source revision, execution ID, output comparison, repeat-run behavior and observed cost. G04 can then demonstrate publication and withdrawal against a real release. G02 and G03 can proceed independently with fixtures. G06 becomes more useful after the first workloads have produced deployment evidence.
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
+
+<!-- [房玄龄·2026-11-17] Clarify local evidence and planned project handoffs. -->
