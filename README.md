@@ -8,97 +8,62 @@
 <!-- [房玄龄·2026-11-17] Align the public overview with Data/AI Platform Engineering and current implementation evidence. -->
 <!-- [房玄龄·2026-11-17] Explain the reference architecture, delivery boundaries and current evidence. -->
 
-**Building trustworthy data and AI platforms for complex operational domains.**
+<!-- [房玄龄·2026-11-17] Map the flagship cases and platform series. -->
 
-SoloLakehouse is a personal Data & AI platform engineering reference. Its
-flagship aviation workload turns incomplete aircraft observations around
-Frankfurt Airport (FRA / EDDF) into traceable, recoverable local datasets. An
-independent German energy workload tests source verification and time
-semantics. Each project has its own delivery path; the repository brings
-together the engineering methods, code and evidence used to build them. The
-architecture is organized around Data/AI Platform Engineer responsibilities:
-ingestion, data contracts, quality, reproducibility and operational recovery.
+SoloLakehouse is a personal portfolio of independent Data and AI platform engineering projects. Two flagship cases approach platform work from different directions. **Fraport ADS-B Intelligence** follows operational data from source observation to an accepted dataset. **DevOps Engineering** follows a software service from a fresh checkout to release, recovery and reuse. The **Google Cloud** and **Databricks** series explore how to deliver data products on each platform through six scoped cases apiece.
 
-The central questions are practical: **What does the source observation mean?
-Can this output be trusted? What happens when a run fails or is repeated?**
-Contracts, quality reports, manifests, tests and recovery checks make those
-answers reviewable. Current implementations run locally. Google Cloud and
-Databricks projects describe later delivery stages, not a deployed shared
-platform.
-
-**Start here:** [Aviation implementation](Fraport-adsb-intelligence/01-opensky-acquisition/README.md)
-· [Measured benchmark](Fraport-adsb-intelligence/01-opensky-acquisition/docs/benchmark-report.md)
-· [Energy implementation](gcp/01-european-energy-pipeline/README.md)
-
-## Architecture at a glance
+## Portfolio architecture
 
 ```mermaid
-flowchart TB
-    accTitle: SoloLakehouse reference architecture and delivery status
-    accDescr: Two independent local data pipelines. Solid arrows are implemented paths; dashed arrows are planned aviation transformation and cloud delivery. Shared engineering methods apply to each project, not to one deployed runtime.
+flowchart LR
+    accTitle: SoloLakehouse project portfolio
+    accDescr: The repository contains two flagship cases, two platform series and local reference projects. Branches indicate repository organization. Each project owns its runtime and evidence.
+    SLH(["SoloLakehouse<br/>Data and AI platform engineering"])
+    SLH --- CASES["Flagship cases"]
+    SLH --- SERIES["Platform series"]
+    SLH --- REF["Local references"]
+    CASES --- FRA["Fraport ADS-B Intelligence<br/>Operational data and recovery<br/>OpenSky acquisition implemented"]
+    CASES --- OPS["DevOps Engineering<br/>Software delivery and reliability<br/>Seven stages planned"]
+    SERIES --- GCP["Google Cloud<br/>Energy data and cloud delivery<br/>G01 local pipeline implemented"]
+    SERIES --- DBX["Databricks<br/>Financial data and governance<br/>Six projects planned"]
+    REF --- LOCAL["Self-hosted lakehouse and ECB<br/>Historical snapshot and local briefs"]
 
-    subgraph AVI["AVIATION · flagship workload"]
-        direction TB
-        subgraph AVIL["LOCAL · implemented"]
-            direction LR
-            A0["OpenSky Trino<br/>ADS-B observations"] --> A1["Hourly acquisition<br/>reconciliation · resume"]
-            A1 --> A2["Parquet Bronze<br/>SHA-256 manifests"]
-            A2 --> A3["Accepted batches<br/>verified backup"]
-        end
-        subgraph AVIN["NEXT · designed delivery path"]
-            direction LR
-            A4["Local Silver + Gold<br/>Python · DuckDB"] -.-> A5["Versioned Gold release<br/>contract · quality · provenance"]
-            A5 -.-> A6["Cloud analytics<br/>GCS · BigQuery"]
-            A5 -.-> A7["Lakehouse and ML<br/>Databricks · model lifecycle"]
-        end
-        A2 -.-> A4
-    end
-
-    subgraph ENERGY["ENERGY · independent reliability case"]
-        direction LR
-        E0["SMARD source<br/>German electricity load"] --> E1["Local download + validation<br/>UTC · DST · interval checks"]
-        E1 --> E2["Parquet + quality report<br/>checksummed manifest"]
-        E2 -.-> E3["Cloud batch delivery<br/>Cloud Run Jobs · GCS · BigQuery"]
-    end
-
-    subgraph METHOD["ENGINEERING METHOD · applied per project"]
-        direction LR
-        M1["Versioned code + contracts"] --- M2["Tests + scoped CI"]
-        M2 --- M3["Run evidence + provenance"]
-        M3 --- M4["Recovery + repeatability"]
-    end
-
-    classDef source fill:#F1F5F9,stroke:#64748B,color:#0F172A;
-    classDef aviation fill:#DBEAFE,stroke:#2563EB,color:#102A56;
-    classDef energy fill:#DCFCE7,stroke:#16A34A,color:#123D29;
-    classDef future fill:#F8FAFC,stroke:#64748B,stroke-dasharray:5 4,color:#334155;
-    classDef method fill:#FEF3C7,stroke:#D97706,color:#4A2B08;
-
-    class A0,E0 source;
-    class A1,A2,A3 aviation;
-    class E1,E2 energy;
-    class A4,A5,A6,A7,E3 future;
-    class M1,M2,M3,M4 method;
+    classDef root fill:#17324D,stroke:#102338,color:#FFFFFF,stroke-width:2px
+    classDef group fill:#F1F5F9,stroke:#8193A6,color:#17324D
+    classDef flagship fill:#DBF3EE,stroke:#24796C,color:#13463E,stroke-width:2px
+    classDef platform fill:#E7EDFC,stroke:#516FA9,color:#213963,stroke-width:2px
+    classDef reference fill:#F6F1E9,stroke:#9A8769,color:#51422E
+    class SLH root
+    class CASES,SERIES,REF group
+    class FRA,OPS flagship
+    class GCP,DBX platform
+    class LOCAL reference
 ```
 
-Solid arrows show implemented data paths. Dashed arrows show proposed handoffs
-or planned work; they are not evidence of a running integration. Aviation raw
-data and Bronze stay local. The [aviation design](Fraport-adsb-intelligence/docs/adr/ADR-003-local-bronze-silver-published-gold.md)
-proposes local Silver and Gold, then a checked, immutable Gold release as the
-boundary for cloud consumers. The energy project has its own local output and
-future GCP route. There is no shared production runtime behind these lanes.
+Branches show how to navigate the repository. Each project specifies its own inputs, environment and acceptance checks. Git versions code, contracts, designs and evidence summaries. Raw research data, credentials and runtime state stay with their owners.
 
-The same engineering method is applied within each project: define source
-meaning and output contracts, validate before accepting a result, record the
-source and code revision, and prove what a rerun or interruption does. Git
-versions code, contracts, configuration, tests and architecture decisions;
-credentials, raw research data and runtime state stay outside this repository.
+## Two flagship cases
 
-| Delivery boundary | Implemented now | Designed next |
+**Fraport ADS-B Intelligence** asks whether incomplete aircraft observations around Frankfurt Airport can support reproducible analysis. Its implemented WSL collector reconciles hourly observations, commits Parquet partitions through manifests and resumes interrupted runs. Its planned stages derive local Silver and Gold datasets, publish a versioned Gold release, and use that release for analytics, taxi-in prediction and model serving. The release contract defines what future consumers can rely on. [Case overview](Fraport-adsb-intelligence/README.md) · [Architecture decision](Fraport-adsb-intelligence/docs/adr/ADR-003-local-bronze-silver-published-gold.md)
+
+**DevOps Engineering** asks how a developer can trace a service from a source change to a verified deployment and recover it after a bad release. Its own reference service reads synthetic electricity-meter audit reports. Its seven planned stages progress from reproducible development and containers through CI and image publication, release and rollback, Kubernetes and GitOps, observability and incident recovery, then onboarding a second service from a reusable template. D01 is the first implementation milestone. Inputs, release assets and acceptance evidence belong to this case. [Delivery roadmap](Devops-engineering/README.md) · [Reference service](Devops-engineering/reference-service/README.md)
+
+## Two platform series
+
+**Google Cloud** uses German electricity-load data as its main workload. G01 already downloads SMARD data, validates time intervals and reproduces annual Parquet locally. Its cloud milestone is a scheduled Cloud Run Job with Cloud Storage and BigQuery. The subsequent cases each define a separate delivery target. [Google Cloud series](gcp/README.md)
+
+**Databricks** uses financial time series and corrections to explore the lifecycle of a governed lakehouse product. The six projects are design briefs with proposed acceptance checks. Their route runs from versioned Delta tables to repeatable workspace provisioning. [Databricks series](databricks/README.md)
+
+| Stage | Google Cloud route | Databricks route |
 |---|---|---|
-| Aviation | Local OpenSky acquisition, reconciliation, Parquet manifests, accepted batches and verified backup | Local Silver/Gold, versioned release, cloud analytics and model integration |
-| Energy | Local SMARD download, UTC normalization, Parquet, quality report, manifest and scoped CI | Cloud Run Jobs, GCS and BigQuery delivery |
-| Self-hosted lakehouse | [Historical implementation in a pinned snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a) | Reproduce a fixture flow; evaluate K3s and GitOps later |
+| 01 | Acquire and validate electricity load, then deliver the batch on GCP | Build versioned ECB Bronze, Silver and Gold tables with Spark and Delta |
+| 02 | Serve approved energy indicators through an authenticated API | Schedule financial ETL jobs and verify retry and recovery |
+| 03 | Exercise Pub/Sub redelivery, late events and replay with synthetic energy and airport events | Apply financial corrections and withdrawals, then reconcile after a checkpoint restart |
+| 04 | Publish a governed energy data product with quality and provenance evidence | Verify permissions and lineage for a Gold release with Unity Catalog |
+| 05 | Train, register, batch-score and roll back an energy forecasting model | Track financial forecasting experiments and validate predictions against a pinned data release |
+| 06 | Provision isolated cloud environments and verify cost tracking and retirement | Provision reusable catalog, permissions and job environments |
+
+The local projects preserve earlier engineering work and define smaller reproduction exercises. The self-hosted case points to a pinned implementation and proposes a fixture flow through Compose, Dagster, Iceberg and Trino. [Local brief](local/self-hosted-lakehouse/README.md) · [Historical snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a)
 
 ## Engineering capabilities and evidence
 
@@ -115,7 +80,7 @@ PyArrow / Parquet, SQLite, pytest, Ruff, uv and GitHub Actions for the energy
 project. DuckDB, GCP and Databricks appear in the next-stage designs above;
 their presence in the roadmap does not establish a running integration.
 
-## Flagship: Frankfurt aviation data foundation
+## Implementation evidence from Frankfurt aviation
 
 [Fraport ADS-B Intelligence](Fraport-adsb-intelligence/README.md) starts with
 [OpenSky Acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md).
@@ -167,7 +132,7 @@ This is an independent engineering and research project. ADS-B-derived taxi-in
 labels are proxies requiring independent validation against airport ground
 truth. Transformation, cloud analytics, modeling and serving are planned stages.
 
-## Second case: German energy data reliability
+## Implementation evidence from Google Cloud G01
 
 [European Energy Pipeline](gcp/01-european-energy-pipeline/README.md) implements
 a bounded SMARD downloader and a local CSV-to-Parquet pipeline for German
@@ -182,6 +147,7 @@ repeat or disappear at daylight-saving time boundaries.
 - **Reproducibility:** emit Parquet, a quality report and a checksummed
   manifest with code revision metadata. Invalid data produces a failure
   report without publishing Parquet.
+- **Annual acceptance.** The 2025 snapshot covers 35,040 continuous quarter-hour intervals. All 12 monthly windows passed cached replay and two independent annual exports produced the same SHA-256. [Annual verification](gcp/01-european-energy-pipeline/docs/year-2025-verification.md)
 - **Recorded live check, 2026-11-17:** one historical day produced 96 valid
   intervals. A cached rerun needed no source requests and produced the same
   Parquet checksum. [Verification report](gcp/01-european-energy-pipeline/docs/download-verification.md)

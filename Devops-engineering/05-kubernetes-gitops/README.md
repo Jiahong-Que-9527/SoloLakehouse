@@ -23,3 +23,19 @@ D06 consumes the reproducible deployment and verifies observable failure modes.
 ## Evidence
 
 Pending implementation and acceptance runs.
+
+<!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
+
+## Development sequence
+
+Start with D04 release references, a working Docker runtime, k3d, kubectl and Helm. Record local tool versions and the cluster resources used.
+
+1. Create a disposable cluster and namespace. Render the chart locally for the known-good manifest. Inspect the digest, probes, resource limits, endpoint and how the synthetic report is mounted.
+2. Install the rendered configuration in a trial namespace, wait for readiness and repeat the D04 smoke test. Diagnose scheduling, image pulls and report mount errors before adding reconciliation.
+3. Configure the GitOps controller for this project's deployment path in a separate managed namespace. Record the desired Git revision, observed digest and the sync and health states.
+4. Promote a second verified digest through Git. Change one managed replica count manually and observe detection and reconciliation under the documented sync policy. Revert the release in Git and verify the original digest and audit response.
+5. Give D06 the cluster entry point, workload labels, known-good revision and recovery checks. Save one rollout, one drift event and one rollback with their observed outcomes.
+
+## Interview evidence
+
+Kubernetes delivery. Demonstrate how to locate a failure at the image, workload or reconciliation layer using the running state and the desired revision.
