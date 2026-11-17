@@ -180,6 +180,12 @@ Use a dedicated run root; keep audit output outside that root.
 
 ## Annual preparation
 
+[2025 acceptance](docs/year-2025-verification.md): all 12 monthly windows
+passed, yielding 35,040 unique continuous UTC intervals. All monthly cached
+replays and 11 cross-month boundaries passed; the offline annual re-export
+has the same checksum. This is a local snapshot, with raw and derived data
+kept outside Git.
+
 Prepare one completed calendar year with sequential monthly windows:
 
 ```bash

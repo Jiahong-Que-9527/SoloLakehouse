@@ -53,6 +53,7 @@ No CI test polls the provider or triggers a live export.
 
 The subsequent [coverage verification](coverage-verification.md) checks a full
 June month and both 2026 clock-change days, with cached replay and offline
-Parquet audits. A yearly audit and availability measurements remain future
-work. Scheduling, distributed concurrency and revision-refresh behaviour are
+Parquet audits. [2025 annual acceptance](year-2025-verification.md) subsequently
+verified a full local year. Availability measurements remain future work.
+Scheduling, distributed concurrency and revision-refresh behaviour are
 not verified by these bounded checks.

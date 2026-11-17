@@ -85,7 +85,8 @@ valid runs also fails replay acceptance. Tests make no source requests.
 
 ## Remaining evidence
 
-- A separately planned yearly audit using sequential monthly windows.
+- [2025 annual acceptance](year-2025-verification.md) now records the completed
+  sequential monthly preparation and yearly audit.
 - Freshness and availability measured over repeated days, not cached replay.
 - A controlled historical revision-refresh policy; no cache rotation to bypass
   provider controls.
