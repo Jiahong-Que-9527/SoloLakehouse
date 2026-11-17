@@ -1,6 +1,6 @@
 # Design: European Energy Data Pipeline
 
-**G01 · Bounded download and local normalization implemented; cloud delivery planned.** See the
+**G01 · Bounded download, normalization and offline coverage audit implemented; cloud delivery planned.** See the
 [local CLI](../README.md#local-normalization) for commands and current scope.
 
 Build one repeatable batch path from a public electricity metric to a queryable BigQuery table. The path is the thing this project proves: parameterised ingestion, raw retention, a quality gate, an idempotent publish, and a deployment that can be run again.
@@ -65,6 +65,11 @@ operation needs coordination beyond the current single-cache file lock.
 Historical source revisions require a later controlled refresh policy. The
 current downloader reuses a checksummed snapshot indefinitely; it does not
 claim that cached values remain the provider's latest version.
+
+The offline `audit` command verifies written Parquet coverage, metadata and
+cached repeat executions. [Observed acceptance](coverage-verification.md)
+covers one month and both clock-change days. Yearly coverage and cloud delivery
+remain separate milestones.
 
 ## 4. Contracts
 

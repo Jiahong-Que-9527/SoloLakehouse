@@ -51,7 +51,8 @@ robots restrictions, cooldown persistence, retry limits, request pacing,
 cache integrity, file locking and download-to-normalization provenance.
 No CI test polls the provider or triggers a live export.
 
-Next evidence: a bounded coverage audit including both clock changes, followed
-by a separately planned yearly audit and availability measurements. Scheduling,
-distributed concurrency and revision-refresh behaviour are not verified by
-this one-day check.
+The subsequent [coverage verification](coverage-verification.md) checks a full
+June month and both 2026 clock-change days, with cached replay and offline
+Parquet audits. A yearly audit and availability measurements remain future
+work. Scheduling, distributed concurrency and revision-refresh behaviour are
+not verified by these bounded checks.

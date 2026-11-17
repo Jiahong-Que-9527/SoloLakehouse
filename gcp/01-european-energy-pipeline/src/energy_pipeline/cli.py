@@ -127,8 +127,19 @@ def main(argv: list[str] | None = None) -> int:
     download.add_argument("--until", required=True, help="Exclusive local date YYYY-MM-DD")
     download.add_argument("--cache", type=Path, default=Path("downloads"))
     download.add_argument("--normalize-output", type=Path, help="Also run local normalization")
+    audit = commands.add_parser("audit", help="Audit Parquet coverage and repeat runs offline")
+    audit.add_argument("--runs-root", type=Path, required=True)
+    audit.add_argument("--output", type=Path, required=True, help="Parent of per-audit directories")
     args = parser.parse_args(argv)
     try:
+        if args.command == "audit":
+            from energy_pipeline.audit import build_report, save_report
+
+            report = build_report(args.runs_root)
+            report["audit_revision"] = revision()
+            destination = save_report(report, args.output)
+            print(json.dumps({"report_dir": str(destination), "status": report["status"]}))
+            return 0 if report["status"] == "passed" else 1
         if args.command == "download":
             from energy_pipeline.download import Client
 

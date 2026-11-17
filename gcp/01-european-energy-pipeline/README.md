@@ -150,6 +150,34 @@ See [data use and compliance](docs/data-use.md) for the reviewed terms and
 check. A full-year coverage audit and continuous availability measurements
 remain pending. CI uses fake HTTP responses and does not call SMARD.
 
+## Offline coverage acceptance
+
+The [coverage verification](docs/coverage-verification.md) records the live
+June 2026 month and both 2026 clock-change days: 2,880, 92 and 100 rows.
+Each window passed coverage and cached repeat checks. These bounded samples
+do not establish year-round completeness, source-value accuracy or uptime.
+
+After normalizing each selected window twice into the same run root, audit
+the written artifacts without source or cloud access:
+
+```bash
+uv run --locked energy-pipeline audit \
+  --runs-root output/coverage --output output/coverage-reports
+```
+
+The auditor checks Parquet schema and checksum, unique observation keys,
+complete ordered UTC intervals, 15-minute durations, finite/non-null values,
+dimensions, daily counts and consistency with the manifest and quality report.
+A window needs at least two distinct run IDs with identical inputs,
+observations, Parquet checksums and recorded retrieval time. Copying a run
+directory does not count as a repeat execution.
+
+Each audit writes a new directory containing `report.json` and `report.md`,
+with per-run checks, daily coverage, hashes and code provenance. Failures
+still produce reports and exit code 1. Missing/unreadable run artifacts are
+reported as errors rather than ignored. Hidden staging directories are excluded.
+Use a dedicated run root; keep audit output outside that root.
+
 ## Cloud acceptance (planned)
 
 1. Test interval boundaries, missing intervals and duplicate keys. Include a fixture around a local-time change.
