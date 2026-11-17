@@ -6,23 +6,99 @@
 <!-- [房玄龄·2026-11-15] Document the OpenSky pilot, batch development and current project layout. -->
 
 <!-- [房玄龄·2026-11-17] Align the public overview with Data/AI Platform Engineering and current implementation evidence. -->
+<!-- [房玄龄·2026-11-17] Explain the reference architecture, delivery boundaries and current evidence. -->
 
-**Reliable data pipelines for complex operational domains.**
+**Building trustworthy data and AI platforms for complex operational domains.**
 
-SoloLakehouse is a personal Data & AI platform engineering portfolio focused on
-turning incomplete source observations into traceable, recoverable datasets.
-The flagship workload collects historical aircraft observations around
-Frankfurt Airport (FRA / EDDF). A second implementation processes German
-electricity-market data, including daylight-saving time changes.
+SoloLakehouse is a personal Data & AI platform engineering reference. Its
+flagship aviation workload turns incomplete aircraft observations around
+Frankfurt Airport (FRA / EDDF) into traceable, recoverable local datasets. An
+independent German energy workload tests source verification and time
+semantics. Each project has its own delivery path; the repository brings
+together the engineering methods, code and evidence used to build them. The
+architecture is organized around Data/AI Platform Engineer responsibilities:
+ingestion, data contracts, quality, reproducibility and operational recovery.
 
-The engineering focus is practical: establish what the data means, detect
-missing or invalid inputs, recover from interrupted work, and make every
-output reproducible. Current implementations run locally; Google Cloud and
-Databricks integrations form the next delivery stages.
+The central questions are practical: **What does the source observation mean?
+Can this output be trusted? What happens when a run fails or is repeated?**
+Contracts, quality reports, manifests, tests and recovery checks make those
+answers reviewable. Current implementations run locally. Google Cloud and
+Databricks projects describe later delivery stages, not a deployed shared
+platform.
 
 **Start here:** [Aviation implementation](Fraport-adsb-intelligence/01-opensky-acquisition/README.md)
 · [Measured benchmark](Fraport-adsb-intelligence/01-opensky-acquisition/docs/benchmark-report.md)
 · [Energy implementation](gcp/01-european-energy-pipeline/README.md)
+
+## Architecture at a glance
+
+```mermaid
+flowchart TB
+    accTitle: SoloLakehouse reference architecture and delivery status
+    accDescr: Two independent local data pipelines. Solid arrows are implemented paths; dashed arrows are planned aviation transformation and cloud delivery. Shared engineering methods apply to each project, not to one deployed runtime.
+
+    subgraph AVI["AVIATION · flagship workload"]
+        direction TB
+        subgraph AVIL["LOCAL · implemented"]
+            direction LR
+            A0["OpenSky Trino<br/>ADS-B observations"] --> A1["Hourly acquisition<br/>reconciliation · resume"]
+            A1 --> A2["Parquet Bronze<br/>SHA-256 manifests"]
+            A2 --> A3["Accepted batches<br/>verified backup"]
+        end
+        subgraph AVIN["NEXT · designed delivery path"]
+            direction LR
+            A4["Local Silver + Gold<br/>Python · DuckDB"] -.-> A5["Versioned Gold release<br/>contract · quality · provenance"]
+            A5 -.-> A6["Cloud analytics<br/>GCS · BigQuery"]
+            A5 -.-> A7["Lakehouse and ML<br/>Databricks · model lifecycle"]
+        end
+        A2 -.-> A4
+    end
+
+    subgraph ENERGY["ENERGY · independent reliability case"]
+        direction LR
+        E0["SMARD source<br/>German electricity load"] --> E1["Local download + validation<br/>UTC · DST · interval checks"]
+        E1 --> E2["Parquet + quality report<br/>checksummed manifest"]
+        E2 -.-> E3["Cloud batch delivery<br/>Cloud Run Jobs · GCS · BigQuery"]
+    end
+
+    subgraph METHOD["ENGINEERING METHOD · applied per project"]
+        direction LR
+        M1["Versioned code + contracts"] --- M2["Tests + scoped CI"]
+        M2 --- M3["Run evidence + provenance"]
+        M3 --- M4["Recovery + repeatability"]
+    end
+
+    classDef source fill:#F1F5F9,stroke:#64748B,color:#0F172A;
+    classDef aviation fill:#DBEAFE,stroke:#2563EB,color:#102A56;
+    classDef energy fill:#DCFCE7,stroke:#16A34A,color:#123D29;
+    classDef future fill:#F8FAFC,stroke:#64748B,stroke-dasharray:5 4,color:#334155;
+    classDef method fill:#FEF3C7,stroke:#D97706,color:#4A2B08;
+
+    class A0,E0 source;
+    class A1,A2,A3 aviation;
+    class E1,E2 energy;
+    class A4,A5,A6,A7,E3 future;
+    class M1,M2,M3,M4 method;
+```
+
+Solid arrows show implemented data paths. Dashed arrows show proposed handoffs
+or planned work; they are not evidence of a running integration. Aviation raw
+data and Bronze stay local. The [aviation design](Fraport-adsb-intelligence/docs/adr/ADR-003-local-bronze-silver-published-gold.md)
+proposes local Silver and Gold, then a checked, immutable Gold release as the
+boundary for cloud consumers. The energy project has its own local output and
+future GCP route. There is no shared production runtime behind these lanes.
+
+The same engineering method is applied within each project: define source
+meaning and output contracts, validate before accepting a result, record the
+source and code revision, and prove what a rerun or interruption does. Git
+versions code, contracts, configuration, tests and architecture decisions;
+credentials, raw research data and runtime state stay outside this repository.
+
+| Delivery boundary | Implemented now | Designed next |
+|---|---|---|
+| Aviation | Local OpenSky acquisition, reconciliation, Parquet manifests, accepted batches and verified backup | Local Silver/Gold, versioned release, cloud analytics and model integration |
+| Energy | Local SMARD download, UTC normalization, Parquet, quality report, manifest and scoped CI | Cloud Run Jobs, GCS and BigQuery delivery |
+| Self-hosted lakehouse | [Historical implementation in a pinned snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a) | Reproduce a fixture flow; evaluate K3s and GitOps later |
 
 ## Engineering capabilities and evidence
 
@@ -34,8 +110,10 @@ Databricks integrations form the next delivery stages.
 | Repeatable delivery | Locked Python environments, synthetic tests, CLI interfaces and project-scoped energy CI | [Energy workflow](.github/workflows/energy-pipeline.yml) · [Energy CLI tests](gcp/01-european-energy-pipeline/tests/test_cli.py) |
 | Architecture and tradeoffs | Workload placement, raw-data boundaries, regional extraction and staged cloud integration | [Aviation architecture decisions](Fraport-adsb-intelligence/docs/adr/) · [Energy design](gcp/01-european-energy-pipeline/docs/design.md) |
 
-**Implemented stack:** Python 3.12+, SQL / Trino, PyArrow / Parquet, SQLite,
-pytest, Ruff, uv and GitHub Actions for the energy project.
+**Current implementation tools:** Python 3.12+, OpenSky's remote Trino source,
+PyArrow / Parquet, SQLite, pytest, Ruff, uv and GitHub Actions for the energy
+project. DuckDB, GCP and Databricks appear in the next-stage designs above;
+their presence in the roadmap does not establish a running integration.
 
 ## Flagship: Frankfurt aviation data foundation
 
@@ -134,24 +212,7 @@ Dependency installation needs package access. The tests require no cloud
 account or live source access; two optional energy real-data tests skip when
 local CSV exports are absent. Each project README documents the operational CLI.
 
-## Delivery path and project status
-
-```mermaid
-flowchart LR
-    accTitle: Current local data paths and planned cloud consumers
-    accDescr: OpenSky and SMARD feed implemented local pipelines with checksummed outputs. Aviation transformation and cloud consumers are planned and use dashed arrows.
-    opensky[OpenSky Trino] --> acquisition[Local aviation acquisition]
-    acquisition --> bronze[Parquet + manifests + verified backup]
-    smard[SMARD CSV export] --> energy[Local energy validation]
-    energy --> outputs[UTC Parquet + quality report + manifest]
-    bronze -.-> gold[Planned: local Silver / Gold release]
-    gold -.-> cloud[Planned: BigQuery / Databricks]
-    outputs -.-> bigquery[Planned: BigQuery]
-```
-
-Solid arrows show implemented data paths; dashed arrows show planned work.
-Git versions code, contracts, configuration, tests and architecture decisions.
-Credentials, raw research data and runtime state stay outside the repository.
+## Project status and navigation
 
 | Area | Current status | Next delivery |
 |---|---|---|

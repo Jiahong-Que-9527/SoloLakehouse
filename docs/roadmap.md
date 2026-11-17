@@ -1,19 +1,22 @@
 # SoloLakehouse engineering roadmap
 
 <!-- [Codex · 2026-11-13] Git-first project scope and delivery roadmap. -->
+<!-- [房玄龄·2026-11-17] Reconcile the roadmap with implemented aviation and energy evidence. -->
 
 ## Position and scope
 
 SoloLakehouse started as a self-hosted lakehouse and now organizes independent
 Data & AI projects in one version-controlled repository. Aviation is the
-flagship domain. Energy and finance provide separate workloads for testing
-cloud delivery and data or ML reproducibility. The self-hosted project
-provides an environment for platform engineering and recovery exercises.
+flagship domain. Energy provides a second, independently implemented workload
+for testing source verification and time semantics. Finance is currently a
+set of project briefs. The self-hosted implementation is available in a
+pinned historical snapshot; a new fixture flow is a future milestone.
 
-The current branch contains project briefs and a template. Project code,
-project-level CI/CD and runtime acceptance for these briefs are future
-milestones. The historical self-hosted implementation and its evidence are
-available in a pinned snapshot.
+The current branch contains implemented local OpenSky acquisition and German
+energy pipeline code, tests, recorded run evidence and a project-scoped energy
+CI workflow. Aviation transformation, GCP and Databricks integrations, and
+the other project briefs remain delivery milestones. The historical
+self-hosted implementation and its evidence are available in a pinned snapshot.
 [Legacy reference snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a)
 
 ## Engineering boundaries
@@ -35,8 +38,9 @@ available in a pinned snapshot.
 ## Project portfolio
 
 - **Aviation.** [Fraport ADS-B Intelligence](../Fraport-adsb-intelligence/README.md)
-  collects the Frankfurt historical ADS-B record locally and publishes Gold.
-  Lakehouse and serving work stay in that programme as
+  collects the Frankfurt historical ADS-B record locally. Local Silver/Gold
+  transformation and a versioned Gold release are the next stages. Lakehouse
+  and serving work stay in that programme as
   [Aviation Lakehouse Integration](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
   and [Model Serving Integration](../Fraport-adsb-intelligence/06-model-serving/README.md).
 - **European energy.** The [GCP European Energy
@@ -55,12 +59,12 @@ available in a pinned snapshot.
 
 ## Delivery milestones
 
-1. **First project and scoped CI.** Use the [project
-   template](../project-template/README.md) for the first energy fixture and
-   tests. Verify three cases in Actions. A change inside the project runs
-   its CI, an unrelated change leaves it idle, and a failing test produces
-   a failed check. If checks later become required for merge, verify that
-   the required result is reported on all relevant PRs.
+1. **Implemented local foundations.** Maintain the aviation acquisition and
+   energy pipeline tests, run evidence and scoped CI. Verify that an energy
+   change runs its CI, an unrelated change leaves it idle, and a failing test
+   produces a failed check before treating path scoping as accepted behavior.
+   If checks later become required for merge, verify that the required result
+   is reported on all relevant PRs.
    [GitHub workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 2. **First GCP data delivery.** Expand the energy fixture into one batch
    path using a Cloud Run Job, Cloud Storage and BigQuery. Record a run ID,
