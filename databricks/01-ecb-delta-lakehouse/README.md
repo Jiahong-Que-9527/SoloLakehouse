@@ -3,7 +3,7 @@
 <!-- [房玄龄·2026-11-15] Define the D01 to D04 project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D01 · Planned** · [Databricks roadmap](../README.md) · [Design](docs/design.md)
+**D01 · Planned** · [Databricks roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Model ECB reference exchange rates and policy rates in Delta. Begin with a fixed quarter of the daily USD/EUR series, then add one policy-rate series with its
 own publication calendar and units.
@@ -24,3 +24,5 @@ PySpark, Delta Lake, SQL and Bronze, Silver and Gold models.
 3. Trace a Gold release to the input batch, table version, quality-check result and source commit.
 
 [ECB daily reference exchange-rate series](https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A)
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->

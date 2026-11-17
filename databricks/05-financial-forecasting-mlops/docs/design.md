@@ -2,15 +2,15 @@
 
 **D05 · Design only.** No application code in this directory yet.
 
-Forecast the next change in one ECB series and keep the run, the model, and the batch scores tied to a table version and a commit. The result is a research record. It is not a trading signal.
+Forecast the next published USD-per-EUR level and keep the run, the model, and the batch scores tied to a table version and a commit. The result is a research record. It is not a trading signal.
 
-The source for this scope is the D05 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the evaluation rules.
+The project [brief](../README.md) fixes the evaluation rules.
 
 ## 1. Decisions
 
 | Topic | Decision |
 |-------|----------|
-| Question | Predict the next observation of USD per EUR, or the next policy-rate value, from a pinned Gold snapshot. v1 chooses one target and states it in the experiment. |
+| Question | Predict the level at the next published USD-per-EUR observation from a pinned Gold snapshot. |
 | Claim | The report compares models on a past window. It does not estimate profit or recommend a position. |
 | Cutoff | Features at date `t` use observations dated `t` and earlier. The label is the observation at the next date present in Silver, not a filled calendar day. |
 | Split | Rolling time split. The last fold is the published evaluation. No random row split. |
@@ -59,7 +59,7 @@ Residual table when the next actual is available
 
 Row: `as_of_date`, `series_key`, `lag_1`, `lag_5`, `label`, `feature_version`, `table_version`.
 
-`lag_1` is the latest observation at or before `as_of_date`. `label` is the following observation's value. A unit test builds a three-point series and fails if a feature contains the label's value.
+`lag_1` is the latest observation at or before `as_of_date`. `label` is the following observation's value. A unit test builds a three-point series and checks that each feature uses only source rows available by the forecast cutoff.
 
 The prediction table's grain is `(as_of_date, series_key, model_version)`. A rerun of the same version replaces those keys and does not append a second score.
 
@@ -86,3 +86,7 @@ Train on the sample quarter, CPU, one job run. The warehouse stops afterwards. M
 ## 8. Handoff
 
 D06's ML template, when built, copies this job shape. It does not share this experiment. The aviation model keeps a separate registry.
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

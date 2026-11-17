@@ -4,7 +4,7 @@
 
 Put the financial tables in Unity Catalog and show that an analyst, a risk reader, and a producer do not have the same access. The project proves grants, a controlled view, and a lineage record that matches a release. It does not claim account-level audit features the workspace does not offer.
 
-The source for this scope is the D04 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) fixes the roles under test.
+The project [brief](../README.md) fixes the roles under test.
 
 ## 1. Decisions
 
@@ -85,3 +85,7 @@ Enterprise-only items, checked explicitly and left open when absent:
 ## 8. Handoff
 
 D05's feature read is the `forecast_feature` view, pinned to a release id. D06 may turn this grant set into a template. The template must not grant `USE CATALOG` broadly to consumer roles.
+
+<!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)
