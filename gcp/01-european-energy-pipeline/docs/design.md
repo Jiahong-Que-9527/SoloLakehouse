@@ -1,6 +1,7 @@
 # Design: European Energy Data Pipeline
 
-**G01 · Design only.** No application code in this directory yet.
+**G01 · Local normalization implemented; cloud delivery planned.** See the
+[local CLI](../README.md#local-normalization) for commands and current scope.
 
 Build one repeatable batch path from a public electricity metric to a queryable BigQuery table. The path is the thing this project proves: parameterised ingestion, raw retention, a quality gate, an idempotent publish, and a deployment that can be run again.
 
@@ -16,7 +17,7 @@ current wholesale-price terms before adding the later day-ahead price metric.
 | Topic | Decision |
 |-------|----------|
 | First dataset | German actual total load, one fixed week. The brief already chose this slice. |
-| Source | A versioned sample shaped like a SMARD export. A live SMARD or ENTSO-E read is a later adapter behind the same raw contract. |
+| Source | Unmodified SMARD CSV exports, documented in fixtures. Synthetic exports exercise tests. A live source read is a later adapter. |
 | Later metrics | Day-ahead price and generation mix use the same table and a different `metric` value. They are not required for G01 acceptance. |
 | Runtime | Cloud Run Job. One execution has a start and an end. It is not a Cloud Run Service. |
 | Raw store | Cloud Storage, partitioned by source date. Objects are immutable. |
@@ -72,14 +73,24 @@ The manifest records `source`, `metric`, `area`, `interval`, `window_start`, `wi
 | `interval_start` | TIMESTAMP | Start of the interval, UTC |
 | `interval_end` | TIMESTAMP | End of the interval, UTC |
 | `area` | STRING | `DE` for v1 |
-| `metric` | STRING | `actual_load_mw` for v1 |
+| `metric` | STRING | `actual_load_mwh` for v1 |
 | `value` | FLOAT64 | Source value, original unit |
-| `unit` | STRING | `MW` |
+| `unit` | STRING | `MWh` (quarter-hour energy, not average power) |
 | `source` | STRING | `smard` or `sample` |
 | `release_id` | STRING | Id of the publish that wrote the row |
 | `ingested_at` | TIMESTAMP | Write time |
 
-v1 interval is 15 minutes, which is the SMARD actual-load resolution. The sample file declares that interval. Expected row count is the window length divided by the interval, with the DST fixture stating its own expected count. Price data, which is hourly, is a later metric. It does not change this grain.
+The local Parquet contains the first seven columns above. The cloud publisher
+will add `release_id` and `ingested_at`; a local run ID identifies processing,
+not a cloud release.
+
+v1 interval is 15 minutes. The value is the original quarter-hour energy in
+MWh, with no multiplication into MW. Expected row count is the UTC duration
+between the requested local midnights divided by 15 minutes: 96 for a normal
+day, 92 at the spring clock change and 100 at the autumn change. The local
+parser requires complete source order to disambiguate repeated labels.
+Later metrics must declare their own unit and interval; do not reuse the
+load conversion or assume the same temporal resolution.
 
 ### Release record
 
