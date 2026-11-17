@@ -1,6 +1,6 @@
 # Design: European Energy Data Pipeline
 
-**G01 · Local normalization implemented; cloud delivery planned.** See the
+**G01 · Bounded download and local normalization implemented; cloud delivery planned.** See the
 [local CLI](../README.md#local-normalization) for commands and current scope.
 
 Build one repeatable batch path from a public electricity metric to a queryable BigQuery table. The path is the thing this project proves: parameterised ingestion, raw retention, a quality gate, an idempotent publish, and a deployment that can be run again.
@@ -17,7 +17,7 @@ current wholesale-price terms before adding the later day-ahead price metric.
 | Topic | Decision |
 |-------|----------|
 | First dataset | German actual total load, one fixed week. The brief already chose this slice. |
-| Source | Unmodified SMARD CSV exports, documented in fixtures. Synthetic exports exercise tests. A live source read is a later adapter. |
+| Source | Local SMARD CSV exports or the bounded `download` CLI. Synthetic exports and fake HTTP responses exercise tests without network access. |
 | Later metrics | Day-ahead price and generation mix use the same table and a different `metric` value. They are not required for G01 acceptance. |
 | Runtime | Cloud Run Job. One execution has a start and an end. It is not a Cloud Run Service. |
 | Raw store | Cloud Storage, partitioned by source date. Objects are immutable. |
@@ -37,7 +37,7 @@ Out of scope: the HTTP API (G02), event corrections (G03), the release catalog a
 ## 3. Architecture
 
 ```text
-Sample CSV  or  later live adapter
+Local CSV  or  bounded SMARD downloader
             |
             v
 Cloud Run Job
@@ -54,6 +54,17 @@ energy.load_release          queryable by G02 and G04
 ```
 
 One process does the whole window. There is no queue in this project. Cloud Scheduler passes the window as job arguments. A manual execution uses the same arguments.
+
+The implemented local path is `download -> immutable cache -> normalize`.
+The downloader accepts at most 31 local days, fixed to German actual load.
+The cache lock, persistent pacing and provider refusal/cooldown behaviour are
+documented in the [README](../README.md#bounded-automatic-downloads). Cloud
+Scheduler and the cloud stores shown above remain planned. Multi-worker cloud
+operation needs coordination beyond the current single-cache file lock.
+
+Historical source revisions require a later controlled refresh policy. The
+current downloader reuses a checksummed snapshot indefinitely; it does not
+claim that cached values remain the provider's latest version.
 
 ## 4. Contracts
 

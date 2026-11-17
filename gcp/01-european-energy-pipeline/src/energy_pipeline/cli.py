@@ -71,6 +71,13 @@ def run(args: argparse.Namespace) -> int:
         "package_version": version("energy-pipeline"),
         **revision(),
     }
+    if getattr(args, "source_manifest", None):
+        source = json.loads(args.source_manifest.read_text(encoding="utf-8"))
+        for field in ("input_sha256", "window_start", "window_end"):
+            if source.get(field) != manifest[field]:
+                raise ValidationError(f"source manifest {field} does not match input/window")
+        manifest["retrieved_at"] = source["retrieved_at"]
+        manifest["download_endpoint"] = source["endpoint"]
     quality = {"expected_rows": window.expected_rows, "status": "passed", "errors": []}
     table = None
     try:
@@ -114,9 +121,32 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--until", required=True, help="Exclusive local date YYYY-MM-DD")
     command.add_argument("--timezone", choices=["Europe/Berlin"], default="Europe/Berlin")
     command.add_argument("--output", type=Path, required=True, help="Parent of per-run directories")
+    command.add_argument("--source-manifest", type=Path, help="Matching download.json provenance")
+    download = commands.add_parser("download", help="Fetch a bounded SMARD actual-load CSV window")
+    download.add_argument("--from", dest="start", required=True, help="Local date YYYY-MM-DD")
+    download.add_argument("--until", required=True, help="Exclusive local date YYYY-MM-DD")
+    download.add_argument("--cache", type=Path, default=Path("downloads"))
+    download.add_argument("--normalize-output", type=Path, help="Also run local normalization")
     args = parser.parse_args(argv)
     try:
+        if args.command == "download":
+            from energy_pipeline.download import Client
+
+            result = Client(args.cache).download(Window.from_dates(args.start, args.until))
+            print(
+                json.dumps(
+                    {
+                        "input_file": str(result.csv_path),
+                        "download_manifest": str(result.manifest_path),
+                        "cached": result.cached,
+                    }
+                )
+            )
+            if args.normalize_output is None:
+                return 0
+            args.input, args.source_manifest = result.csv_path, result.manifest_path
+            args.output, args.timezone = args.normalize_output, "Europe/Berlin"
         return run(args)
-    except (OSError, ValidationError) as exc:
+    except (OSError, ValueError, KeyError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
