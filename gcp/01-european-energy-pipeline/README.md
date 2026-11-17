@@ -178,6 +178,39 @@ still produce reports and exit code 1. Missing/unreadable run artifacts are
 reported as errors rather than ignored. Hidden staging directories are excluded.
 Use a dedicated run root; keep audit output outside that root.
 
+## Annual preparation
+
+Prepare one completed calendar year with sequential monthly windows:
+
+```bash
+uv run --locked energy-pipeline prepare-year --year 2025 \
+  --cache downloads --output output/year-2025
+```
+
+This explicit command uses the same bounded downloader and persistent cache;
+it does not raise request limits or create parallel workers. Each month is
+normalized once, then read from the verified cache and normalized again.
+A validation error, provider denial or cooldown stops before the next month.
+After resolving the cause, rerunning reuses cached months and preserves all
+prior runs. Do not reset cache/control state to bypass a provider restriction.
+
+Only a passing annual audit publishes `observations-2025.parquet` beside the
+report. It requires exactly 12 monthly windows, the complete ordered yearly
+UTC grid, all monthly repeat checks and 11 continuous month boundaries.
+A normal year has 35,040 quarter-hour observations; a leap year has 35,136.
+All raw exports, monthly runs and annual artifacts stay outside Git.
+
+Re-audit existing runs without source requests:
+
+```bash
+uv run --locked energy-pipeline audit --year 2025 \
+  --runs-root output/year-2025/runs --output output/year-2025/reports
+```
+
+This creates a new local snapshot and report; it is not a cloud release or a
+freshness check. Historical corrections still require a controlled refresh
+policy, and cloud delivery remains planned.
+
 ## Cloud acceptance (planned)
 
 1. Test interval boundaries, missing intervals and duplicate keys. Include a fixture around a local-time change.

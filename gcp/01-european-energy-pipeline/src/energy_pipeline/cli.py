@@ -130,12 +130,27 @@ def main(argv: list[str] | None = None) -> int:
     audit = commands.add_parser("audit", help="Audit Parquet coverage and repeat runs offline")
     audit.add_argument("--runs-root", type=Path, required=True)
     audit.add_argument("--output", type=Path, required=True, help="Parent of per-audit directories")
+    audit.add_argument(
+        "--year", type=int, help="Require all 12 months and publish a local snapshot"
+    )
+    annual = commands.add_parser(
+        "prepare-year", help="Sequential monthly downloads and yearly audit"
+    )
+    annual.add_argument("--year", type=int, required=True)
+    annual.add_argument("--cache", type=Path, default=Path("downloads"))
+    annual.add_argument(
+        "--output", type=Path, required=True, help="Root for monthly runs and reports"
+    )
     args = parser.parse_args(argv)
     try:
+        if args.command == "prepare-year":
+            from energy_pipeline.annual import prepare_year
+
+            return prepare_year(args.year, args.cache, args.output)
         if args.command == "audit":
             from energy_pipeline.audit import build_report, save_report
 
-            report = build_report(args.runs_root)
+            report = build_report(args.runs_root, year=args.year)
             report["audit_revision"] = revision()
             destination = save_report(report, args.output)
             print(json.dumps({"report_dir": str(destination), "status": report["status"]}))

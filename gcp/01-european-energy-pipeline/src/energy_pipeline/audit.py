@@ -10,6 +10,7 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pyarrow as pa
 import pyarrow.parquet as pq
 
 from energy_pipeline.normalize import SCHEMA, STEP, ZONE, ValidationError, Window
@@ -113,7 +114,59 @@ def inspect_run(directory: Path) -> tuple[dict, list]:
     return record, rows
 
 
-def build_report(root: Path) -> dict:
+def year_windows(year: int) -> list[Window]:
+    if not 2015 <= year <= 9998:
+        raise ValidationError("year must be between 2015 and 9998")
+    return [
+        Window.from_dates(
+            f"{year}-{month:02d}-01",
+            f"{year + 1}-01-01" if month == 12 else f"{year}-{month + 1:02d}-01",
+        )
+        for month in range(1, 13)
+    ]
+
+
+def annual_summary(year: int, groups: dict) -> dict:
+    months = year_windows(year)
+    expected_windows = {(w.start.isoformat(), w.end.isoformat()) for w in months}
+    rows = [row for key in sorted(groups) for row in groups[key][0][1]]
+    start, end = months[0].start, months[-1].end
+    expected = [start + i * STEP for i in range((end - start) // STEP)]
+    starts = [row["interval_start"] for row in rows]
+    keys = [(row["area"], row["metric"], row["interval_start"]) for row in rows]
+    boundaries = []
+    ordered = [groups[key][0][1] for key in sorted(groups)]
+    for left, right in zip(ordered, ordered[1:], strict=False):
+        boundaries.append(
+            bool(left and right and left[-1]["interval_end"] == right[0]["interval_start"])
+        )
+    return {
+        "year": year,
+        "expected_months": 12,
+        "actual_months": len(groups),
+        "expected_rows": len(expected),
+        "actual_rows": len(rows),
+        "missing_intervals": len(set(expected) - set(starts)),
+        "unexpected_intervals": len(set(starts) - set(expected)),
+        "duplicate_keys": len(keys) - len(set(keys)),
+        "exact_monthly_windows": set(groups) == expected_windows,
+        "continuous_utc_grid": starts == expected,
+        "cross_month_boundaries_checked": len(boundaries),
+        "cross_month_boundaries_valid": sum(boundaries),
+        "window_start": start.isoformat(),
+        "window_end": end.isoformat(),
+        "status": "passed"
+        if (
+            set(groups) == expected_windows
+            and starts == expected
+            and len(boundaries) == 11
+            and all(boundaries)
+        )
+        else "failed",
+    }
+
+
+def build_report(root: Path, year: int | None = None) -> dict:
     if not root.is_dir():
         raise ValidationError("--runs-root must be a directory of completed run directories")
     directories = sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith("."))
@@ -155,7 +208,7 @@ def build_report(root: Path) -> dict:
                 "status": "passed" if passed else "failed",
             }
         )
-    return {
+    report = {
         "schema_version": 1,
         "generated_at": datetime.now(UTC).isoformat(),
         "audit_code_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -173,6 +226,12 @@ def build_report(root: Path) -> dict:
             "Offline coverage and cached replay; not source reconciliation or uptime measurement."
         ),
     }
+    if year is not None:
+        report["annual"] = annual_summary(year, groups)
+        if report["annual"]["status"] != "passed":
+            report["status"] = "failed"
+        report["annual"]["status"] = report["status"]
+    return report
 
 
 def markdown(report: dict) -> str:
@@ -202,6 +261,20 @@ def markdown(report: dict) -> str:
             "Changes: timestamps normalized to UTC; coverage and replay statistics computed.",
         ]
     )
+    if "annual" in report:
+        annual = report["annual"]
+        lines.extend(
+            [
+                "",
+                f"Year {annual['year']}: {annual['actual_rows']}/{annual['expected_rows']} rows; "
+                f"{annual['actual_months']}/12 monthly windows; "
+                f"{annual['cross_month_boundaries_valid']}/11 continuous month boundaries.",
+            ]
+        )
+    if "dataset" in report:
+        lines.extend(
+            ["", f"Dataset: {report['dataset']['file']}", f"SHA-256: {report['dataset']['sha256']}"]
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -210,6 +283,26 @@ def save_report(report: dict, output: Path) -> Path:
     staging = Path(tempfile.mkdtemp(prefix=".pending-", dir=output))
     destination = output / ("audit-" + staging.name.removeprefix(".pending-"))
     try:
+        if report.get("annual") and report["status"] == "passed":
+            selected = {}
+            for run in report["runs"]:
+                selected.setdefault(run["window_start"], run)
+            tables = []
+            for _, run in sorted(selected.items()):
+                source = Path(run["run_dir"]) / "observations.parquet"
+                if hashlib.sha256(source.read_bytes()).hexdigest() != run["output_sha256"]:
+                    raise ValidationError(
+                        "monthly artifact changed after audit; no dataset published"
+                    )
+                tables.append(pq.read_table(source))
+            target = staging / f"observations-{report['annual']['year']}.parquet"
+            table = pa.concat_tables(tables)
+            pq.write_table(table, target, compression="zstd")
+            report["dataset"] = {
+                "file": target.name,
+                "row_count": table.num_rows,
+                "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+            }
         (staging / "report.json").write_text(
             json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
