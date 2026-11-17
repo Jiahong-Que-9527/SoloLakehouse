@@ -4,7 +4,7 @@
 
 Accept synthetic operational events that may be duplicated, delayed, or invalid, and fold them into one current state per entity. The project proves idempotency, revision ordering, retry, and a dead-letter path. It does not prove throughput.
 
-The source for this scope is the G03 section of the [subproject design note](../../../chatgpt-consulting-subprojects-design.md). The project [brief](../README.md) adds a second fixture on the same envelope.
+The project [brief](../README.md) adds a second fixture on the same envelope.
 
 ## 1. Decisions
 
@@ -101,3 +101,7 @@ Record the subscription id, dead-letter message ids, and the final state query.
 ## 8. Handoff
 
 G04 does not govern this topic. A later aviation workflow may reuse the envelope. It must bring its own fixture. This project does not read the Fraport Bronze store.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
+
+[Implementation sequence and evidence](implementation.md)

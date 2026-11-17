@@ -4,7 +4,7 @@
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
 Build cloud infrastructure and batch delivery first. Add API access, event handling, governance and MLOps, then reuse proven deployment steps. The energy metric
-provides a common workload for G01 to G05. Each numbered directory is a standalone planned project. `docs/design.md` is the design. The README is the short brief. These directories do not contain application code yet.
+provides a common workload for G01 to G05. Each numbered directory owns its delivery. `docs/design.md` is the design. The README is the short brief. G01 has an implemented local pipeline, scoped CI and a verified 2025 snapshot. GCP deployment is planned. G02 through G06 have designs and phased implementation plans.
 
 ## Projects in learning order
 
@@ -51,3 +51,5 @@ model lifecycle. Start from a small baseline and record observed cloud cost.
 
 OpenSky Data Ingestion is the first public SoloLakehouse delivery. G01
 starts the GCP-specific route.
+
+<!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
