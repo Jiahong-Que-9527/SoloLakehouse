@@ -25,9 +25,9 @@ from the last committed hour.
   · [Benchmark report](Fraport-adsb-intelligence/01-opensky-acquisition/docs/benchmark-report.md)
 - **Monthly batches underway.** `validate`, `report`, `accept` and `publish`
   check a batch, write its report, record acceptance and copy it to a second
-  disk with SHA-256 verification. Batches b01 (2026-10) through b12 (2025-11)
-  are accepted and backed up. That completes the twelve-month cut line. The
-  next batch is b13 (2025-10).
+  disk with SHA-256 verification. Batches b01 (2026-10) through b14 (2025-09)
+  are accepted and backed up. b01 through b12 completed the twelve-month cut
+  line. The next batch is b15 (2025-08).
   [Batch plan](Fraport-adsb-intelligence/01-opensky-acquisition/docs/batch-plan.md)
 - **Downstream work planned.** Build Silver and Gold locally, then release an
   approved, versioned Gold dataset for cloud analytics and lakehouse
