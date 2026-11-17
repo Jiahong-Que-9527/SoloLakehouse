@@ -27,8 +27,8 @@ publication requirements and the separate review needed for wholesale prices.
 
 The local CLI validates a complete SMARD CSV window and writes normalized
 Parquet, a quality report and a checksummed manifest. It preserves MWh and
-uses the metric `actual_load_mwh`. Downloading, cloud storage, BigQuery
-publication and scheduling remain future work.
+uses the metric `actual_load_mwh`. A bounded SMARD downloader can feed this
+same path. Cloud storage, BigQuery publication and scheduling remain future work.
 
 From this directory, with Python 3.12 or later and uv installed:
 
@@ -93,6 +93,62 @@ uv run --locked ruff format --check .
 on changes to this project or its workflow. Real-data tests also run when
 the local CSV fixtures are present; otherwise those two tests are skipped.
 The local stage does not yet add cloud `release_id` or `ingested_at` columns.
+
+## Bounded automatic downloads
+
+The downloader uses the CSV export endpoint called by SMARD's own download
+page. It supports only German actual total load, quarter-hour MWh, and closed
+windows of 1 to 31 local days ending in the past. The endpoint is a website
+implementation detail, not a versioned API with a compatibility guarantee.
+The downloader currently targets Linux/macOS (POSIX file locking).
+
+For a small end-to-end run:
+
+```bash
+uv run --locked energy-pipeline download \
+  --from 2026-06-08 --until 2026-06-09 \
+  --cache downloads --normalize-output output
+```
+
+Without `--normalize-output`, the command retains only the raw export. Its
+`quality_status=not_validated` does not certify interval or value quality.
+With the option, normalization runs as a separate step; a validation failure
+retains the raw export and produces a failed local report, without Parquet.
+
+The cache stores `downloads/<request-sha256>/source.csv` and `download.json`.
+The latter records the exact request, retrieval time, raw checksum, attribution,
+licence and policy-check metadata. Cached bytes are checked before reuse. The
+same request then needs no network access. There is no automatic refresh or
+cache-expiry download; a controlled revision-refresh policy is future work.
+The normalized manifest carries the download time separately from processing
+time. For manual normalization, `--source-manifest <path>/download.json`
+checks that the source checksum and window match before carrying provenance.
+
+Project operating limits (not an official SMARD rate allowance):
+
+- One active downloader per shared cache, with at least five seconds between
+  request starts. Use the same persistent cache for all invocations; separate
+  machines/caches are not coordinated. No batch fan-out or automatic scheduler
+  is included.
+- Before an uncached export, check `robots.txt`; retain that policy for 24 hours.
+  Honour disallowed paths, longer crawl delays and request-rate directives.
+  A 404 means no robots policy was supplied, not permission beyond the terms.
+  Other unavailable or malformed policy responses stop the run.
+- HTTP 401/403 persist an access-denial stop. HTTP 429 and `Retry-After`
+  responses persist a cooldown and exit immediately. Missing/invalid retry
+  guidance uses a one-hour cooldown. Do not rotate caches or clear state to
+  evade these controls; review a denial with the provider.
+- Only 502/503/504 without `Retry-After` receive up to two retries, waiting at
+  least 10 then 20 seconds. Ambiguous network failures are not automatically
+  resent. Long pacing waits exit for a later invocation rather than looping.
+- Thirty-second network timeout, 32 MiB success-response limit, identifiable
+  User-Agent, fixed HTTPS host/metric, no redirect following, no browser
+  impersonation or alternate-endpoint fallback. Changed CSV headers stop.
+
+See [data use and compliance](docs/data-use.md) for the reviewed terms and
+[download verification](docs/download-verification.md) for the one-day live
+check. A full-year coverage audit and continuous availability measurements
+remain pending. CI uses fake HTTP responses and does not call SMARD.
 
 ## Cloud acceptance (planned)
 

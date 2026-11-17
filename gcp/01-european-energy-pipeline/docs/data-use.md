@@ -2,8 +2,9 @@
 
 Reviewed on 2026-11-17 against the provider's public terms. This note covers
 German actual total load from SMARD (`moduleIds: [5000410]`, region `DE`).
-It records the basis for the planned implementation; automated acquisition
-and publication are not implemented yet. Recheck the terms when adding a
+The bounded local downloader is implemented; cloud publication remains planned.
+This note records the basis and limits of that implementation, not provider
+certification or a blanket legal guarantee. Recheck the terms when adding a
 new metric, changing provider or preparing a public release.
 
 ## Data licence and permitted uses
@@ -57,12 +58,36 @@ that does not impair use by other visitors. The reviewed terms do not state
 a numeric request limit or guarantee API compatibility or availability.
 The data licence does not establish an unlimited request allowance.
 
-For the planned live adapter, use low concurrency, cache successful downloads,
-request bounded windows and use bounded retries with backoff. Respect HTTP
-429 and any `Retry-After` response; stop on persistent access denial rather
-than bypassing controls. These are project operating practices to limit load,
-not a claim that SMARD specifies those exact mechanisms. Reassess provider
-guidance before substantially increasing request volume.
+The local downloader implements the following project operating practices:
+
+- Use only the same CSV export endpoint as the official download page, with
+  a descriptive project User-Agent. Do not impersonate browsers, follow
+  redirects or fall back to other endpoints after refusal.
+- Limit each request to the selected load metric and 1 to 31 past local days.
+  Use one process per persistent cache and at least five seconds between
+  request starts. Separate machines or caches are not coordinated; do not
+  deploy parallel workers without additional coordination.
+- Check robots policy before uncached downloads and retain it for 24 hours.
+  Respect path restrictions and longer pacing directives. Treat 404 as absent
+  robots policy; other policy errors stop acquisition. Robots permission is
+  not a substitute for the website terms or data licence.
+- Verify and reuse cached exports without a request. Preserve raw bytes,
+  retrieval time, checksum, request parameters, attribution and licence links.
+  The raw cache is immutable and does not currently refresh historical values.
+- Stop immediately on 401/403 and persist the denial across invocations.
+  On 429 or `Retry-After`, persist the cooldown and exit without an automatic
+  retry. Honour both seconds and HTTP-date forms; missing/invalid guidance
+  uses a one-hour cooldown. Do not delete state or change caches to bypass
+  denial or cooldown; review persistent denial with the provider.
+- Retry only 502/503/504 without retry guidance, at most twice with backoff.
+  Do not automatically resend timed-out POSTs whose server-side outcome is
+  unknown. Apply a timeout and response-size limit; reject changed CSV headers.
+
+These limits are conservative project choices, not a numeric rate allowance,
+API contract or approval published by SMARD. The website's export endpoint
+may change. Reassess terms and provider guidance before changing the metric,
+increasing volume or enabling unattended scheduling. This version has no
+automatic full-year backfill. See the [live check](download-verification.md).
 
 ## Scope changes and remaining boundaries
 
