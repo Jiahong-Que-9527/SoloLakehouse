@@ -10,18 +10,17 @@ lakehouse ETL. It is not a cloud deployment.
 ## Status (2026-11-16)
 
 Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
-(pull requests #123 to #125). Batches **b01 (2026-10)** through **b21 (2025-02)**
+(pull requests #123 to #125). Batches **b01 (2026-10)** through **b24 (2024-11)**
 are accepted and backed up. b01 through b12 completed the twelve-month cut
-line from 2025-11 through 2026-10. The next session collects batch **b22
-(2025-01)**. Do not start b23.
+line from 2025-11 through 2026-10. b24 finishes the two-year window. Do not
+start another monthly batch.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
 
-- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2025-02, plus
-  benchmark days 2024-11-15 and 2025-01-15.
+- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2024-11.
 - Flights, `eddf_flights` v1: 2026-10-01 through 2026-11-01, and all of
-  2026-09 through 2025-02, plus benchmark days 2024-11-15 and 2025-01-15.
+  2026-09 through 2024-11.
 - Batch b01: 109,641,931 state-vector rows, 2.13 GB, 40,844 flights. Validation
   outcome `review` for six early-morning hours after the 2026-10-25 clock
   change; every hour is complete. Accepted and published.
@@ -119,6 +118,21 @@ git.
   rows against a Saturday 01:00 median of 4,412). Every hour is complete.
   Accepted and published (`copied: 1402`, `checked: 700`).
   Report: `reports/batches/b21/report.md`.
+- Batch b22: 75,211,438 state-vector rows, 1.53 GB, 30,174 flights. Validation
+  outcome `review` for one populated early-morning hour, 2025-01-08T01 (501
+  rows against a Wednesday 01:00 median of 2,741). Every hour is complete. The
+  benchmark day 2025-01-15 was already committed and was skipped. Accepted and
+  published (`copied: 1552`, `checked: 775`).
+  Report: `reports/batches/b22/report.md`.
+- Batch b23: 76,273,462 state-vector rows, 1.54 GB, 32,449 flights. Validation
+  outcome `passed` (744/744 hours, 0 problems, 0 anomalies). Accepted and
+  published (`copied: 1552`, `checked: 775`).
+  Report: `reports/batches/b23/report.md`.
+- Batch b24: 79,196,910 state-vector rows, 1.62 GB, 34,142 flights. Validation
+  outcome `passed` (720/720 hours, 0 problems, 0 anomalies). The benchmark day
+  2024-11-15 was already committed and was skipped. Accepted and published
+  (`copied: 1502`, `checked: 750`). This batch finishes the two-year window.
+  Report: `reports/batches/b24/report.md`.
 - Hour reconciliation matched 168/168:
   `reports/reconcile/20261114T221544Z-3852.json`.
 - The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
@@ -140,15 +154,8 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Collect b22, January 2025. State vectors:
-   `run --from 2025-01-01T00:00:00Z --until 2025-02-01T00:00:00Z`.
-   Flights: `collect-flights --from 2025-01-01 --until 2025-02-01`.
-   Hour 2025-01-15 and its flight day are already committed and will be skipped.
-2. `validate --batch b22`, `report --batch b22`, then `accept` and `publish`.
-   A validation outcome of `review` needs `--notes`. A `failed` outcome stops
-   the gate. Stop the backfill if a day exceeds 6 million rows, 100 MB of
-   Parquet, 60 seconds per hour, or 5 GB scanned per hour.
-3. Leave `serials` out. Do not upload Bronze. Commit only when asked.
+The two-year window is complete. Do not start another monthly batch. Leave
+`serials` out. Do not upload Bronze. Commit only when asked.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run
 `opensky-ingest login` and resume the same range. Do not print the username,
