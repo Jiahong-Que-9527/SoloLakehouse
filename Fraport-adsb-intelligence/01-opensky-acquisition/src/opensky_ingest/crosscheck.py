@@ -128,4 +128,4 @@ def _empty() -> dict[str, Any]:
 def _same(left: Any, right: Any) -> bool:
     if left is None or right is None:
         return left is None and right is None
-    return int(left) == int(right) 
+    return int(left) == int(right)

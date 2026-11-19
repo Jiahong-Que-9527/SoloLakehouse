@@ -69,9 +69,7 @@ def hour_gap_status(gaps: tuple[Gap, ...], hour_start: datetime) -> str:
     return "none"
 
 
-def _epoch_label(
-    epochs: tuple[Epoch, ...], start: datetime, end: datetime
-) -> tuple[str, bool]:
+def _epoch_label(epochs: tuple[Epoch, ...], start: datetime, end: datetime) -> tuple[str, bool]:
     current = epochs[0].id
     for item in epochs:
         if item.start is not None and item.start <= start:
