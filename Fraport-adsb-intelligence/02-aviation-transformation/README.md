@@ -71,3 +71,49 @@ Project 01 Bronze dataset. The pilot week is enough for M1 to M3.
 
 Silver and Gold datasets, quality reports, run records and Gold releases for
 projects 03 to 05.
+
+## Silver M1 local pilot
+
+**[房玄龄·2026-11-19]** The M1 CLI covers the 2026-07-01, 2026-09-01, and
+2026-10-01 UTC arrival cohorts. It verifies the committed Bronze manifest
+and checksum for each input partition. Adjacent UTC hours are read only
+when a candidate window crosses midnight. OpenStreetMap geometry is read from
+the local pilot snapshot supplied as `--geometry-dir` (`geometry-*.osm`).
+
+Run from this directory with Python 3.13 and uv:
+
+```bash
+uv sync --locked --python 3.13
+uv run --locked python silver_m1.py \
+  --bronze-root /path/to/local/aviation \
+  --geometry-dir /path/to/local/osm-snapshot \
+  --output /path/to/new/local-output
+```
+
+The output directory must be new and outside the repository and input
+directories. Four Parquet tables join by `arrival_id` and `day_utc`:
+
+- `arrival_coverage` has one row per deduplicated EDDF arrival candidate,
+  including candidates with no usable ground points.
+- `surface_points` contains fresh position updates, their airport vicinity
+  flags, and their fragment and point numbers.
+- `surface_fragments` describes uninterrupted sequences, including
+  single observations. A path length of at least 30 m over consecutive
+  observed points is flagged as observed movement.
+- `surface_breaks` links neighboring fragments and records the reason
+  the line was split: a source partition issue, a fresh airborne observation,
+  a gap above 30 seconds, or an implausible displacement.
+
+Time columns ending in `epoch_s` are Unix seconds in UTC. The first fresh
+ground position near a runway with a preceding fresh airborne position is
+an arrival anchor hint. Without that hint the analysis looks for ground points
+from two minutes before the candidate timestamp. The ground search is bounded
+to 40 minutes from the analysis start and may stop earlier at subsequent
+airborne activity. Position freshness is based on `lastposupdate`; the
+pipeline does not bridge gaps or infer gate arrival. A station-adjacent point
+only means proximity to a mapped stand. Fragment spans are observation spans.
+
+`quality_report.md` includes coverage and break counts. `run_manifest.json`
+records source, geometry, code and output fingerprints. To verify a repeat,
+run the same command with a second new output path and compare the manifests.
+Both output directories contain local research data.
