@@ -53,6 +53,27 @@ chatgpt-consulting*.md
 # Local exploration notebooks.
 Fraport-adsb-intelligence/Notebooks/
 
+# Local-only aviation research. Keep publishable engineering docs and tests tracked.
+**/.research-local/
+/Fraport-adsb-intelligence/**/[Rr]esearch/
+/Fraport-adsb-intelligence/**/[Ee]xperiments/
+/Fraport-adsb-intelligence/**/[Pp]aper[0-9]/
+/Fraport-adsb-intelligence/**/[Pp]aper[-_][0-9]/
+/Fraport-adsb-intelligence/**/[Tt]hesis/
+/Fraport-adsb-intelligence/**/[Ee]xpos[eé]/
+/Fraport-adsb-intelligence/**/[Pp]h[Dd]/
+/Fraport-adsb-intelligence/**/pilot_outputs/
+/Fraport-adsb-intelligence/**/reference_traces/
+/Fraport-adsb-intelligence/**/trace_full_*.json*
+/Fraport-adsb-intelligence/**/hires-traces-*.json*
+/Fraport-adsb-intelligence/**/geometry-[0-9][0-9].osm
+/Fraport-adsb-intelligence/**/paper[0-9]_*.md
+/Fraport-adsb-intelligence/**/feasibility_report.md
+/Fraport-adsb-intelligence/**/stratified_feasibility_report.md
+/Fraport-adsb-intelligence/**/full_silver_report.md
+/Fraport-adsb-intelligence/**/review_plate_*.png
+/Fraport-adsb-intelligence/**/trajectory_overlays_*.png
+
 # OS
 .DS_Store
 Thumbs.db
