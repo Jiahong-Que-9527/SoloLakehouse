@@ -117,3 +117,35 @@ only means proximity to a mapped stand. Fragment spans are observation spans.
 records source, geometry, code and output fingerprints. To verify a repeat,
 run the same command with a second new output path and compare the manifests.
 Both output directories contain local research data.
+
+### Date-scoped dual-flow pilot
+
+**[房玄龄·2026-11-19]** The default date set remains the original three-day
+baseline. Pass `--date YYYY-MM-DD` for one UTC day or pass a text file with
+one day per line via `--date-list`. For independent day-level reruns, give
+each single-day execution a new output directory.
+
+The crossing study consumes one verified arrival Silver day and its
+corresponding Bronze flight and state-vector manifests:
+
+```bash
+uv run --locked python crossing_observations.py \
+  --date 2026-07-01 \
+  --bronze-root /path/to/local/aviation \
+  --geometry-dir /path/to/local/osm-snapshot \
+  --arrival-silver /path/to/one-day-silver-output \
+  --output /path/to/new/local-crossing-output
+```
+
+It writes three Parquet tables: arrival event evidence, departure occupancy
+evidence (including unresolved candidates), and observed 25C departure
+positions and gaps. An airborne runway-axis inference does not establish
+ground occupancy. A time with no overlap in the observed source remains
+unverified as runway vacancy.
+
+The default M8/L5 and holding geometry are provisional. An optional local
+`--crossing-config` JSON can supply `south_connector`, `north_connector`,
+`holding_point_xy_m` (east/north offsets in metres using the module's EDDF
+origin and scale), and `geometry_status`. Record the AIP source and effective
+date in the config when verified. The run manifest records the geometry
+status and input hashes. Keep real data and outputs outside Git.

@@ -275,16 +275,16 @@ def build_day(con, root, day, airport, labels, records, tables):
     print(f"{day}: {len(candidates)} arrival candidates", flush=True)
 
 
-def report(output, data, meta):
+def report(output, data, meta, days):
     coverage, fragments, breaks = (data[k] for k in ("arrival_coverage","surface_fragments","surface_breaks"))
     lines = [
         "# EDDF Silver M1 · 地面轨迹质量报告", "",
-        "**[房玄龄·2026-11-19]** 三天 UTC 试点。分母为 OpenSky 航班表识别的 EDDF 到达候选。",
+        "**[房玄龄·2026-11-19]** 指定 UTC 日期。分母为 OpenSky 航班表识别的 EDDF 到达候选。",
         "片段仅描述观测范围。机位邻近是空间标记，不证明实际进位；本批不生成完整 taxi-in 标签。", "",
         "| 日期 | 到达候选 | 有地面点 | 有移动片段 | 跑道附近空地转换 | 滑行道邻近 | 机坪内 | 机位邻近 | 点数 | 片段 | 断点 |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
-    for day in [*DAYS, None]:
+    for day in [*days, None]:
         bucket = [r for r in coverage if day is None or r["day_utc"]==day]
         counts = [len(bucket),sum(r["surface_points"]>0 for r in bucket),
                   sum(r["coverage_class"]=="movement_fragment" for r in bucket)]
@@ -310,7 +310,21 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("bronze-root","geometry-dir","output"):
         parser.add_argument(f"--{name}", type=Path, required=True)
+    choice = parser.add_mutually_exclusive_group()
+    choice.add_argument("--date", action="append", type=date.fromisoformat,
+                        help="UTC date (YYYY-MM-DD); repeat for multiple days")
+    choice.add_argument("--date-list", type=Path, help="Text file with one UTC date per line")
     args = parser.parse_args()
+    dates = args.date
+    if args.date_list is not None:
+        try:
+            dates = [date.fromisoformat(line.strip()) for line in args.date_list.read_text().splitlines()
+                     if line.strip() and not line.lstrip().startswith("#")]
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        if not dates:
+            parser.error("--date-list has no dates")
+    days = tuple(sorted(set(dates))) if dates else DAYS
     root, geo, output = (p.resolve() for p in (args.bronze_root,args.geometry_dir,args.output))
     repo = Path(__file__).resolve().parents[2]
     if output.is_relative_to(repo) or output.is_relative_to(root) or output.is_relative_to(geo):
@@ -322,10 +336,10 @@ def main():
     con = duckdb.connect()
     con.execute("set threads=4")
     records, data = {}, {k:[] for k in SCHEMAS}
-    for day in DAYS:
+    for day in days:
         build_day(con, root, day, airport, labels, records, data)
     output.mkdir(mode=0o700, parents=False, exist_ok=False)
-    meta = {"schema_version":SCHEMA_VERSION, "dates_utc":[str(d) for d in DAYS],
+    meta = {"schema_version":SCHEMA_VERSION, "dates_utc":[str(d) for d in days],
             "geometry":geometry_inputs,"geometry_counts":geom_count,"bronze_manifests":records,
             "code_sha256":{p.name:digest(p) for p in sorted(Path(__file__).parent.glob("*.py"))},
             "lock_sha256":digest(Path(__file__).parent/"uv.lock"),
@@ -337,7 +351,7 @@ def main():
         pq.write_table(pa.Table.from_pylist(data[name], schema=pa.schema(schema)), file,
                        compression="zstd", row_group_size=65536)
         artifacts[file.name] = {"rows":len(data[name]), "sha256":digest(file)}
-    report(output, data, meta)
+    report(output, data, meta, days)
     artifacts["quality_report.md"] = {"sha256":digest(output/"quality_report.md")}
     meta["outputs"] = artifacts
     (output/"run_manifest.json").write_text(json.dumps(meta,indent=2,sort_keys=True)+"\n")
