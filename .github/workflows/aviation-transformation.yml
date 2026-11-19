@@ -32,4 +32,4 @@ jobs:
           version: '0.12.0'
           python-version: '3.13'
       - run: uv sync --locked
-      - run: uv run --locked python -m unittest discover -s . -p test_silver_m1.py -v
+      - run: uv run --locked python -m unittest discover -s . -p 'test_*.py' -v

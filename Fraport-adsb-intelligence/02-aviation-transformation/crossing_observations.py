@@ -211,6 +211,17 @@ def align(arr, deps, issues):
     if unresolved or nearby.empty or incomplete:return 'insufficient_departure_coverage',0,unresolved
     return 'no_observed_overlap_proxy',0,0
 
+def apply_occupancy_alignment(ap, deps, issues):
+    states=['occupancy_at_hold','possible_25c_departures','nearby_unclassified_departures']
+    ap[states]=pd.DataFrame([align(row,deps,issues) if row.direction=='25L' else ('not_in_target_cohort',0,0)
+                            for row in ap.itertuples(index=False)],columns=states,index=ap.index)
+    ap['joint_occupied_observed']=ap.both_arrival_events & ap.occupancy_at_hold.eq('observed_departure_occupied')
+    # Source-only no overlap is not evidence that the runway was free.
+    ap['joint_unoccupied_confirmed']=False
+    ap['joint_source_only_including_no_overlap']=ap.both_arrival_events & ap.occupancy_at_hold.isin(
+        ['observed_departure_occupied','no_observed_overlap_proxy'])
+
+
 def run(args):
     root, geo, silver, out = (p.resolve() for p in
                              (args.bronze_root, args.geometry_dir, args.arrival_silver, args.output))
@@ -256,14 +267,7 @@ def run(args):
     deps=pd.DataFrame(dp).reindex(columns=['id','day','icao24','anchor','dep_runway','dep_reason',*DEPARTURE_COLUMNS])
     for col in DEPARTURE_COLUMNS:
         deps[col]=pd.to_numeric(deps[col])
-    states=['occupancy_at_hold','possible_25c_departures','nearby_unclassified_departures']
-    ap[states]=pd.DataFrame([align(row,deps,issues) if row.direction=='25L' else ('not_in_target_cohort',0,0)
-                            for row in ap.itertuples(index=False)],columns=states,index=ap.index)
-    ap['joint_occupied_observed']=ap.both_arrival_events & ap.occupancy_at_hold.eq('observed_departure_occupied')
-    # Source-only no overlap is not evidence that the runway was free.
-    ap['joint_unoccupied_confirmed']=False
-    ap['joint_source_only_including_no_overlap']=ap.both_arrival_events & ap.occupancy_at_hold.isin(
-        ['observed_departure_occupied','no_observed_overlap_proxy'])
+    apply_occupancy_alignment(ap, deps, issues)
     out.mkdir(mode=0o700,parents=False,exist_ok=False)
     outputs={}
     for name,frame in (('arrival_event_evidence',ap),('departure_occupancy_evidence',deps),
