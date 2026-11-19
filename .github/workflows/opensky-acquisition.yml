@@ -1,0 +1,35 @@
+name: OpenSky Acquisition
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Fraport-adsb-intelligence/01-opensky-acquisition/**'
+      - '.github/workflows/opensky-acquisition.yml'
+  pull_request:
+    paths:
+      - 'Fraport-adsb-intelligence/01-opensky-acquisition/**'
+      - '.github/workflows/opensky-acquisition.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint and test
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Fraport-adsb-intelligence/01-opensky-acquisition
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: '0.12.0'
+          python-version: '3.13'
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+      - run: uv run --locked pytest

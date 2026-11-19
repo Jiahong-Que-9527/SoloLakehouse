@@ -115,9 +115,7 @@ def _check_hour(connection: Any, cfg: Config, hour: datetime) -> dict[str, Any]:
         "min_time": source["min_time"],
         "max_time": source["max_time"],
     }
-    mismatches = [
-        name for name in COMPARED if not _same(local[name], source_values[name])
-    ]
+    mismatches = [name for name in COMPARED if not _same(local[name], source_values[name])]
     mismatches += [
         f"manifest.{name}" for name in COMPARED if not _same(manifest.get(name), local[name])
     ]
