@@ -53,7 +53,7 @@ def test_observed_exceeding_expected_rejected():
     document = dict(EXPECTED_PASSED, observed_slots=97)
     with pytest.raises(ReportError) as excinfo:
         parse_report(json.dumps(document).encode())
-    assert excinfo.value.code == "invalid_counts"
+    assert excinfo.value.code == "deliberate_failure_for_d03_negative_test"
 
 
 def test_inconsistent_coverage_rejected():
