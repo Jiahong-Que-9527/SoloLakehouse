@@ -7,6 +7,8 @@ Run). v1 semantics: raw objects are written once and never overwritten; the
 window is merged on (area, metric, interval_start) inside one BigQuery job.
 """
 
+import io
+
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -65,7 +67,7 @@ class GcpWarehouse(Warehouse):
             source_format=SourceFormat.PARQUET, write_disposition=WriteDisposition.WRITE_TRUNCATE
         )
         client.load_table_from_file(
-            buffer.getvalue().to_pybytes(), staging, job_config=job_config
+            io.BytesIO(buffer.getvalue().to_pybytes()), staging, job_config=job_config
         ).result()
         merge = f"""
         MERGE `{project}.{dataset}.{table}` AS target
