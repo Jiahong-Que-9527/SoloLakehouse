@@ -212,9 +212,140 @@ After b24 and a final `verify`:
 - Restore test: recover a month from the `E:` backup and compare hashes.
 - Record the processing-epoch split and the known gaps in the summary.
 
+## Five-year extension
+
+Decided on 2026-11-20. Not started. The collected window stays
+`[2024-11-01, 2026-11-01)`. The extension moves the start to **2021-11-01**
+and leaves the end where it is. That is five years, 1,826 days, 43,824 state
+hours and 1,827 flight days (the existing extra flight day 2026-11-01 stays
+on b01). New work is 1,096 days: **26,304 hours** and **1,096 flight days**,
+in 36 monthly batches, **b25 through b60**.
+
+Same dataset version. Bounds, columns and SQL do not change, so the files
+stay on `eddf_r75km` v1 and `eddf_flights` v1. Do not recollect b01–b24. Do
+not add `serials`. Do not upload Bronze.
+
+### Before the first query
+
+`run` rejects an hour outside `configs/dataset.eddf_r75km.v1.yaml`. Change
+that file in the same session as b25, before collecting:
+
+- `period.start` becomes `2021-11-01`. `period.end` stays `2026-11-01`.
+  `flights.day_end` stays `2026-11-02`.
+- Append b25–b60 to `configs/batches.yaml` using the calendar below.
+- Update `test_batches_cover_the_dataset_period` to 60 batches, 43,824 hours
+  and 1,827 flight days.
+
+### Order and cut lines
+
+Newest month first, so the first new month sits against the already checked
+2024-11. One batch at a time. States, then flights, then the gate, then
+backup. Do not start the next batch until the current one is published.
+
+| Cut | Batches | Months | What is on disk if work stops here |
+|-----|---------|--------|-------------------------------------|
+| First year of the extension | b25–b36 | 2024-10 back to 2023-11 | Three years, Nov 2023 through Oct 2026, including a third winter |
+| Second | b37–b48 | 2023-10 back to 2022-11 | Four years |
+| Third | b49–b60 | 2022-10 back to 2021-11 | Five years, the full extension |
+
+If a day has to be dropped, keep going only through the current cut. b25 is
+the probe: it should look like 2024-11 (about 110,000 rows per complete hour,
+same columns). A schema or column error on b25 stops the extension.
+
+### Calendar
+
+February 2024 has 29 days (696 hours). February 2022 and 2023 have 28 days
+(672 hours). A 31-day month is 744 hours. A 30-day month is 720.
+
+| Batch | Month | Hours | Documented gap hours |
+|-------|-------|------:|---------------------:|
+| b25 | 2024-10 | 744 | 0 |
+| b26 | 2024-09 | 720 | 0 |
+| b27 | 2024-08 | 744 | 0 |
+| b28 | 2024-07 | 744 | 0 |
+| b29 | 2024-06 | 720 | 0 |
+| b30 | 2024-05 | 744 | 19 |
+| b31 | 2024-04 | 720 | 0 |
+| b32 | 2024-03 | 744 | 0 |
+| b33 | 2024-02 | 696 | 0 |
+| b34 | 2024-01 | 744 | 0 |
+| b35 | 2023-12 | 744 | 67 |
+| b36 | 2023-11 | 720 | 28 |
+| b37 | 2023-10 | 744 | 0 |
+| b38 | 2023-09 | 720 | 0 |
+| b39 | 2023-08 | 744 | 0 |
+| b40 | 2023-07 | 744 | 0 |
+| b41 | 2023-06 | 720 | 9 |
+| b42 | 2023-05 | 744 | 0 |
+| b43 | 2023-04 | 720 | 0 |
+| b44 | 2023-03 | 744 | 0 |
+| b45 | 2023-02 | 672 | 0 |
+| b46 | 2023-01 | 744 | 127 |
+| b47 | 2022-12 | 744 | 0 |
+| b48 | 2022-11 | 720 | 0 |
+| b49 | 2022-10 | 744 | 0 |
+| b50 | 2022-09 | 720 | 0 |
+| b51 | 2022-08 | 744 | 0 |
+| b52 | 2022-07 | 744 | 0 |
+| b53 | 2022-06 | 720 | 0 |
+| b54 | 2022-05 | 744 | 0 |
+| b55 | 2022-04 | 720 | 0 |
+| b56 | 2022-03 | 744 | 0 |
+| b57 | 2022-02 | 672 | 0 |
+| b58 | 2022-01 | 744 | 0 |
+| b59 | 2021-12 | 744 | 0 |
+| b60 | 2021-11 | 720 | 0 |
+
+State command for a batch, with the month's UTC bounds. b25 is:
+
+`run --from 2024-10-01T00:00:00Z --until 2024-11-01T00:00:00Z --max-duration 8h`
+
+`collect-flights --from 2024-10-01 --until 2024-11-01 --max-duration 3h`
+
+Then `validate --batch b25`, `report`, `accept`, `publish`. A `review`
+outcome needs `--notes`. A `failed` outcome stops the gate.
+
+### Gaps already on the list
+
+OpenSky's published gap list, checked on 2026-11-20, has no gap before
+2023-01. `known_gaps.yaml` already contains every published gap inside the
+extension, plus the two observed 2026-05 hours from the first window. The
+extension overlaps **250 hours** of published gaps. Those hours should commit
+as `source_gap` when the global hour is empty. Do not add a gap because a
+regional hour is `empty`.
+
+The long gaps make whole flight days likely `source_gap` when the global day
+partition is empty: **2023-01-19, 2023-01-20, 2023-01-21, 2023-01-22,
+2023-12-03 and 2023-12-04**. b46 (2023-01) is the heavy one: 127 gap hours
+across 2023-01-02T23–03T10 and 2023-01-18T11–23T07. That is an expected
+result, not a failed batch.
+
+`SOURCE_MISSING` still stops the range. Probe the global hour and its
+neighbours before editing `known_gaps.yaml`. Add an hour only when the global
+partition is empty, the neighbours exist, and the OpenSky page does not list
+it.
+
+### Pace, size and disk
+
+Use the same pace as the second year: **two batches a day**, with about 15
+minutes between `publish` and the next `run`. A third batch only when the
+first two are published and someone is still present. At that pace the 36
+batches take about **18 working days**. Login still dies mid-run; resume the
+same `--from` and `--until`.
+
+The finished two years are 51.6 GB and 12.53 TB scanned, with 20.7 hours of
+query time. The same density for three more years is about **75 GB** of
+Parquet, **19 TB** scanned and **31 hours** of query time. Older years may
+be thinner. On 2026-11-20 the data disk had 857 GB free and `E:` had 317 GB
+free, which holds this extension. Check both disks before each cut line.
+Stop if `E:` has less than 120 GB free.
+
+Stop a batch when a day exceeds 6 million rows, 100 MB of Parquet, 60 seconds
+per hour, or 5 GB scanned per hour.
+
 ## After the window
 
-Later extensions are separate decisions:
+Still separate decisions, after the five-year extension:
 
 - Incremental collection for hours older than 48 h, which fits a scheduled job
   only if unattended OpenSky login is solved.
