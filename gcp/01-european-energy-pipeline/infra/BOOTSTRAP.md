@@ -15,7 +15,7 @@ export PROJECT_ID=slh-gcp-test
 export REGION=europe-west3
 export STATE_BUCKET=${PROJECT_ID}-tfstate
 export DEPLOY_SA=github-deployer@${PROJECT_ID}.iam.gserviceaccount.com
-export PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format=value(projectNumber))
+export PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
 export REPO=Jiahong-Que-9527/SoloLakehouse
 ```
 
@@ -46,7 +46,7 @@ for role in \
   roles/bigquery.admin \
   roles/artifactregistry.admin \
   roles/cloudscheduler.admin \
-  roles/serviceusage.serviceAdmin \
+  roles/serviceusage.serviceUsageAdmin \
   roles/iam.serviceAccountAdmin \
   roles/iam.serviceAccountUser \
   roles/resourcemanager.projectIamAdmin
@@ -83,12 +83,21 @@ gcloud iam service-accounts add-iam-policy-binding $DEPLOY_SA \
 
 ## 4. Verify (Task 2.1 acceptance)
 
+The impersonation check below needs the calling account to hold
+`roles/iam.serviceAccountTokenCreator` on the deployer SA (the primitive Owner
+role does not include it):
+
+```bash
+gcloud iam service-accounts add-iam-policy-binding $DEPLOY_SA \
+  --member=user:$(gcloud config get-value account) \
+  --role=roles/iam.serviceAccountTokenCreator
+```
+
 ```bash
 gcloud iam workload-identity-pools describe github-pool --location=global
 
 # A listing as the deployer must succeed without any key material:
-gcloud storage ls --project=$PROJECT_ID \
-  --impersonate-service-account=$DEPLOY_SA
+gcloud storage ls --impersonate-service-account=$DEPLOY_SA
 ```
 
 ## 5. Terraform init (once per checkout)
