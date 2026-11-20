@@ -54,15 +54,31 @@ tree uncommitted at record time):
 - **Reused from D02 evidence:** the image build, route smoke and
   missing-input behavior of the same Dockerfile and fixture procedure.
 
-Pending acceptance runs (require the push):
+Recorded acceptance progress, 2026-11-20 (first published run on main):
 
-1. PR run: read-only checks green and no publish attempt.
-2. Negative test: a deliberately failing change skips `publish` and no
+- **PR run green (read-only):** run
+  [44816607658](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/44816607658)
+  — test, build, scan and smoke passed; no publish.
+- **First scan gate:** the first push failed the blocking scan on
+  pip-vendored msgpack/urllib3 and a base-image zlib1g finding, all with
+  fixes available. Remediation (commit `04eeab2`): strip pip from the
+  runtime image and apply the Debian patch level; the rescan is clean.
+- **Main run (published):** run
+  [44817021216](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/44817021216)
+  — test 9 s, build 55 s, smoke 16 s, publish 24 s; artifacts
+  `image-candidate` and `scan-evidence` (SBOM and report) attached.
+- **Release candidate:** commit `60f165f`, image
+  `ghcr.io/jiahong-que-9527/energy-quality-service:sha-60f165f`, digest
+  `sha256:45ff4ee72af6aa72ca97a494cbdd71d9567c67e9e9b2e87aad64ff540ed93384`,
+  artifact checksum re-verified in the publish job, scan verdict clean.
+
+Pending acceptance items:
+
+1. Negative test: a deliberately failing change skips `publish` and no
    candidate tag appears; record both run links (Acceptance 1).
-3. Passing `main` run: flip the package to public, pull the image by
-   digest from WSL and repeat the D02 smoke procedure (Acceptance 2).
-4. Record run, commit, digest, SBOM location and scan result as one
-   release candidate (Acceptance 3).
+2. The package is created private by default; the owner flips it to
+   public, then the image is pulled by digest from WSL and the D02 smoke
+   procedure is repeated against it (Acceptance 2).
 
 <!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
 
