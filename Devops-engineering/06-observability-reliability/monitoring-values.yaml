@@ -1,0 +1,108 @@
+# D06 local metrics stack (helm chart prometheus/prometheus + grafana/grafana).
+# Thresholds marked provisional were set before the baseline run and
+# re-checked against it (see the phase README evidence).
+
+server:
+  persistentVolume:
+    enabled: false
+  retention: 6h
+  global:
+    scrape_interval: 10s
+    evaluation_interval: 10s
+  # The chart's built-in `kubernetes-pods` scrape job already honors the
+  # prometheus.io/* pod annotations, so no extraScrapeConfigs are needed.
+
+serverFiles:
+  # The chart renders the `rules` key as ONE file at /etc/config/rules,
+  # so the rule groups go directly under this key.
+  # Lesson from the first drill: a cross-namespace min(up) masks a single
+  # stopped namespace (the other one keeps min at 1), and absent() only
+  # fires when NO series match at all. Availability therefore needs both
+  # a per-pod down rule and a per-namespace absence rule.
+  rules:
+    groups:
+      - name: energy-quality-availability
+        rules:
+          - alert: EnergyQualityPodDown
+            expr: up{job="kubernetes-pods",namespace=~"energy-quality.*"} == 0
+            for: 30s
+            labels:
+              severity: critical
+            annotations:
+              summary: "A quality-service pod is up but failing its scrape"
+              runbook: "Trial: restore via helm upgrade. Production: Argo selfHeal."
+          - alert: EnergyQualityTrialAbsent
+            expr: absent(up{job="kubernetes-pods",namespace="energy-quality-trial"})
+            for: 30s
+            labels:
+              severity: critical
+              namespace: energy-quality-trial
+            annotations:
+              summary: "The disposable trial workload has no scrape target"
+              runbook: "kubectl -n energy-quality-trial scale deploy/energy-quality --replicas 1"
+
+      - name: energy-quality-service
+        rules:
+          - alert: EnergyQualityServerErrors
+            expr: sum(rate(http_requests_total{code=~"5.."}[1m])) > 0.2
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "5xx rate above 0.2/s for 1m - check the audit input"
+          - alert: EnergyQualityLatencyHigh
+            expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[2m])) by (le)) > 0.5
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "p95 latency above 500ms for 2m (provisional, baseline-check)"
+
+      - name: energy-quality-data
+        rules:
+          - alert: EnergyQualityAuditFailed
+            expr: min(audit_coverage_result) == 0
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Configured audit failed or unavailable - a data-quality signal, not an outage"
+
+alertmanager:
+  persistentVolume:
+    enabled: false
+  config:
+    global:
+      resolve_timeout: 1m
+    route:
+      receiver: webhook-evidence
+      group_by: [alertname]
+      group_wait: 0s
+      group_interval: 30s
+      repeat_interval: 15m
+    receivers:
+      - name: webhook-evidence
+        webhook_configs:
+          - url: http://host.k3d.internal:9876/alert
+            send_resolved: true
+
+nodeExporter:
+  enabled: false
+kubeStateMetrics:
+  enabled: false
+pushgateway:
+  enabled: false
+
+grafana:
+  adminPassword: energy-d06
+  service:
+    type: ClusterIP
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://energy-d06-prometheus-server.monitoring.svc.cluster.local
+          isDefault: true

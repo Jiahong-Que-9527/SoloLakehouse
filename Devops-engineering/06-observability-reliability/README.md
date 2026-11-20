@@ -2,7 +2,9 @@
 
 <!-- [房玄龄·2026-11-17] Initialize DevOps delivery project planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+<!-- [GLM·2026-11-20] Implement the metrics stack and incident drills; record acceptance evidence. -->
+
+**Status:** accepted 2026-11-20 · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
 
 Use service behavior and controlled incidents to validate monitoring and recovery.
 
@@ -22,7 +24,58 @@ D07 uses the validated deployment checks, observability defaults and operating n
 
 ## Evidence
 
-Pending implementation and acceptance runs.
+Implemented and accepted locally, 2026-11-20 (agent run; k3d cluster
+`devops-d05`, monitoring namespace `monitoring`):
+
+- **Stack:** service v0.2.0 serves `/metrics` (request counters per route
+  and code, latency histogram, `audit_coverage_result` gauge keyed by
+  report id) via PR #195; the stack is `prometheus-community/prometheus`
+  (server + alertmanager) and `grafana` from `monitoring-values.yaml`, with
+  alerts routed to a host webhook receiver (`receiver.py`) writing JSONL
+  evidence. Grafana is reachable via port-forward with a provisioned
+  Prometheus datasource.
+- **Acceptance 1 (baseline):** 555 requests at ~9.2 rps for 60 s against
+  the production release; Prometheus recorded exactly 555 200s on the
+  quality route (0 503s); p95 latency 4.75 ms; both pods reported
+  `audit_coverage_result 1`; deployed revision cross-checked
+  (`sha256:05f2f8f0…`, the v0.2.0 promotion). Baseline verdict: the
+  500 ms latency and 0.2/s error-rate thresholds are far above observed
+  behavior and stay as provisional-with-headroom.
+- **Acceptance 2 (three scenarios, disposable trial copy):**
+  - *Elevated HTTP errors:* corrupted fixture in the trial ConfigMap
+    (injected 22:32:32Z), 432 requests driven at 5 rps; the
+    `EnergyQualityServerErrors` critical reached the webhook in ~100 s.
+  - *Stopped workload:* trial scaled to 0 at 22:36:29Z; the external
+    availability check failed (000) and `EnergyQualityTrialAbsent`
+    reached the webhook in ~5 s (cluster-watch detection, not the 3-minute
+    Git poll).
+  - *Corrupted audit fixture (valid JSON, observed 200 > expected 96):*
+    the pod served 503 after 35 s of ConfigMap propagation delay; the
+    `EnergyQualityAuditFailed` warning arrived at 22:42:19Z with zero
+    availability alerts firing.
+- **Control (valid failed audit):** the 95/96 fixture returns HTTP 200
+  with `coverage_result=failed` while the gauge drops to 0; Prometheus
+  fired `EnergyQualityAuditFailed` at ~80 s (starts_at 22:52:19Z) and the
+  webhook received it 10 s later, with zero availability alerts firing -
+  the data-quality signal is cleanly separated from an outage.
+- **Acceptance 3 (recovery checks and runbook updates):** every incident
+  ended with the checksum-verified restore procedure (`restore_trial.py`,
+  semantic checksum `1e8536e8…` matching the fixture) and a 200 quality
+  response. Observed noise that changed the alerts and runbook:
+  1. A cross-namespace `min(up)` masks a single stopped namespace and
+     `absent()` only fires when no series match at all - availability now
+     uses a per-pod `up == 0` rule plus a per-namespace absence rule.
+  2. `scale --replicas 0` removes the scrape target, so only the absence
+     rule can see it.
+  3. ConfigMap content propagates to pods with up to ~60 s of kubelet
+     delay; recovery must restart the pod and poll the response until the
+     new content is actually served.
+  4. `kubectl port-forward` binds to one pod: recreate it after rollout
+     restarts and kill stale forwarders (stale forwards produced misleading
+     `[000]` results during the drills).
+  5. One receiver process per evidence file; kill old receivers between
+     drills (one control run delivered into the previous file, recorded as
+     such).
 
 <!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
 
