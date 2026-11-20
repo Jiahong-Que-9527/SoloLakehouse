@@ -4,7 +4,7 @@
 
 <!-- [GLM·2026-11-20] Implement the scoped workflow; record the D03 decisions and local validation. -->
 
-**Status:** workflow implemented; acceptance runs pending push · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+**Status:** accepted 2026-11-20 · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
 
 Verify service changes and publish an image whose source and build results can be traced.
 
@@ -72,13 +72,21 @@ Recorded acceptance progress, 2026-11-20 (first published run on main):
   `sha256:45ff4ee72af6aa72ca97a494cbdd71d9567c67e9e9b2e87aad64ff540ed93384`,
   artifact checksum re-verified in the publish job, scan verdict clean.
 
-Pending acceptance items:
+- **Acceptance 2 (digest pull and smoke):** with the package public, the
+  digest was pulled anonymously into WSL
+  (`docker pull ghcr.io/jiahong-que-9527/energy-quality-service@sha256:45ff…`),
+  `compose/smoke.sh` ran against the digest reference: startup-to-healthy
+  7 s, three routes 200, identity check OK
+  (`eddf-load-20260608-audit-01`).
+- **Acceptance 1 (negative test):** PR
+  [#185](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/185) broke
+  one test assertion deliberately; run
+  [44818645802](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/44818645802)
+  failed at `pytest` in 11 s, `build`/`smoke` were skipped through the
+  needs chain, `publish` was not attempted, and the tag `sha-397fe87`
+  returns `manifest unknown`. The PR was closed unmerged.
 
-1. Negative test: a deliberately failing change skips `publish` and no
-   candidate tag appears; record both run links (Acceptance 1).
-2. The package is created private by default; the owner flips it to
-   public, then the image is pulled by digest from WSL and the D02 smoke
-   procedure is repeated against it (Acceptance 2).
+D03 is accepted: all three acceptance checks have recorded evidence.
 
 <!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
 

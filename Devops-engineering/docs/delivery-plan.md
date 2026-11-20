@@ -26,7 +26,7 @@ Given a synthetic audit report from the reference service's own fixtures, a deve
 ## Decisions to resolve by phase
 
 - **D01** — define the initial audit JSON schema, its required fields and the synthetic fixtures used to test it. Measure the baseline test and setup run before setting time targets. The schema, fixtures, parser and routes are implemented as of 2026-11-20; the baseline timing measurement is part of the pending owner acceptance.
-- **D03** — choose GHCR visibility and the least-privilege credentials needed for runtime pulls. Record the scan policy and the treatment of actionable findings. Decisions recorded 2026-11-20: public package (runtime pulls anonymous), publish credential is the job-scoped `GITHUB_TOKEN` with `packages: write`, and the scan policy blocks CRITICAL/HIGH findings with a fix available while recording the rest. First workflow run pending push.
+- **D03** — choose GHCR visibility and the least-privilege credentials needed for runtime pulls. Record the scan policy and the treatment of actionable findings. Accepted 2026-11-20: public package (runtime pulls anonymous), publish credential is the job-scoped `GITHUB_TOKEN` with `packages: write`, and the scan policy blocks CRITICAL/HIGH findings with a fix available while recording the rest. Evidence: first published release candidate and a passing negative test.
 - **D04** — choose the versioned release manifest location and define local deployment state, serialization and recovery behavior.
 - **D05** — confirm the local cluster footprint and pin the chosen k3d, Helm and GitOps tooling. Argo CD is the candidate for this project.
 - **D06** — derive alert thresholds and observation windows from the measured baseline, and identify a known-good audit fixture for recovery.
