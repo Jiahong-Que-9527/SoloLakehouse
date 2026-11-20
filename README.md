@@ -129,8 +129,11 @@ repeat or disappear at daylight-saving time boundaries.
   Parquet checksum. [Verification report](gcp/01-european-energy-pipeline/docs/download-verification.md)
 
 The [project-scoped CI workflow](.github/workflows/energy-pipeline.yml) runs
-pytest and Ruff using synthetic inputs and fake HTTP responses. Cloud Storage,
-BigQuery, Cloud Run Jobs and Terraform deployment remain planned.
+pytest and Ruff using synthetic inputs and fake HTTP responses. The first
+cloud delivery is implemented and accepted: a GitHub Actions workflow builds
+the image and applies Terraform through Workload Identity Federation, and a
+scheduled Cloud Run Job publishes a versioned window to Cloud Storage and
+BigQuery. [Cloud verification](gcp/01-european-energy-pipeline/docs/cloud-verification.md)
 
 ## Run the checks locally
 
@@ -159,7 +162,7 @@ local CSV exports are absent. Each project README documents the operational CLI.
 | Area | Current status | Next delivery |
 |---|---|---|
 | [Aviation acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md) | Implemented locally; 24 accepted monthly batches recorded as of 2026-11-18 | Two-year backfill is complete; build local Silver / Gold |
-| [Energy pipeline](gcp/01-european-energy-pipeline/README.md) | Local downloader, normalization, tests and CI implemented | Cloud Run Jobs, Cloud Storage and BigQuery delivery |
+| [Energy pipeline](gcp/01-european-energy-pipeline/README.md) | Cloud delivery implemented and accepted (G01): WIF deploy, Cloud Run Job, scheduled publication | Authenticated API for approved indicators (G02) |
 | [Aviation lakehouse](Fraport-adsb-intelligence/04-aviation-lakehouse/README.md) and [model serving](Fraport-adsb-intelligence/06-model-serving/README.md) | Project briefs and designs | Consume versioned Gold in Databricks; later serve a pinned model on Cloud Run |
 | [Finance](databricks/01-ecb-delta-lakehouse/README.md) | Project briefs in the current layout | ECB Silver / Delta Lakehouse workloads |
 | [DevOps delivery](Devops-engineering/README.md) | Planning scaffold; D01 is next | Reproducible development of the energy quality service |

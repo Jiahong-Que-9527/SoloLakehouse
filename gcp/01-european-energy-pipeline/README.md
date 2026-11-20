@@ -29,7 +29,9 @@ publication requirements and the separate review needed for wholesale prices.
 The local CLI validates a complete SMARD CSV window and writes normalized
 Parquet, a quality report and a checksummed manifest. It preserves MWh and
 uses the metric `actual_load_mwh`. A bounded SMARD downloader can feed this
-same path. Cloud storage, BigQuery publication and scheduling remain future work.
+same path. The cloud version of this path — Cloud Storage raw objects,
+BigQuery publication, a Cloud Run Job and the weekly schedule — is
+implemented and accepted; see [cloud verification](docs/cloud-verification.md).
 
 From this directory, with Python 3.12 or later and uv installed:
 
