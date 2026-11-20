@@ -28,7 +28,7 @@ flowchart LR
 | 2 | 02 Aviation Transformation | Local | 4 to 5 weeks |
 | 3 | 03 Airport Analytics | GCP | 4 to 5 weeks |
 | 4 | 04 Lakehouse Integration | Databricks | 3 to 4 weeks |
-| 5 | 05 Taxi-in Prediction | Vertex AI | 4 to 5 weeks |
+| 5 | 05 Taxi-in Prediction | Local + MLflow | 4 to 5 weeks |
 | 6 | 06 Model Serving | Cloud Run | 2 to 3 weeks |
 | 7 | 07 Orchestration | GCP Workflows or Dagster | 3 to 4 weeks |
 
@@ -84,8 +84,8 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 **Status (2026-11-16):** M0 to M2 are done. Batches b01 (2026-10) through b24
 (2024-11) are collected, validated, accepted and backed up. b01 through b12
 completed the twelve-month cut line. b24 finishes the M3 monthly window. A
-five-year extension back to 2021-11 is planned in the batch plan and is not
-started. M4 and M5 are not started. The
+five-year extension back to 2021-11 is in progress. b25 and b26 are accepted.
+Next is b27 (2024-08). M4 and M5 are not started. The
 working list is the
 [acquisition status](../01-opensky-acquisition/README.md#status-2026-11-16).
 Vertical slice V0 (Silver for the pilot week) can start in parallel. It is
@@ -133,7 +133,7 @@ findings report.
 1. Label definition and coverage.
 2. Baselines on a time-ordered split.
 3. Gradient-boosted model with experiment tracking.
-4. Vertex AI training job and model registration.
+4. Containerized training job with MLflow tracking and model registration (ADR-005).
 5. Evaluation report.
 
 **Exit:** versioned model, traceable to a release ID, and an honest comparison
@@ -191,6 +191,7 @@ against the baseline.
 | Collection is interrupted | Incomplete dataset | Run the most valuable months first, back up each batch when accepted |
 | Data volume above estimate | Disk shortage | Seven-day size test before the full backfill |
 | Proxy labels are noisy | Weak model or overclaimed results | Report coverage, validate a sample independently |
+| Vertex AI is unavailable on the trial account | Training and registry milestones cannot run as designed | Cloud-neutral MLflow path (ADR-005); training stays local and cloud runs are small and cost-recorded |
 | Gold too coarse for the model | The cloud cannot train a per-flight model | Gold contract requires per-flight features and labels from the start |
 | Table format unverified | Rework of cloud tables | Time-boxed spike and ADR-004 before cloud table code, native tables as fallback |
 | Layers meet late | Integration surprises after weeks of work | Vertical slice V0 on the pilot week |

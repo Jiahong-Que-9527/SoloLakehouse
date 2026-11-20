@@ -9,7 +9,9 @@ version.
 
 ## Technical scope
 
-Vertex AI training, Model Registry, Cloud Run and Cloud Monitoring.
+MLflow tracking and model registry, containerized training jobs, Cloud Run
+and Cloud Monitoring. Vertex AI is a documented migration path, not a
+dependency ([ADR-005](../../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md)).
 
 ## Input and output
 
@@ -23,3 +25,5 @@ Vertex AI training, Model Registry, Cloud Run and Cloud Monitoring.
 3. Measure serving latency and errors. Exercise a rollback in the test environment and verify the version after rollback.
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
+
+<!-- [GLM·2026-11-20] Substitute Vertex AI with MLflow and containerized training; see ADR-005. -->

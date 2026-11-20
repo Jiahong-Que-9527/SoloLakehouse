@@ -22,7 +22,11 @@ The project [brief](../README.md) fixes the first target.
 
 ## 2. Boundary
 
-In scope: dataset build, baseline, one candidate, Vertex AI Pipeline, Model Registry, the promotion gate, batch prediction, and a rollback to the previous registered version.
+In scope: dataset build, baseline, one candidate, a containerized training
+pipeline, MLflow tracking and registry, the promotion gate, batch prediction,
+and a rollback to the previous registered version. The trial account cannot
+use Vertex AI; the substitution and its migration path are recorded in
+[ADR-005](../../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md).
 
 Out of scope: weather ingestion, hyperparameter search, feature store, online A/B traffic, and any claim that the model should be used operationally. The aviation serving project keeps its own contract. It may copy this promotion rule. It does not call this pipeline.
 
@@ -35,13 +39,13 @@ Passed G04 release, or a fixture with a release id
 Feature table   cutoff enforced in the query
           |
           v
-Vertex AI Pipeline
+Training pipeline (container, run on demand)
   train baseline -> train candidate -> evaluate -> gate
           |
           +-- fail --> experiment only
           |
           v
-Vertex AI Model Registry   version, params, release id, git sha, metrics
+MLflow Model Registry      version, params, release id, git sha, metrics
           |
           v
 Batch prediction job -> BigQuery energy_ml.prediction
@@ -67,7 +71,7 @@ The pipeline parameters are `release_id`, `git_sha`, `seed`, `holdout_start`, an
 
 ## 6. Delivery and cost
 
-Training uses the small fixture and CPU. The pipeline runs on demand. The online revision is deployed only for the rollback demonstration and is left with no traffic afterwards. The evaluation report records the pipeline job id and the training cost shown by that job.
+Training uses the small fixture and CPU. The pipeline runs on demand. The online revision is deployed only for the rollback demonstration and is left with no traffic afterwards. The evaluation report records the training run id and the observed training cost.
 
 ## 7. Acceptance
 

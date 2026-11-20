@@ -10,9 +10,10 @@ individual stages are stable.
 
 - Compare GCP Workflows and Dagster on the real pipeline. Record the decision
   in an ADR.
-- Model the pipeline. Local stages (acquisition, Silver, Gold, release) stay
-  scripts and are only observed. Cloud stages (release detection, validation,
-  ingestion, analytics, training and serving release) are orchestrated.
+- Model the pipeline. Local stages (acquisition, Silver, Gold, release and
+  containerized training) stay scripts and are observed and triggered. Cloud
+  stages (release detection, validation, ingestion, analytics and serving
+  release) are orchestrated. Training is not a managed cloud stage (ADR-005).
 - Detect a new release by its `_SUCCESS` file and trigger ingestion.
 - Add scheduling, retry policy, failure alerts and run history.
 - Link every run to its source commit, input data version and output.
