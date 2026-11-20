@@ -1,0 +1,20 @@
+# Environment values: the Git-managed release pin for the local cluster.
+# Changing image.digest here is a release; Argo CD reconciles the cluster
+# to this file (automated sync, selfHeal on).
+image:
+  # Verified release reference R004-001 (source 60f165fa, D04).
+  digest: sha256:45ff4ee72af6aa72ca97a494cbdd71d9567c67e9e9b2e87aad64ff540ed93384
+
+fixture:
+  auditReportFile: report-passed.json
+  content: |
+    {
+      "schema_version": 1,
+      "report_id": "eddf-load-20260608-audit-01",
+      "snapshot_date": "2026-06-08",
+      "year": 2026,
+      "audited_at": "2026-06-09T06:00:00Z",
+      "expected_slots": 96,
+      "observed_slots": 96,
+      "coverage_result": "passed"
+    }

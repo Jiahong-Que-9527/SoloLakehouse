@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: energy-quality
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Jiahong-Que-9527/SoloLakehouse.git
+    targetRevision: main
+    path: Devops-engineering/05-kubernetes-gitops
+    helm:
+      valueFiles:
+        - gitops-values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: energy-quality
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
