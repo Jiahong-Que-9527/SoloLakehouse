@@ -86,6 +86,11 @@ resource "google_bigquery_table" "api_view" {
         release_id, ingested_at
       FROM `${var.project_id}.energy.metric_observation`
     SQL
+    # BigQuery's tables API defaults useLegacySql to true; under legacy SQL
+    # the standard-SQL backtick quoting becomes part of the project ID token
+    # (first apply died with Invalid project ID '`slh-gcp-test'). Explicit
+    # and non-negotiable.
+    use_legacy_sql = false
   }
 }
 
