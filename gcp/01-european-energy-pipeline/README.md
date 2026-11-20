@@ -3,8 +3,9 @@
 <!-- [Codex · 2026-11-13] Initial project directory. -->
 <!-- [Codex · 2026-11-13] Project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
+<!-- [李淳风·2026-11-20] Link the phased implementation plan for the first cloud delivery. -->
 
-**G01 · Local implementation** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Data use and compliance](docs/data-use.md)
+**G01 · Local implementation** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Data use and compliance](docs/data-use.md)
 
 Deliver a repeatable batch pipeline for German electricity-market data. Start with one week of SMARD actual total load and publish a queryable BigQuery table.
 

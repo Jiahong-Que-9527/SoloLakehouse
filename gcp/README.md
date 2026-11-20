@@ -2,6 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Record the platform projects, milestones and acceptance criteria. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
+<!-- [李淳风·2026-11-20] Link the G01 implementation plan. -->
 
 This series explores how to deliver, govern and operate data products on Google Cloud. German electricity load provides the main dataset. The event-processing project also uses synthetic airport events.
 
@@ -13,7 +14,7 @@ This series explores how to deliver, govern and operate data products on Google 
 
 1. **G01** · [European Energy Pipeline](01-european-energy-pipeline/README.md)
    Deploy a scheduled batch job and publish a repeatable electricity-load table.
-   [Design](01-european-energy-pipeline/docs/design.md)
+   [Design](01-european-energy-pipeline/docs/design.md) · [Implementation plan](01-european-energy-pipeline/docs/implementation.md)
 2. **G02** · [Energy Analytics API](02-energy-analytics-api/README.md)
    Serve approved indicators through an authenticated, measured REST API.
    [Design](02-energy-analytics-api/docs/design.md) · [Implementation plan](02-energy-analytics-api/docs/implementation.md)
