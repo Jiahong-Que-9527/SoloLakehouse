@@ -1,0 +1,25 @@
+services:
+  energy-quality:
+    image: ${ENERGY_QUALITY_IMAGE:-energy-quality-service:d02}
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "${ENERGY_QUALITY_PORT:-8732}:8000"
+    environment:
+      AUDIT_REPORT_PATH: /reports/${AUDIT_REPORT_FILE:-report-passed.json}
+    volumes:
+      - ../fixtures:/reports:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen("http://127.0.0.1:8000/ready", timeout=3)
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s

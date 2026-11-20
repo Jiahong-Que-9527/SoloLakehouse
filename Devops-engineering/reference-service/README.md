@@ -78,3 +78,21 @@ curl -s http://127.0.0.1:8000/v1/quality/latest
 Switch `AUDIT_REPORT_PATH` to `fixtures/report-failed.json` to verify that a
 valid failed audit stays readable with HTTP 200, and to
 `fixtures/report-malformed.json` to verify the 503 availability error.
+
+## Run in Docker (D02)
+
+```bash
+# One-time on this machine: the Docker daemon uses a non-default socket.
+export DOCKER_HOST=unix:///run/recordchat-docker.sock
+
+# Build an image reference and smoke-check it end to end.
+docker build -t energy-quality-service:d02 .
+compose/smoke.sh energy-quality-service:d02 report-passed.json
+```
+
+`compose/compose.yaml` starts the service with `fixtures/` mounted
+read-only at `/reports`, a read-only root filesystem, and a healthcheck on
+`/ready`. `AUDIT_REPORT_FILE` selects the fixture (`report-passed.json` by
+default). Startup-to-healthy budget is about 70 s (start_period 5 s plus
+12 retries x 5 s): an unusable report turns the container `unhealthy`
+rather than crashing it.

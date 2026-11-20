@@ -1,0 +1,193 @@
+name: DevOps service
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Devops-engineering/**'
+      - '.github/workflows/devops-service.yml'
+  pull_request:
+    paths:
+      - 'Devops-engineering/**'
+      - '.github/workflows/devops-service.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_IMAGE: energy-quality-service:candidate
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Devops-engineering/reference-service
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: '0.13.9'
+          python-version: '3.13'
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+      - run: uv run --locked pytest
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build candidate image
+        run: docker build -t "$CANDIDATE_IMAGE" Devops-engineering/reference-service
+      - name: Export checked artifact
+        run: |
+          docker save -o image.tar "$CANDIDATE_IMAGE"
+          TAR_SHA=$(sha256sum image.tar | cut -d' ' -f1)
+          printf '{"git_sha": "%s", "run_id": %s, "image": "%s", "tar_sha256": "%s", "scan_policy": "%s", "package_visibility": "%s"}\n' \
+            "${{ github.sha }}" "${{ github.run_id }}" "$CANDIDATE_IMAGE" "$TAR_SHA" \
+            "block CRITICAL/HIGH with fix available; record the rest" "public" > metadata.json
+      - name: "Scan candidate (blocking policy: CRITICAL/HIGH with fix available)"
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.CANDIDATE_IMAGE }}
+          format: table
+          exit-code: '1'
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+      - name: Scan record (non-blocking findings for the evidence pack)
+        if: always()
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.CANDIDATE_IMAGE }}
+          format: table
+          exit-code: '0'
+          output: scan-report.txt
+      - name: Generate SBOM (CycloneDX)
+        if: always()
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.CANDIDATE_IMAGE }}
+          format: cyclonedx
+          exit-code: '0'
+          output: sbom.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-candidate
+          path: image.tar
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scan-evidence
+          path: |
+            scan-report.txt
+            sbom.json
+            metadata.json
+          retention-days: 90
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: image-candidate
+      - name: Load checked artifact
+        run: docker load -i image.tar
+      - name: Run with the checked-in passing fixture
+        run: |
+          docker run -d --name eq-smoke -p 8732:8000 \
+            -v "$GITHUB_WORKSPACE/Devops-engineering/reference-service/fixtures:/reports:ro" \
+            -e AUDIT_REPORT_PATH=/reports/report-passed.json "$CANDIDATE_IMAGE"
+          for _ in $(seq 1 30); do
+            curl -s --max-time 2 -o /dev/null http://127.0.0.1:8732/live && break
+            sleep 1
+          done
+      - name: Verify the three D01 routes and the report identity
+        run: |
+          set -euo pipefail
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8732/live)" = 200 ]
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8732/ready)" = 200 ]
+          BODY=$(curl -s --max-time 5 http://127.0.0.1:8732/v1/quality/latest)
+          echo "$BODY"
+          echo "$BODY" | grep -q 'eddf-load-20260608-audit-01'
+          echo "$BODY" | grep -q '"coverage_result":"passed"'
+      - name: Verify missing-input behavior
+        run: |
+          set -euo pipefail
+          docker run -d --name eq-smoke-missing -p 8733:8000 \
+            -v "$GITHUB_WORKSPACE/Devops-engineering/reference-service/fixtures:/reports:ro" \
+            -e AUDIT_REPORT_PATH=/reports/absent.json "$CANDIDATE_IMAGE"
+          for _ in $(seq 1 30); do
+            curl -s --max-time 2 -o /dev/null http://127.0.0.1:8733/live && break
+            sleep 1
+          done
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8733/ready)" = 503 ]
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8733/v1/quality/latest)" = 503 ]
+      - name: Stop containers
+        if: always()
+        run: docker rm -f eq-smoke eq-smoke-missing >/dev/null 2>&1 || true
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [test, build, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: image-candidate
+      - uses: actions/download-artifact@v4
+        with:
+          name: scan-evidence
+      - name: Verify the checked artifact is the scanned one
+        run: |
+          set -euo pipefail
+          TAR_SHA=$(jq -r .tar_sha256 metadata.json)
+          echo "$TAR_SHA  image.tar" | sha256sum -c -
+      - name: Load the checked artifact (no rebuild)
+        run: docker load -i image.tar
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push by release-candidate tag
+        id: push
+        run: |
+          set -euo pipefail
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/energy-quality-service"
+          TAG="sha-$(echo "$GITHUB_SHA" | cut -c1-7)"
+          docker tag "$CANDIDATE_IMAGE" "$IMAGE:$TAG"
+          DIGEST=$(docker push "$IMAGE:$TAG" | grep -o 'sha256:[a-f0-9]*' | tail -1)
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+      - name: Record the release candidate
+        run: |
+          set -euo pipefail
+          TAR_SHA=$(jq -r .tar_sha256 metadata.json)
+          {
+            echo "## Release candidate"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Commit | \`${{ github.sha }}\` |"
+            echo "| CI run | \`${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\` |"
+            echo "| Image | \`${{ steps.push.outputs.image }}:${{ steps.push.outputs.tag }}\` |"
+            echo "| Digest | \`${{ steps.push.outputs.digest }}\` |"
+            echo "| Artifact checksum | \`$TAR_SHA\` |"
+            echo "| SBOM | workflow artifact \`scan-evidence\` (sbom.json, CycloneDX) |"
+            echo "| Scan policy | block CRITICAL/HIGH with fix available; report recorded otherwise |"
+            echo "| Package visibility | public (runtime pulls are anonymous) |"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -4,9 +4,11 @@
 
 <!-- [房玄龄·2026-11-17] Initialize DevOps delivery project planning. -->
 
+<!-- [GLM·2026-11-20] Implement D01 (service) and D02 (image and compose); record local evidence. -->
+
 Build the delivery and operating path for one small data service. The **Energy Data Quality Service** will expose quality results for synthetic energy snapshots while each phase adds a verifiable delivery or operating capability.
 
-**Status:** planning scaffold. D01 is next. Each phase is planned and its acceptance evidence is pending.
+**Status:** D01 and D02 implemented locally (owner acceptance runs pending). D03 is next. Remaining phases are planned and their acceptance evidence is pending.
 
 ## Service and environment
 
