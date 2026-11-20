@@ -256,9 +256,10 @@ resource "google_cloud_scheduler_job" "weekly" {
     http_method = "POST"
     uri         = "https://${var.region}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${var.project_id}/jobs/${google_cloud_run_v2_job.publisher.name}:run"
 
-    oidc_token {
+    # *.googleapis.com endpoints expect an OAuth access token, not OIDC (an
+    # OIDC token here dies with 401 UNAUTHENTICATED before IAM is consulted).
+    oauth_token {
       service_account_email = google_service_account.job.email
-      audience              = "https://${var.region}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${var.project_id}/jobs/${google_cloud_run_v2_job.publisher.name}:run"
     }
   }
 
