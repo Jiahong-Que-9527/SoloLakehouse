@@ -1,6 +1,8 @@
 # 05 · Taxi-in Prediction
 
-**Runtime:** Vertex AI, with local development first.
+<!-- [GLM·2026-11-20] Replace the Vertex AI runtime with the cloud-neutral MLflow path; see docs/adr/ADR-005. -->
+
+**Runtime:** Local training first, packaged as a container; MLflow for experiment tracking and the model registry ([ADR-005](../docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md)).
 
 Train and evaluate a model that predicts taxi-in time for arrivals at `EDDF`.
 Start with a simple baseline and add complexity only when it improves a
@@ -19,7 +21,7 @@ airport ground truth. Report label coverage and definition with every result.
 - Use a time-ordered split. Never shuffle across time.
 - Establish baselines first (historical mean or median by condition), then a
   gradient-boosted model.
-- Track experiments, parameters, metrics and model artifacts.
+- Track experiments, parameters, metrics and model artifacts in MLflow.
 - Store model artifacts outside Git. Version them and link each to a source
   commit and training data version.
 
@@ -28,7 +30,7 @@ airport ground truth. Report label coverage and definition with every result.
 - **M1.** Label definition and coverage report.
 - **M2.** Baselines on a time-ordered split, run locally.
 - **M3.** Gradient-boosted model with experiment tracking.
-- **M4.** Repeat the training as a Vertex AI job and register the model.
+- **M4.** Repeat the training as a containerized job, register the model version in MLflow and publish its release manifest (ADR-005).
 - **M5.** Evaluation report with error by hour, season and traffic level.
 
 ## Acceptance
