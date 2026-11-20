@@ -50,7 +50,7 @@ jobs:
             "${{ github.sha }}" "${{ github.run_id }}" "$CANDIDATE_IMAGE" "$TAR_SHA" \
             "block CRITICAL/HIGH with fix available; record the rest" "public" > metadata.json
       - name: "Scan candidate (blocking policy: CRITICAL/HIGH with fix available)"
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
           image-ref: ${{ env.CANDIDATE_IMAGE }}
@@ -60,7 +60,7 @@ jobs:
           ignore-unfixed: true
       - name: Scan record (non-blocking findings for the evidence pack)
         if: always()
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
           image-ref: ${{ env.CANDIDATE_IMAGE }}
@@ -69,7 +69,7 @@ jobs:
           output: scan-report.txt
       - name: Generate SBOM (CycloneDX)
         if: always()
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
           image-ref: ${{ env.CANDIDATE_IMAGE }}

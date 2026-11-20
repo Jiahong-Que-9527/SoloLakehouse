@@ -2,7 +2,9 @@
 
 <!-- [房玄龄·2026-11-17] Initialize DevOps delivery project planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+<!-- [GLM·2026-11-20] Implement the scoped workflow; record the D03 decisions and local validation. -->
+
+**Status:** workflow implemented; acceptance runs pending push · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
 
 Verify service changes and publish an image whose source and build results can be traced.
 
@@ -20,9 +22,47 @@ Verify service changes and publish an image whose source and build results can b
 
 D04 consumes an approved candidate from this workflow.
 
+## Decisions
+
+Recorded 2026-11-20:
+
+- **Package visibility:** public on GHCR. Runtime pulls (D04 WSL, D05 k3d)
+  stay anonymous. The first push creates the package private by default;
+  the owner flips it to public once in the package settings.
+- **Publish credentials:** the workflow's built-in `GITHUB_TOKEN` with
+  `packages: write`, granted to the `publish` job only. No long-lived PAT.
+- **Scan policy:** Trivy blocks CRITICAL or HIGH findings with a fix
+  available (`ignore-unfixed`); all findings are kept in the non-blocking
+  report, and the CycloneDX SBOM travels with the evidence pack.
+- **Blocking checks:** lint, tests, image build, scan and smoke must pass;
+  `publish` needs all of them and runs only on push to `main`.
+- **Artifact integrity:** the image is built once, saved as a tar with its
+  SHA-256, scanned and smoked from that same artifact, and published
+  without rebuilding; the publish job re-verifies the checksum first.
+
 ## Evidence
 
-Pending implementation and acceptance runs.
+Workflow implemented and validated locally, 2026-11-20 (agent run; working
+tree uncommitted at record time):
+
+- **Scenario:** workflow structure. **Command:** PyYAML parse of
+  `.github/workflows/devops-service.yml`. **Observed:** triggers push,
+  pull_request and workflow_dispatch scoped to `Devops-engineering/**` and
+  the workflow file; chain test -> build -> smoke -> publish; publish
+  gated to push on `main` and the only job holding `packages: write`;
+  scan policy exit-code 1, severity CRITICAL,HIGH, ignore-unfixed.
+- **Reused from D02 evidence:** the image build, route smoke and
+  missing-input behavior of the same Dockerfile and fixture procedure.
+
+Pending acceptance runs (require the push):
+
+1. PR run: read-only checks green and no publish attempt.
+2. Negative test: a deliberately failing change skips `publish` and no
+   candidate tag appears; record both run links (Acceptance 1).
+3. Passing `main` run: flip the package to public, pull the image by
+   digest from WSL and repeat the D02 smoke procedure (Acceptance 2).
+4. Record run, commit, digest, SBOM location and scan result as one
+   release candidate (Acceptance 3).
 
 <!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
 
