@@ -38,3 +38,14 @@ def test_all_datetimes_utc_aware():
     for obs in _rows():
         assert obs.interval_start.utcoffset() == timedelta(0)
         assert obs.interval_end.utcoffset() == timedelta(0)
+
+
+def test_recorded_expectation_two_rows_min_10_max_12():
+    # implementation.md step 1: "Record the expected count, minimum and maximum
+    # as 2, 10 and 12" across the two seed releases.
+    rows = _rows()
+    assert (len(rows), min(o.value for o in rows), max(o.value for o in rows)) == (
+        2,
+        10.0,
+        12.0,
+    )
