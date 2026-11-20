@@ -82,3 +82,20 @@ def test_unsupported_schema_version_is_invalid(client_with, tmp_path):
     response = client_with(target).get("/v1/quality/latest")
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "report_invalid"
+
+
+def test_metrics_expose_requests_and_audit_gauge(client_with):
+    client = client_with(FIXTURES / "report-passed.json")
+    client.get("/v1/quality/latest")
+    body = client.get("/metrics").text
+    assert 'http_requests_total{code="200",route="/v1/quality/latest"}' in body
+    assert "audit_coverage_result" in body
+    assert "http_request_duration_seconds" in body
+
+
+def test_metrics_record_availability_errors(client_with, tmp_path):
+    client = client_with(tmp_path / "absent.json")
+    client.get("/v1/quality/latest")
+    body = client.get("/metrics").text
+    assert 'http_requests_total{code="503",route="/v1/quality/latest"}' in body
+    assert 'audit_coverage_result{report_id="unavailable"} 0.0' in body
