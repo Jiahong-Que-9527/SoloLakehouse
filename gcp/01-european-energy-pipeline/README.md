@@ -5,7 +5,9 @@
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 <!-- [李淳风·2026-11-20] Link the phased implementation plan for the first cloud delivery. -->
 
-**G01 · Local implementation** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Data use and compliance](docs/data-use.md)
+<!-- [李淳风·2026-11-20] First cloud delivery accepted; status badge and verification link updated. -->
+
+**G01 · Cloud delivery implemented and accepted (2026-11-20)** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Cloud verification](docs/cloud-verification.md) · [Data use and compliance](docs/data-use.md)
 
 Deliver a repeatable batch pipeline for German electricity-market data. Start with one week of SMARD actual total load and publish a queryable BigQuery table.
 
