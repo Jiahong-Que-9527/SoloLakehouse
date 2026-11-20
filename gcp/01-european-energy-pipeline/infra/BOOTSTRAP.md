@@ -28,7 +28,45 @@ gcloud storage buckets create gs://$STATE_BUCKET \
   --public-access-prevention
 ```
 
-## 2. Deployer service account and grant set
+## 2. Prerequisites Terraform cannot create for itself
+
+Three things must exist BEFORE the first `terraform plan`/`apply` and before
+the first `build-push`. Each was hit live on 2026-11-20:
+
+```bash
+# a) Every service main.tf manages, PLUS cloudresourcemanager: without CRM,
+#    terraform's google_project_service resources all fail with 403.
+gcloud services enable \
+  run.googleapis.com storage.googleapis.com bigquery.googleapis.com \
+  artifactregistry.googleapis.com cloudscheduler.googleapis.com \
+  iamcredentials.googleapis.com sts.googleapis.com iam.googleapis.com \
+  serviceusage.googleapis.com cloudresourcemanager.googleapis.com \
+  --project=$PROJECT_ID
+
+# b) The image registry: build-push runs before the first apply can ever
+#    create it (apply needs the image build-push publishes).
+gcloud artifacts repositories create energy \
+  --repository-format=docker --location=$REGION \
+  --project=$PROJECT_ID --description="G01 energy pipeline images"
+
+# c) An App Engine app: Cloud Scheduler refuses to create jobs without one.
+#    Empty shell, no code, no cost; the region choice is irreversible.
+gcloud app create --region=$REGION --project=$PROJECT_ID
+```
+
+Adopt the registry into Terraform state (the plan keeps it TF-managed), so
+`apply` sees it as existing infrastructure instead of failing on create:
+
+```bash
+cd gcp/01-european-energy-pipeline/infra
+terraform init -backend-config="bucket=$STATE_BUCKET"
+terraform import \
+  -var project_id=$PROJECT_ID -var image=plan-only-placeholder \
+  google_artifact_registry_repository.energy \
+  "projects/$PROJECT_ID/locations/$REGION/repositories/energy"
+```
+
+## 3. Deployer service account and grant set
 
 The deployer manages everything `main.tf` declares (services, storage, BigQuery,
 registry, scheduler, the `energy-job` identity and its project bindings), so it
@@ -62,7 +100,7 @@ done
 config and the Cloud Run job reference `energy-job`, which Terraform itself
 creates on first apply.
 
-## 3. Workload Identity Federation (GitHub Actions → deployer)
+## 4. Workload Identity Federation (GitHub Actions → deployer)
 
 ```bash
 gcloud iam workload-identity-pools create github-pool \
@@ -81,7 +119,7 @@ gcloud iam service-accounts add-iam-policy-binding $DEPLOY_SA \
   --member="principalSet://iam.googleapis.com/projects/$PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/attribute.repository/$REPO"
 ```
 
-## 4. Verify (Task 2.1 acceptance)
+## 5. Verify (Task 2.1 acceptance)
 
 The impersonation check below needs the calling account to hold
 `roles/iam.serviceAccountTokenCreator` on the deployer SA (the primitive Owner
@@ -100,14 +138,14 @@ gcloud iam workload-identity-pools describe github-pool --location=global
 gcloud storage ls --impersonate-service-account=$DEPLOY_SA
 ```
 
-## 5. Terraform init (once per checkout)
+## 6. Terraform init (once per checkout)
 
 ```bash
 cd gcp/01-european-energy-pipeline/infra
 terraform init -backend-config="bucket=$STATE_BUCKET"
 ```
 
-## 6. Values for the GitHub variables (Task 2.2)
+## 7. Values for the GitHub variables (Task 2.2)
 
 | Variable | Value |
 |----------|-------|
