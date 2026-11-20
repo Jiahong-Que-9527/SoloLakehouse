@@ -9,6 +9,9 @@ dependencies = ["pyarrow>=23", "tzdata>=2025.2"]
 [project.scripts]
 energy-pipeline = "energy_pipeline.cli:main"
 
+[project.optional-dependencies]
+cloud = ["google-cloud-storage>=3", "google-cloud-bigquery>=3"]
+
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]
 

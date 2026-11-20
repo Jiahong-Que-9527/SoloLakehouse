@@ -104,7 +104,7 @@ Verify: `gcloud projects describe <project-id>` and `terraform version` succeed 
 - Produces (signatures later tasks and the Dockerfile rely on):
 
 ```python
-# cloud_publish.py
+# cloud_publish.py (as built; see repo for the exact source)
 @dataclass(frozen=True)
 class PublishResult:
     run_id: str
@@ -113,24 +113,46 @@ class PublishResult:
     input_sha256: str
     quality_status: str  # "passed" | "failed"
 
+
 class RawStore:
-    def put(self, bucket: str, prefix: str, run_id: str,
-            csv_bytes: bytes, manifest: dict) -> None: ...
+    def put_object(self, bucket: str, prefix: str, name: str, payload: bytes) -> str: ...
+
 
 class Warehouse:
-    def merge_observations(self, project: str, dataset: str, table: str,
-                           rows: pa.Table, release_id: str,
-                           ingested_at: datetime) -> int: ...
+    def merge_observations(
+        self,
+        project: str,
+        dataset: str,
+        table: str,
+        rows: pa.Table,
+        release_id: str,
+        ingested_at: datetime,
+    ) -> int: ...
     def insert_release(self, project: str, dataset: str, record: dict) -> None: ...
 
-def publish_window(store: RawStore, warehouse: Warehouse, *, csv_bytes: bytes,
-                   window: Window, bucket: str, project: str, dataset: str,
-                   mode: str) -> PublishResult: ...
+
+def publish_window(
+    store: RawStore,
+    warehouse: Warehouse,
+    *,
+    csv_bytes: bytes,
+    window: Window,
+    bucket: str,
+    project: str,
+    dataset: str,
+    input_name: str = "sample.csv",
+    source: str = "sample",
+    now: datetime | None = None,
+    revision: dict | None = None,
+    execution_id: str | None = None,
+) -> PublishResult: ...
 ```
 
-- CLI surface: `energy-pipeline publish-cloud --mode sample --bucket BUCKET
-  --project PROJECT --dataset energy [--output-dir DIR]`. `--mode` accepts `sample`
-  only in v1; the sample files ship inside the package.
+- CLI surface: `energy-pipeline publish-cloud --mode sample --from DATE --until
+  DATE --bucket BUCKET --project PROJECT --dataset energy [--output DIR]`.
+  `--mode` accepts `sample` only in v1; the sample files ship inside the package
+  and the window must match one of them. (As built 2026-11-20; the window
+  arguments follow design §5.1 "resolve the window from arguments".)
 
 **Steps:**
 
