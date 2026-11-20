@@ -83,10 +83,16 @@ identical across all four release rows.
 
 ## Cost
 
-**[节度使大人待填：Billing → Reports for `slh-gcp-test`, acceptance window
-2026-11-20.]** Expected drivers: Artifact Registry image storage (~570 MB),
-negligible BigQuery storage for 672 rows, four Cloud Run executions billed by
-CPU-time only, no per-request charges.
+Billing account `01FCE3-C90698-BFE584` for the acceptance day
+(2026-11-20): **Total €0.00** — usage was fully offset by free-tier
+discounts and trial credits, and the Free Trial banner shows €0 of
+€269 used. The per-service breakdown for `slh-gcp-test` is pending
+the billing-data lag; expected drivers are Artifact Registry image
+storage (~570 MB), negligible BigQuery storage for 672 rows, and four
+Cloud Run executions billed by CPU-time only. Charges visible in the
+report from sibling projects on the same billing account (e.g. Vertex
+AI usage from `sololakehouse`) are not G01 charges — this repo's GCP
+cost gate ([AGENTS.md](../../AGENTS.md)) exists to keep it that way.
 
 ## Out of scope (unchanged, design §2)
 
