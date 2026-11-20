@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "report_id": "eddf-load-20260608-audit-01",
+  "snapshot_date": "2026-06-08",
+  "year": 2026,
+  "audited_at": "2026-06-09T06:00:00Z",
+  "expected_slots": 96,
+  "observed_slots": 96,
+  "coverage_result": "passed"
+}

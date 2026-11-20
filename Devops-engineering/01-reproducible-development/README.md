@@ -4,7 +4,9 @@
 
 <!-- [房玄龄·2026-11-17] Initialize DevOps delivery project planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+<!-- [GLM·2026-11-20] Implement the service, fixtures, parser and routes; record local evidence. -->
+
+**Status:** implemented locally; owner acceptance pending · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
 
 Start with the [reference service](../reference-service/README.md) and verify that another developer can reproduce its behavior from a fresh checkout.
 
@@ -24,7 +26,37 @@ D02 consumes the service startup command, runtime configuration and tested contr
 
 ## Evidence
 
-Pending implementation and acceptance runs.
+Implemented and verified locally, 2026-11-20 (agent run in WSL Ubuntu;
+working tree uncommitted at record time):
+
+- **Scenario:** strict v1 contract parsing. **Command:** `uv run --locked pytest`.
+  **Observed:** 21 passed — fixture oracle equality, unsupported schema
+  version, invalid counts, inconsistent coverage, malformed JSON, and
+  error bodies free of filesystem details.
+- **Scenario:** three routes over real HTTP. **Command:** uvicorn on
+  `127.0.0.1:8731` with each fixture as `AUDIT_REPORT_PATH`, probed with
+  curl. **Observed:** `/live` 200; `/ready` 200; quality route 200 with the
+  passed fixture body; failed fixture 200 with `coverage_result=failed`;
+  missing report 503 `report_unavailable`; malformed fixture 503
+  `report_invalid` naming the missing fields, with no filesystem paths.
+- **Runtime versions:** Python 3.13.14, uv 0.13.9.
+- **Fixture identity (SHA-256):** passed
+  `b728777c2a8b7b7a1878986cee5bfe431fd66e45c02ecbea756270a99dbff6d0`,
+  failed
+  `20fe035236c2ad58fc4e0aba14f946c8fce960dc47b4f4768296d17dbbba8aa7`,
+  malformed
+  `751fc1b0f01f2c3f32aa440f7587b0f6bdd90beeb94c0cc5901e0f0557e8185e`.
+- **Checks:** `uv run --locked ruff check .` and
+  `uv run --locked ruff format --check .` clean.
+
+Pending owner acceptance (fresh-checkout gate, Acceptance 1):
+
+1. Fresh clone, then `cd Devops-engineering/reference-service`.
+2. `time uv sync --locked`; record elapsed time and `uv run python -V`.
+3. `uv run --locked pytest`, `uv run --locked ruff check .`,
+   `uv run --locked ruff format --check .`.
+4. Serve with the checked-in fixture and record the three route responses
+   and the fixture checksum (commands in the reference service README).
 
 <!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
 

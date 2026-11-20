@@ -4,7 +4,9 @@
 
 <!-- [房玄龄·2026-11-17] Initialize DevOps delivery project planning. -->
 
-**Status:** planned · [D01](../01-reproducible-development/README.md)
+<!-- [GLM·2026-11-20] Implement D01: v1 contract, fixtures, parser and API. -->
+
+**Status:** D01 implemented; acceptance runs pending · [D01](../01-reproducible-development/README.md)
 
 Provide a read-only answer to a practical question. Which checks did the configured synthetic energy snapshot pass, and when was it audited?
 
@@ -34,3 +36,45 @@ Use one meter and a UTC day with 96 quarter-hour slots. The complete fixture con
 For v1 require a schema version, stable report ID, snapshot date, year, UTC audit timestamp, expected and observed distinct-slot counts, and a coverage result. Counts are nonnegative integers and observed coverage cannot exceed expected coverage. For these fixtures coverage passes when all 96 expected slots are present. Preserve report ID and timestamp when serving a report. The selected path identifies the configured audit. Runtime releases refer to its checksum.
 
 A complete and a partial but well-formed report both return a usable quality response. An unsupported schema or malformed file produces an availability error. Use the same examples for contract tests, container smoke tests, release verification and incident exercises.
+
+## v1 report contract
+
+A report is a JSON object with these required fields. Extra fields are
+ignored by the v1 reader.
+
+| Field | Type | Constraint |
+|---|---|---|
+| `schema_version` | integer | must be `1` |
+| `report_id` | string | non-empty, stable identity of the report |
+| `snapshot_date` | string | ISO date of the audited UTC day |
+| `year` | integer | positive |
+| `audited_at` | string | timestamp with UTC offset; served normalized as `YYYY-MM-DDTHH:MM:SSZ` |
+| `expected_slots` | integer | >= 0 |
+| `observed_slots` | integer | >= 0 and <= `expected_slots` |
+| `coverage_result` | string | `passed` or `failed`; `passed` only when `observed_slots` equals `expected_slots` |
+
+Missing fields, invalid counts, an unsupported schema version, inconsistent
+coverage and unreadable files are rejected. Availability errors return HTTP
+503 with `report_unavailable` or `report_invalid` and never contain
+filesystem paths or report content.
+
+## Run locally
+
+```bash
+uv sync --locked
+uv run --locked pytest
+uv run --locked ruff check . && uv run --locked ruff format --check .
+
+# Serve the checked-in passing fixture.
+AUDIT_REPORT_PATH=$PWD/fixtures/report-passed.json \
+  uv run --locked uvicorn energy_quality.app:app --port 8000
+
+# Then, from another shell:
+curl -s http://127.0.0.1:8000/live
+curl -s http://127.0.0.1:8000/ready
+curl -s http://127.0.0.1:8000/v1/quality/latest
+```
+
+Switch `AUDIT_REPORT_PATH` to `fixtures/report-failed.json` to verify that a
+valid failed audit stays readable with HTTP 200, and to
+`fixtures/report-malformed.json` to verify the 503 availability error.
