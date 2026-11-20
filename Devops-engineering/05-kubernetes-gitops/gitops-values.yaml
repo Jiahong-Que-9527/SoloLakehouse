@@ -2,8 +2,8 @@
 # Changing image.digest here is a release; Argo CD reconciles the cluster
 # to this file (automated sync, selfHeal on).
 image:
-  # Verified release reference R004-003 (source 79ed6515, D04 handoff).
-  digest: sha256:86c6495df2c5b4988de13f67c07c3b47132156f81acdb5a47fdfd4e6f8152aba
+  # Reverted to the verified release reference R004-001 (source 60f165fa).
+  digest: sha256:45ff4ee72af6aa72ca97a494cbdd71d9567c67e9e9b2e87aad64ff540ed93384
 
 fixture:
   auditReportFile: report-passed.json
