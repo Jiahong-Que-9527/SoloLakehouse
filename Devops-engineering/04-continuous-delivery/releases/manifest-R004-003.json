@@ -1,0 +1,14 @@
+{
+  "release_id": "R004-003",
+  "source_sha": "79ed6515f7c74edefd53785ac0463590d53b7d1b",
+  "image": "ghcr.io/jiahong-que-9527/energy-quality-service",
+  "digest": "sha256:86c6495df2c5b4988de13f67c07c3b47132156f81acdb5a47fdfd4e6f8152aba",
+  "config_revision": "cfg-001",
+  "config": {
+    "audit_report_file": "report-passed.json",
+    "fixture_sha256": "b728777c2a8b7b7a1878986cee5bfe431fd66e45c02ecbea756270a99dbff6d0",
+    "expected_report_id": "eddf-load-20260608-audit-01",
+    "port": 8740
+  },
+  "created_at": "2026-11-20T21:27:00Z"
+}

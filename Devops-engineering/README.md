@@ -8,7 +8,7 @@
 
 Build the delivery and operating path for one small data service. The **Energy Data Quality Service** will expose quality results for synthetic energy snapshots while each phase adds a verifiable delivery or operating capability.
 
-**Status:** D01–D03 implemented. D03 is accepted with a published, scanned release candidate on GHCR. D04 is next. D01–D02 owner acceptance runs remain.
+**Status:** D01–D04 implemented. D03 and D04 are accepted with recorded evidence (published release candidate; manifest-driven deploy with verified rollback). D05 is next. D01–D02 owner acceptance runs remain.
 
 ## Service and environment
 
