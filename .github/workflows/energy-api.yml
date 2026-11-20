@@ -1,0 +1,40 @@
+name: Energy Analytics API
+
+# [李淳风·2026-11-20] Plan: docs/superpowers/plans/2026-11-20-g02-energy-api.md
+# Task 0.1: test = no cloud access, fake query layer only.
+# plan/build-push/apply jobs are added by Task 2.3 (they need infra/ and an image).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gcp/02-energy-analytics-api/**'
+      - '.github/workflows/energy-api.yml'
+  pull_request:
+    paths:
+      - 'gcp/02-energy-analytics-api/**'
+      - '.github/workflows/energy-api.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: energy-api-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gcp/02-energy-analytics-api
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: '0.12.0'
+          python-version: '3.12'
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+      - run: uv run --locked pytest

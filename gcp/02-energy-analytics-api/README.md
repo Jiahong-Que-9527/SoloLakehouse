@@ -3,7 +3,7 @@
 <!-- [房玄龄·2026-11-15] Define the G02 project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G02 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**G02 · Implementation started** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Execution plan](../../docs/superpowers/plans/2026-11-20-g02-energy-api.md)
 
 Expose approved energy indicators over a read-only API and measure its behavior under a bounded test load.
 
