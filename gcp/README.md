@@ -6,6 +6,11 @@
 
 This series explores how to deliver, govern and operate data products on Google Cloud. German electricity load provides the main dataset. The event-processing project also uses synthetic airport events.
 
+**Cost gate (all agents):** the billing account is on a Free Trial that
+expires 2027-02-11. Any operation that may cost beyond the trial credits
+requires the owner's explicit approval before execution — see the
+[GCP cost gate](../AGENTS.md).
+
 **Implemented locally:** G01 downloads SMARD data, normalizes quarter-hour energy to UTC and audits replay. The 2025 snapshot contains 35,040 continuous intervals. Two annual exports produced the same checksum. [Annual acceptance](01-european-energy-pipeline/docs/year-2025-verification.md) · [Project CI](../.github/workflows/energy-pipeline.yml)
 
 **Planned cloud delivery:** G01's first cloud milestone is a Cloud Run Job with Cloud Storage and BigQuery. G02–G06 have design and implementation guides. The numbered list gives a learning order. Each project can exercise its own bounded fixture.

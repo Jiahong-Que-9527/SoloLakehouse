@@ -1,0 +1,11 @@
+---
+description: Mandatory GCP cost gate for all work in this repository
+alwaysApply: true
+---
+
+Agent rules live in `AGENTS.md` at the repository root — read and obey
+them. The GCP cost gate there is mandatory: any operation that may cost
+beyond the Free Trial credits (billing account on Free Trial, expires
+2027-02-11) requires the owner's explicit approval for that specific
+action before execution. Sub-agents and auto-approve modes must not
+bypass it. Full text: `AGENTS.md`, section "GCP cost gate".
