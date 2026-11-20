@@ -42,8 +42,9 @@ credentials*.json
 # not raw source data; they ship inside the package for the cloud sample mode.
 !gcp/01-european-energy-pipeline/src/energy_pipeline/data/*.csv
 
-# Local editor and agent state.
-.cursor/
+# Local editor and agent state. The shared Cursor rule stays tracked.
+.cursor/*
+!.cursor/rules/
 .claude/
 
 # Terraform
