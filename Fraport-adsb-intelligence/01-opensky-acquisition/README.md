@@ -154,8 +154,13 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-The two-year window is complete. Do not start another monthly batch. Leave
-`serials` out. Do not upload Bronze. Commit only when asked.
+The two-year window, b01 through b24, is complete. A five-year extension is
+planned and not started: b25 (2024-10) through b60 (2021-11), same v1
+contract, period start moved to 2021-11-01. The calendar, gap hours and
+cut lines are in the batch plan. Do not collect until asked. When asked,
+extend the dataset period and append the batches before the first query,
+then collect b25 only. Leave `serials` out. Do not upload Bronze. Do not
+recollect b01–b24. Commit only when asked.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run
 `opensky-ingest login` and resume the same range. Do not print the username,
@@ -169,8 +174,8 @@ still Proposed. ADR-004 stays blocked on its spike.
 
 - [Design](docs/design.md): storage layout, dataset contract, commit protocol,
   validation, publishing and tool structure.
-- [Batch plan](docs/batch-plan.md): pilot, 24 monthly batches, gates and the
-  session routine.
+- [Batch plan](docs/batch-plan.md): pilot, 24 collected batches, the
+  five-year extension (b25–b60, not started), gates and the session routine.
 - [ADR-001](../docs/adr/ADR-001-local-execution-for-historical-acquisition.md):
   why acquisition runs locally.
 - [ADR-002](../docs/adr/ADR-002-regional-dataset-and-monthly-batches.md): why a

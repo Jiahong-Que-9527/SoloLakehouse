@@ -12,7 +12,8 @@ release. Each subproject chooses the runtime that fits its workload.
 **Status (2026-11-16):** acquisition gate G0 has passed. Batches b01 (2026-10)
 through b24 (2024-11) are validated, accepted and backed up to `E:`. b01
 through b12 completed the twelve-month cut line. b24 finishes the two-year
-window. Details are in the
+window. A five-year extension, b25 (2024-10) through b60 (2021-11), is
+planned and not started. Details are in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-16).
 
 **Status (2026-11-20):** the academic research track is now separate from
