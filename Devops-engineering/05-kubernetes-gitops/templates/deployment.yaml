@@ -42,7 +42,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           securityContext:
+            # The image USER is the named user `app`; the kubelet can only
+            # verify non-root against a numeric UID, so pin it here.
             runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
           volumeMounts:
