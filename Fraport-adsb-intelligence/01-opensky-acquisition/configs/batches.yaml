@@ -1,6 +1,7 @@
 # Monthly batches for eddf_r75km v1. State windows are calendar months inside
-# [2024-11-01, 2026-11-01). Flight windows match, except b01 also takes the
+# [2021-11-01, 2026-11-01). Flight windows match, except b01 also takes the
 # source day 2026-11-01, which is the one day past the state-vector period.
+# b01–b24 are the collected two-year window. b25–b60 extend it back to 2021-11.
 batches:
   - {id: b01, month: "2026-10", state_from: "2026-10-01", state_until: "2026-11-01", flights_from: "2026-10-01", flights_until: "2026-11-02"}
   - {id: b02, month: "2026-07", state_from: "2026-07-01", state_until: "2026-08-01", flights_from: "2026-07-01", flights_until: "2026-08-01"}
@@ -26,3 +27,39 @@ batches:
   - {id: b22, month: "2025-01", state_from: "2025-01-01", state_until: "2025-02-01", flights_from: "2025-01-01", flights_until: "2025-02-01"}
   - {id: b23, month: "2024-12", state_from: "2024-12-01", state_until: "2025-01-01", flights_from: "2024-12-01", flights_until: "2025-01-01"}
   - {id: b24, month: "2024-11", state_from: "2024-11-01", state_until: "2024-12-01", flights_from: "2024-11-01", flights_until: "2024-12-01"}
+  - {id: b25, month: "2024-10", state_from: "2024-10-01", state_until: "2024-11-01", flights_from: "2024-10-01", flights_until: "2024-11-01"}
+  - {id: b26, month: "2024-09", state_from: "2024-09-01", state_until: "2024-10-01", flights_from: "2024-09-01", flights_until: "2024-10-01"}
+  - {id: b27, month: "2024-08", state_from: "2024-08-01", state_until: "2024-09-01", flights_from: "2024-08-01", flights_until: "2024-09-01"}
+  - {id: b28, month: "2024-07", state_from: "2024-07-01", state_until: "2024-08-01", flights_from: "2024-07-01", flights_until: "2024-08-01"}
+  - {id: b29, month: "2024-06", state_from: "2024-06-01", state_until: "2024-07-01", flights_from: "2024-06-01", flights_until: "2024-07-01"}
+  - {id: b30, month: "2024-05", state_from: "2024-05-01", state_until: "2024-06-01", flights_from: "2024-05-01", flights_until: "2024-06-01"}
+  - {id: b31, month: "2024-04", state_from: "2024-04-01", state_until: "2024-05-01", flights_from: "2024-04-01", flights_until: "2024-05-01"}
+  - {id: b32, month: "2024-03", state_from: "2024-03-01", state_until: "2024-04-01", flights_from: "2024-03-01", flights_until: "2024-04-01"}
+  - {id: b33, month: "2024-02", state_from: "2024-02-01", state_until: "2024-03-01", flights_from: "2024-02-01", flights_until: "2024-03-01"}
+  - {id: b34, month: "2024-01", state_from: "2024-01-01", state_until: "2024-02-01", flights_from: "2024-01-01", flights_until: "2024-02-01"}
+  - {id: b35, month: "2023-12", state_from: "2023-12-01", state_until: "2024-01-01", flights_from: "2023-12-01", flights_until: "2024-01-01"}
+  - {id: b36, month: "2023-11", state_from: "2023-11-01", state_until: "2023-12-01", flights_from: "2023-11-01", flights_until: "2023-12-01"}
+  - {id: b37, month: "2023-10", state_from: "2023-10-01", state_until: "2023-11-01", flights_from: "2023-10-01", flights_until: "2023-11-01"}
+  - {id: b38, month: "2023-09", state_from: "2023-09-01", state_until: "2023-10-01", flights_from: "2023-09-01", flights_until: "2023-10-01"}
+  - {id: b39, month: "2023-08", state_from: "2023-08-01", state_until: "2023-09-01", flights_from: "2023-08-01", flights_until: "2023-09-01"}
+  - {id: b40, month: "2023-07", state_from: "2023-07-01", state_until: "2023-08-01", flights_from: "2023-07-01", flights_until: "2023-08-01"}
+  - {id: b41, month: "2023-06", state_from: "2023-06-01", state_until: "2023-07-01", flights_from: "2023-06-01", flights_until: "2023-07-01"}
+  - {id: b42, month: "2023-05", state_from: "2023-05-01", state_until: "2023-06-01", flights_from: "2023-05-01", flights_until: "2023-06-01"}
+  - {id: b43, month: "2023-04", state_from: "2023-04-01", state_until: "2023-05-01", flights_from: "2023-04-01", flights_until: "2023-05-01"}
+  - {id: b44, month: "2023-03", state_from: "2023-03-01", state_until: "2023-04-01", flights_from: "2023-03-01", flights_until: "2023-04-01"}
+  - {id: b45, month: "2023-02", state_from: "2023-02-01", state_until: "2023-03-01", flights_from: "2023-02-01", flights_until: "2023-03-01"}
+  - {id: b46, month: "2023-01", state_from: "2023-01-01", state_until: "2023-02-01", flights_from: "2023-01-01", flights_until: "2023-02-01"}
+  - {id: b47, month: "2022-12", state_from: "2022-12-01", state_until: "2023-01-01", flights_from: "2022-12-01", flights_until: "2023-01-01"}
+  - {id: b48, month: "2022-11", state_from: "2022-11-01", state_until: "2022-12-01", flights_from: "2022-11-01", flights_until: "2022-12-01"}
+  - {id: b49, month: "2022-10", state_from: "2022-10-01", state_until: "2022-11-01", flights_from: "2022-10-01", flights_until: "2022-11-01"}
+  - {id: b50, month: "2022-09", state_from: "2022-09-01", state_until: "2022-10-01", flights_from: "2022-09-01", flights_until: "2022-10-01"}
+  - {id: b51, month: "2022-08", state_from: "2022-08-01", state_until: "2022-09-01", flights_from: "2022-08-01", flights_until: "2022-09-01"}
+  - {id: b52, month: "2022-07", state_from: "2022-07-01", state_until: "2022-08-01", flights_from: "2022-07-01", flights_until: "2022-08-01"}
+  - {id: b53, month: "2022-06", state_from: "2022-06-01", state_until: "2022-07-01", flights_from: "2022-06-01", flights_until: "2022-07-01"}
+  - {id: b54, month: "2022-05", state_from: "2022-05-01", state_until: "2022-06-01", flights_from: "2022-05-01", flights_until: "2022-06-01"}
+  - {id: b55, month: "2022-04", state_from: "2022-04-01", state_until: "2022-05-01", flights_from: "2022-04-01", flights_until: "2022-05-01"}
+  - {id: b56, month: "2022-03", state_from: "2022-03-01", state_until: "2022-04-01", flights_from: "2022-03-01", flights_until: "2022-04-01"}
+  - {id: b57, month: "2022-02", state_from: "2022-02-01", state_until: "2022-03-01", flights_from: "2022-02-01", flights_until: "2022-03-01"}
+  - {id: b58, month: "2022-01", state_from: "2022-01-01", state_until: "2022-02-01", flights_from: "2022-01-01", flights_until: "2022-02-01"}
+  - {id: b59, month: "2021-12", state_from: "2021-12-01", state_until: "2022-01-01", flights_from: "2021-12-01", flights_until: "2022-01-01"}
+  - {id: b60, month: "2021-11", state_from: "2021-11-01", state_until: "2021-12-01", flights_from: "2021-11-01", flights_until: "2021-12-01"}

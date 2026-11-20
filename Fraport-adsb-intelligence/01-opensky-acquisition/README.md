@@ -188,7 +188,7 @@ still Proposed. ADR-004 stays blocked on its spike.
 | Datasets | `eddf_r75km` v1 (state vectors) and `eddf_flights` v1 (flights) |
 | Source | OpenSky Trino, `state_vectors_data4` and `flights_data4` |
 | Region | About 150 km square around EDDF (49.36–50.71 N, 7.52–9.62 E) |
-| Period | `[2024-11-01, 2026-11-01)` UTC, 17,520 hours |
+| Period | `[2021-11-01, 2026-11-01)` UTC, 43,824 hours. b01–b24 are collected; b25–b60 extend the start back to 2021-11 |
 | Format | Parquet, ZSTD, explicit schema |
 | Layout | State vectors `dt=YYYY-MM-DD/hour-HH.parquet`. Flights `dt=YYYY-MM-DD/flights.parquet` |
 | `serials` column | Excluded from v1 after the 2026-07-15 A/B test |

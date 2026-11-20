@@ -29,7 +29,7 @@ region:
     east: 9.62
 
 period:
-  start: "2024-11-01"   # inclusive, UTC
+  start: "2021-11-01"   # inclusive, UTC
   end: "2026-11-01"     # exclusive, UTC
 
 state_vectors:
