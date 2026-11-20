@@ -2,7 +2,9 @@
 
 <!-- [房玄龄·2026-11-17] Initialize DevOps delivery project planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+<!-- [GLM·2026-11-20] Implement the chart and GitOps release path; record the acceptance runs. -->
+
+**Status:** accepted 2026-11-20 · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
 
 Move the service to a local k3d cluster and reconcile its environment from versioned Git configuration.
 
@@ -22,7 +24,41 @@ D06 consumes the reproducible deployment and verifies observable failure modes.
 
 ## Evidence
 
-Pending implementation and acceptance runs.
+Implemented and accepted locally, 2026-11-20 (agent run in WSL Ubuntu;
+k3d cluster `devops-d05`, kubeconfig context `k3d-devops-d05`):
+
+- **Tooling pin (delivery-plan D05 decision):** k3d v5.9.0, k3s
+  v1.35.5-k3s1, Helm v4.3.2, Argo CD v3.6.2. Cluster footprint: one server
+  node, no agents, no ingress; access through `kubectl port-forward`.
+- **Chart:** digest-pinned image, liveness `/live` and readiness `/ready`
+  probes, resource requests/limits (50m/64Mi – 250m/256Mi), read-only root
+  filesystem with numeric `runAsUser 10001` (the kubelet cannot verify a
+  named image user), audit report provisioned as a ConfigMap. Chart
+  defaults and environment values are split: `gitops-values.yaml` owns the
+  release pin. Secret injection is not required in v1; when one appears it
+  becomes a separate Secret resource, never this ConfigMap.
+- **Acceptance 1 (bootstrap and sync):** Argo CD reconciled main
+  (`bb92aef`) within ~15 s of applying the Application (Synced/Healthy);
+  the D04 smoke through the cluster entry point passed (live 200, ready
+  200, quality 200 with report identity `eddf-load-20260608-audit-01`).
+  The trial CLI install beforehand surfaced two real diagnoses: a
+  named-USER/runAsNonRoot conflict (fixed by the numeric UID) and a
+  release-name versus resource-name mismatch in the smoke script.
+- **Acceptance 2 (promotion through Git):** merge `22cb434` pinned digest
+  R004-003 (`86c6495d…`). Argo detected OutOfSync at ~150 s (inside the
+  default 3-minute refresh), auto-synced, and the rollout completed with
+  the running image identity matching the new digest.
+- **Acceptance 3 (drift and revert):** a manual `kubectl scale` to 2
+  replicas was detected through the cluster watch and reverted by selfHeal
+  in under 10 s (sync back to `Synced`, spec.replicas back to 1). The
+  revert merge `a98c511` (sync revision observed as main HEAD `4b00f7d`)
+  brought the running image back to `45ff4ee7…`, and the audit response
+  was identical to the pre-promotion one.
+- **Handoff to D06:** cluster entry point `k3d-devops-d05` (namespace
+  `energy-quality`), workload labels `app.kubernetes.io/name=energy-quality`,
+  `app.kubernetes.io/component=api`, known-good digest `45ff4ee7…`
+  (sync revision `4b00f7d`), recovery checks: `kubectl rollout status` plus
+  the port-forward smoke (ready 200, report identity match).
 
 <!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
 
