@@ -1,0 +1,9 @@
+# [李淳风·2026-11-20] Whitelist context: only the lockfile and the package source
+# (including src/energy_pipeline/data) are needed by the Dockerfile.
+# README.md stays: hatchling reads it as package metadata.
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!src
+!src/**
