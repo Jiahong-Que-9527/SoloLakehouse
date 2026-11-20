@@ -15,6 +15,12 @@ through b12 completed the twelve-month cut line. b24 finishes the two-year
 window. Details are in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-16).
 
+**Status (2026-11-20):** the academic research track is now separate from
+this repository. Paper-1 experiments, the exploration notebooks and the
+consulting notes moved to a local-only workspace outside the repository. That
+workspace reads Silver outputs read-only and is not published to GitHub or to
+the cloud. Silver, Gold and the cloud track remain engineering scope here.
+
 ## Subprojects
 
 | # | Subproject | Runtime | Focus |
