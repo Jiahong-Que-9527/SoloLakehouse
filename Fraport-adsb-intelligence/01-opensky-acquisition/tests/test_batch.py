@@ -46,10 +46,10 @@ def _fill(cfg) -> None:
 
 def test_batches_cover_the_dataset_period():
     found = load_batches()
-    assert len(found) == 24
-    assert sum(len(list(batch.hours())) for batch in found.values()) == 17_520
+    assert len(found) == 60
+    assert sum(len(list(batch.hours())) for batch in found.values()) == 43_824
     flights = {day for batch in found.values() for day in batch.flight_days()}
-    assert len(flights) == 731
+    assert len(flights) == 1_827
     assert date(2026, 11, 1) in set(found["b01"].flight_days())
     assert date(2026, 11, 1) not in set(found["b01"].hours())
 

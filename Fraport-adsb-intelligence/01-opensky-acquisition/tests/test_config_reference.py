@@ -14,8 +14,8 @@ from opensky_ingest.reference import (
 
 
 def test_default_config_values(cfg):
-    assert cfg.period.hours == 17_520
-    assert cfg.period.days == 730
+    assert cfg.period.hours == 43_824
+    assert cfg.period.days == 1_826
     assert cfg.username == "tester"
     assert cfg.region.bbox.south < cfg.region.bbox.north
     assert cfg.flights.day_end > cfg.period.end

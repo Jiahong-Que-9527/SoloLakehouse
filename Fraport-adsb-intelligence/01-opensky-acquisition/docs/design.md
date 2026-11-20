@@ -13,7 +13,7 @@ marked *estimate* are replaced by pilot measurements. See the [batch plan](batch
 | Source | OpenSky Trino, `minio.osky.state_vectors_data4` and `minio.osky.flights_data4` |
 | Datasets | `eddf_r75km` (state vectors) and `eddf_flights` (flights, section 3.1) |
 | Region | Rectangle around EDDF, about 75 km in each direction |
-| Period | `[2024-11-01, 2026-11-01)` UTC, 730 days, 17,520 hours |
+| Period | `[2021-11-01, 2026-11-01)` UTC, 1,826 days, 43,824 hours |
 | Format | Parquet, ZSTD, explicit schema, sorted by `icao24, time` |
 | Unit of work | One UTC hour is one query, one file and one manifest |
 | Unit of delivery | One calendar month is one batch |
@@ -63,8 +63,8 @@ Dataset path rules:
 
 - `eddf_r75km` names the region and `v1` names the extraction contract. A change
 to bounds, columns or query meaning creates a new dataset, not an overwrite.
-- `dt=` is the UTC date. Hour is the file name. This gives 730 partitions and
-17,520 files. The pilot day 2026-10-15 averaged 2.9 MB per file.
+- `dt=` is the UTC date. Hour is the file name. This gives 1,826 partitions and
+43,824 files. The pilot day 2026-10-15 averaged 2.9 MB per file.
 - Committed files are never modified.
 - Hours with zero rows get a manifest and no data file.
 
@@ -168,7 +168,7 @@ Design:
 | Columns | All source columns, including nested `track` and candidate arrays |
 | Sort | `icao24`, `firstseen`. State vectors stay sorted by `icao24`, `time` |
 | Types | Fixed from `DESCRIBE`, with nested Arrow types |
-| Period | Source days `[2024-11-01, 2026-11-02)`, 731 days |
+| Period | Source days `[2021-11-01, 2026-11-02)`, 1,827 days |
 
 The source `day` is the UTC day of `lastseen`. A flight that leaves EDDF late
 on the last day ends on the next day, so the period runs one day past the
