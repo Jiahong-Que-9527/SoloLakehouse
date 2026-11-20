@@ -3,9 +3,11 @@
 <!-- [房玄龄·2026-11-15] Define the G02 project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G02 · Implementation started** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Execution plan](../../docs/superpowers/plans/2026-11-20-g02-energy-api.md)
+**G02 · Cloud delivery implemented and accepted** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Execution plan](../../docs/superpowers/plans/2026-11-20-g02-energy-api.md) · [Verification evidence](docs/cloud-verification.md)
 
 Expose approved energy indicators over a read-only API and measure its behavior under a bounded test load.
+
+**Delivered 2026-11-20:** FastAPI on Cloud Run (min instances 0) over an authorized BigQuery view; caller/runtime identity split with denied-by-default access; query guards (31-day span, 15 s timeout, 1 GiB byte cap, fail closed); WIF deploy pipeline behind the `gcp-test` gate; log-based error metric and email alert; revision rollback drill and bounded load check on record.
 
 ## Technical scope
 
