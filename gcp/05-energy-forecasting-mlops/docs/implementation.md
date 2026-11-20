@@ -2,6 +2,8 @@
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
 
+<!-- [GLM·2026-11-20] Replace the Vertex AI training step with the cloud-neutral path; see ADR-005. -->
+
 **Status:** planned. [Project brief](../README.md) and [technical design](design.md).
 
 ## First delivery
@@ -16,7 +18,12 @@ Predict average MW over the next 15-minute interval. Keep the source energy in M
 
 3. Implement a seasonal-naive baseline first, then one CPU candidate with a fixed seed. Compare on identical timestamps, units and missing-data rules. Select settings on validation data, record them, then evaluate the frozen comparison on the reserved window. Record MAE, RMSE, sample count and replay tolerance.
 
-4. Run the bounded training job on Vertex AI. Retain a deliberately losing candidate as an experiment using a separate fixture. For a qualified candidate register a pinned version with source SHA, dataset release, evaluation report and library versions. If no candidate qualifies, record that result.
+4. Run the bounded training job as a containerized local run, or as a Cloud
+   Run Job when a remote run is needed. Track runs and register the pinned
+   version in MLflow, and write source SHA, dataset release, evaluation
+   report and library versions into the model release manifest (ADR-005).
+   Retain a deliberately losing candidate as an experiment using a separate
+   fixture. If no candidate qualifies, record that result.
 
 5. Score into BigQuery with a model version pinned per batch. Verify one prediction back to its features and training release. For rollback prepare two eligible test versions, restore the previous selection and re-score the same window. Compare batch IDs, target units and active version. Record compute costs and later residuals when actuals arrive.
 

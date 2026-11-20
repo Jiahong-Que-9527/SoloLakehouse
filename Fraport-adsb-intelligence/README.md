@@ -1,5 +1,7 @@
 # Fraport ADS-B Intelligence
 
+<!-- [GLM·2026-11-20] Record the cloud-neutral MLflow substitution for Vertex AI (ADR-005). -->
+
 Build an aviation data foundation for Frankfurt Airport (ICAO `EDDF`) from
 OpenSky Network state vectors. The programme starts with a reliable historical
 acquisition tool and grows through transformation, a governed data release, a
@@ -10,10 +12,10 @@ locally, and only the Gold data product crosses to Google Cloud, as a versioned
 release. Each subproject chooses the runtime that fits its workload.
 
 **Status (2026-11-16):** acquisition gate G0 has passed. Batches b01 (2026-10)
-through b24 (2024-11) are validated, accepted and backed up to `E:`. b01
+through b26 (2024-09) are validated, accepted and backed up to `E:`. b01
 through b12 completed the twelve-month cut line. b24 finishes the two-year
-window. A five-year extension, b25 (2024-10) through b60 (2021-11), is
-planned and not started. Details are in the
+window. The dataset period starts at 2021-11-01. The next work is batch b27
+(2024-08). Details are in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-16).
 
 **Status (2026-11-20):** the academic research track is now separate from
@@ -30,7 +32,7 @@ the cloud. Silver, Gold and the cloud track remain engineering scope here.
 | 02 | [Aviation Transformation](02-aviation-transformation/README.md) | Local (Python, DuckDB) | Silver, Gold, Release Gate |
 | 03 | [Airport Analytics](03-airport-analytics/README.md) | GCP (Terraform, GCS, BigQuery) | Cloud Gold, SQL, infrastructure as code |
 | 04 | [Aviation Lakehouse Integration](04-aviation-lakehouse/README.md) | Databricks, reads Gold releases | Spark, Delta Lake, governance |
-| 05 | [Taxi-in Prediction](05-taxi-in-prediction/README.md) | Vertex AI | Features, training, evaluation |
+| 05 | [Taxi-in Prediction](05-taxi-in-prediction/README.md) | Local + MLflow | Features, training, evaluation |
 | 06 | [Model Serving Integration](06-model-serving/README.md) | Cloud Run | API, versioning, monitoring |
 | 07 | [Platform Orchestration](07-platform-orchestration/README.md) | GCP Workflows or Dagster | Scheduling, lineage, recovery |
 

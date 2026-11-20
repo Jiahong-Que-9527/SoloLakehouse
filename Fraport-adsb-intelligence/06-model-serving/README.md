@@ -14,7 +14,7 @@ Frankfurt model contract, version pinning and rollback.
 - Validate requests, and return clear errors for invalid input.
 - Add structured logs and basic metrics: latency, error rate and request
   volume.
-- Define rollback to a previous model version.
+- Define rollback to a previous model release manifest (ADR-005).
 
 ## Milestones
 
