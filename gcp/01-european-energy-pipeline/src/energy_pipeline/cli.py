@@ -141,6 +141,16 @@ def main(argv: list[str] | None = None) -> int:
     annual.add_argument(
         "--output", type=Path, required=True, help="Root for monthly runs and reports"
     )
+    publish = commands.add_parser(
+        "publish-cloud", help="Publish a packaged sample window to cloud storage and BigQuery"
+    )
+    publish.add_argument("--mode", choices=["sample"], required=True)
+    publish.add_argument("--from", dest="start", required=True, help="Local date YYYY-MM-DD")
+    publish.add_argument("--until", required=True, help="Exclusive local date YYYY-MM-DD")
+    publish.add_argument("--bucket", required=True, help="Raw-object bucket name")
+    publish.add_argument("--project", required=True, help="Cloud project id")
+    publish.add_argument("--dataset", default="energy", help="BigQuery dataset id")
+    publish.add_argument("--output", type=Path, help="Optional local summary directory")
     args = parser.parse_args(argv)
     try:
         if args.command == "prepare-year":
@@ -155,6 +165,10 @@ def main(argv: list[str] | None = None) -> int:
             destination = save_report(report, args.output)
             print(json.dumps({"report_dir": str(destination), "status": report["status"]}))
             return 0 if report["status"] == "passed" else 1
+        if args.command == "publish-cloud":
+            from energy_pipeline.cloud_publish import run_publish_cloud
+
+            return run_publish_cloud(args)
         if args.command == "download":
             from energy_pipeline.download import Client
 

@@ -1,0 +1,115 @@
+name: Energy cloud delivery
+
+# [李淳风·2026-11-20] Plan: gcp/01-european-energy-pipeline/docs/implementation.md
+# Task 1.4. test = no cloud access; plan = PRs only (WIF); build-push = main only;
+# apply = needs build-push, gated by the `gcp-test` environment (required reviewer).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'gcp/01-european-energy-pipeline/**'
+      - '.github/workflows/energy-cloud.yml'
+  pull_request:
+    paths:
+      - 'gcp/01-european-energy-pipeline/**'
+      - '.github/workflows/energy-cloud.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: energy-cloud-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gcp/01-european-energy-pipeline
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: '0.12.0'
+          python-version: '3.12'
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+      - run: uv run --locked pytest
+
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: gcp/01-european-energy-pipeline/infra
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - run: terraform fmt -check -diff
+      - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - run: terraform plan -input=false -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=plan-only-placeholder"
+
+  build-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - name: Configure Docker auth for Artifact Registry
+        run: gcloud auth configure-docker europe-west3-docker.pkg.dev --quiet
+      - name: Build and push image
+        id: image
+        run: |
+          IMAGE="europe-west3-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/energy/energy-pipeline:${GITHUB_SHA::8}"
+          docker build -t "$IMAGE" gcp/01-european-energy-pipeline
+          docker push "$IMAGE"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+  apply:
+    needs: build-push
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: gcp-test
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: gcp/01-european-energy-pipeline/infra
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=${{ needs.build-push.outputs.image }}"
