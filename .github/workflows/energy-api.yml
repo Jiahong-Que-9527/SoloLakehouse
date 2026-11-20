@@ -1,8 +1,10 @@
 name: Energy Analytics API
 
 # [李淳风·2026-11-20] Plan: docs/superpowers/plans/2026-11-20-g02-energy-api.md
-# Task 0.1: test = no cloud access, fake query layer only.
-# plan/build-push/apply jobs are added by Task 2.3 (they need infra/ and an image).
+# Task 0.1 (test) + Task 2.3 (plan/build-push/apply). test = no cloud access,
+# fake query layer only; plan = PRs only (WIF); build-push = main only;
+# apply = needs build-push, gated by the `gcp-test` environment (required
+# reviewer) — same gate pattern as energy-cloud.yml.
 on:
   push:
     branches: [main]
@@ -38,3 +40,78 @@ jobs:
       - run: uv run --locked ruff check .
       - run: uv run --locked ruff format --check .
       - run: uv run --locked pytest
+
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: gcp/02-energy-analytics-api/infra
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - run: terraform fmt -check -diff
+      - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - run: terraform plan -input=false -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=plan-only-placeholder"
+
+  build-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - name: Configure Docker auth for Artifact Registry
+        run: gcloud auth configure-docker europe-west3-docker.pkg.dev --quiet
+      - name: Build and push image
+        id: image
+        run: |
+          IMAGE="europe-west3-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/energy-api/energy-analytics-api:${GITHUB_SHA::8}"
+          docker build -t "$IMAGE" gcp/02-energy-analytics-api
+          docker push "$IMAGE"
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+
+  apply:
+    needs: build-push
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: gcp-test
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: gcp/02-energy-analytics-api/infra
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=${{ needs.build-push.outputs.image }}"

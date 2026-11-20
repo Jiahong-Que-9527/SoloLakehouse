@@ -24,4 +24,5 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PATH="/app/.venv/bin:$PATH"
 
-CMD exec uvicorn energy_api.app:app --host 0.0.0.0 --port ${PORT:-8080}
+# The asgi module builds the real GCP adapter from BQ_DATASET/BQ_VIEW env vars.
+CMD exec uvicorn energy_api.asgi:app --host 0.0.0.0 --port ${PORT:-8080}
