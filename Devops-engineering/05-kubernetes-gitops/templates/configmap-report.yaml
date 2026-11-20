@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-audit-report
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+data:
+  {{ .Values.fixture.auditReportFile }}: |
+    {{- .Values.fixture.content | nindent 4 }}

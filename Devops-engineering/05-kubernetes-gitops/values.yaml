@@ -1,0 +1,29 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/jiahong-que-9527/energy-quality-service
+  # The digest pin is owned by the environment values file
+  # (gitops-values.yaml), not by these chart defaults.
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 8000
+
+# The synthetic audit report is provisioned in-cluster as a ConfigMap
+# rendered from the environment values. Secrets are not required for this
+# service in v1; when one appears, it becomes a separate Secret resource
+# and never this ConfigMap.
+fixture:
+  auditReportFile: report-passed.json
+  content: |
+    {}
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi

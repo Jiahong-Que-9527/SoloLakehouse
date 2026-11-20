@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/component: api
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/component: api
+    spec:
+      containers:
+        - name: service
+          image: "{{ .Values.image.repository }}@{{ .Values.image.digest }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          env:
+            - name: AUDIT_REPORT_PATH
+              value: /reports/{{ .Values.fixture.auditReportFile }}
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: audit-report
+              mountPath: /reports
+              readOnly: true
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: audit-report
+          configMap:
+            name: {{ .Chart.Name }}-audit-report
