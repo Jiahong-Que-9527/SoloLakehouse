@@ -34,7 +34,11 @@ the main GCP infrastructure and CI/CD project in the programme.
   (2026-11-21, on the real `v002` release — all five checks passed in
   `europe-west3`, measured cost €0; evidence in [spike](spike/)).
 - **M2.** Terraform creates the bucket, identities and budget alerts. CI runs
-  plan on pull requests.
+  plan on pull requests. Implemented (2026-11-21,
+  [infra](infra/): landing + gold buckets, `aviation` dataset, BigLake
+  connection, create-only upload identity vs runtime identity, €50 monthly
+  budget alert; CI plan on PRs, apply on main behind the `gcp-test`
+  environment gate).
 - **M3.** Ingest the synthetic release and then release `v001`. A repeat
   ingestion adds no rows.
 - **M4.** Analytics model and core queries with expected results on a fixed
