@@ -2,7 +2,21 @@
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
 
-**Status:** planned. [Project brief](../README.md) and [technical design](design.md).
+**Status:** in progress — contract phase done locally. [Project brief](../README.md) and [technical design](design.md).
+
+**Sequence steps 1–2 done (2026-11-21, local only).** The expected state was
+written as fixtures first: a pinned actual_load_mwh week (672 intervals)
+plus the invalid variants — a duplicate masking a missing interval (row
+count preserved), a null measure, a stale input release and a missing
+required column. The gate compares actual business keys against the
+expected interval grid in both directions, so the masked gap fails even
+though counts match; the release boundary (approval → checksum → version
+table → manifest → view switch → ledger, with checksum-verified retry
+adoption and withdrawal fallback) is implemented against a store port and
+proven by 34 tests including the role-policy mapping the IAM must create
+(analyst: view only; auditor: ledger only). The BigQuery adapter, publish
+job, Dockerfile and Terraform follow the G03 pattern; bootstrap and
+deployment run behind the cost gate and the `gcp-test` approval.
 
 ## First delivery
 

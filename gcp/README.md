@@ -39,7 +39,7 @@ learning order; each project exercises its own bounded fixture.
    [Design](03-aviation-event-processing/docs/design.md) · [Implementation plan](03-aviation-event-processing/docs/implementation.md)
 4. **G04** · [Governed Energy Data Product](04-governed-energy-data-product/README.md)
    Release a quality-checked data product with access and provenance evidence.
-   Status: planned — publishes on top of real G01 releases; reuses the G02 approved-view/identity pattern
+   Status: **in progress** — contract phase and release boundary tested locally (34 tests); infra bootstrapped, plan verified at 14 adds / 0 destroys; first apply awaits the PR + `gcp-test` gate
    [Design](04-governed-energy-data-product/docs/design.md) · [Implementation plan](04-governed-energy-data-product/docs/implementation.md)
 5. **G05** · [Energy Forecasting MLOps](05-energy-forecasting-mlops/README.md)
    Train, register, batch-score and roll back a versioned model.

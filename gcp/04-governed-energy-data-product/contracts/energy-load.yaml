@@ -1,0 +1,16 @@
+# [Kimi·2026-11-21] Contract for the first product: German actual load from G01.
+# Thresholds are specified here, not hidden in code (design section 4).
+data_product: energy-load
+version: 1.0.0
+contract:
+  schema_version: 1
+  grain: [area, metric, interval_start]
+  required_columns: [interval_start, interval_end, area, metric, value, unit, release_id]
+quality_gates:
+  completeness_min: 1.0
+  duplicate_business_keys_max: 0
+  value_min: 0
+  freshness_hours_max: 48
+release:
+  approval_required: true
+  record_manifest: true

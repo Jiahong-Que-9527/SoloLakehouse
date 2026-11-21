@@ -53,6 +53,10 @@ Rules:
   decisions.
 - Gap handling stays honest: gaps are recorded, never bridged; gate
   positions are never inferred.
+- The implausible-displacement break heuristic (>120 m at >105 m/s) is a
+  surface-movement rule and applies only when both endpoints carry the raw
+  ground flag; airborne trajectories split on time gaps and source
+  partition issues alone.
 
 ## Consequences
 
