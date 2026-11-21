@@ -89,8 +89,8 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 **Status (2026-11-16):** M0 to M2 are done. Batches b01 (2026-10) through b24
 (2024-11) are collected, validated, accepted and backed up. b01 through b12
 completed the twelve-month cut line. b24 finishes the M3 monthly window. A
-five-year extension back to 2021-11 is in progress. b25 through b32 are
-accepted. Next is b33 (2024-02). M4 and M5 are not started. The
+five-year extension back to 2021-11 is in progress. b25 through b33 are
+accepted. Next is b34 (2024-01). M4 and M5 are not started. The
 working list is the
 [acquisition status](../01-opensky-acquisition/README.md#status-2026-11-16).
 Vertical slice V0 (Silver for the pilot week) can start in parallel. It is
@@ -205,7 +205,7 @@ against the baseline.
 | Proxy labels are noisy | Weak model or overclaimed results | Report coverage, validate a sample independently |
 | Vertex AI is unavailable on the trial account | Training and registry milestones cannot run as designed | Cloud-neutral MLflow path (ADR-005); training stays local and cloud runs are small and cost-recorded |
 | Gold too coarse for the model | The cloud cannot train a per-flight model | Gold contract requires per-flight features and labels from the start |
-| Table format unverified | Rework of cloud tables | Time-boxed spike and ADR-004 before cloud table code, native tables as fallback |
+| Table format unverified | Rework of cloud tables | ~~Time-boxed spike and ADR-004 before cloud table code~~ Resolved 2026-11-21: managed Iceberg tables, ADR-004 Accepted |
 | Layers meet late | Integration surprises after weeks of work | Vertical slice V0 on the pilot week |
 | Scope growth | Programme stalls | Finish each phase exit criterion before starting the next |
 | Overlap with existing aviation projects | Duplicate work | Subprojects 04 and 06 link to them and own only integration |
@@ -213,6 +213,6 @@ against the baseline.
 ## Open decisions
 
 - Final geographic bounds and the field list for `v1`.
-- Gold table format and catalog, decided by the ADR-004 spike.
 - GCP Workflows or Dagster for phase 7.
-- Cloud region for the bucket and BigQuery, checked against service support.
+- Cloud region for the bucket and BigQuery: the ADR-004 spike confirmed
+  `europe-west3` for managed Iceberg tables (2026-11-21).
