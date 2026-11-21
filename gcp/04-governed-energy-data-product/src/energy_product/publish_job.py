@@ -24,8 +24,8 @@ from pathlib import Path
 
 from energy_product.cloud_gcp import BigQueryProductStore
 from energy_product.contract import load_contract
-from energy_product.publisher import PublishRequest, publish
-from energy_product.store import AccessDenied, PublishConflict
+from energy_product.publisher import PublishConflict, PublishRequest, publish
+from energy_product.store import AccessDenied
 
 
 def _evaluation_time() -> datetime:
