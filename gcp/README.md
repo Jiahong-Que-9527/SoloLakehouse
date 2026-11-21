@@ -39,7 +39,7 @@ learning order; each project exercises its own bounded fixture.
    [Design](03-aviation-event-processing/docs/design.md) · [Implementation plan](03-aviation-event-processing/docs/implementation.md)
 4. **G04** · [Governed Energy Data Product](04-governed-energy-data-product/README.md)
    Release a quality-checked data product with access and provenance evidence.
-   Status: **in progress** — contract phase and release boundary tested locally (34 tests); infra bootstrapped, plan verified at 14 adds / 0 destroys; first apply awaits the PR + `gcp-test` gate
+   Status: **first governed release recorded 2026-11-21** — gate passed on real G01 output, the view serves the analyst only, and the release/withdrawal drill ran live; evidence plus the five defects fixed on the way in [cloud verification](04-governed-energy-data-product/docs/cloud-verification.md)
    [Design](04-governed-energy-data-product/docs/design.md) · [Implementation plan](04-governed-energy-data-product/docs/implementation.md)
 5. **G05** · [Energy Forecasting MLOps](05-energy-forecasting-mlops/README.md)
    Train, register, batch-score and roll back a versioned model.
@@ -69,11 +69,12 @@ can apply G05 delivery practices to the flagship model.
 - Monday **2026-11-23, 05:15 Europe/Berlin**: the G01 scheduler (`energy-weekly`) fires for the first time since acceptance. Verify the Cloud Run execution succeeded, the `energy.load_release` ledger gained its next row, and the run stayed inside the free tier; record the evidence in the [G01 cloud verification](01-european-energy-pipeline/docs/cloud-verification.md).
 - Keep the standing [cost gate](../AGENTS.md) in force for every plan and apply: expected SKUs only, 0 destroys, owner approval for anything unexpected.
 
-**Next delivery: G04 — Governed Energy Data Product** (G03 was accepted on 2026-11-21; [its verification](03-aviation-event-processing/docs/cloud-verification.md) adds the playbook's fifth pattern: one transactional decision script per delivery)
+**Next delivery: G05 — Energy Forecasting MLOps** (G04's first governed release was recorded on 2026-11-21; [its verification](04-governed-energy-data-product/docs/cloud-verification.md) adds the playbook's sixth pattern: a release boundary is only proven once a live drill has blocked, withdrawn and republished). G05 pins the product release line that `cand-2026-11-21-fourth` started for training.
 
-1. Publish a quality-gated, versioned product release on top of real G01 output: validate the G01 input (`source_release_id`, ingestion timestamp), then write a separately versioned product release with its own quality evidence.
-2. Apply the G02 identity pattern as the acceptance baseline: the approved view is accessible, the raw dataset is denied, tested identities are recorded.
-3. Record release provenance end to end — from the G01 window to the product release ID a caller consumes.
+G04 residue, to fold into a hardening pass:
+
+1. Record `git_sha` in the publish manifest — the workflow does not set `GIT_SHA`, so the applied image tag is the de-facto revision pointer.
+2. Catalog and native lineage evidence stays unavailable in the test project; manifest lineage (release → input release → checksum → image tag) is the recorded substitute.
 
 **After G04**
 
