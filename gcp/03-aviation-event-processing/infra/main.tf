@@ -244,6 +244,10 @@ resource "google_cloud_run_v2_job" "consumer" {
           value = "projects/${var.project_id}/subscriptions/${google_pubsub_subscription.events_pull.name}"
         }
         env {
+          name  = "PUBSUB_DLQ_TOPIC"
+          value = "projects/${var.project_id}/topics/${google_pubsub_topic.dlq.name}"
+        }
+        env {
           name  = "BQ_DATASET"
           value = google_bigquery_dataset.events.dataset_id
         }

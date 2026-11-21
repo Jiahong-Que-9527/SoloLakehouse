@@ -34,7 +34,7 @@ learning order; each project exercises its own bounded fixture.
    [Design](02-energy-analytics-api/docs/design.md) · [Implementation plan](02-energy-analytics-api/docs/implementation.md)
 3. **G03** · [Aviation Event Processing](03-aviation-event-processing/README.md)
    Test duplicate and late events, retries, dead-letter handling and replay.
-   Status: **in progress** — contract phase implemented and tested locally; Terraform written and validated, deployment awaiting the owner's cost-gate approval
+   Status: **in progress** — contract phase and cloud delivery code implemented and tested; bootstrap done, plan verified at 22 adds / 0 destroys; first apply awaits the PR + `gcp-test` gate
    [Design](03-aviation-event-processing/docs/design.md) · [Implementation plan](03-aviation-event-processing/docs/implementation.md)
 4. **G04** · [Governed Energy Data Product](04-governed-energy-data-product/README.md)
    Release a quality-checked data product with access and provenance evidence.

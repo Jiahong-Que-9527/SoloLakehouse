@@ -10,12 +10,15 @@ airport operational events to exercise the same delivery behavior.
 
 **Status:** the local contract phase is done — envelope validation, the pure
 revision reducer, a transactional store port, the ack/nack/dead-letter
-consumer flow and the seeded airport + energy fixture batches (61 tests).
-The [Terraform](infra/) for topics, subscriptions, tables and the consumer
-job is written and validated; nothing is provisioned on Google Cloud yet —
-deployment follows the [bootstrap sequence](infra/BOOTSTRAP.md) and the
-[delivery playbook](../README.md#delivery-playbook-settled-by-g01--g02)
-behind the owner's cost-gate approval.
+consumer flow and the seeded airport + energy fixture batches (81 tests
+including the cloud adapters). The cloud delivery pieces (one-script
+BigQuery decision store, pull consumer job, fixture publisher, DLQ replay
+command) are implemented and tested; bootstrap and imports ran with the
+owner's approval and `terraform plan` shows **22 adds, 0 destroys**.
+Nothing is applied yet — the first apply happens through CI's
+`gcp-test` gate after the PR merges
+([bootstrap as-built](infra/BOOTSTRAP.md),
+[delivery playbook](../README.md#delivery-playbook-settled-by-g01--g02)).
 
 ## Technical scope
 
