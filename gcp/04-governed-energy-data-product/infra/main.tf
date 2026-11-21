@@ -59,16 +59,8 @@ resource "google_project_iam_member" "producer_job_user" {
 }
 
 # Analyst: dataViewer on the authorised view only (table-level), never on the
-# dataset. The denial on raw and quarantine tables is the acceptance evidence.
-resource "google_bigquery_table_iam_member" "analyst_view_reader" {
-  dataset_id = google_bigquery_dataset.product.dataset_id
-  table_id   = "energy_load_current"
-  role       = "roles/bigquery.dataViewer"
-  member     = "serviceAccount:${google_service_account.analyst.email}"
-
-  # The view is created by the first publish job, not by Terraform.
-  depends_on = [google_cloud_run_v2_job.publisher]
-}
+# dataset. The denial on raw and quarantine tables is the acceptance evidence;
+# the grant resource lives with the view definition below.
 
 resource "google_project_iam_member" "analyst_job_user" {
   project = var.project_id
@@ -137,15 +129,64 @@ resource "google_bigquery_table" "quarantine" {
   ])
 }
 
-# The authorised view `energy_load_current` and the immutable version tables
-# `energy_load_v<release>` are created by the first publish job, not by
-# Terraform: publication is a gated runtime decision, not infrastructure.
+# The authorised view exists from the first apply as a zero-row placeholder
+# with the observation schema, so the analyst grant has a target; the first
+# publish replaces its query with CREATE OR REPLACE VIEW at runtime, and
+# ignore_changes keeps Terraform from reverting that pointer afterwards.
+# The immutable version tables `energy_load_v<release>` remain runtime-created
+# (publication is a gated decision, not infrastructure).
+resource "google_bigquery_table" "energy_load_current" {
+  dataset_id          = google_bigquery_dataset.product.dataset_id
+  table_id            = "energy_load_current"
+  deletion_protection = false
 
-# --- Publish job (design section 6) ------------------------------------------
-#
-# A Cloud Run job, not a service: the producer runs it once per release with
-# INPUT_RELEASE_ID and CANDIDATE_ID supplied. Approval is the gcp-test gate
-# itself (design section 5, step 1), not an environment variable.
+  view {
+    # Zero rows, correct columns: a target for the grant and a safe empty
+    # read before the first publication.
+    query          = <<-SQL
+      SELECT
+        CAST(NULL AS TIMESTAMP) AS interval_start,
+        CAST(NULL AS TIMESTAMP) AS interval_end,
+        CAST(NULL AS STRING) AS area,
+        CAST(NULL AS STRING) AS metric,
+        CAST(NULL AS FLOAT64) AS value,
+        CAST(NULL AS STRING) AS unit,
+        CAST(NULL AS STRING) AS release_id,
+        CAST(NULL AS TIMESTAMP) AS ingested_at
+      WHERE FALSE
+    SQL
+    use_legacy_sql = false
+  }
+
+  lifecycle {
+    ignore_changes = [view]
+  }
+}
+
+# Authorised view on its own dataset: the view's own authority reads the
+# version tables, so the analyst needs table-level access to the view only
+# (G02 pattern, applied within one dataset).
+resource "google_bigquery_dataset_access" "view_reads_versions" {
+  dataset_id = google_bigquery_dataset.product.dataset_id
+  project    = var.project_id
+
+  view {
+    project_id = var.project_id
+    dataset_id = google_bigquery_dataset.product.dataset_id
+    table_id   = google_bigquery_table.energy_load_current.table_id
+  }
+}
+
+# The analyst grant targets the view; the empty placeholder guarantees it
+# exists from the first apply.
+resource "google_bigquery_table_iam_member" "analyst_view_reader" {
+  dataset_id = google_bigquery_dataset.product.dataset_id
+  table_id   = google_bigquery_table.energy_load_current.table_id
+  role       = "roles/bigquery.dataViewer"
+  member     = "serviceAccount:${google_service_account.analyst.email}"
+
+  depends_on = [google_bigquery_table.energy_load_current]
+}
 
 resource "google_cloud_run_v2_job" "publisher" {
   name     = "energy-product-publisher"
