@@ -1,0 +1,7 @@
+# Generated data, MLflow state and model artifacts stay outside Git.
+data/
+mlruns/
+.venv/
+__pycache__/
+*.pyc
+uv.lock.bak

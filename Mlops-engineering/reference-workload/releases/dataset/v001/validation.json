@@ -1,0 +1,143 @@
+{
+  "checked_at": "2026-11-21T21:46:22+00:00",
+  "checks": [
+    {
+      "detail": "columns ['station_id', 'district', 'poi_category', 'capacity_kw', 'active_from', 'available_at']",
+      "name": "schema_stations",
+      "passed": true
+    },
+    {
+      "detail": "columns ['station_id', 'effective_from', 'price_per_kwh', 'available_at']",
+      "name": "schema_tariffs",
+      "passed": true
+    },
+    {
+      "detail": "columns ['date', 'name', 'is_public_holiday', 'is_school_break', 'available_at']",
+      "name": "schema_holidays",
+      "passed": true
+    },
+    {
+      "detail": "columns ['event_id', 'district', 'start_utc', 'end_utc', 'boost', 'available_at']",
+      "name": "schema_events",
+      "passed": true
+    },
+    {
+      "detail": "columns ['district', 'hour_utc', 'temperature_c', 'precipitation_mm', 'available_at']",
+      "name": "schema_weather_obs",
+      "passed": true
+    },
+    {
+      "detail": "columns ['district', 'issue_at', 'reference_hour_utc', 'temperature_c', 'precipitation_mm', 'available_at']",
+      "name": "schema_weather_fcst",
+      "passed": true
+    },
+    {
+      "detail": "columns ['station_id', 'hour_utc', 'demand_kwh', 'available_at']",
+      "name": "schema_demand",
+      "passed": true
+    },
+    {
+      "detail": "40 rows, 0 duplicate grain keys",
+      "name": "grain_unique_stations",
+      "passed": true
+    },
+    {
+      "detail": "52 rows, 0 duplicate grain keys",
+      "name": "grain_unique_tariffs",
+      "passed": true
+    },
+    {
+      "detail": "730 rows, 0 duplicate grain keys",
+      "name": "grain_unique_holidays",
+      "passed": true
+    },
+    {
+      "detail": "62 rows, 0 duplicate grain keys",
+      "name": "grain_unique_events",
+      "passed": true
+    },
+    {
+      "detail": "105120 rows, 0 duplicate grain keys",
+      "name": "grain_unique_weather_obs",
+      "passed": true
+    },
+    {
+      "detail": "104976 rows, 0 duplicate grain keys",
+      "name": "grain_unique_weather_fcst",
+      "passed": true
+    },
+    {
+      "detail": "654864 rows, 0 duplicate grain keys",
+      "name": "grain_unique_demand",
+      "passed": true
+    },
+    {
+      "detail": "min 1.1, max 345.0 kWh vs capacity max 75-345",
+      "name": "range_demand",
+      "passed": true
+    },
+    {
+      "detail": "temp [-9.5, 39.2] C, precip max 7.25 mm",
+      "name": "range_weather_obs",
+      "passed": true
+    },
+    {
+      "detail": "temp [-11.2, 40.9] C, precip max 4.02 mm",
+      "name": "range_weather_fcst",
+      "passed": true
+    },
+    {
+      "detail": "price [0.320, 0.510] EUR/kWh",
+      "name": "range_tariff",
+      "passed": true
+    },
+    {
+      "detail": "all 40 stations continuous",
+      "name": "continuity_demand",
+      "passed": true
+    },
+    {
+      "detail": "all 6 districts continuous",
+      "name": "continuity_weather_obs",
+      "passed": true
+    },
+    {
+      "detail": "4374 district-issues well-formed",
+      "name": "forecast_integrity",
+      "passed": true
+    },
+    {
+      "detail": "available_at = hour + close(1h) + ingestion delay",
+      "name": "availability_demand",
+      "passed": true
+    },
+    {
+      "detail": "available_at = hour + observation delay",
+      "name": "availability_weather_obs",
+      "passed": true
+    },
+    {
+      "detail": "available_at = issue_at",
+      "name": "availability_weather_fcst",
+      "passed": true
+    },
+    {
+      "detail": "tariff schedule matches 2026-04-01 step",
+      "name": "regime_tariff_step",
+      "passed": true
+    },
+    {
+      "detail": "3 late stations start on their active_from",
+      "name": "regime_cold_start",
+      "passed": true
+    },
+    {
+      "detail": "heatwave week +9.4 C vs adjacent weeks (threshold +5.0)",
+      "name": "regime_heatwave",
+      "passed": true
+    }
+  ],
+  "config_sha256": "8c0dd791fa2575b654ab2dd4eba0248e157f8a724865c762551f078429aa7096",
+  "release_id": "dataset-v001",
+  "source_commit": "c769b7164961ba6202987add2cb8af40598ac48e"
+}

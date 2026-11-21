@@ -89,8 +89,9 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 **Status (2026-11-16):** M0 to M2 are done. Batches b01 (2026-10) through b24
 (2024-11) are collected, validated, accepted and backed up. b01 through b12
 completed the twelve-month cut line. b24 finishes the M3 monthly window. A
-five-year extension back to 2021-11 is in progress. b25 through b34 are
-accepted. Next is b35 (2023-12). M4 and M5 are not started. The
+five-year extension back to 2021-11 is in progress. b25 through b35 are
+accepted. Next is b36 (2023-11), the first-year cut. M4 and M5 are not
+started. The
 working list is the
 [acquisition status](../01-opensky-acquisition/README.md#status-2026-11-16).
 Vertical slice V0 (Silver for the pilot week) can start in parallel. It is
@@ -118,8 +119,10 @@ release.
 the Release Gate (M3) and the container image with CI (M5) are implemented
 and recorded. `v001` is released from the 2026-07-01 gold output, `v002`
 from the pilot week, and a failing fixture is blocked. The full dataset run
-(M4) is not started; the earlier full-silver output on local disk is the
-superseded arrival-anchored M1 design, not Silver v2.
+(M4) is in progress and paused at 208/727 Silver days of the two-year
+window (2024-11-01 to 2026-10-31); the resume procedure is in the 02
+README. The earlier full-silver output on local disk is the superseded
+arrival-anchored M1 design, not Silver v2.
 
 ## Phase 3: 03 Airport Analytics and cloud Gold
 

@@ -1,0 +1,127 @@
+data_product: charging-network-demand
+version: dataset-v001
+contract:
+  schema_version: charging-dataset-v1
+  grain:
+    stations:
+    - station_id
+    tariffs:
+    - station_id
+    - effective_from
+    holidays:
+    - date
+    events:
+    - event_id
+    weather_obs:
+    - district
+    - hour_utc
+    weather_fcst:
+    - district
+    - issue_at
+    - reference_hour_utc
+    demand:
+    - station_id
+    - hour_utc
+  required_columns:
+    stations:
+    - station_id
+    - district
+    - poi_category
+    - capacity_kw
+    - active_from
+    - available_at
+    tariffs:
+    - station_id
+    - effective_from
+    - price_per_kwh
+    - available_at
+    holidays:
+    - date
+    - name
+    - is_public_holiday
+    - is_school_break
+    - available_at
+    events:
+    - event_id
+    - district
+    - start_utc
+    - end_utc
+    - boost
+    - available_at
+    weather_obs:
+    - district
+    - hour_utc
+    - temperature_c
+    - precipitation_mm
+    - available_at
+    weather_fcst:
+    - district
+    - issue_at
+    - reference_hour_utc
+    - temperature_c
+    - precipitation_mm
+    - available_at
+    demand:
+    - station_id
+    - hour_utc
+    - demand_kwh
+    - available_at
+  field_policy:
+    station_id: keep
+    district: keep
+    poi_category: keep
+    capacity_kw: keep
+    active_from: keep
+    available_at: keep
+    effective_from: keep
+    price_per_kwh: keep
+    date: keep
+    name: keep
+    is_public_holiday: keep
+    is_school_break: keep
+    event_id: keep
+    start_utc: keep
+    end_utc: keep
+    boost: keep
+    hour_utc: keep
+    temperature_c: keep
+    precipitation_mm: keep
+    issue_at: keep
+    reference_hour_utc: keep
+    demand_kwh: keep
+  availability_table:
+    calendar:
+      readable_at_issue: true
+      rule: Known from the calendar; available at the start of the day it describes
+        (00:00 Europe/Berlin).
+    station_attributes:
+      readable_at_issue: true
+      rule: Static per dataset release; never time-varying in v1.
+    demand_lags:
+      readable_at_issue: true
+      rule: Available at issue time only if the lagged hour closed before T minus
+        the ingestion delay.
+    weather_forecasts:
+      readable_at_issue: true
+      rule: Only the forecast issued before T, joined by forecast reference time;
+        realized weather is never a feature.
+    tariff_events:
+      readable_at_issue: true
+      rule: Known from published schedules ahead of the target day.
+    weather_realized:
+      readable_at_issue: false
+      rule: Never readable at issue time; exists for backtesting and monitoring only.
+    same_day_demand:
+      readable_at_issue: false
+      rule: Demand of the target day is the prediction target and is never readable
+        at issue time.
+quality_gates:
+  demand_min_kwh: 0.0
+  demand_max_fraction_of_capacity: 1.0
+  temperature_c_min: -35.0
+  temperature_c_max: 45.0
+  precipitation_mm_min: 0.0
+  price_per_kwh_min: 0.0
+  duplicate_keys_max: 0
+release:
+  approval_required: true

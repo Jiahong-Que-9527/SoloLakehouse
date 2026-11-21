@@ -4,7 +4,7 @@
 
 Close the loop of one machine-learning system: from problem framing and a synthetic data foundation through point-in-time features, evaluated models, a registered and releasable training pipeline, batch and online serving, drift monitoring with retraining triggers, Dagster orchestration, and a template that onboards a second model. The project targets the working skills of a mid-to-senior ML engineer and complements the domain cases: practices matured here feed back into [Taxi-in Prediction](../Fraport-adsb-intelligence/05-taxi-in-prediction/README.md), [Energy Forecasting MLOps](../gcp/05-energy-forecasting-mlops/README.md) and the [Databricks forecasting brief](../databricks/05-financial-forecasting-mlops/README.md).
 
-**Status:** all stages planned. M01 is next.
+**Status:** M01 accepted (dataset-v001 released and gated). M02 is next.
 
 ## Workload and environment
 

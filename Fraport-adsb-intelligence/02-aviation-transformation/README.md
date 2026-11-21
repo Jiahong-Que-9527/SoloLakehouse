@@ -67,7 +67,9 @@ Release  versioned Gold folder with manifest, contract and checks
   the 2026-07-01 gold output and `v002` from the pilot week, which closes
   the vertical slice V0 of the project plan.
 - **M4.** Full dataset. Record run ID, source window, quality results and the
-  outcome of a repeat run.
+  outcome of a repeat run. In progress (2026-11-21, paused at 208/727
+  Silver days — see "Full dataset run (M4, in progress)" below for the
+  resume procedure).
 - **M5.** Container image and CI. Optional engine comparison (DuckDB, Polars,
   Spark) on the same input. Done (2026-11-21, image builds and runs the
   synthetic suite in CI; the optional engine comparison is not planned).
@@ -125,6 +127,40 @@ Recorded run (2026-07-01): 650 candidates -> 395 labeled (61%), 244
 censored (surface points < 2 - the ADS-B ground-coverage limit), 9
 no_surface, 2 no_airborne_approach. Labeled taxi-in: median 1.8 min, max
 14.8 min, path up to 3,285 m; 169 flights carry a >30 s taxi gap.
+
+## Full dataset run (M4, in progress)
+
+**[GLM·2026-11-21]** Scope: the two-year window 2024-11-01 to 2026-10-31
+(727 days, dataset `v1` as defined in the batch plan). The extension months
+(2024-01 to 2024-10 collected so far, later b35-b60) ride a second pass
+once acquisition finishes. Pipeline, chosen for the 30 GB RAM budget:
+
+1. **Silver per day** (`full_run.sh silver`) — a single multi-month run
+   would accumulate ~90M rows in Python and OOM; per-day peaks at ~3 GB,
+   runs 2 workers in parallel, and is restartable at day granularity.
+2. **Monthly merge** (`merge_silver_month.py`) — DuckDB streams a month of
+   daily outputs into one root without Python-side accumulation.
+3. **Gold per month** (`full_run.sh gold`) — deliberately not per day:
+   taxi-in windows cross midnight, so a day-local gold run would lose
+   boundary arrivals.
+4. Monthly releases through the gate, then ingestion (03 M5).
+
+**Status (paused 2026-11-21):** 208/727 days of Silver are complete
+(through 2025-05), zero failures, all with verified manifests. Half-done
+days are auto-redone: the driver counts a day as done only when its
+`run_manifest.json` exists. To resume, run:
+
+```bash
+cd Fraport-adsb-intelligence/02-aviation-transformation
+./full_run.sh silver   # continues from 2025-05-XX, skips the 208 done days
+./full_run.sh gold     # after silver completes: monthly merge + gold
+```
+
+State lives in `/home/bill/slh-data/full-20241101-20261031/`
+(`silver/`, `silver-monthly/`, `gold/`, `logs/`), outside the repository.
+After both phases: one release per month (`v003-2024-11` … `v003-2026-10`)
+through `release_gate.py`, repeat-run verification on one month, then
+ingestion and the findings report in project 03 (its M5).
 
 ## Release Gate (M3)
 

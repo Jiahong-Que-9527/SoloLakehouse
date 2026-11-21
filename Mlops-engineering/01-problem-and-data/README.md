@@ -2,7 +2,7 @@
 
 <!-- [魏征·2026-11-21] Initialize stage planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+**Status:** accepted (2026-11-21) · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md) · [Acceptance record](evidence/m01-acceptance.md) · [EDA report](evidence/eda-report.md)
 
 Freeze what the model predicts and when, then build the seeded synthetic world it learns from — including the validation that keeps later stages honest.
 
