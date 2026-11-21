@@ -62,8 +62,9 @@ Release  versioned Gold folder with manifest, contract and checks
   (ADR-006).
 - **M2.** `gold/ground_ops`: taxi-in features and labels for the pilot
   week, with a coverage report.
-- **M3.** Data contract and Release Gate. Release `v001` from the pilot week,
-  and a rejected release shown from a failing fixture.
+- **M3.** Data contract and Release Gate. Release `v001`, and a rejected
+  release shown from a failing fixture. Done (2026-11-21, released from the
+  2026-07-01 gold output; the pilot week rides the M4 full-dataset run).
 - **M4.** Full dataset. Record run ID, source window, quality results and the
   outcome of a repeat run.
 - **M5.** Container image and CI. Optional engine comparison (DuckDB, Polars,
@@ -112,6 +113,39 @@ Recorded run (2026-07-01): 650 candidates -> 395 labeled (61%), 244
 censored (surface points < 2 - the ADS-B ground-coverage limit), 9
 no_surface, 2 no_airborne_approach. Labeled taxi-in: median 1.8 min, max
 14.8 min, path up to 3,285 m; 169 flights carry a >30 s taxi gap.
+
+## Release Gate (M3)
+
+**[GLM·2026-11-21]** `release_gate.py` packages one gold market output as an
+immutable, versioned release per ADR-003: `data/`, `manifest.json`,
+`contract.yaml`, `validation.json`, `approval.json`, and a `_SUCCESS` written
+last after every file is re-verified against the manifest. The gate first
+re-checksums the gold input against its own `run_manifest.json` (including the
+`input_id` recomputation) and refuses a mismatched or tampered input before it
+stages anything. Thresholds live in
+[contracts/ground_ops.yaml](contracts/ground_ops.yaml), never in code; the
+owner field-policy decision (2026-11-21) keeps `icao24` and `callsign` in the
+release, with the rationale recorded in the contract.
+
+```bash
+uv run --locked python release_gate.py \
+  --gold-root /path/to/gold-output \
+  --contract contracts/ground_ops.yaml \
+  --output /path/to/new/local-release \
+  --release-id v001 --approver "Jiahong Que" --notes "..."
+```
+
+Recorded release `v001` (2026-11-21, from the 2026-07-01 gold output
+`eddf-gold-ground-ops-20260701-164048`, source commit `86d0a7e`): 650 rows,
+all seven checks passed — schema (15 columns), grain uniqueness (0
+duplicates), label coverage (395/650 = 0.608 against a 0.5 floor),
+taxi-in range, checksums, row count. Output:
+`eddf-release-ground-ops-v001-20261121a`.
+
+Blocked demonstration: a fixture with 300 labeled rows demoted to
+`no_surface` (coverage 0.146) fails `label_coverage`; the gate exits
+non-zero, writes `validation.json` with `status: blocked`, and leaves no
+`_SUCCESS` and no `approval.json`.
 
 ## Silver v2 local build (M1')
 
