@@ -172,10 +172,22 @@ def main():
     choice.add_argument("--date", action="append", type=date.fromisoformat)
     choice.add_argument("--date-list", type=Path)
     args = parser.parse_args()
-    days = tuple(sorted(set(args.date))) if args.date else parser.error("--date is required")
+    if args.date:
+        days = tuple(sorted(set(args.date)))
+    elif args.date_list:
+        days = tuple(date.fromisoformat(line.strip())
+                     for line in args.date_list.read_text(encoding="utf-8").splitlines()
+                     if line.strip())
+        if not days:
+            parser.error("--date-list is empty")
+    else:
+        parser.error("--date or --date-list is required")
     silver, output = args.silver_root.resolve(), args.output.resolve()
-    repo = Path(__file__).resolve().parents[2]
-    if output.is_relative_to(repo) or output.is_relative_to(silver):
+    _here = Path(__file__).resolve()
+    # In a container the three-level repository layout does not exist;
+    # skip the repo check there and keep the input-directory checks.
+    repo = _here.parents[2] if len(_here.parents) > 2 else None
+    if (repo and output.is_relative_to(repo)) or output.is_relative_to(silver):
         parser.error("write to a new local directory outside the repository and Silver")
     if output.exists():
         parser.error("output directory already exists; choose a new directory")

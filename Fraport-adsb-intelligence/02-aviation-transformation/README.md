@@ -63,12 +63,14 @@ Release  versioned Gold folder with manifest, contract and checks
 - **M2.** `gold/ground_ops`: taxi-in features and labels for the pilot
   week, with a coverage report.
 - **M3.** Data contract and Release Gate. Release `v001`, and a rejected
-  release shown from a failing fixture. Done (2026-11-21, released from the
-  2026-07-01 gold output; the pilot week rides the M4 full-dataset run).
+  release shown from a failing fixture. Done (2026-11-21). `v001` came from
+  the 2026-07-01 gold output and `v002` from the pilot week, which closes
+  the vertical slice V0 of the project plan.
 - **M4.** Full dataset. Record run ID, source window, quality results and the
   outcome of a repeat run.
 - **M5.** Container image and CI. Optional engine comparison (DuckDB, Polars,
-  Spark) on the same input.
+  Spark) on the same input. Done (2026-11-21, image builds and runs the
+  synthetic suite in CI; the optional engine comparison is not planned).
 
 ## Acceptance
 
@@ -109,6 +111,16 @@ uv run --locked python gold_ground_ops.py \
   --output /path/to/new/local-output
 ```
 
+`--date-list` (one ISO date per line) selects several days in one run —
+that is how the pilot week was built. The flag previously parsed but
+ignored its input; fixed on 2026-11-21.
+
+Recorded pilot-week run (2026-10-12 to 2026-10-18, from
+`eddf-silver-v2-pilotweek-20261121a`): 4,656 candidates, 2,583 labeled
+(55.5%), 1,894 censored (`censored_few_points` — the ADS-B ground-coverage
+limit), 174 no_surface, 2 no_airborne_approach, 3 surface_without_approach.
+Output: `eddf-gold-ground-ops-pilotweek-20261121a`.
+
 Recorded run (2026-07-01): 650 candidates -> 395 labeled (61%), 244
 censored (surface points < 2 - the ADS-B ground-coverage limit), 9
 no_surface, 2 no_airborne_approach. Labeled taxi-in: median 1.8 min, max
@@ -142,10 +154,31 @@ duplicates), label coverage (395/650 = 0.608 against a 0.5 floor),
 taxi-in range, checksums, row count. Output:
 `eddf-release-ground-ops-v001-20261121a`.
 
+Recorded release `v002` (2026-11-21, from the pilot-week gold output
+`eddf-gold-ground-ops-pilotweek-20261121a`): 4,656 candidate arrivals over
+2026-10-12 to 2026-10-18, all seven checks passed — label coverage
+2,583/4,656 = 0.555. This closes the vertical slice V0: pilot week through
+Silver v2, Gold, release gate and a governed release. Output:
+`eddf-release-ground-ops-v002-20261121a`.
+
 Blocked demonstration: a fixture with 300 labeled rows demoted to
 `no_surface` (coverage 0.146) fails `label_coverage`; the gate exits
 non-zero, writes `validation.json` with `status: blocked`, and leaves no
 `_SUCCESS` and no `approval.json`.
+
+### Container image (M5)
+
+The image carries the code, the contract and the synthetic suite — never
+data. The default command runs the suite as a smoke test:
+
+```bash
+docker build -t eddf-transformation Fraport-adsb-intelligence/02-aviation-transformation
+docker run --rm eddf-transformation
+```
+
+CI builds the image and runs that suite on every pull request that touches
+this directory. Run a tool against local data by mounting the data root and
+overriding the entrypoint.
 
 ## Silver v2 local build (M1')
 
@@ -171,6 +204,11 @@ records, cleaning dropped 728,116 stale states. The motivating case
 `3c618b` now carries 5,134 points (2,345 airborne + 2,789 ground, 28
 segments) in one stream, where the arrival-anchored M1 draft kept only its
 225 ground points.
+
+Recorded pilot-week run (2026-10-12 to 2026-10-18 UTC, seven days in one
+run, verified Bronze, zero unavailable hours): 15,346 aircraft-days,
+20,918,106 observations, 59,264 segments, 9,312 flight records. Output:
+`eddf-silver-v2-pilotweek-20261121a`.
 
 ## Silver M1 local pilot
 
