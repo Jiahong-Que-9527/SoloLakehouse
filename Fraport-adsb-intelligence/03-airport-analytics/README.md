@@ -58,6 +58,33 @@ Recorded runs (2026-11-21, project `slh-gcp-test`):
   (`storage.objects.get`/`delete` denied) — release immutability is
   enforced by IAM, not by convention.
 
+## Analytics model (M4)
+
+**[GLM·2026-11-21]** Three reusable views over `ground_ops_arrivals`, each
+carrying `release_id` so results always trace to their release:
+
+| View | Grain | Answers |
+|------|-------|---------|
+| `v_arrival_traffic` | (release_id, day_utc, status) | traffic volume per day and coverage status |
+| `v_arrival_hourly` | (release_id, day_utc, hour_utc) | arrival rate by hour of day |
+| `v_surface_time` | (release_id, day_utc) | labeled taxi-in distribution (avg/median/min/max), taxi path, gaps over 30 s |
+
+Runway-area activity has no view: the `ground_ops` market carries no runway
+evidence, and inventing coverage the release does not have would break the
+findings discipline (ADR-006). It arrives with a future market.
+
+```bash
+uv run --locked python analytics_views.py \
+  --project <project> --expected expected_results.json
+```
+
+`--expected` verifies the views on the fixed sample (release `v002`,
+pilot week): per-day candidate and labeled counts from the recorded gold
+run, status totals from the release coverage report — 16 checks, all
+passing (2026-11-21). Query cost for the three view queries on the sample:
+130 KB + 168 KB + 192 KB processed ≈ 0.5 MB, €0 inside the free tier.
+5 synthetic tests cover the verification logic (tampered rows must fail).
+
 ## Milestones
 
 - **M1.** ADR-004 spike on synthetic data, with the result recorded. Done
@@ -75,7 +102,11 @@ Recorded runs (2026-11-21, project `slh-gcp-test`):
   `already_ingested` and add 0 rows; a gate-blocked release is refused with
   its reason. Recorded runs below.
 - **M4.** Analytics model and core queries with expected results on a fixed
-  sample.
+  sample. Done (2026-11-21, [analytics_views.py](analytics_views.py)):
+  three reusable views deployed and verified against the release `v002`
+  sample; runway-area activity is deliberately absent because the
+  `ground_ops` market carries no runway evidence (ADR-006). Recorded run
+  below.
 - **M5.** Full dataset release, cost record and findings report.
 
 ## Acceptance
