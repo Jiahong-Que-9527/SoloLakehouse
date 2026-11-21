@@ -21,11 +21,17 @@ human approval (design section 5, step 1).
 import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from energy_product.cloud_gcp import BigQueryProductStore
 from energy_product.contract import load_contract
 from energy_product.publisher import PublishConflict, PublishRequest, publish
 from energy_product.store import AccessDenied
+
+# G01's window dates are Europe/Berlin local midnights (its cloud publisher
+# records "dates are Europe/Berlin local midnights"), so a DATE window bound
+# converts through Berlin — 2026-06-08 becomes 2026-06-07 22:00 UTC in summer.
+BERLIN = ZoneInfo("Europe/Berlin")
 
 
 def _evaluation_time() -> datetime:
@@ -80,14 +86,18 @@ def _as_datetime(value) -> datetime:
     """The G01 ledger types the window as DATE: the client returns
     ``datetime.date``, whose arithmetic truncates sub-day offsets — the
     first live publication collapsed 672 quarter-hour keys onto 7 day
-    keys this way. Coerce date, datetime and ISO strings to aware UTC."""
+    keys this way. A DATE (or date-only string) is a Europe/Berlin local
+    midnight and converts to UTC through the DST-aware zone; aware
+    datetimes pass through, naive datetimes and timestamped ISO strings
+    are UTC (G01 normalises observations to UTC)."""
     if isinstance(value, datetime):
-        parsed = value
-    elif isinstance(value, str):
+        return value if value.tzinfo else value.replace(tzinfo=UTC)
+    if isinstance(value, str):
         parsed = datetime.fromisoformat(value)
-    else:
-        parsed = datetime(value.year, value.month, value.day)
-    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+        if len(value) <= 10:  # date-only string: same semantics as DATE
+            return parsed.replace(tzinfo=BERLIN).astimezone(UTC)
+        return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+    return datetime(value.year, value.month, value.day, tzinfo=BERLIN).astimezone(UTC)
 
 
 def _expected_grid(
