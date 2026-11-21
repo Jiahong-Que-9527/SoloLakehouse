@@ -33,6 +33,6 @@ A model issued at `T` (06:00 Europe/Berlin) may read only rows with `available_a
 
 ## Leakage tests (implemented at M02)
 
-- Shift test: moving every `available_at` forward by one step changes nothing for an issue at `T`; moving it backward makes the affected rows unreadable, and the loader rejects them.
+- Shift test: delaying every `available_at` by one step makes the affected rows unreadable at `T`, and the loader rejects them; advancing every `available_at` by one step changes no feature value for rows that remain readable. Availability stamping affects readability only, never row content.
 - Forecast test: a forecast row joined with the wrong reference time is rejected by the loader.
 - Duplicate test: two materializations from the same data release ID produce byte-identical Parquet and manifests.

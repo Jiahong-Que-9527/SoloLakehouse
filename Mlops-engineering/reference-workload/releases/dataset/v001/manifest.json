@@ -1,0 +1,202 @@
+{
+  "config_sha256": "8c0dd791fa2575b654ab2dd4eba0248e157f8a724865c762551f078429aa7096",
+  "files": [
+    {
+      "path": "data/demand/year=2025/part-0000.parquet",
+      "rows": 324120,
+      "sha256": "45736c576e5efac8ca24e8a375c4f3253ef5831931277abde79760238e113d02",
+      "size_bytes": 2065387
+    },
+    {
+      "path": "data/demand/year=2026/part-0000.parquet",
+      "rows": 330744,
+      "sha256": "37ead56bacd2bf6474c3d09983596c19b4698a7429dccfd4ef6c934c0c235072",
+      "size_bytes": 2093679
+    },
+    {
+      "path": "data/events/part-0000.parquet",
+      "rows": 62,
+      "sha256": "64abe73f3170f520b34aa486a99f543c9c85dc5dcc00b7bbc6b69a6054a0b882",
+      "size_bytes": 3830
+    },
+    {
+      "path": "data/holidays/part-0000.parquet",
+      "rows": 730,
+      "sha256": "7c98461de7ef596fc2984f73ac58f9c0705e4c680ca30ec752193eddeba4380e",
+      "size_bytes": 8256
+    },
+    {
+      "path": "data/stations/part-0000.parquet",
+      "rows": 40,
+      "sha256": "4ef92d264af69abd4194a5bf73ef0940253aa35214289ca8c9bd6ff104c2ba16",
+      "size_bytes": 2417
+    },
+    {
+      "path": "data/tariffs/part-0000.parquet",
+      "rows": 52,
+      "sha256": "e4f4150cb3983cfa405a5419e8895188dc453a3b4e557b1716c0af0714f70e3b",
+      "size_bytes": 1764
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-01/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "51359437ddf554a2fdf2f29857ec609bc311bbf16163ae537103ad782bac071e",
+      "size_bytes": 18422
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-02/part-0000.parquet",
+      "rows": 4032,
+      "sha256": "48498f5469c02616e6c2a0859b0257a8b7e0c39da42efae4dd32caeeea16df33",
+      "size_bytes": 17445
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-03/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "319b65037ef66df886533dee8afe103b026cf975af9c5086ca628573d05ce78d",
+      "size_bytes": 19273
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-04/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "f2251a9214e4ea8955ed28917eba1ab697375de756de8dee6bd2cd95f5ad2678",
+      "size_bytes": 19014
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-05/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "3807a0c99de37760716835bd670e58a54c520a3cb31b57e8ef0adf8172fa6d20",
+      "size_bytes": 19394
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-06/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "897885c2ce36a8c5dc2f604b13fb0b2e32f27bd1b7bec545d7f7615aa02a57e2",
+      "size_bytes": 18953
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-07/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "bd0b9555c289684acf38c31620a21c0242d774146906061c141650342c51a28a",
+      "size_bytes": 19197
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-08/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "0736ae34c5b6fe507c2564524fc7f9e9f6d0ba717a636eb8da4b20589740f760",
+      "size_bytes": 19056
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-09/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "69e5edc62267e0cddc9d0e174040bd8660b0a34646e48d4409a7d0a854517842",
+      "size_bytes": 18776
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-10/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "4c62ab414e124a6539df2fcf54b98044a9b99e7541e29306fde453fbc91a1543",
+      "size_bytes": 18987
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-11/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "31c6f899344f6af92bbd2c8970bbd813c96d2d5c9754210723b387355e096fad",
+      "size_bytes": 18789
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2025-12/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "4d22d9008c7192721af19423390c93f8d262d924b81ff75a52786b7beecb3c3e",
+      "size_bytes": 18917
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-01/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "2da8ce7381a964bf7aef34a5a7396f5f7b80e3e40cc9ce97af517ae1bc334809",
+      "size_bytes": 18976
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-02/part-0000.parquet",
+      "rows": 4032,
+      "sha256": "f967e98f4409eaede5be3842a74277005754ed5d17c360e9cd134436b69e1aec",
+      "size_bytes": 17793
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-03/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "c0cc10c027a5aeb0788e640d2f8b7aa444a72582c7a486565a053b3466bc58d5",
+      "size_bytes": 19190
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-04/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "12e24e70be0ee8b9161cfb2451679efd88cede64419d658d4dec0c860ed7f603",
+      "size_bytes": 19230
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-05/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "f77b6a808e3401f0f6b4ae6f0dd29219c4b8f0ac51978790943a7cbfbe29d4f7",
+      "size_bytes": 19297
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-06/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "31cbf49682fe2405534563b7efd3abf040ce9183206d25df1888232f8763f280",
+      "size_bytes": 18951
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-07/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "494f3554b2787034f68fcf4d4c3369a347bc61f8c4d51edcab58e00ad66eccc7",
+      "size_bytes": 20364
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-08/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "54ab46159099b68c730ef5c408a31fa072f0ddd9e0ea9f9bc9d86959f2e1a951",
+      "size_bytes": 19406
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-09/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "7fc9bc71870cf667cd8d5bb12ba5ed5bdf831b70a3892f144c5239f998ddc05c",
+      "size_bytes": 19146
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-10/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "18983064a87104b3ce2a157e9b1f8db9666ddc81ed23fc12c10d4307bda4e7de",
+      "size_bytes": 19424
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-11/part-0000.parquet",
+      "rows": 4320,
+      "sha256": "6688909814c60659441855fdaf8ba43a696cc18f162acc44769bc5141b8aefc0",
+      "size_bytes": 18621
+    },
+    {
+      "path": "data/weather_fcst/issue_month=2026-12/part-0000.parquet",
+      "rows": 4464,
+      "sha256": "495a9479f10e8cf81ba788a4ff00b5aeac41839e48981b5e26deece3aad4b6ff",
+      "size_bytes": 18830
+    },
+    {
+      "path": "data/weather_obs/year=2025/part-0000.parquet",
+      "rows": 52560,
+      "sha256": "e9308ebf4232a8078727296a0bf1e853bad68774ef8529c98b3324ed1f04650b",
+      "size_bytes": 294887
+    },
+    {
+      "path": "data/weather_obs/year=2026/part-0000.parquet",
+      "rows": 52560,
+      "sha256": "18bb6814e5a241381088b5e8279900bfa89617242c3d73a1f97f9af4514bb764",
+      "size_bytes": 296965
+    }
+  ],
+  "kind": "dataset",
+  "release_id": "dataset-v001",
+  "schema_version": "charging-dataset-v1",
+  "seed": 20261121,
+  "source_commit": "c769b7164961ba6202987add2cb8af40598ac48e"
+}

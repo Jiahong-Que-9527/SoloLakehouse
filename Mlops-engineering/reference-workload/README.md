@@ -28,6 +28,7 @@ Issue at 06:00 Europe/Berlin the next-day hourly demand per station (24 hours; e
 |---|---|---|
 | `charging_forecast.generator` | Seeded synthetic data and regime injection | M01 |
 | `charging_forecast.contract` | Schemas, availability table, release manifests | M01 |
+| `charging_forecast.validation` | Dataset validation suite: schema, ranges, continuity, regime invariants | M01 |
 | `charging_forecast.features` | Point-in-time transforms and materialization | M02 |
 | `charging_forecast.eval` | Backtest folds, metrics, report rendering | M03 |
 | `charging_forecast.training` | Model definitions, search, MLflow runs | M04 |
