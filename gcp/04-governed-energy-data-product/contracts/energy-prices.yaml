@@ -1,0 +1,16 @@
+# [Kimi·2026-11-21] Specified, not required for v1 (design section 1):
+# day-ahead prices publish against fixtures only, no live ENTSO-E feed.
+data_product: energy-prices
+version: 1.0.0
+contract:
+  schema_version: 1
+  grain: [area, metric, interval_start]
+  required_columns: [interval_start, interval_end, area, metric, value, unit, release_id]
+quality_gates:
+  completeness_min: 1.0
+  duplicate_business_keys_max: 0
+  value_min: -500
+  freshness_hours_max: 48
+release:
+  approval_required: true
+  record_manifest: true
