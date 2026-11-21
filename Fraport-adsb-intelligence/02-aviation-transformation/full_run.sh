@@ -52,7 +52,11 @@ EOF
 run_one_silver() {
   local d="$1"
   local out="$PARENT/silver/$d"
-  if [ -d "$out" ]; then echo "skip $d"; return 0; fi
+  # A day counts as done only when its manifest exists: silver_v2 creates
+  # the output directory first and writes run_manifest.json last, so a
+  # directory without a manifest is an interrupted run and must be redone.
+  if [ -f "$out/run_manifest.json" ]; then echo "skip $d"; return 0; fi
+  rm -rf "$out"
   if (cd "$DIR02" && uv run --locked python silver_v2.py \
         --bronze-root "$BRONZE" --date "$d" --output "$out" \
         > "$PARENT/logs/silver-$d.log" 2>&1); then
@@ -79,9 +83,11 @@ case "$PHASE" in
     mkdir -p "$PARENT/silver-monthly" "$PARENT/gold" "$PARENT/logs"
     for m in $(months "$START" "$END"); do
       ms="$PARENT/silver-monthly/$m"; og="$PARENT/gold/$m"
-      if [ -d "$og" ]; then echo "skip gold $m"; continue; fi
-      if [ ! -d "$ms" ]; then
+      if [ -f "$og/run_manifest.json" ]; then echo "skip gold $m"; continue; fi
+      rm -rf "$og"
+      if [ ! -f "$ms/observations.parquet" ]; then
         echo "merge $m"
+        rm -rf "$ms"
         (cd "$DIR02" && uv run --locked python merge_silver_month.py \
            --daily-root "$PARENT/silver" --month "$m" --output "$ms") \
            > "$PARENT/logs/merge-$m.log" 2>&1 || { echo "FAIL merge $m"; continue; }
