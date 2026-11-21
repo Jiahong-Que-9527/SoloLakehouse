@@ -15,19 +15,32 @@ tested in CI so the same logic runs anywhere.
 
 ## Scope
 
-- **Silver.** Clean and type Bronze observations and record every rule that
-  removes or repairs a row. Reconstruct per-aircraft trajectories with
-  documented gap handling. Select the airport area (runways, taxiways and
-  surroundings) from reference geometry. Identify arrival candidates and
-  surface-movement events with documented thresholds.
-- **Quality.** Run checks and write a report for each run: completeness,
-  trajectory coverage and anomaly rates. Report how many flights have a usable
-  ground track, because ADS-B ground coverage limits taxi-in times.
-- **Gold.** Build flight-level taxi-in features and labels, hourly traffic
-  statistics and the training dataset. Report label coverage.
-- **Release Gate.** Export Gold under a data contract, with a field policy,
-  checks, manifest, checksums and release ID. Block a release that fails a
-  check. See the release layout in ADR-003.
+**[房玄龄·2026-11-21]** The Silver layer is re-planned as a neutral
+observation layer (see
+[ADR-006](../docs/adr/ADR-006-neutral-silver-observation-layer.md)): it
+records what was observed, for every aircraft, for the full day and
+region, with no business semantics. Arrival threading, taxi usability
+flags and labels move to Gold use-case markets, starting with
+`gold/ground_ops`. The Bronze `onground` flag is carried but never trusted
+(the `3c618b` case on 2026-07-01 shows it all-airborne while real ground
+movement is observable).
+
+- **Silver v2.** Four tables from full-day full-region Bronze reads:
+  `observations` (every fresh position update, airborne and ground),
+  `segments` (per-aircraft continuous runs with documented break
+  reasons), `flights` (deduplicated flight records), and `daily_coverage`
+  (per-aircraft and daily trust statistics). Every rule that removes or
+  repairs a row is recorded.
+- **Quality.** A report per run: completeness, segment and gap statistics,
+  coverage distributions. `daily_coverage` is the factual basis for any
+  downstream coverage claim.
+- **Gold markets.** Use-case-specific feature sets built on Silver. The
+  first market, `gold/ground_ops`, carries the arrival threading, taxi-in
+  features and labels, hourly traffic statistics and the training
+  dataset, with a label coverage report.
+- **Release Gate.** Export a Gold market under a data contract, with a
+  field policy, checks, manifest, checksums and release ID. Block a
+  release that fails a check. See the release layout in ADR-003.
 - **Reference data.** Airport geometry from open data, with its source and
   version recorded.
 - **Synthetic data.** A generator that produces data in the same schema, so
@@ -37,15 +50,18 @@ tested in CI so the same logic runs anywhere.
 
 ```text
 Bronze   raw OpenSky state vectors and flights (from project 01)
-Silver   clean observations, trajectories, arrival events
-Gold     taxi-in features, hourly traffic, training dataset
+Silver   neutral observations, segments, flights, daily coverage
+Gold     use-case markets (ground_ops first), one per analysis family
 Release  versioned Gold folder with manifest, contract and checks
 ```
 
 ## Milestones
 
-- **M1.** Silver for one day with tests, on the pilot-week data.
-- **M2.** Gold features and labels for the pilot week, with a coverage report.
+- **M1'.** Silver v2 for one day with tests, on the pilot-week data. The
+  2026-11-19 arrival-anchored M1 outputs remain local research drafts
+  (ADR-006).
+- **M2.** `gold/ground_ops`: taxi-in features and labels for the pilot
+  week, with a coverage report.
 - **M3.** Data contract and Release Gate. Release `v001` from the pilot week,
   and a rejected release shown from a failing fixture.
 - **M4.** Full dataset. Record run ID, source window, quality results and the
@@ -73,6 +89,10 @@ Silver and Gold datasets, quality reports, run records and Gold releases for
 projects 03 to 05.
 
 ## Silver M1 local pilot
+
+**[GLM·2026-11-21] Superseded as the target design by ADR-006 (neutral
+Silver v2). The commands and tables below remain valid as the recorded
+research drafts: the arrival-anchored logic moves to `gold/ground_ops`.**
 
 **[房玄龄·2026-11-19]** The M1 CLI covers the 2026-07-01, 2026-09-01, and
 2026-10-01 UTC arrival cohorts. It verifies the committed Bronze manifest
