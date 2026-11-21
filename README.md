@@ -166,7 +166,8 @@ local CSV exports are absent. Each project README documents the operational CLI.
 | [Energy Analytics API](gcp/02-energy-analytics-api/README.md) | Cloud delivery implemented and accepted (G02): authorized view, caller/runtime identity split, guards, revision rollback, bounded load | Release catalog and IAM product model (G04) |
 | [Aviation lakehouse](Fraport-adsb-intelligence/04-aviation-lakehouse/README.md) and [model serving](Fraport-adsb-intelligence/06-model-serving/README.md) | Project briefs and designs | Consume versioned Gold in Databricks; later serve a pinned model on Cloud Run |
 | [Finance](databricks/01-ecb-delta-lakehouse/README.md) | Project briefs in the current layout | ECB Silver / Delta Lakehouse workloads |
-| [DevOps delivery](Devops-engineering/README.md) | Planning scaffold; D01 is next | Reproducible development of the energy quality service |
+| [DevOps delivery](Devops-engineering/README.md) | D01–D07 implemented; D03–D07 accepted; delivery path complete | Owner acceptance runs for D01–D02 |
+| [ML engineering](Mlops-engineering/README.md) | Planning scaffold; M01 is next | Task contract, seeded charging-demand dataset and validation (M01) |
 | [Self-hosted lakehouse](local/self-hosted-lakehouse/README.md) | Historical implementation in a [pinned snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a) | Reproduce a fixture flow; evaluate K3s and GitOps at a later milestone |
 
 Further navigation: [Aviation plan](Fraport-adsb-intelligence/docs/project-plan.md)
@@ -174,4 +175,5 @@ Further navigation: [Aviation plan](Fraport-adsb-intelligence/docs/project-plan.
 · [Google Cloud projects](gcp/README.md)
 · [Databricks projects](databricks/README.md)
 · [DevOps delivery](Devops-engineering/README.md)
+· [ML engineering](Mlops-engineering/README.md)
 · [Project template](project-template/README.md)
