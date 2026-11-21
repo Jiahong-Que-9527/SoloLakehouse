@@ -142,18 +142,20 @@ resource "google_bigquery_table" "energy_load_current" {
 
   view {
     # Zero rows, correct columns: a target for the grant and a safe empty
-    # read before the first publication.
+    # read before the first publication. (BigQuery rejects a WHERE without
+    # FROM, hence the subquery.)
     query          = <<-SQL
-      SELECT
-        CAST(NULL AS TIMESTAMP) AS interval_start,
-        CAST(NULL AS TIMESTAMP) AS interval_end,
-        CAST(NULL AS STRING) AS area,
-        CAST(NULL AS STRING) AS metric,
-        CAST(NULL AS FLOAT64) AS value,
-        CAST(NULL AS STRING) AS unit,
-        CAST(NULL AS STRING) AS release_id,
-        CAST(NULL AS TIMESTAMP) AS ingested_at
-      WHERE FALSE
+      SELECT * FROM (
+        SELECT
+          CAST(NULL AS TIMESTAMP) AS interval_start,
+          CAST(NULL AS TIMESTAMP) AS interval_end,
+          CAST(NULL AS STRING) AS area,
+          CAST(NULL AS STRING) AS metric,
+          CAST(NULL AS FLOAT64) AS value,
+          CAST(NULL AS STRING) AS unit,
+          CAST(NULL AS STRING) AS release_id,
+          CAST(NULL AS TIMESTAMP) AS ingested_at
+      ) WHERE FALSE
     SQL
     use_legacy_sql = false
   }
