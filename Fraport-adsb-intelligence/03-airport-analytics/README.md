@@ -28,6 +28,36 @@ the main GCP infrastructure and CI/CD project in the programme.
 - **Synthetic data.** The full flow runs on synthetic releases, so a fork needs
   only its own GCP project.
 
+## Release ingestion (M3)
+
+**[GLM·2026-11-21]** `ingest_release.py` ingests one release folder from the
+landing bucket: download → verify (manifest checksums, gate `passed`,
+contract covered by the manifest) → ledger + release_id guards → managed
+Iceberg table (`CREATE TABLE IF NOT EXISTS`, cluster by `release_id`) →
+guarded insert → row reconciliation against the manifest → ledger record.
+An `ingest_ledger` table records every accepted release; a release whose
+gate is `blocked` never reaches a table.
+
+```bash
+uv run --locked python ingest_release.py \
+  --landing gs://<project>-aviation-landing/releases/v002 \
+  --project <project> --gold-bucket <project>-aviation-gold
+```
+
+Recorded runs (2026-11-21, project `slh-gcp-test`):
+
+- Synthetic release (`synthetic-v001`, 3 rows, uploaded through the
+  create-only `aviation-upload` identity): ingested, 3 rows reconciled;
+  two repeat runs returned `already_ingested` with 0 rows added.
+- Real `v002` (4,656 rows, 179.6 KB): ingested, repeat run added 0 rows.
+  The analytics query over the table returns exactly the release coverage
+  numbers (2,583 labeled of 4,656, avg taxi-in 2.2 min).
+- Gate-blocked release (`bad-v001`, `label_coverage` failed): refused with
+  `status: blocked` and the failed check names; exit 1; no table touched.
+- The `aviation-upload` identity cannot read or overwrite landing objects
+  (`storage.objects.get`/`delete` denied) — release immutability is
+  enforced by IAM, not by convention.
+
 ## Milestones
 
 - **M1.** ADR-004 spike on synthetic data, with the result recorded. Done
@@ -40,7 +70,10 @@ the main GCP infrastructure and CI/CD project in the programme.
   budget alert; CI plan on PRs, apply on main behind the `gcp-test`
   environment gate).
 - **M3.** Ingest the synthetic release and then release `v001`. A repeat
-  ingestion adds no rows.
+  ingestion adds no rows. Done (2026-11-21, [ingest_release.py](ingest_release.py)):
+  synthetic release and the real `v002` both ingested; repeat runs return
+  `already_ingested` and add 0 rows; a gate-blocked release is refused with
+  its reason. Recorded runs below.
 - **M4.** Analytics model and core queries with expected results on a fixed
   sample.
 - **M5.** Full dataset release, cost record and findings report.

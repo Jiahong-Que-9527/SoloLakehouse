@@ -1,0 +1,126 @@
+"""Synthetic release fixtures for the ingest job (03 M3)."""
+import hashlib
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+import ingest_release
+
+DATA = b"parquet-bytes"
+
+
+def build_release(root: Path, release_id="v002", data_product="ground-ops",
+                  rows=3, gate_status="passed", data_bytes=DATA):
+    root.mkdir(parents=True, exist_ok=True)
+    data = root / "data"
+    data.mkdir(exist_ok=True)
+    (data / "part-0001.parquet").write_bytes(data_bytes)
+    contract = root / "contract.yaml"
+    contract.write_text("data_product: ground-ops\n")
+    files = {
+        "data/part-0001.parquet": {"rows": rows,
+                                   "sha256": hashlib.sha256(data_bytes).hexdigest()},
+        "contract.yaml": {"sha256": hashlib.sha256(
+            contract.read_bytes()).hexdigest()},
+    }
+    checks = [{"name": "schema", "passed": gate_status == "passed",
+               "detail": "synthetic"}]
+    (root / "validation.json").write_text(json.dumps(
+        {"release_id": release_id, "status": gate_status, "checks": checks}))
+    (root / "manifest.json").write_text(json.dumps(
+        {"release_id": release_id, "data_product": data_product,
+         "files": files}, sort_keys=True) + "\n")
+    return root
+
+
+class FakeOps:
+    instances = []
+    # Class-level state simulates the real ledger table, which outlives
+    # a single BigQueryOps instance.
+    ledger = {}
+
+    def __init__(self, project, dataset, region):
+        self.calls = []
+        FakeOps.instances.append(self)
+
+    def ensure_ledger(self):
+        self.calls.append("ensure_ledger")
+
+    def already_ingested(self, release_id):
+        return FakeOps.ledger.get(release_id) == "ingested"
+
+    def ensure_table(self, table, gold_bucket, connection):
+        self.calls.append(("ensure_table", table))
+
+    def stage_external(self, table, uri):
+        self.calls.append(("stage_external", uri))
+
+    def apply_release(self, table, external, release_id, expected_rows):
+        self.calls.append(("apply", release_id, expected_rows))
+        return expected_rows
+
+    def record(self, release_id, data_product, manifest_sha, row_count,
+               status, reason):
+        self.calls.append(("record", status, reason))
+        FakeOps.ledger[release_id] = status
+
+
+class IngestTests(unittest.TestCase):
+    def setUp(self):
+        FakeOps.instances = []
+        FakeOps.ledger = {}
+        self.workspace = Path(tempfile.mkdtemp(prefix="ingest-test-"))
+        self.release = build_release(self.workspace / "release")
+
+    def run_main(self, expect_exit=None):
+        argv = ["ingest_release.py", "--landing", str(self.release),
+                "--project", "test-proj", "--gold-bucket", "test-gold"]
+        with patch.object(sys, "argv", argv), \
+             patch.object(ingest_release, "BigQueryOps", FakeOps):
+            if expect_exit is None:
+                ingest_release.main()
+            else:
+                with self.assertRaises(SystemExit) as ctx:
+                    ingest_release.main()
+                self.assertEqual(ctx.exception.code, expect_exit)
+
+    def test_happy_path_ingests_once(self):
+        self.run_main()
+        ops = FakeOps.instances[0]
+        self.assertEqual(ops.calls[0], "ensure_ledger")
+        self.assertIn(("apply", "v002", 3), ops.calls)
+        self.assertIn(("record", "ingested", ""), ops.calls)
+
+    def test_repeat_ingestion_adds_nothing(self):
+        self.run_main()
+        self.run_main()
+        first, second = FakeOps.instances
+        self.assertIn(("record", "ingested", ""), first.calls)
+        self.assertEqual(second.calls, ["ensure_ledger"])
+        # The second run never touched the table.
+        self.assertNotIn(("ensure_table", "ground_ops_arrivals"), second.calls)
+        self.assertEqual(second.ledger, {"v002": "ingested"})
+
+    def test_failing_gate_is_blocked(self):
+        self.release = build_release(self.workspace / "blocked",
+                                     gate_status="blocked")
+        self.run_main(expect_exit=1)
+        self.assertEqual(FakeOps.instances, [])  # no BigQuery access at all
+
+    def test_tampered_data_is_blocked(self):
+        build_release(self.release)  # rebuild manifest over changed bytes
+        (self.release / "data" / "part-0001.parquet").write_bytes(b"tampered")
+        self.run_main(expect_exit=1)
+        self.assertEqual(FakeOps.instances, [])
+
+    def test_missing_release_file_is_blocked(self):
+        (self.release / "contract.yaml").unlink()
+        self.run_main(expect_exit=1)
+        self.assertEqual(FakeOps.instances, [])
+
+
+if __name__ == "__main__":
+    unittest.main()
