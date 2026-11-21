@@ -45,7 +45,7 @@ jobs:
           terraform_version: '1.17.2'
       - run: terraform fmt -check -diff
       - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
-      - run: terraform plan -input=false -no-color
+      - run: terraform plan -input=false -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}"
 
   apply:
     if: github.event_name == 'push'
@@ -69,4 +69,4 @@ jobs:
         with:
           terraform_version: '1.17.2'
       - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
-      - run: terraform apply -input=false -auto-approve -no-color
+      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}"
