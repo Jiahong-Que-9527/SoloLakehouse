@@ -70,12 +70,16 @@ class BigQueryProductStore:
     # --- the store port -------------------------------------------------------
 
     def release_row(self, product: str, release_id: str) -> ReleaseRow | None:
+        """The release's LATEST ledger row: the ledger is append-only
+        evidence, a status change is a superseding row, never an edit —
+        DML cannot touch streaming-buffered rows anyway."""
         from google.cloud.bigquery import QueryJobConfig, ScalarQueryParameter
 
         client = self._bigquery()
         sql = (
             f"SELECT * FROM `{self._table('release')}` "
-            f"WHERE product = @product AND release_id = @release_id"
+            f"WHERE product = @product AND release_id = @release_id "
+            f"ORDER BY published_at DESC LIMIT 1"
         )
         config = QueryJobConfig(
             query_parameters=[
@@ -86,20 +90,7 @@ class BigQueryProductStore:
         rows = [dict(row) for row in client.query(sql, job_config=config).result()]
         if not rows:
             return None
-        row = rows[0]
-        return ReleaseRow(
-            product=row["product"],
-            release_id=row["release_id"],
-            input_release_id=row["input_release_id"],
-            contract_version=row["contract_version"],
-            status=row["status"],
-            output_table=row["output_table"],
-            git_sha=row.get("git_sha"),
-            approver=row["approver"],
-            checksum=row["checksum"],
-            published_at=row["published_at"],
-            manifest=json.loads(row["manifest"]),
-        )
+        return _to_release_row(rows[0])
 
     def releases(self, product: str) -> tuple[ReleaseRow, ...]:
         from google.cloud.bigquery import QueryJobConfig, ScalarQueryParameter
@@ -112,10 +103,11 @@ class BigQueryProductStore:
         config = QueryJobConfig(
             query_parameters=[ScalarQueryParameter("product", "STRING", product)]
         )
-        return [
-            self.release_row(product, dict(row)["release_id"])
-            for row in client.query(sql, job_config=config).result()
-        ]
+        latest: dict[str, ReleaseRow] = {}
+        for row in client.query(sql, job_config=config).result():
+            converted = _to_release_row(dict(row))
+            latest[converted.release_id] = converted
+        return tuple(latest.values())
 
     def recorded_checksum(self, product: str, release_id: str) -> str | None:
         """The checksum travels in the version table's description, so it is
@@ -214,22 +206,36 @@ class BigQueryProductStore:
         if errors:
             raise OSError(f"release row rejected by the ledger: {errors}")
 
-    def mark_release_status(self, product: str, release_id: str, status: str) -> None:
-        from google.cloud.bigquery import QueryJobConfig, ScalarQueryParameter
-
+    def mark_release_status(self, product: str, release_id: str, status: str, at: datetime) -> None:
+        """Append a superseding ledger row instead of running DML: the
+        ledger is append-only evidence, and an UPDATE cannot touch
+        streaming-buffered rows (the withdrawal drill's 400)."""
+        current = self.release_row(product, release_id)
+        if current is None:
+            raise LookupError(f"release {release_id!r} is not in the ledger")
         client = self._bigquery()
-        sql = (
-            f"UPDATE `{self._table('release')}` SET status = @status "
-            f"WHERE product = @product AND release_id = @release_id"
+        errors = client.insert_rows_json(
+            self._table("release"),
+            [
+                {
+                    "product": current.product,
+                    "release_id": current.release_id,
+                    "input_release_id": current.input_release_id,
+                    "contract_version": current.contract_version,
+                    "status": status,
+                    "output_table": current.output_table,
+                    "git_sha": current.git_sha,
+                    "approver": current.approver,
+                    "checksum": current.checksum,
+                    "published_at": _stamp(at),
+                    "manifest": json.dumps(
+                        current.manifest, sort_keys=True, separators=(",", ":"), default=str
+                    ),
+                }
+            ],
         )
-        config = QueryJobConfig(
-            query_parameters=[
-                ScalarQueryParameter("status", "STRING", status),
-                ScalarQueryParameter("product", "STRING", product),
-                ScalarQueryParameter("release_id", "STRING", release_id),
-            ]
-        )
-        client.query(sql, job_config=config).result()
+        if errors:
+            raise OSError(f"superseding release row rejected by the ledger: {errors}")
 
     def insert_quarantine_rows(self, rows: list[dict]) -> None:
         client = self._bigquery()
@@ -252,6 +258,22 @@ class BigQueryProductStore:
     def record_manifest(self, manifest: dict) -> None:
         """No-op by design: the release row's manifest column is the durable
         home, written in the same commit that marks the release passed."""
+
+
+def _to_release_row(row: dict) -> ReleaseRow:
+    return ReleaseRow(
+        product=row["product"],
+        release_id=row["release_id"],
+        input_release_id=row["input_release_id"],
+        contract_version=row["contract_version"],
+        status=row["status"],
+        output_table=row["output_table"],
+        git_sha=row.get("git_sha"),
+        approver=row["approver"],
+        checksum=row["checksum"],
+        published_at=row["published_at"],
+        manifest=json.loads(row["manifest"]),
+    )
 
 
 def _rows_to_parquet(rows: list[dict]):

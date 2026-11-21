@@ -82,6 +82,14 @@ def publish(store, request: PublishRequest) -> PublishResult:
                 f"candidate {request.candidate_id} already exists with different content; "
                 "publish corrected data under a fresh ID"
             )
+        if existing.status != "passed":
+            # A blocked (or withdrawn) candidate never adopts: the version
+            # table it names was never written, so pointing the view at it
+            # would fail. Corrected data goes under a fresh ID.
+            raise PublishConflict(
+                f"candidate {request.candidate_id} is {existing.status} in the ledger; "
+                "publish corrected data under a fresh ID"
+            )
         # Idempotent adopt: the version table is immutable and verified; the
         # only safe completion left is pointing the view at it.
         store.point_current_view(contract.slug, request.candidate_id)
@@ -186,7 +194,7 @@ def withdraw(store, contract: DataProductContract, operator: str, at: datetime) 
     current_id = store.current_release_id(product)
     previous_passed = None
     if current_id is not None:
-        store.mark_release_status(product, current_id, "withdrawn")
+        store.mark_release_status(product, current_id, "withdrawn", at)
     for row in store.releases(product):
         if row.release_id != current_id and row.status == "passed":
             previous_passed = row.release_id

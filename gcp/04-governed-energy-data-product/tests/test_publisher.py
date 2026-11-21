@@ -174,3 +174,35 @@ def test_withdraw_without_a_previous_release_leaves_an_empty_authorised_view():
     assert store.current_rows("energy_load") == []
     assert store.empty_view_schema_table("energy_load") == f"energy_load_v{GOOD_CANDIDATE}"
     assert store.release_row("energy_load", GOOD_CANDIDATE).status == "withdrawn"
+
+
+def test_status_changes_append_and_read_latest_wins():
+    """The ledger is append-only evidence: a status change appends a
+    superseding row at its own timestamp and reads back as the release's
+    current status (DML cannot touch streaming-buffered rows — the live
+    drill's 400)."""
+    store = InMemoryProductStore()
+    publish(store, make_request())
+    original = store.release_row("energy_load", GOOD_CANDIDATE)
+
+    at = datetime.now(UTC)
+    store.mark_release_status("energy_load", GOOD_CANDIDATE, "withdrawn", at)
+
+    latest = store.release_row("energy_load", GOOD_CANDIDATE)
+    assert latest.status == "withdrawn"
+    assert latest.published_at == at
+    assert latest.checksum == original.checksum
+    assert len(store.releases("energy_load")) == 1
+
+
+def test_a_blocked_candidate_never_adopts_even_with_identical_content():
+    """A blocked candidate's version table was never written, so a
+    checksum-identical retry must still demand a fresh ID."""
+    store = InMemoryProductStore()
+    publish(store, make_request())
+    bad_rows = with_null_value(candidate_rows(GRID))
+    blocked = publish(store, make_request(candidate_id="cand-null-0003", rows=bad_rows))
+    assert blocked.status == "blocked"
+
+    with pytest.raises(PublishConflict, match="fresh ID"):
+        publish(store, make_request(candidate_id="cand-null-0003", rows=bad_rows))
