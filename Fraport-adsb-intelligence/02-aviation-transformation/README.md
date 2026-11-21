@@ -88,6 +88,31 @@ Project 01 Bronze dataset. The pilot week is enough for M1 to M3.
 Silver and Gold datasets, quality reports, run records and Gold releases for
 projects 03 to 05.
 
+## Silver v2 local build (M1')
+
+**[GLM·2026-11-21]** Implemented per ADR-006. `silver_v2.py` reads the full
+day (all 24 Bronze hour manifests), keeps every fresh position update —
+airborne and ground — with the raw `onground` flag carried but unused, and
+emits the four neutral tables plus `quality_report.md` and
+`run_manifest.json`. The implausible-displacement break heuristic applies
+only to surface pairs; airborne trajectories split on time gaps and source
+partition issues alone.
+
+```bash
+uv run --locked python silver_v2.py \
+  --bronze-root /path/to/local/aviation \
+  --date 2026-07-01 \
+  --output /path/to/new/local-output
+```
+
+Recorded run (2026-07-01, verified Bronze, zero unavailable hours):
+2,278 aircraft, 3,209,592 observations, 10,269 segments (breaks: 5,832
+`time_gap`, 2,159 surface `implausible_displacement`), 1,294 flight
+records, cleaning dropped 728,116 stale states. The motivating case
+`3c618b` now carries 5,134 points (2,345 airborne + 2,789 ground, 28
+segments) in one stream, where the arrival-anchored M1 draft kept only its
+225 ground points.
+
 ## Silver M1 local pilot
 
 **[GLM·2026-11-21] Superseded as the target design by ADR-006 (neutral
