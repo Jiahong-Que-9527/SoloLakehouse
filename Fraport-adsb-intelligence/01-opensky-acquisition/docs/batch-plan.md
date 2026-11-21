@@ -309,7 +309,8 @@ outcome needs `--notes`. A `failed` outcome stops the gate.
 
 OpenSky's published gap list, checked on 2026-11-20, has no gap before
 2023-01. `known_gaps.yaml` already contains every published gap inside the
-extension, plus the two observed 2026-05 hours from the first window. The
+extension, plus the observed 2024-01-22T09 hour and the two 2026-05 hours.
+The
 extension overlaps **250 hours** of published gaps. Those hours should commit
 as `source_gap` when the global hour is empty. Do not add a gap because a
 regional hour is `empty`.

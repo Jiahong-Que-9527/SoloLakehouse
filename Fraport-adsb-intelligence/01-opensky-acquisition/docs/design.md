@@ -297,8 +297,8 @@ today. Later incremental runs only collect hours older than 48 h.
 
 - `known_gaps.yaml` lists permanent losses. OpenSky's documented gaps that fall
 in the window are 2026-01-02 19:00 to 2026-01-03 18:00 and 2026-01-24 08:00 to
-17:00. Two further hours, 2026-05-22T08 and 2026-05-24T22, were empty in the
-global state-vector table on 2026-11-16 and are not on the OpenSky page.
+17:00. Three further hours, 2024-01-22T09, 2026-05-22T08 and 2026-05-24T22,
+were empty in the global state-vector table and are not on the OpenSky page.
 - `processing_epochs.yaml` marks pipeline changes at 2026-08-13 12:10 and
 2026-08-14 08:10 UTC. Each hour gets an epoch label. Hours across a boundary
 are flagged.

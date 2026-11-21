@@ -45,6 +45,8 @@ def test_gap_status():
     assert hour_gap_status(gaps, edge) == "none"
     assert hour_gap_status(gaps, datetime(2026, 1, 2, 19, tzinfo=UTC)) == "inside"
     assert hour_gap_status(gaps, normal) == "none"
+    assert hour_gap_status(gaps, datetime(2024, 1, 22, 9, tzinfo=UTC)) == "inside"
+    assert hour_gap_status(gaps, datetime(2024, 1, 22, 8, tzinfo=UTC)) == "none"
     assert hour_gap_status(gaps, datetime(2026, 5, 22, 8, tzinfo=UTC)) == "inside"
     assert hour_gap_status(gaps, datetime(2026, 5, 22, 7, tzinfo=UTC)) == "none"
     assert hour_gap_status(gaps, datetime(2026, 5, 24, 22, tzinfo=UTC)) == "inside"
