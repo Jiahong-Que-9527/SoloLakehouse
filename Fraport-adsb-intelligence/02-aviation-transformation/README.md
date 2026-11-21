@@ -88,6 +88,31 @@ Project 01 Bronze dataset. The pilot week is enough for M1 to M3.
 Silver and Gold datasets, quality reports, run records and Gold releases for
 projects 03 to 05.
 
+## Gold ground_ops (M2)
+
+**[GLM·2026-11-21]** `gold_ground_ops.py` consumes only the Silver v2
+tables. Candidate arrivals come from the Silver flights table
+(`estarrivalairport = EDDF`, EDDF->EDDF turnaround phantoms excluded); the
+touchdown estimate is the last airborne observation before the first
+surface observation (geoaltitude present -> null within 15 km) in a
++-30 min window around the flight's `lastseen`, which real data shows
+approximates touchdown. The taxi-in label runs from the first surface
+point (within 5 km) to the last point within 1 km, capped at 45 min. Every
+candidate carries a coverage status; stands are never inferred and gaps
+are never bridged.
+
+```bash
+uv run --locked python gold_ground_ops.py \
+  --silver-root /path/to/silver-v2-output \
+  --date 2026-07-01 \
+  --output /path/to/new/local-output
+```
+
+Recorded run (2026-07-01): 650 candidates -> 395 labeled (61%), 244
+censored (surface points < 2 - the ADS-B ground-coverage limit), 9
+no_surface, 2 no_airborne_approach. Labeled taxi-in: median 1.8 min, max
+14.8 min, path up to 3,285 m; 169 flights carry a >30 s taxi gap.
+
 ## Silver v2 local build (M1')
 
 **[GLM·2026-11-21]** Implemented per ADR-006. `silver_v2.py` reads the full
