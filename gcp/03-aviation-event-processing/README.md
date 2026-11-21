@@ -3,10 +3,19 @@
 <!-- [房玄龄·2026-11-15] Define the G03 project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G03 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**G03 · Contract phase implemented locally (2026-11-21)** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Validate retries, duplicate delivery and late corrections in an event-driven system. Use synthetic energy revisions for comparison with G01 and synthetic
 airport operational events to exercise the same delivery behavior.
+
+**Status:** the local contract phase is done — envelope validation, the pure
+revision reducer, a transactional store port, the ack/nack/dead-letter
+consumer flow and the seeded airport + energy fixture batches (61 tests).
+The [Terraform](infra/) for topics, subscriptions, tables and the consumer
+job is written and validated; nothing is provisioned on Google Cloud yet —
+deployment follows the [bootstrap sequence](infra/BOOTSTRAP.md) and the
+[delivery playbook](../README.md#delivery-playbook-settled-by-g01--g02)
+behind the owner's cost-gate approval.
 
 ## Technical scope
 
