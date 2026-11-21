@@ -1,0 +1,25 @@
+{
+  "fixed_release_id": "v002",
+  "_source": "Expected results for the fixed sample: release v002 (pilot week 2026-10-12..18). Candidate and labeled counts per day come from the recorded gold_ground_ops run log (eddf-gold-ground-ops-pilotweek-20261121a); status totals and the labeled total match the release coverage report. The 2026-10-18 counter in the run log is cumulative, so per-day labeled values are deltas.",
+  "v_arrival_traffic": [
+    {"status": "labeled", "arrivals": 2583},
+    {"status": "censored_few_points", "arrivals": 1894},
+    {"status": "no_surface", "arrivals": 174},
+    {"status": "surface_without_approach", "arrivals": 3},
+    {"status": "no_airborne_approach", "arrivals": 2}
+  ],
+  "v_arrival_hourly": [
+    {"day_utc": "2026-10-12", "arrivals": 676, "labeled": 406},
+    {"day_utc": "2026-10-13", "arrivals": 646, "labeled": 382},
+    {"day_utc": "2026-10-14", "arrivals": 659, "labeled": 365},
+    {"day_utc": "2026-10-15", "arrivals": 669, "labeled": 344},
+    {"day_utc": "2026-10-16", "arrivals": 661, "labeled": 401},
+    {"day_utc": "2026-10-17", "arrivals": 677, "labeled": 364},
+    {"day_utc": "2026-10-18", "arrivals": 668, "labeled": 321}
+  ],
+  "v_surface_time": {
+    "labeled_total": 2583,
+    "days": 7,
+    "taxi_in_max_s": 2700
+  }
+}
