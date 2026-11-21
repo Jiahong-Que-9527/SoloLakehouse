@@ -120,12 +120,12 @@ class BigQueryProductStore:
     def recorded_checksum(self, product: str, release_id: str) -> str | None:
         """The checksum travels in the version table's description, so it is
         verbable before the ledger row exists (the crash window)."""
-        from google.cloud import bigquery
+        from google.api_core.exceptions import NotFound
 
         client = self._bigquery()
         try:
             table = client.get_table(self._table(f"{product}_v{release_id}"))
-        except bigquery.NotFound:
+        except NotFound:
             return None
         return table.description or None
 
