@@ -2,7 +2,7 @@ image:
   # Filled after the first CI publish (D07 onboarding).
   digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
 
-fixture:
+input:
   inputFile: snapshot-fresh.json
   content: |
     {

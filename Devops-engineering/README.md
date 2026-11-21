@@ -8,7 +8,7 @@
 
 Build the delivery and operating path for one small data service. The **Energy Data Quality Service** will expose quality results for synthetic energy snapshots while each phase adds a verifiable delivery or operating capability.
 
-**Status:** D01–D06 implemented. D03–D06 are accepted with recorded evidence (published release candidate; manifest-driven deploy with verified rollback; GitOps reconciliation drills; monitored incident drills with alert deliveries and checksum-verified recoveries). D07 is next. D01–D02 owner acceptance runs remain.
+**Status:** D01–D07 implemented; D03–D07 accepted with recorded evidence. The delivery path is complete end to end: reproducible development, container, CI with supply-chain checks, manifest-driven deploy with verified rollback, GitOps reconciliation drills, monitored incident drills, and a template that onboarded a second service with its own identity. D01–D02 owner acceptance runs remain.
 
 ## Service and environment
 
