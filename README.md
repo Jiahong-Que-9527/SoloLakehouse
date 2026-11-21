@@ -16,6 +16,73 @@ SoloLakehouse is a personal portfolio of independent Data and AI platform engine
 
 ![Aviation intelligence airport illustration](docs/images/aviation-intelligence-airport-illustration.png)
 
+```mermaid
+%%{init: {"theme": "base", "flowchart": {"curve": "basis", "nodeSpacing": 28, "rankSpacing": 48}, "themeVariables": {"fontFamily": "Inter, Segoe UI, sans-serif", "fontSize": "14px", "lineColor": "#64748b", "clusterBkg": "#f8fafc", "clusterBorder": "#cbd5e1"}}}%%
+flowchart LR
+    SRC(["🛰️ <b>Sources</b><br/>OpenSky Trino · SMARD<br/>ECB · synthetic fixtures"])
+
+    subgraph LOCAL["🖥️ Local · WSL2 + uv"]
+        direction TB
+        ACQ["<b>Acquisition</b><br/>manifests · resume · SHA-256"]
+        TRF["<b>Transformation</b><br/>Silver v2 → Gold market<br/>Release Gate"]
+        MLE["<b>ML Engineering</b><br/>features · MLflow · Dagster"]
+        ACQ --> TRF --> MLE
+    end
+
+    subgraph GCP["☁️ Google Cloud · WIF + Terraform"]
+        direction TB
+        G1["<b>G01 Batch</b><br/>Cloud Run Job → GCS · BigQuery"]
+        G2["<b>G02 API</b><br/>FastAPI · authorized view"]
+        G3["<b>G03 Events</b><br/>Pub/Sub · dedup · replay"]
+        G4["<b>G04 Data Product</b><br/>contract · release · IAM"]
+        G5["<b>G05–G06</b><br/>forecast MLOps · env factory"]
+        G1 --> G2
+        G1 --> G4 --> G5
+        G3 -.-> G4
+    end
+
+    subgraph DBX["🧱 Databricks · design briefs"]
+        direction TB
+        B1["<b>D01–D03</b><br/>Delta · jobs · CDC"]
+        B2["<b>D04–D06</b><br/>Unity Catalog · MLflow · factory"]
+        B1 --> B2
+    end
+
+    subgraph OPS["🚢 DevOps · k3d + GitOps"]
+        direction TB
+        D1["<b>D01–D02</b><br/>reproducible dev · container"]
+        D2["<b>D03–D04</b><br/>CI · supply chain · rollback"]
+        D3["<b>D05–D07</b><br/>GitOps · observability · template"]
+        D1 --> D2 --> D3
+    end
+
+    SRC --> ACQ
+    SRC --> G1
+    SRC -. fixtures .-> G3
+    TRF == "versioned Gold release" ==> G4
+    TRF -. "Gold release" .-> B1
+    MLE -. "practices" .-> G5
+    OPS -. "delivery patterns" .-> GCP
+    OPS -. "delivery patterns" .-> LOCAL
+
+    classDef src fill:#fef3c7,stroke:#d97706,color:#78350f,stroke-width:1.5px
+    classDef loc fill:#dcfce7,stroke:#16a34a,color:#14532d,stroke-width:1.5px
+    classDef gcp fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,stroke-width:1.5px
+    classDef dbx fill:#fee2e2,stroke:#dc2626,color:#7f1d1d,stroke-width:1.5px,stroke-dasharray:4 3
+    classDef ops fill:#ede9fe,stroke:#7c3aed,color:#4c1d95,stroke-width:1.5px
+    class SRC src
+    class ACQ,TRF,MLE loc
+    class G1,G2,G3,G4,G5 gcp
+    class B1,B2 dbx
+    class D1,D2,D3 ops
+    style LOCAL fill:#f0fdf4,stroke:#86efac
+    style GCP fill:#eff6ff,stroke:#93c5fd
+    style DBX fill:#fef2f2,stroke:#fca5a5,stroke-dasharray:5 4
+    style OPS fill:#f5f3ff,stroke:#c4b5fd
+```
+
+Solid boxes are implemented or in delivery; dashed borders are design briefs. Arrows show data and release flow; dotted arrows show reused patterns.
+
 Each project specifies its own inputs, environment and acceptance checks. Git versions code, contracts, designs and evidence summaries. Raw research data, credentials and runtime state stay with their owners.
 
 ## Two flagship cases
@@ -40,6 +107,78 @@ Each project specifies its own inputs, environment and acceptance checks. Git ve
 | 06 | Provision isolated cloud environments and verify cost tracking and retirement | Provision reusable catalog, permissions and job environments |
 
 The local projects preserve earlier engineering work and define smaller reproduction exercises. The self-hosted case points to a pinned implementation and proposes a fixture flow through Compose, Dagster, Iceberg and Trino. [Local brief](local/self-hosted-lakehouse/README.md) · [Historical snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a)
+
+## Development progress
+
+Progress is the share of a project's planned acceptance scope that is implemented and recorded as of 2026-11-21. Design briefs without code count as 0%.
+
+| Project | Progress | State |
+|---|---|---|
+| **Fraport ADS-B Intelligence** | | |
+| 01 OpenSky Acquisition | `███████░░░` 70% | M0–M3 done; 32 of ~60 monthly batches accepted; catalog (M4) and sign-off (M5) pending |
+| 02 Aviation Transformation | `██████░░░░` 60% | Silver v2, `gold/ground_ops` and Release Gate (`v001`) done; full run and CI pending |
+| 03 Airport Analytics | `░░░░░░░░░░` 0% | Brief |
+| 04 Aviation Lakehouse | `░░░░░░░░░░` 0% | Brief |
+| 05 Taxi-in Prediction | `░░░░░░░░░░` 0% | Brief |
+| 06 Model Serving | `░░░░░░░░░░` 0% | Brief |
+| 07 Platform Orchestration | `░░░░░░░░░░` 0% | Brief |
+| **DevOps Engineering** | | |
+| D01 Reproducible development | `█████████░` 90% | Implemented; owner acceptance run pending |
+| D02 Containerized application | `█████████░` 90% | Implemented; owner acceptance run pending |
+| D03 Continuous integration | `██████████` 100% | Accepted 2026-11-20 |
+| D04 Continuous delivery | `██████████` 100% | Accepted 2026-11-20 |
+| D05 Kubernetes and GitOps | `██████████` 100% | Accepted 2026-11-20 |
+| D06 Observability and reliability | `██████████` 100% | Accepted 2026-11-20 |
+| D07 DevOps platform factory | `██████████` 100% | Accepted 2026-11-21 (second service onboarded) |
+| **Google Cloud** | | |
+| G01 European Energy Pipeline | `██████████` 100% | Cloud delivery accepted 2026-11-20 |
+| G02 Energy Analytics API | `██████████` 100% | Cloud delivery accepted 2026-11-20 |
+| G03 Aviation Event Processing | `██████████` 100% | Cloud delivery accepted 2026-11-21 |
+| G04 Governed Energy Data Product | `██████░░░░` 60% | Contracts and release boundary tested locally; first apply awaits gate |
+| G05 Energy Forecasting MLOps | `░░░░░░░░░░` 0% | Design and plan |
+| G06 Cloud Platform Factory | `░░░░░░░░░░` 0% | Design and plan |
+| **ML Engineering** | | |
+| M01–M09 | `░░░░░░░░░░` 0% | Planning scaffold; M01 is next |
+| **Databricks** | | |
+| D01–D06 | `░░░░░░░░░░` 0% | Design briefs; no application code yet |
+| **Local** | | |
+| Self-hosted lakehouse | `██████████` 100% | Historical, in a pinned snapshot; fixture reproduction planned |
+| ECB Silver pipeline | `░░░░░░░░░░` 0% | Brief |
+
+| Series | Overall | Accepted / total |
+|---|---|---|
+| DevOps Engineering | `█████████░` 93% | 5 / 7 accepted, 2 implemented |
+| Google Cloud | `██████░░░░` 60% | 3 / 6 accepted, 1 in progress |
+| Fraport ADS-B Intelligence | `██░░░░░░░░` 19% | 0 / 7 closed; 2 under way |
+| ML Engineering | `░░░░░░░░░░` 0% | 0 / 9 |
+| Databricks | `░░░░░░░░░░` 0% | 0 / 6 |
+
+## Capability map and target roles
+
+Capabilities below are claimed only where the repository holds code, tests or recorded evidence. Planned stages are listed as "next", not as skills.
+
+| Project | Demonstrated capabilities | Next to unlock | Target roles |
+|---|---|---|---|
+| **Aviation 01 · Acquisition** | Resumable bulk ingestion from remote Trino; manifest commits; SHA-256 traceability; backup verification; benchmarking and A/B decisions (110M rows per month) | Catalog and dataset sign-off | Data Engineer; Data Platform Engineer |
+| **Aviation 02 · Transformation** | DuckDB Silver/Gold modelling; neutral observation layer (ADR-006); data contracts; Release Gate with a blocked failing fixture | Full-dataset run, container, CI | Data Engineer; Analytics Engineer |
+| **DevOps D01–D07** | Reproducible environments; Docker and Compose; GitHub Actions with image publication and supply-chain checks; digest-based rollback; k3d, Helm and GitOps drift drills; monitored incident recovery; reusable service template | Owner acceptance runs for D01–D02 | DevOps Engineer; Platform Engineer; SRE; Release Engineer |
+| **GCP G01 · Energy Pipeline** | Cloud Run Jobs; Terraform; Workload Identity Federation; GCS and BigQuery publication; DST-safe time semantics | Feed G04 | Cloud Data Engineer (GCP); Data Engineer |
+| **GCP G02 · Analytics API** | FastAPI on Cloud Run; authorized views; caller/runtime identity split; query guards; revision rollback; load testing | Integrate with G04 view | Backend Engineer (data); Cloud Engineer; API Platform Engineer |
+| **GCP G03 · Event Processing** | Pub/Sub pull consumers; dedup and revision ordering; dead-letter replay; transactional BigQuery state; crash-safe redelivery | Align with Aviation 07 | Streaming / Event-driven Data Engineer; Backend Engineer |
+| **GCP G04 · Data Product** | Versioned YAML contracts; offline quality gate; immutable releases; IAM and provenance model | First cloud apply | Data Platform Engineer; Data Governance Engineer; Analytics Engineer |
+| **ML Engineering M01–M09** | *(Planned)* point-in-time features, backtesting, MLflow lineage, release gates, drift monitoring, Dagster | M01 data foundation | MLOps Engineer; ML Engineer |
+| **Databricks D01–D06** | *(Planned)* Delta, Jobs, CDC, Unity Catalog, MLflow, workspace provisioning | D01 Bronze/Silver/Gold | Databricks Data Engineer; Lakehouse Engineer |
+
+**Role fit by evidence today**
+
+| Role | Fit | Strongest evidence |
+|---|---|---|
+| Data Engineer / Data Platform Engineer | `█████████░` strong | Aviation 01–02, G01, G03, G04 |
+| DevOps / Platform Engineer / SRE | `█████████░` strong | D03–D07, G01–G03 Terraform and WIF |
+| Cloud (GCP) Data Engineer | `████████░░` strong | G01–G03, accepted live with 0 destroys |
+| Analytics / Governance Engineer | `██████░░░░` moderate | Release Gate, G04 contracts |
+| MLOps / ML Engineer | `██░░░░░░░░` early | Only designs; unlocks after M01–M05 |
+| Databricks Engineer | `█░░░░░░░░░` early | Briefs only; unlocks after D01–D02 |
 
 ## Engineering capabilities and evidence
 

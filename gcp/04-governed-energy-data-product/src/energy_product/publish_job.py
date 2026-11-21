@@ -51,18 +51,9 @@ def main() -> int:
         ingested_at = rows[0]["ingested_at"]
 
     interval_minutes = 15  # the energy-load grain; per-product when more products go live
-    window_start = ledger["window_start"]
-    window_end = ledger["window_end"]
-    if isinstance(window_start, str):
-        window_start = datetime.fromisoformat(window_start)
-    if isinstance(window_end, str):
-        window_end = datetime.fromisoformat(window_end)
-    span = window_end - window_start
-    expected_count = int(span.total_seconds() // 60 // interval_minutes)
-    expected_grid = [
-        (row["area"], row["metric"], window_start + timedelta(minutes=index * interval_minutes))
-        for index, row in enumerate(rows[:expected_count])
-    ] or _grid_from_rows(rows)
+    expected_grid = _expected_grid(
+        ledger["window_start"], ledger["window_end"], rows, interval_minutes
+    )
 
     request = PublishRequest(
         product=contract.slug,
@@ -70,7 +61,7 @@ def main() -> int:
         input_release_id=input_release_id,
         contract=contract,
         rows=rows,
-        expected_grid=expected_grid or _grid_from_rows(rows),
+        expected_grid=expected_grid,
         ingested_at=ingested_at,
         evaluation_time=_evaluation_time(),
         git_sha=os.environ.get("GIT_SHA"),
@@ -83,6 +74,38 @@ def main() -> int:
         f"{input_release_id}: {result.status}, view points at {result.view_points_at}"
     )
     return 0
+
+
+def _as_datetime(value) -> datetime:
+    """The G01 ledger types the window as DATE: the client returns
+    ``datetime.date``, whose arithmetic truncates sub-day offsets — the
+    first live publication collapsed 672 quarter-hour keys onto 7 day
+    keys this way. Coerce date, datetime and ISO strings to aware UTC."""
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str):
+        parsed = datetime.fromisoformat(value)
+    else:
+        parsed = datetime(value.year, value.month, value.day)
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+
+
+def _expected_grid(
+    window_start, window_end, rows: list[dict], interval_minutes: int
+) -> list[tuple]:
+    """The exact business keys the ledger window must contain, built from
+    the window alone — never from the actual rows, so a masked gap still
+    fails the bidirectional completeness check."""
+    start = _as_datetime(window_start)
+    end = _as_datetime(window_end)
+    expected_count = int((end - start).total_seconds() // 60 // interval_minutes)
+    if expected_count <= 0 or not rows:
+        return _grid_from_rows(rows)
+    area, metric = rows[0]["area"], rows[0]["metric"]
+    return [
+        (area, metric, start + timedelta(minutes=index * interval_minutes))
+        for index in range(expected_count)
+    ]
 
 
 def _grid_from_rows(rows: list[dict]) -> list[tuple]:

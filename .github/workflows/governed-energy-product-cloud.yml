@@ -109,4 +109,4 @@ jobs:
         with:
           terraform_version: '1.17.2'
       - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
-      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=${{ needs.build-push.outputs.image }}" -var "input_release_id=0f249cdb2d1c44ab8155fb810b178302" -var "candidate_id=cand-2026-11-21-first"
+      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=${{ needs.build-push.outputs.image }}" -var "input_release_id=0f249cdb2d1c44ab8155fb810b178302" -var "candidate_id=cand-2026-11-21-second"

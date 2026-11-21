@@ -8,7 +8,7 @@ the integration the first live drill proved missing.
 
 import sys
 import types
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 
@@ -135,8 +135,11 @@ def _install_fake_bigquery(monkeypatch, client):
 
 LEDGER_ROW = {
     "release_id": GOOD_INPUT_RELEASE,
-    "window_start": datetime(2026, 6, 8, tzinfo=UTC),
-    "window_end": datetime(2026, 6, 15, tzinfo=UTC),
+    # The real G01 ledger types the window as DATE: the client returns
+    # datetime.date, not datetime — publish_job must coerce (see the
+    # expected-grid regression test below).
+    "window_start": date(2026, 6, 8),
+    "window_end": date(2026, 6, 15),
     "input_checksum": "deadbeef",
     "row_count": 672,
     "git_sha": "abc1234",
@@ -268,3 +271,51 @@ def test_fetch_input_release_reads_the_g01_ledger_and_rows(monkeypatch):
     assert len(fetched) == 672
     with pytest.raises(LookupError, match="not found"):
         store.fetch_input_release("missing")
+
+
+def test_expected_grid_survives_date_typed_ledger_windows():
+    """Regression for the first live publication (blocked 2026-11-21): the
+    G01 ledger types the window as DATE, the client returns datetime.date,
+    and date arithmetic truncated 672 quarter-hour keys onto 7 day keys —
+    completeness failed with "missing 7, unexpected 672" on healthy data.
+    The grid must reproduce the actual keys exactly, from the window alone."""
+    from energy_product.publish_job import _expected_grid
+
+    starts = [
+        datetime(2026, 6, 8, tzinfo=UTC) + timedelta(minutes=15 * index) for index in range(672)
+    ]
+    rows = [
+        {"area": "DE", "metric": "actual_load_mwh", "interval_start": start} for start in starts
+    ]
+    grid = _expected_grid(date(2026, 6, 8), date(2026, 6, 15), rows, interval_minutes=15)
+    assert grid == [("DE", "actual_load_mwh", start) for start in starts]
+    # ISO strings and datetimes coerce to the same grid.
+    assert _expected_grid("2026-06-08", "2026-06-15", rows, interval_minutes=15) == grid
+    assert (
+        _expected_grid(
+            datetime(2026, 6, 8, tzinfo=UTC), datetime(2026, 6, 15, tzinfo=UTC), rows, 15
+        )
+        == grid
+    )
+
+
+def test_expected_grid_stays_independent_of_the_actual_rows():
+    """A duplicate masking a missing interval must not shrink or shift the
+    expected grid: expectations come from the window, not the data."""
+    from energy_product.fixture import expected_grid as fixture_grid
+    from energy_product.fixture import with_duplicate_masking_missing
+    from energy_product.publish_job import _expected_grid
+
+    grid = fixture_grid()
+    rows = with_duplicate_masking_missing(
+        [
+            {"area": area, "metric": metric, "interval_start": start, "interval_end": start}
+            for area, metric, start in grid
+        ]
+    )
+    assert (
+        _expected_grid(
+            datetime(2026, 6, 8, tzinfo=UTC), datetime(2026, 6, 15, tzinfo=UTC), rows, 15
+        )
+        == grid
+    )
