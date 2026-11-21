@@ -326,8 +326,11 @@ def main():
             parser.error("--date-list has no dates")
     days = tuple(sorted(set(dates))) if dates else DAYS
     root, geo, output = (p.resolve() for p in (args.bronze_root,args.geometry_dir,args.output))
-    repo = Path(__file__).resolve().parents[2]
-    if output.is_relative_to(repo) or output.is_relative_to(root) or output.is_relative_to(geo):
+    _here = Path(__file__).resolve()
+    # In a container the three-level repository layout does not exist;
+    # skip the repo check there and keep the input-directory checks.
+    repo = _here.parents[2] if len(_here.parents) > 2 else None
+    if (repo and output.is_relative_to(repo)) or output.is_relative_to(root) or output.is_relative_to(geo):
         parser.error("write to a new local directory outside the source repository, Bronze and geometry")
     if output.exists():
         parser.error("output directory already exists; choose a new directory")

@@ -183,8 +183,11 @@ def main():
     else:
         parser.error("--date or --date-list is required")
     silver, output = args.silver_root.resolve(), args.output.resolve()
-    repo = Path(__file__).resolve().parents[2]
-    if output.is_relative_to(repo) or output.is_relative_to(silver):
+    _here = Path(__file__).resolve()
+    # In a container the three-level repository layout does not exist;
+    # skip the repo check there and keep the input-directory checks.
+    repo = _here.parents[2] if len(_here.parents) > 2 else None
+    if (repo and output.is_relative_to(repo)) or output.is_relative_to(silver):
         parser.error("write to a new local directory outside the repository and Silver")
     if output.exists():
         parser.error("output directory already exists; choose a new directory")
