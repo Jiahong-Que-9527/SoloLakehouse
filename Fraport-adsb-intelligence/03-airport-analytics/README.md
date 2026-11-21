@@ -17,9 +17,11 @@ the main GCP infrastructure and CI/CD project in the programme.
 - **Release ingestion.** A job checks the manifest, contract and checksums,
   then materialises the Gold tables. Ingesting a release twice does not
   duplicate rows. Each table row carries its release ID.
-- **Table format.** Apache Iceberg if the spike in
-  [ADR-004](../docs/adr/ADR-004-gold-table-format-and-catalog.md) passes,
-  otherwise BigQuery native tables.
+- **Table format.** Apache Iceberg — decided by the ADR-004 spike
+  (2026-11-21): BigQuery managed Iceberg tables on a colocated bucket,
+  written by BigQuery DML over a BigLake connection, in `europe-west3`.
+  [ADR-004](../docs/adr/ADR-004-gold-table-format-and-catalog.md) is
+  Accepted with the spike evidence in [spike](spike/).
 - **Analytics.** A documented model with grain and keys. Reusable views for
   traffic volume, arrival rate by hour, runway-area activity and surface-time
   distributions. Query cost recorded for the main queries.
@@ -28,7 +30,9 @@ the main GCP infrastructure and CI/CD project in the programme.
 
 ## Milestones
 
-- **M1.** ADR-004 spike on synthetic data, with the result recorded.
+- **M1.** ADR-004 spike on synthetic data, with the result recorded. Done
+  (2026-11-21, on the real `v002` release — all five checks passed in
+  `europe-west3`, measured cost €0; evidence in [spike](spike/)).
 - **M2.** Terraform creates the bucket, identities and budget alerts. CI runs
   plan on pull requests.
 - **M3.** Ingest the synthetic release and then release `v001`. A repeat
