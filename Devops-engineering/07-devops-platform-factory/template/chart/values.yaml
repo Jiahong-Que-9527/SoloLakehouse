@@ -1,0 +1,26 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/__IMAGE_OWNER__/__IMAGE_NAME__
+  # The digest pin is owned by the environment values file.
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: __PORT__
+
+# The service input document is provisioned in-cluster as a ConfigMap
+# rendered from the environment values. Secrets are not required in v1.
+input:
+  inputFile: __INPUT_FILE__
+  content: |
+    {}
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi

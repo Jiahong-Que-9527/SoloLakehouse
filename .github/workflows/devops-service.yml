@@ -4,11 +4,15 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Devops-engineering/**'
+      - 'Devops-engineering/reference-service/**'
+      - 'Devops-engineering/03-continuous-integration/**'
+      - 'Devops-engineering/04-continuous-delivery/**'
       - '.github/workflows/devops-service.yml'
   pull_request:
     paths:
-      - 'Devops-engineering/**'
+      - 'Devops-engineering/reference-service/**'
+      - 'Devops-engineering/03-continuous-integration/**'
+      - 'Devops-engineering/04-continuous-delivery/**'
       - '.github/workflows/devops-service.yml'
   workflow_dispatch:
 
