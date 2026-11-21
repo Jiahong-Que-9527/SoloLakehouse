@@ -18,8 +18,9 @@ only, every plan run at 0 destroys):
 
 - **G01 · European Energy Pipeline** — a Cloud Run Job publishes versioned windows to Cloud Storage and BigQuery, on demand and on a weekly schedule. [Cloud verification](01-european-energy-pipeline/docs/cloud-verification.md) · [Annual acceptance](01-european-energy-pipeline/docs/year-2025-verification.md)
 - **G02 · Energy Analytics API** — authenticated FastAPI on Cloud Run over an authorized BigQuery view: caller/runtime identity split, query guards, revision rollback, bounded load check. [Cloud verification](02-energy-analytics-api/docs/cloud-verification.md)
+- **G03 · Aviation Event Processing** — seeded airport and energy fixtures fold through a Pub/Sub pull consumer and one transactional BigQuery script into one current state per entity: dedup, revision ordering, conflicts, quarantine, retry recovery, crash-safe redelivery and dead-letter replay verified live. [Cloud verification](03-aviation-event-processing/docs/cloud-verification.md)
 
-G03–G06 have design and implementation guides. The numbered list gives the
+G04–G06 have design and implementation guides. The numbered list gives the
 learning order; each project exercises its own bounded fixture.
 
 ## Projects in learning order
@@ -34,7 +35,7 @@ learning order; each project exercises its own bounded fixture.
    [Design](02-energy-analytics-api/docs/design.md) · [Implementation plan](02-energy-analytics-api/docs/implementation.md)
 3. **G03** · [Aviation Event Processing](03-aviation-event-processing/README.md)
    Test duplicate and late events, retries, dead-letter handling and replay.
-   Status: **in progress** — contract phase and cloud delivery code implemented and tested; bootstrap done, plan verified at 22 adds / 0 destroys; first apply awaits the PR + `gcp-test` gate
+   Status: **cloud delivery accepted 2026-11-21** — [verification](03-aviation-event-processing/docs/cloud-verification.md)
    [Design](03-aviation-event-processing/docs/design.md) · [Implementation plan](03-aviation-event-processing/docs/implementation.md)
 4. **G04** · [Governed Energy Data Product](04-governed-energy-data-product/README.md)
    Release a quality-checked data product with access and provenance evidence.
@@ -68,16 +69,14 @@ can apply G05 delivery practices to the flagship model.
 - Monday **2026-11-23, 05:15 Europe/Berlin**: the G01 scheduler (`energy-weekly`) fires for the first time since acceptance. Verify the Cloud Run execution succeeded, the `energy.load_release` ledger gained its next row, and the run stayed inside the free tier; record the evidence in the [G01 cloud verification](01-european-energy-pipeline/docs/cloud-verification.md).
 - Keep the standing [cost gate](../AGENTS.md) in force for every plan and apply: expected SKUs only, 0 destroys, owner approval for anything unexpected.
 
-**Next delivery: G03 — Aviation Event Processing** (the local contract phase — sequence steps 1–2 — is implemented and tested; nothing is provisioned yet)
+**Next delivery: G04 — Governed Energy Data Product** (G03 was accepted on 2026-11-21; [its verification](03-aviation-event-processing/docs/cloud-verification.md) adds the playbook's fifth pattern: one transactional decision script per delivery)
 
-1. Write the expected state first — revision 2 wins, a repeated event ID is ignored, an older revision is rejected, a conflicting revision under a new ID is recorded as a conflict, a malformed envelope is quarantined — and test the reducer locally against those fixtures, the same test-first shape as G02's contract phase.
-2. Deploy a bounded pull consumer with isolated Pub/Sub and BigQuery resources; one consumer, one in-flight write for the first exercise, with the concurrency limit recorded as evidence.
-3. Inject a transient write failure and an interruption after commit but before acknowledgement; drive retry recovery and a dead-letter replay, then reconcile receipts, history outcomes and final rows.
-4. Follow the delivery playbook below — registry bootstrap before the first merge, plan-only CI, the `gcp-test` gate, and a `cloud-verification.md` evidence document at close-out.
+1. Publish a quality-gated, versioned product release on top of real G01 output: validate the G01 input (`source_release_id`, ingestion timestamp), then write a separately versioned product release with its own quality evidence.
+2. Apply the G02 identity pattern as the acceptance baseline: the approved view is accessible, the raw dataset is denied, tested identities are recorded.
+3. Record release provenance end to end — from the G01 window to the product release ID a caller consumes.
 
-**After G03**
+**After G04**
 
-- **G04 — Governed Energy Data Product**: publish a quality-gated, versioned product release on top of real G01 output. The G02 identity pattern (approved view accessible, raw dataset denied, tested identities recorded) is its acceptance baseline.
 - **G05 — Energy Forecasting MLOps**: pin a G04 product release for training; MLflow tracking and registry with containerized training jobs ([ADR-005](../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md)), rollback drilled the way G02 drilled revisions.
 - **G06 — Cloud Platform Factory**: last. Turns the by-then-proven G01–G05 patterns (WIF pipeline, bootstrap record, environment gate, teardown) into a reusable template with two isolated environments and retirement evidence.
 
