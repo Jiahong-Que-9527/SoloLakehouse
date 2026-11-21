@@ -1,0 +1,72 @@
+name: Aviation analytics cloud
+
+# [GLM·2026-11-21] Fraport 03 M2. plan = PRs only (WIF); apply = main only,
+# gated by the `gcp-test` environment (required reviewer). No image build:
+# M2 is infrastructure only, the ingest job arrives with M3.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Fraport-adsb-intelligence/03-airport-analytics/**'
+      - '.github/workflows/aviation-analytics-cloud.yml'
+  pull_request:
+    paths:
+      - 'Fraport-adsb-intelligence/03-airport-analytics/**'
+      - '.github/workflows/aviation-analytics-cloud.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aviation-analytics-cloud-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: Fraport-adsb-intelligence/03-airport-analytics/infra
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - run: terraform fmt -check -diff
+      - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - run: terraform plan -input=false -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}"
+
+  apply:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: gcp-test
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: Fraport-adsb-intelligence/03-airport-analytics/infra
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}"
