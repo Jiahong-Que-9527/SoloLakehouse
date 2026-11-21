@@ -56,6 +56,11 @@ pilot week -> Silver -> Gold -> release v001 -> cloud ingestion -> BigQuery quer
 check passes, and a first query reconciles with the release manifest. Only
 after this do phases 2 to 3 scale up to the full dataset.
 
+**Status (2026-11-21):** the local half of the slice is closed. The pilot
+week (2026-10-12 to 2026-10-18) ran through Silver v2, the `gold/ground_ops`
+market and the Release Gate, and is published as release `v002`. The cloud
+ingestion steps belong to phase 3.
+
 ## Phase 0: Preparation
 
 - Confirm OpenSky account, Trino access and query limits.
@@ -109,10 +114,12 @@ Local Silver, Gold and Release Gate with Python and DuckDB.
 **Exit:** reproducible Silver and Gold output and an immutable, verified
 release.
 
-**Status (2026-11-21):** Silver v2 (M1'), the `gold/ground_ops` market (M2)
-and the Release Gate (M3) are implemented and recorded. `v001` is released
-from the 2026-07-01 gold output and a failing fixture is blocked. The full
-dataset run (M4) and container image plus CI (M5) are not started.
+**Status (2026-11-21):** Silver v2 (M1'), the `gold/ground_ops` market (M2),
+the Release Gate (M3) and the container image with CI (M5) are implemented
+and recorded. `v001` is released from the 2026-07-01 gold output, `v002`
+from the pilot week, and a failing fixture is blocked. The full dataset run
+(M4) is not started; the earlier full-silver output on local disk is the
+superseded arrival-anchored M1 design, not Silver v2.
 
 ## Phase 3: 03 Airport Analytics and cloud Gold
 

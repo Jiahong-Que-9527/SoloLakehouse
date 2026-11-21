@@ -172,7 +172,16 @@ def main():
     choice.add_argument("--date", action="append", type=date.fromisoformat)
     choice.add_argument("--date-list", type=Path)
     args = parser.parse_args()
-    days = tuple(sorted(set(args.date))) if args.date else parser.error("--date is required")
+    if args.date:
+        days = tuple(sorted(set(args.date)))
+    elif args.date_list:
+        days = tuple(date.fromisoformat(line.strip())
+                     for line in args.date_list.read_text(encoding="utf-8").splitlines()
+                     if line.strip())
+        if not days:
+            parser.error("--date-list is empty")
+    else:
+        parser.error("--date or --date-list is required")
     silver, output = args.silver_root.resolve(), args.output.resolve()
     repo = Path(__file__).resolve().parents[2]
     if output.is_relative_to(repo) or output.is_relative_to(silver):

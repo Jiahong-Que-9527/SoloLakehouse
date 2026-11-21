@@ -33,3 +33,16 @@ jobs:
           python-version: '3.13'
       - run: uv sync --locked
       - run: uv run --locked python -m unittest discover -s . -p 'test_*.py' -v
+
+  image:
+    name: Container image
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Build the project 02 image
+        run: docker build -t eddf-transformation:ci Fraport-adsb-intelligence/02-aviation-transformation
+      - name: Run the synthetic suite inside the image
+        run: docker run --rm eddf-transformation:ci
