@@ -4,10 +4,25 @@
 github-deployer SA + grant set, WIF pool/provider, enabled APIs) — see
 `gcp/01-european-energy-pipeline/infra/BOOTSTRAP.md`. Deltas: the image
 registry chicken-and-egg, one deployer role, and the Pub/Sub service agent
-warm-up. Nothing here runs until the owner approves the deployment
-(cost gate in `AGENTS.md`); the resources themselves are free-tier SKUs. -->
+warm-up. The resources themselves are free-tier SKUs. -->
 
 Run everything from WSL with `gcloud` authenticated and the project selected.
+
+## As-built record — 2026-11-21 (owner approved, cost gate satisfied)
+
+All steps below were executed on 2026-11-21 before the first PR:
+
+- **§1 registry**: `aviation-events` created and imported into the
+  `gcp/03-aviation-event-processing` state prefix.
+- **§2 deployer grant**: `roles/pubsub.admin` added to `github-deployer`.
+- **§3 service**: `pubsub.googleapis.com` was **already enabled** in the
+  project, so it was imported instead of created — the correct import ID
+  is `{project}/{service}` (`slh-gcp-test/pubsub.googleapis.com`; the bare
+  service name fails with an ID-format error). The Pub/Sub service agent
+  (`service-236720670014@gcp-sa-pubsub...`) already existed, so no
+  `services identity create` warm-up was needed.
+- **Plan check**: `terraform plan` against the real state shows
+  **22 to add, 0 to change, 0 to destroy** — free-tier SKUs only.
 
 ## 0. Variables
 
@@ -46,17 +61,25 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
   --member="serviceAccount:$DEPLOY_SA" --role=roles/pubsub.admin --quiet
 ```
 
-## 3. Pub/Sub service agent warm-up
+## 3. Service and service agent
+
+`pubsub.googleapis.com` may already be enabled (it was on 2026-11-21). Check
+first; if enabled, import it with the `{project}/{service}` ID instead of
+letting apply create it:
+
+```bash
+gcloud services list --enabled --format='value(config.name)' | grep pubsub
+terraform import \
+  -var project_id=$PROJECT_ID -var image=plan-only-placeholder \
+  google_project_service.pubsub "$PROJECT_ID/pubsub.googleapis.com"
+```
 
 The dead-letter policy needs the Pub/Sub service agent
-(`service-<project-number>@gcp-sa-pubsub.iam.gserviceaccount.com`). It is
-created on first use of the API; if the first apply fails with a
-"service agent does not exist" error, materialize it and re-apply:
+(`service-<project-number>@gcp-sa-pubsub.iam.gserviceaccount.com`). It
+already existed here; if a fresh project lacks it:
 
 ```bash
 gcloud beta services identity create --service=pubsub.googleapis.com
-terraform plan -var project_id=$PROJECT_ID -var image=plan-only-placeholder
-# expected: adds only, 0 destroys — then apply through the gcp-test gate
 ```
 
 ## 4. Nothing else

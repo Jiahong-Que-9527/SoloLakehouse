@@ -14,18 +14,20 @@ dead-letter routing (`consumer.py`), and two seeded batches whose final
 state is identical for every tested seed (`generator.py`, 61 tests, project
 CI workflow added).
 
-**Infrastructure written and validated, not deployed (2026-11-21).**
-`infra/` now holds the full Terraform for the delivery playbook's shape —
-Pub/Sub events + dead-letter topics and subscriptions with a 5-attempt
-dead-letter policy and service-agent grants, the `aviation_events` dataset
-with the receipt/state/history/quarantine tables, a one-task Cloud Run
-consumer job (one in-flight write, `MAX_MESSAGES=10`), the runtime identity
-and an error alert — `terraform validate` passes and nothing is provisioned.
-Deployment waits on the owner's approval under the
-[cost gate](../../../AGENTS.md); the bootstrap sequence is in
-[`infra/BOOTSTRAP.md`](../infra/BOOTSTRAP.md). Steps 3–5 (provision,
-transient-failure and interruption drills, replay exercises) then follow
-the [delivery playbook](../../README.md).
+**Infrastructure bootstrapped, plan verified, nothing applied (2026-11-21).**
+The cloud delivery pieces are now written and tested: the one-script
+BigQuery decision store, the Pub/Sub puller/publisher/dead-letter adapters
+and the on-demand drain job (`cloud_gcp.py`, `job.py`, `publisher.py`,
+`replay.py`, Dockerfile, 81 tests) plus the G03 cloud workflow mirroring
+the G01/G02 playbook. Bootstrap ran with the owner's approval — registry
+created and imported, `roles/pubsub.admin` granted, the already-enabled
+Pub/Sub service imported — and `terraform plan` against the real state
+shows **22 to add, 0 to change, 0 to destroy** (free-tier SKUs only;
+as-built in [`infra/BOOTSTRAP.md`](../infra/BOOTSTRAP.md)). What remains:
+open the PR for the plan-only CI job, merge, approve the `gcp-test` gate
+so CI builds the image and applies, then run steps 4–5 (transient-failure
+and interruption drills, replay exercises) against the live resources and
+record them in a `cloud-verification.md`.
 
 ## First delivery
 
