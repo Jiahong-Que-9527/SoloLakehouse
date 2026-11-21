@@ -132,6 +132,13 @@ superseded arrival-anchored M1 design, not Silver v2.
 **Exit:** reconciled tables, documented grain, idempotent ingestion and a
 findings report.
 
+**Status (2026-11-21):** M1 (ADR-004 spike, managed Iceberg accepted),
+M2 (Terraform foundation applied via CI), M3 (idempotent ingestion of the
+synthetic and `v002` releases) and M4 (analytics views verified on the
+fixed sample) are done. Remaining: M5, the full dataset release with the
+cost record and findings report — it waits for 02 M4, the full-dataset
+Silver v2 and Gold run.
+
 ## Phase 4: 04 Lakehouse Integration
 
 1. Schema mapping and Cloud Storage access from Databricks.
