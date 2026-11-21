@@ -119,7 +119,9 @@ def _install_fake_bigquery(monkeypatch, client):
     bigquery.LoadJobConfig = lambda **kwargs: types.SimpleNamespace(**kwargs)
     bigquery.SourceFormat = types.SimpleNamespace(PARQUET="PARQUET")
     bigquery.WriteDisposition = types.SimpleNamespace(WRITE_EMPTY="WRITE_EMPTY")
-    bigquery.NotFound = NotFound
+    # No top-level bigquery.NotFound: the real library surfaces it as
+    # google.api_core.exceptions.NotFound, and the fake must mirror that —
+    # the third live execution crashed on exactly this divergence.
     api_core = types.ModuleType("google.api_core")
     exceptions = types.ModuleType("google.api_core.exceptions")
     exceptions.NotFound = NotFound
