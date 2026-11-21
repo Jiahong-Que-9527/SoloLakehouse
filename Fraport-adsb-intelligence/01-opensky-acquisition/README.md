@@ -10,18 +10,18 @@ lakehouse ETL. It is not a cloud deployment.
 ## Status (2026-11-16)
 
 Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
-(pull requests #123 to #125). Batches **b01 (2026-10)** through **b31 (2024-04)**
+(pull requests #123 to #125). Batches **b01 (2026-10)** through **b32 (2024-03)**
 are accepted and backed up. b01 through b12 completed the twelve-month cut
 line from 2025-11 through 2026-10. b24 finishes the original two-year window.
-The next session collects batch **b32 (2024-03)**. Do not start b33 until
-b32 is published.
+The next session collects batch **b33 (2024-02)**. Do not start b34 until
+b33 is published.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
 
-- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2024-04.
+- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2024-03.
 - Flights, `eddf_flights` v1: 2026-10-01 through 2026-11-01, and all of
-  2026-09 through 2024-04.
+  2026-09 through 2024-03.
 - Batch b01: 109,641,931 state-vector rows, 2.13 GB, 40,844 flights. Validation
   outcome `review` for six early-morning hours after the 2026-10-25 clock
   change; every hour is complete. Accepted and published.
@@ -169,6 +169,11 @@ git.
   outcome `passed` (720/720 hours, 0 problems, 0 anomalies). Accepted and
   published (`copied: 1502`, `checked: 750`).
   Report: `reports/batches/b31/report.md`.
+- Batch b32: 92,374,398 state-vector rows, 1.75 GB, 33,171 flights. Validation
+  outcome `review` for one populated early-morning hour, 2024-03-14T01 (1,257
+  rows against a Thursday 01:00 median of 5,772). Every hour is complete.
+  Accepted and published (`copied: 1552`, `checked: 775`).
+  Report: `reports/batches/b32/report.md`.
 - Hour reconciliation matched 168/168:
   `reports/reconcile/20261114T221544Z-3852.json`.
 - The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
@@ -190,15 +195,15 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Collect b32, March 2024. State vectors:
-   `run --from 2024-03-01T00:00:00Z --until 2024-04-01T00:00:00Z`.
-   Flights: `collect-flights --from 2024-03-01 --until 2024-04-01`.
-2. `validate --batch b32`, `report --batch b32`, then `accept` and `publish`.
+1. Collect b33, February 2024. This is a leap month (29 days, 696 hours).
+   State vectors: `run --from 2024-02-01T00:00:00Z --until 2024-03-01T00:00:00Z`.
+   Flights: `collect-flights --from 2024-02-01 --until 2024-03-01`.
+2. `validate --batch b33`, `report --batch b33`, then `accept` and `publish`.
    A validation outcome of `review` needs `--notes`. A `failed` outcome stops
    the gate. Stop the backfill if a day exceeds 6 million rows, 100 MB of
-   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b33
-   until b32 is published.
-3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b31.
+   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b34
+   until b33 is published.
+3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b32.
    Commit only when asked.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run

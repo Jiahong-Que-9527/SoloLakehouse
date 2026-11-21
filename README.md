@@ -73,7 +73,7 @@ survive partial downloads without silently treating incomplete data as complete.
 The [acquisition status dated 2026-11-16](Fraport-adsb-intelligence/01-opensky-acquisition/README.md#status-2026-11-16)
 records:
 
-- **31 monthly batches accepted and backed up**, covering April 2024
+- **32 monthly batches accepted and backed up**, covering March 2024
   through October 2026. October 2026 alone contains **109,641,931 state-vector
   rows** and **40,844 flight records**.
 - **168/168 pilot hours matched source aggregates**, with a separate
@@ -161,7 +161,7 @@ local CSV exports are absent. Each project README documents the operational CLI.
 
 | Area | Current status | Next delivery |
 |---|---|---|
-| [Aviation acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md) | Implemented locally; 31 accepted monthly batches recorded as of 2026-11-21 | Five-year extension in progress; next batch is March 2024 |
+| [Aviation acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md) | Implemented locally; 32 accepted monthly batches recorded as of 2026-11-21 | Five-year extension in progress; next batch is February 2024 |
 | [Energy pipeline](gcp/01-european-energy-pipeline/README.md) | Cloud delivery implemented and accepted (G01): WIF deploy, Cloud Run Job, scheduled publication | Governed data product release (G04) |
 | [Energy Analytics API](gcp/02-energy-analytics-api/README.md) | Cloud delivery implemented and accepted (G02): authorized view, caller/runtime identity split, guards, revision rollback, bounded load | Release catalog and IAM product model (G04) |
 | [Aviation lakehouse](Fraport-adsb-intelligence/04-aviation-lakehouse/README.md) and [model serving](Fraport-adsb-intelligence/06-model-serving/README.md) | Project briefs and designs | Consume versioned Gold in Databricks; later serve a pinned model on Cloud Run |
