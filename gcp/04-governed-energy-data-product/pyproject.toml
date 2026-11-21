@@ -10,7 +10,7 @@ dependencies = ["pyyaml>=6"]
 energy-product = "energy_product.cli:main"
 
 [project.optional-dependencies]
-cloud = ["google-cloud-bigquery>=3", "pyarrow>=23"]
+cloud = ["google-cloud-bigquery>=3", "pyarrow>=23", "tzdata>=2024.1"]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6", "pyarrow>=23"]

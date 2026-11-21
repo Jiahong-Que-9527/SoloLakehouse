@@ -278,25 +278,54 @@ def test_expected_grid_survives_date_typed_ledger_windows():
     G01 ledger types the window as DATE, the client returns datetime.date,
     and date arithmetic truncated 672 quarter-hour keys onto 7 day keys —
     completeness failed with "missing 7, unexpected 672" on healthy data.
-    The grid must reproduce the actual keys exactly, from the window alone."""
+    G01's window dates are Europe/Berlin local midnights, so the June week
+    06-08..06-15 spans 2026-06-07 22:00..2026-06-14 22:00 UTC in the data."""
     from energy_product.publish_job import _expected_grid
 
     starts = [
-        datetime(2026, 6, 8, tzinfo=UTC) + timedelta(minutes=15 * index) for index in range(672)
+        datetime(2026, 6, 7, 22, 0, tzinfo=UTC) + timedelta(minutes=15 * index)
+        for index in range(672)
     ]
     rows = [
         {"area": "DE", "metric": "actual_load_mwh", "interval_start": start} for start in starts
     ]
     grid = _expected_grid(date(2026, 6, 8), date(2026, 6, 15), rows, interval_minutes=15)
     assert grid == [("DE", "actual_load_mwh", start) for start in starts]
-    # ISO strings and datetimes coerce to the same grid.
+    # Date-only ISO strings and aware datetimes coerce to the same grid.
     assert _expected_grid("2026-06-08", "2026-06-15", rows, interval_minutes=15) == grid
     assert (
         _expected_grid(
-            datetime(2026, 6, 8, tzinfo=UTC), datetime(2026, 6, 15, tzinfo=UTC), rows, 15
+            datetime(2026, 6, 7, 22, 0, tzinfo=UTC),
+            datetime(2026, 6, 14, 22, 0, tzinfo=UTC),
+            rows,
+            15,
         )
         == grid
     )
+
+
+def test_expected_grid_counts_dst_shifted_berlin_windows_correctly():
+    """G01 windows cross DST: a Berlin week containing the spring-forward
+    night spans 167 UTC hours (668 intervals), the autumn-back week 169
+    hours (676). The grid must follow the zone-converted bounds."""
+    from energy_product.publish_job import _expected_grid
+
+    def rows_from(start: datetime, count: int) -> list[dict]:
+        return [
+            {
+                "area": "DE",
+                "metric": "actual_load_mwh",
+                "interval_start": start + timedelta(minutes=15 * index),
+            }
+            for index in range(count)
+        ]
+
+    # Spring-forward: 2026-03-29 02:00 local becomes 03:00 (CEST).
+    spring = rows_from(datetime(2026, 3, 22, 23, 0, tzinfo=UTC), 668)
+    assert len(_expected_grid(date(2026, 3, 23), date(2026, 3, 30), spring, 15)) == 668
+    # Autumn-back: 2026-10-25 03:00 local becomes 02:00 (CET).
+    autumn = rows_from(datetime(2026, 10, 18, 22, 0, tzinfo=UTC), 676)
+    assert len(_expected_grid(date(2026, 10, 19), date(2026, 10, 26), autumn, 15)) == 676
 
 
 def test_expected_grid_stays_independent_of_the_actual_rows():
