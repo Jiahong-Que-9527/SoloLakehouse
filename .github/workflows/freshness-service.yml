@@ -1,0 +1,134 @@
+name: Freshness service
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Devops-engineering/freshness-service/**'
+      - '.github/workflows/freshness-service.yml'
+  pull_request:
+    paths:
+      - 'Devops-engineering/freshness-service/**'
+      - '.github/workflows/freshness-service.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CANDIDATE_IMAGE: freshness-service:candidate
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Devops-engineering/freshness-service
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: '0.13.9'
+          python-version: '3.13'
+      - run: uv sync --locked
+      - run: uv run --locked ruff check .
+      - run: uv run --locked ruff format --check .
+      - run: uv run --locked pytest
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build candidate image
+        run: docker build -t "$CANDIDATE_IMAGE" Devops-engineering/freshness-service
+      - name: Export checked artifact
+        run: |
+          docker save -o image.tar "$CANDIDATE_IMAGE"
+          TAR_SHA=$(sha256sum image.tar | cut -d' ' -f1)
+          printf '{"git_sha": "%s", "run_id": %s, "image": "%s", "tar_sha256": "%s"}\n' \
+            "${{ github.sha }}" "${{ github.run_id }}" "$CANDIDATE_IMAGE" "$TAR_SHA" > metadata.json
+      - name: "Scan candidate (blocking policy: CRITICAL/HIGH with fix available)"
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.CANDIDATE_IMAGE }}
+          format: table
+          exit-code: '1'
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: image-candidate
+          path: image.tar
+          retention-days: 7
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: image-candidate
+      - name: Load and probe the checked artifact
+        run: |
+          set -euo pipefail
+          docker load -i image.tar
+          docker run -d --name freshness-service -p 8751:8000 \
+            -v "$GITHUB_WORKSPACE/Devops-engineering/freshness-service/fixtures:/input:ro" \
+            -e FRESHNESS_SNAPSHOT_PATH=/input/snapshot-fresh.json \
+            "$CANDIDATE_IMAGE"
+          for _ in $(seq 1 30); do
+            curl -s --max-time 2 -o /dev/null http://127.0.0.1:8751/live && break
+            sleep 1
+          done
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8751/live)" = 200 ]
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8751/ready)" = 200 ]
+      - name: Stop container
+        if: always()
+        run: docker rm -f freshness-service >/dev/null 2>&1 || true
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [test, build, smoke]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: image-candidate
+      - name: Load the checked artifact (no rebuild)
+        run: docker load -i image.tar
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push by release-candidate tag
+        id: push
+        run: |
+          set -euo pipefail
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/freshness-service"
+          TAG="sha-$(echo "$GITHUB_SHA" | cut -c1-7)"
+          docker tag "$CANDIDATE_IMAGE" "$IMAGE:$TAG"
+          DIGEST=$(docker push "$IMAGE:$TAG" | grep -o 'sha256:[a-f0-9]*' | tail -1)
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+      - name: Record the release candidate
+        run: |
+          set -euo pipefail
+          {
+            echo "## Release candidate"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Commit | \`${{ github.sha }}\` |"
+            echo "| CI run | \`${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\` |"
+            echo "| Image | \`${{ steps.push.outputs.image }}:${{ steps.push.outputs.tag }}\` |"
+            echo "| Digest | \`${{ steps.push.outputs.digest }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
