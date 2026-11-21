@@ -1,8 +1,11 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/__IMAGE_OWNER__/freshness-service
-  # The digest pin is owned by the environment values file.
+  repository: ghcr.io/jiahong-que-9527/freshness-service
+  # reference carries the deployment identity: "@sha256:<digest>" for
+  # registry releases, ":tag" for local drills (with pullPolicy Never).
+  reference: "@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP

@@ -23,8 +23,8 @@ spec:
     spec:
       containers:
         - name: service
-          image: "{{ .Values.image.repository }}@{{ .Values.image.digest }}"
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.image.repository }}{{ .Values.image.reference }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           ports:
             - containerPort: {{ .Values.containerPort }}
           env:
