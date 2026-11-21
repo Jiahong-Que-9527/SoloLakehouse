@@ -6,23 +6,13 @@ SoloLakehouse is a personal portfolio of independent **Data and AI platform engi
 
 ## Projects
 
-### [Fraport ADS-B Intelligence](Fraport-adsb-intelligence/README.md)
-Can incomplete aircraft observations around Frankfurt Airport support reproducible analysis? A local collector pulls hourly ADS-B state vectors from OpenSky's Trino source, commits Parquet partitions through checksummed manifests and resumes interrupted runs without duplicating data. A DuckDB transformation layer builds a neutral Silver layer and a use-case Gold market, then publishes versioned releases through a Release Gate that blocks failing data.
-**Evidence:** 32 monthly batches accepted and backed up; 109.6M state-vector rows in October 2026 alone; an interrupted hour recollected with an identical SHA-256.
-
-### [DevOps Engineering](Devops-engineering/README.md)
-How does a service travel from a source change to a verified deployment, and how is it recovered after a bad release? A small data-quality service is taken through seven stages: reproducible development, containers, CI with supply-chain checks, manifest-driven delivery with digest rollback, Kubernetes and GitOps drift drills, monitored incident recovery, and a reusable template.
-**Evidence:** D03–D07 accepted with recorded drills; the template onboarded a second service with its own identity.
-
-### [Google Cloud](gcp/README.md)
-Data products on German electricity-load data, deployed with Terraform and Workload Identity Federation on free-tier services. G01 publishes versioned windows to Cloud Storage and BigQuery from a scheduled Cloud Run Job. G02 serves them through an authenticated API over an authorized view. G03 folds duplicate, late and conflicting events from Pub/Sub into one current state. G04 adds a governed release with contracts and provenance.
-**Evidence:** G01–G03 verified live with zero destroys; two independent annual exports produced the same checksum.
-
-### [ML Engineering](Mlops-engineering/README.md)
-Closing the loop of one ML system on a synthetic EV-charging network: point-in-time features with leakage tests, rolling backtests, MLflow lineage, a registered and releasable training pipeline, batch and online serving, drift monitoring and Dagster orchestration. **Status:** planned; M01 is next.
-
-### [Databricks](databricks/README.md)
-Six design briefs on financial time series: Delta lakehouse tables, scheduled jobs, CDC with corrections, Unity Catalog governance, forecasting with MLflow, and reusable workspace environments. **Status:** design only, no application code yet.
+| Project | Question it answers | What is built | Evidence / status |
+|---|---|---|---|
+| [**Fraport ADS-B Intelligence**](Fraport-adsb-intelligence/README.md) | Can incomplete aircraft observations around Frankfurt Airport support reproducible analysis? | Local OpenSky collector with checksummed manifests and resumable runs; DuckDB Silver and Gold layers; versioned releases through a Release Gate that blocks failing data | 32 monthly batches accepted and backed up; 109.6M rows in October 2026 alone; interrupted hour recollected with an identical SHA-256 |
+| [**DevOps Engineering**](Devops-engineering/README.md) | How does a service travel from a source change to a verified deployment, and recover from a bad release? | Seven stages: reproducible dev, containers, CI with supply-chain checks, digest rollback, Kubernetes GitOps drills, incident recovery, reusable template | D03–D07 accepted with recorded drills; template onboarded a second service |
+| [**Google Cloud**](gcp/README.md) | How are data products delivered and governed on managed cloud services? | Scheduled Cloud Run batch job to Cloud Storage and BigQuery; authenticated API over an authorized view; Pub/Sub event processing with dedup and replay; governed release with contracts | G01–G03 verified live with zero destroys; two independent annual exports produced the same checksum |
+| [**ML Engineering**](Mlops-engineering/README.md) | Can one ML system be closed end to end, from features to drift-triggered retraining? | Point-in-time features, rolling backtests, MLflow lineage, release gate, batch and online serving, drift monitoring, Dagster | Planned; M01 is next |
+| [**Databricks**](databricks/README.md) | How does a governed lakehouse product run on Databricks? | Delta tables, scheduled jobs, CDC with corrections, Unity Catalog, MLflow forecasting, workspace provisioning | Six design briefs; no application code yet |
 
 ## Delivery progress
 
