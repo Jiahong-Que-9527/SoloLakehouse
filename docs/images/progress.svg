@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="394" viewBox="0 0 760 394" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<defs>
+<linearGradient id="g0" x1="0" x2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+<linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+<linearGradient id="g2" x1="0" x2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#059669"/></linearGradient>
+<linearGradient id="g3" x1="0" x2="1"><stop offset="0" stop-color="#fbbf24"/><stop offset="1" stop-color="#f59e0b"/></linearGradient>
+<linearGradient id="g4" x1="0" x2="1"><stop offset="0" stop-color="#fb7185"/><stop offset="1" stop-color="#e11d48"/></linearGradient>
+</defs>
+<rect width="760" height="394" rx="16" fill="#0f172a"/>
+<text x="32" y="40" fill="#f8fafc" font-size="18" font-weight="700">Delivery progress</text>
+<text x="728" y="40" fill="#94a3b8" font-size="12" text-anchor="end">accepted scope · 2026-11-21</text>
+<text x="32" y="78" fill="#f1f5f9" font-size="14" font-weight="600">DevOps Engineering</text>
+<text x="32" y="97" fill="#94a3b8" font-size="11">D01–D07 · 5 accepted, 2 implemented</text>
+<rect x="270" y="66" width="380" height="16" rx="8" fill="#1e293b"/>
+<rect x="270" y="66" width="353" height="16" rx="8" fill="url(#g0)"/>
+<text x="668" y="80" fill="#f8fafc" font-size="15" font-weight="700">93%</text>
+<text x="32" y="140" fill="#f1f5f9" font-size="14" font-weight="600">Google Cloud</text>
+<text x="32" y="159" fill="#94a3b8" font-size="11">G01–G03 accepted · G04 in progress</text>
+<rect x="270" y="128" width="380" height="16" rx="8" fill="#1e293b"/>
+<rect x="270" y="128" width="228" height="16" rx="8" fill="url(#g1)"/>
+<text x="668" y="142" fill="#f8fafc" font-size="15" font-weight="700">60%</text>
+<text x="32" y="202" fill="#f1f5f9" font-size="14" font-weight="600">Fraport ADS-B Intelligence</text>
+<text x="32" y="221" fill="#94a3b8" font-size="11">Acquisition and transformation under way</text>
+<rect x="270" y="190" width="380" height="16" rx="8" fill="#1e293b"/>
+<rect x="270" y="190" width="72" height="16" rx="8" fill="url(#g2)"/>
+<text x="668" y="204" fill="#f8fafc" font-size="15" font-weight="700">19%</text>
+<text x="32" y="264" fill="#f1f5f9" font-size="14" font-weight="600">ML Engineering</text>
+<text x="32" y="283" fill="#94a3b8" font-size="11">Planned · M01 next</text>
+<rect x="270" y="252" width="380" height="16" rx="8" fill="#1e293b"/>
+<text x="668" y="266" fill="#f8fafc" font-size="15" font-weight="700">0%</text>
+<text x="32" y="326" fill="#f1f5f9" font-size="14" font-weight="600">Databricks</text>
+<text x="32" y="345" fill="#94a3b8" font-size="11">Design briefs</text>
+<rect x="270" y="314" width="380" height="16" rx="8" fill="#1e293b"/>
+<text x="668" y="328" fill="#f8fafc" font-size="15" font-weight="700">0%</text>
+</svg>
