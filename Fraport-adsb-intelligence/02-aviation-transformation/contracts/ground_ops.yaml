@@ -1,0 +1,45 @@
+# Data contract for the gold/ground_ops market (ADR-003, ADR-006).
+# Thresholds live here, never in code. A live feed may only change a
+# threshold by changing this contract, so every gate decision stays
+# reproducible against the exact text that produced it.
+data_product: ground-ops
+version: "1"
+contract:
+  schema_version: gold-ground-ops-v1
+  # One row per candidate arrival per UTC day (flight_key embeds icao24
+  # and lastseen, so the pair is unique).
+  grain: [day_utc, flight_key]
+  required_columns:
+    - day_utc
+    - flight_key
+    - icao24
+    - callsign
+    - lastseen_epoch_s
+    - touchdown_estimate_epoch_s
+    - surface_start_epoch_s
+    - taxi_end_epoch_s
+    - taxi_in_s
+    - surface_point_count
+    - taxi_path_m
+    - mean_surface_gap_s
+    - max_surface_gap_s
+    - end_distance_m
+    - status
+  # Owner decision (2026-11-21): aircraft addresses and callsigns stay in
+  # the release. The target is a private GCP project, not public storage,
+  # and traceability to Bronze requires the identifiers.
+  field_policy:
+    icao24: keep
+    callsign: keep
+quality_gates:
+  # Share of rows whose status is labeled; the rest carry a coverage
+  # status and no label.
+  labeled_ratio_min: 0.5
+  # Labeled taxi-in seconds: positive and capped at TAXI_MAX_S (45 min).
+  taxi_in_s_min: 1
+  taxi_in_s_max: 2700
+  # Duplicated grain keys tolerated (release from one day must be unique).
+  duplicate_keys_max: 0
+release:
+  approval_required: true
+  record_manifest: true

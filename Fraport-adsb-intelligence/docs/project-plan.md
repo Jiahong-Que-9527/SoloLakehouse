@@ -109,6 +109,11 @@ Local Silver, Gold and Release Gate with Python and DuckDB.
 **Exit:** reproducible Silver and Gold output and an immutable, verified
 release.
 
+**Status (2026-11-21):** Silver v2 (M1'), the `gold/ground_ops` market (M2)
+and the Release Gate (M3) are implemented and recorded. `v001` is released
+from the 2026-07-01 gold output and a failing fixture is blocked. The full
+dataset run (M4) and container image plus CI (M5) are not started.
+
 ## Phase 3: 03 Airport Analytics and cloud Gold
 
 1. Spike for the table format and catalog (ADR-004).
@@ -201,8 +206,6 @@ against the baseline.
 ## Open decisions
 
 - Final geographic bounds and the field list for `v1`.
-- Field policy for `icao24` and `callsign` in Gold releases: keep, hash or
-  drop.
 - Gold table format and catalog, decided by the ADR-004 spike.
 - GCP Workflows or Dagster for phase 7.
 - Cloud region for the bucket and BigQuery, checked against service support.
