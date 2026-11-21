@@ -87,10 +87,15 @@ class FakeBigQueryClient:
         return FakeJob()
 
     def get_table(self, table):
-        return types.SimpleNamespace(table_id=table, description=self.tables.get(table))
+        return types.SimpleNamespace(
+            table_id=table, description=self.tables.get(table), view_query=None
+        )
 
     def update_table(self, table, fields):
         self.updates.append((table.table_id, fields))
+        if "view_query" in fields:
+            # Behave like BigQuery: the view definition becomes the query.
+            self.view_definition = table.view_query
         return table
 
     def insert_rows_json(self, table, rows):
@@ -182,6 +187,13 @@ def test_full_publish_flow_runs_against_the_fake_backed_adapter(monkeypatch):
     assert store.current_release_id("energy_load") == GOOD_CANDIDATE
     # The version table carries the checksum in its description.
     assert client.updates[0][1] == ["description"]
+    # The view switch went through the tables API: the view sits in the
+    # dataset access entries, so DDL CREATE OR REPLACE would demand
+    # bigquery.datasets.update (the fourth live execution's 403).
+    assert any(
+        table_id.endswith("energy_load_current") and fields == ["view_query"]
+        for table_id, fields in client.updates
+    )
     # The ledger row holds the manifest as canonical JSON.
     ledger_rows = client.inserted["test-project.energy_product.release"]
     assert ledger_rows[0]["status"] == "passed"
@@ -253,8 +265,9 @@ def test_withdraw_falls_back_to_an_empty_authorised_view(monkeypatch):
     # The withdrawn release's status was flipped in the ledger.
     updates = client.queries
     assert any("SET status = @status" in sql for sql, _ in updates)
-    # The current view was replaced by the zero-row placeholder.
-    assert any("WHERE FALSE" in sql for sql, _ in updates)
+    # The current view was replaced by the zero-row placeholder, through
+    # the tables API like every view switch.
+    assert client.view_definition is not None and "WHERE FALSE" in client.view_definition
 
 
 def test_current_release_id_parses_the_pointer_from_the_view_definition(monkeypatch):

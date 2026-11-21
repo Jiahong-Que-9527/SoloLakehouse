@@ -170,22 +170,24 @@ class BigQueryProductStore:
         client.update_table(table, ["description"])
 
     def point_current_view(self, product: str, release_id: str) -> None:
+        """Repoint through the tables API, not DDL: the view sits in the
+        dataset access entries (the authorised-view grant), so
+        CREATE OR REPLACE VIEW demands bigquery.datasets.update — the
+        fourth live execution's 403. tables.update only needs
+        bigquery.tables.update, which the producer already holds."""
         client = self._bigquery()
-        sql = (
-            f"CREATE OR REPLACE VIEW `{self._table(f'{product}_current')}` AS "
-            f"SELECT * FROM `{self._table(f'{product}_v{release_id}')}`"
-        )
-        client.query(sql).result()
+        table = client.get_table(self._table(f"{product}_current"))
+        table.view_query = f"SELECT * FROM `{self._table(f'{product}_v{release_id}')}`"
+        client.update_table(table, ["view_query"])
 
     def empty_current_view(self, product: str, schema_table: str) -> None:
         """The typed zero-row placeholder: schema preserved, no rows, and no
-        version-table reference so the pointer reads as empty."""
+        version-table reference so the pointer reads as empty. Same tables
+        API path as point_current_view."""
         client = self._bigquery()
-        sql = (
-            f"CREATE OR REPLACE VIEW `{self._table(f'{product}_current')}` AS "
-            f"SELECT * FROM `{self._table(schema_table)}` WHERE FALSE"
-        )
-        client.query(sql).result()
+        table = client.get_table(self._table(f"{product}_current"))
+        table.view_query = f"SELECT * FROM `{self._table(schema_table)}` WHERE FALSE"
+        client.update_table(table, ["view_query"])
 
     def insert_release_row(self, row: ReleaseRow) -> None:
         client = self._bigquery()
