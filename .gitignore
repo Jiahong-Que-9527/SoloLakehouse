@@ -49,6 +49,7 @@ credentials*.json
 
 # Terraform
 .terraform/
+.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 

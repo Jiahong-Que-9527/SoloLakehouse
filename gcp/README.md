@@ -34,7 +34,7 @@ learning order; each project exercises its own bounded fixture.
    [Design](02-energy-analytics-api/docs/design.md) · [Implementation plan](02-energy-analytics-api/docs/implementation.md)
 3. **G03** · [Aviation Event Processing](03-aviation-event-processing/README.md)
    Test duplicate and late events, retries, dead-letter handling and replay.
-   Status: **next up** — design and implementation sequence ready, nothing provisioned yet
+   Status: **in progress** — contract phase implemented and tested locally; Terraform written and validated, deployment awaiting the owner's cost-gate approval
    [Design](03-aviation-event-processing/docs/design.md) · [Implementation plan](03-aviation-event-processing/docs/implementation.md)
 4. **G04** · [Governed Energy Data Product](04-governed-energy-data-product/README.md)
    Release a quality-checked data product with access and provenance evidence.
@@ -68,7 +68,7 @@ can apply G05 delivery practices to the flagship model.
 - Monday **2026-11-23, 05:15 Europe/Berlin**: the G01 scheduler (`energy-weekly`) fires for the first time since acceptance. Verify the Cloud Run execution succeeded, the `energy.load_release` ledger gained its next row, and the run stayed inside the free tier; record the evidence in the [G01 cloud verification](01-european-energy-pipeline/docs/cloud-verification.md).
 - Keep the standing [cost gate](../AGENTS.md) in force for every plan and apply: expected SKUs only, 0 destroys, owner approval for anything unexpected.
 
-**Next delivery: G03 — Aviation Event Processing** (the [implementation sequence](03-aviation-event-processing/docs/implementation.md) is written; nothing is provisioned yet)
+**Next delivery: G03 — Aviation Event Processing** (the local contract phase — sequence steps 1–2 — is implemented and tested; nothing is provisioned yet)
 
 1. Write the expected state first — revision 2 wins, a repeated event ID is ignored, an older revision is rejected, a conflicting revision under a new ID is recorded as a conflict, a malformed envelope is quarantined — and test the reducer locally against those fixtures, the same test-first shape as G02's contract phase.
 2. Deploy a bounded pull consumer with isolated Pub/Sub and BigQuery resources; one consumer, one in-flight write for the first exercise, with the concurrency limit recorded as evidence.

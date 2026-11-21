@@ -2,7 +2,30 @@
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
 
-**Status:** planned. [Project brief](../README.md) and [technical design](design.md).
+**Status:** in progress. [Project brief](../README.md) and [technical design](design.md).
+
+**Sequence steps 1–2 done (2026-11-21, local only).** The expected state was
+written as fixtures first; the reducer contract is implemented and tested
+against them — envelope validation (`envelope.py`), the pure decision table
+including the unknown-type rule (`reducer.py`), an explicit-buffer
+transactional store with injectable commit failures (`store.py`), the
+parse → dedup → decide → commit → ack consumer with quarantine and
+dead-letter routing (`consumer.py`), and two seeded batches whose final
+state is identical for every tested seed (`generator.py`, 61 tests, project
+CI workflow added).
+
+**Infrastructure written and validated, not deployed (2026-11-21).**
+`infra/` now holds the full Terraform for the delivery playbook's shape —
+Pub/Sub events + dead-letter topics and subscriptions with a 5-attempt
+dead-letter policy and service-agent grants, the `aviation_events` dataset
+with the receipt/state/history/quarantine tables, a one-task Cloud Run
+consumer job (one in-flight write, `MAX_MESSAGES=10`), the runtime identity
+and an error alert — `terraform validate` passes and nothing is provisioned.
+Deployment waits on the owner's approval under the
+[cost gate](../../../AGENTS.md); the bootstrap sequence is in
+[`infra/BOOTSTRAP.md`](../infra/BOOTSTRAP.md). Steps 3–5 (provision,
+transient-failure and interruption drills, replay exercises) then follow
+the [delivery playbook](../../README.md).
 
 ## First delivery
 
