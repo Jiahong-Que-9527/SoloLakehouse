@@ -66,6 +66,15 @@ class FakeBigQueryClient:
         if "FROM `test-project.energy_product.release`" in sql:
             product = job_config.query_parameters[0].value
             matching = [row for row in self.release_rows if row["product"] == product]
+            if "LIMIT 1" in sql:
+                # Latest ledger row wins: the ledger is append-only.
+                release_id = job_config.query_parameters[1].value
+                history = sorted(
+                    (row for row in matching if row["release_id"] == release_id),
+                    key=lambda row: row["published_at"],
+                    reverse=True,
+                )
+                return FakeJob(history[:1])
             if "ORDER BY published_at" in sql:
                 return FakeJob(matching)
             release_id = job_config.query_parameters[1].value
@@ -100,6 +109,12 @@ class FakeBigQueryClient:
 
     def insert_rows_json(self, table, rows):
         self.inserted.setdefault(table, []).extend(rows)
+        if table.endswith(".release"):
+            # Streaming inserts are readable back, and the TIMESTAMP column
+            # round-trips as an aware datetime, as the real API returns it.
+            self.release_rows.extend(
+                {**row, "published_at": datetime.fromisoformat(row["published_at"])} for row in rows
+            )
         return []
 
 
@@ -262,9 +277,13 @@ def test_withdraw_falls_back_to_an_empty_authorised_view(monkeypatch):
     fallback = withdraw(store, CONTRACT, operator="owner", at=META["evaluation_time"])
 
     assert fallback is None
-    # The withdrawn release's status was flipped in the ledger.
-    updates = client.queries
-    assert any("SET status = @status" in sql for sql, _ in updates)
+    # The withdrawal APPENDED a superseding ledger row: the ledger is
+    # append-only evidence, and DML cannot touch streaming-buffered rows
+    # (the live drill's 400).
+    inserted = client.inserted.get("test-project.energy_product.release", [])
+    assert any(
+        row["release_id"] == GOOD_CANDIDATE and row["status"] == "withdrawn" for row in inserted
+    )
     # The current view was replaced by the zero-row placeholder, through
     # the tables API like every view switch.
     assert client.view_definition is not None and "WHERE FALSE" in client.view_definition
@@ -277,6 +296,42 @@ def test_current_release_id_parses_the_pointer_from_the_view_definition(monkeypa
         f"SELECT * FROM `test-project.energy_product.energy_load_v{GOOD_CANDIDATE}`"
     )
     assert store.current_release_id("energy_load") == GOOD_CANDIDATE
+
+
+def test_the_ledger_is_append_only_and_reads_latest_wins(monkeypatch):
+    """A status change appends a superseding row at a new timestamp and
+    reads back as the release's single current status: the streaming
+    buffer forbids DML on freshly inserted rows, so the withdrawal drill
+    caught the original UPDATE attempt with a 400."""
+    store, client = _store(monkeypatch)
+    request = PublishRequest(
+        product=CONTRACT.slug,
+        candidate_id=GOOD_CANDIDATE,
+        input_release_id=GOOD_INPUT_RELEASE,
+        contract=CONTRACT,
+        rows=ROWS,
+        expected_grid=GRID,
+        ingested_at=META["ingested_at"],
+        evaluation_time=META["evaluation_time"],
+        approved=True,
+    )
+    publish(store, request)
+    original = store.release_row("energy_load", GOOD_CANDIDATE)
+
+    # A withdrawal happens after the publication — latest-wins needs a
+    # strictly later timestamp.
+    withdrawn_at = META["evaluation_time"] + timedelta(hours=1)
+    store.mark_release_status("energy_load", GOOD_CANDIDATE, "withdrawn", withdrawn_at)
+
+    latest = store.release_row("energy_load", GOOD_CANDIDATE)
+    assert latest.status == "withdrawn"
+    assert latest.published_at == withdrawn_at
+    assert latest.checksum == original.checksum
+    # releases() still yields one row per release id.
+    assert [row.release_id for row in store.releases("energy_load")] == [GOOD_CANDIDATE]
+    # The ledger kept the original passed row as history.
+    inserted = client.inserted["test-project.energy_product.release"]
+    assert [row["status"] for row in inserted] == ["passed", "withdrawn"]
 
 
 def test_fetch_input_release_reads_the_g01_ledger_and_rows(monkeypatch):

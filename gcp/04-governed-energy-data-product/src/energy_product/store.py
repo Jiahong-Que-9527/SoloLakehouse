@@ -76,7 +76,9 @@ class InMemoryProductStore(ProductStore):
         self._checksums: dict[str, str] = {}
         self._current: dict[str, str | None] = {}
         self._empty_view_schema: dict[str, str] = {}
-        self._releases: dict[tuple[str, str], ReleaseRow] = {}
+        # Chronological history per release id: the ledger is append-only
+        # evidence, a release's status is its LATEST row.
+        self._releases: dict[tuple[str, str], list[ReleaseRow]] = {}
         self._quarantine: list[dict] = []
         self._manifests: list[dict] = []
         self._fail_view_switch = fail_view_switch
@@ -99,12 +101,14 @@ class InMemoryProductStore(ProductStore):
         return self._empty_view_schema.get(product)
 
     def release_row(self, product: str, release_id: str) -> ReleaseRow | None:
-        return self._releases.get((product, release_id))
+        """The release's LATEST ledger row (supersedes win)."""
+        history = self._releases.get((product, release_id))
+        return history[-1] if history else None
 
     def releases(self, product: str) -> tuple[ReleaseRow, ...]:
         return tuple(
-            row
-            for (product_key, _), row in sorted(self._releases.items())
+            rows[-1]
+            for (product_key, _), rows in sorted(self._releases.items())
             if product_key == product
         )
 
@@ -146,11 +150,15 @@ class InMemoryProductStore(ProductStore):
         key = (row.product, row.release_id)
         if key in self._releases:
             raise RuntimeError(f"release row {key} already exists")
-        self._releases[key] = row
+        self._releases[key] = [row]
 
-    def mark_release_status(self, product: str, release_id: str, status: str) -> None:
-        existing = self._releases[(product, release_id)]
-        self._releases[(product, release_id)] = replace(existing, status=status)
+    def mark_release_status(self, product: str, release_id: str, status: str, at: datetime) -> None:
+        """Append a superseding ledger row: the ledger is append-only
+        evidence, so a status change is a new row at `at`, never an edit."""
+        history = self._releases.get((product, release_id))
+        if not history:
+            raise LookupError(f"release {release_id!r} is not in the ledger")
+        history.append(replace(history[-1], status=status, published_at=at))
 
     def insert_quarantine_rows(self, rows: list[dict]) -> None:
         self._quarantine.extend(rows)
