@@ -84,8 +84,8 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 **Status (2026-11-16):** M0 to M2 are done. Batches b01 (2026-10) through b24
 (2024-11) are collected, validated, accepted and backed up. b01 through b12
 completed the twelve-month cut line. b24 finishes the M3 monthly window. A
-five-year extension back to 2021-11 is in progress. b25 through b29 are
-accepted. Next is b30 (2024-05). M4 and M5 are not started. The
+five-year extension back to 2021-11 is in progress. b25 through b30 are
+accepted. Next is b31 (2024-04). M4 and M5 are not started. The
 working list is the
 [acquisition status](../01-opensky-acquisition/README.md#status-2026-11-16).
 Vertical slice V0 (Silver for the pilot week) can start in parallel. It is

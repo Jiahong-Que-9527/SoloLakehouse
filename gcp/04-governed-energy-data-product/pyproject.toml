@@ -13,7 +13,7 @@ energy-product = "energy_product.cli:main"
 cloud = ["google-cloud-bigquery>=3", "pyarrow>=23"]
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.6", "pyarrow>=23"]
 
 [build-system]
 requires = ["hatchling"]
