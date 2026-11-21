@@ -443,6 +443,7 @@ cloud = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pyarrow" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -457,6 +458,7 @@ provides-extras = ["cloud"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pyarrow", specifier = ">=23" },
     { name = "pytest", specifier = ">=8" },
     { name = "ruff", specifier = ">=0.6" },
 ]
