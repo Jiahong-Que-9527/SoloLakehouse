@@ -2,6 +2,18 @@
 
 <!-- [魏征·2026-11-21] Initialize ML engineering delivery planning. -->
 
+## Current position (2026-11-21)
+
+- **M01 accepted.** `dataset-v001` released and gated — 32 files, 865,844 rows, 5.2 MB; same-seed regeneration reproduces every partition SHA-256; 27/27 validation checks pass; three seeded corruption cases fail as required. Evidence: [acceptance record](../01-problem-and-data/evidence/m01-acceptance.md) and [EDA report](../01-problem-and-data/evidence/eda-report.md). Branch `feat/m01-data-foundation` carries the implementation plus the project CI workflow (`.github/workflows/charging-forecast.yml`).
+- **Next session: start M02 (feature pipeline and point-in-time contract).**
+  1. Finalize the [feature contract](feature-contract.md) (v1 draft → v1) as the code lands; the document stays authoritative over the code.
+  2. Implement `charging_forecast.features`: the five families under `available_at <= T`, Parquet materialization with a feature manifest (schema version, source data release ID, checksums), and a loader that rejects rows with `available_at > issue time`.
+  3. Implement the leakage test suite from the contract: shift test (delaying availability makes rows unreadable and the loader rejects them; advancing it never changes feature values), forecast-reference test, duplicate-materialization byte-identity — plus an automated check that a training split for issue date `T` contains no row with `available_at > T`, over every fold.
+  4. Run the M02 acceptance checks, record evidence per the [evidence guide](evidence-guide.md), move the stage status.
+- **Prepare the M03 decision** (rolling-origin fold plan, metric set, paired-comparison method) — it must be resolved before M04 trains anything.
+- **Recorded risk for M04/M05:** the CI determinism check ("two training runs, identical metrics") will hit LightGBM multithreading nondeterminism; pin thread counts or define a tolerance when the M04 search-tool decision is made.
+- **Owner items pending:** merge `feat/m01-data-foundation` via PR; update the root `README.md` portfolio row and `docs/roadmap.md` (both still list ML Engineering as planned only).
+
 ## Intended outcome
 
 Given only a fresh checkout and a seed, an engineer can regenerate the synthetic charging dataset, rebuild point-in-time features, retrain the model to the same metrics, publish a model release manifest, score the next day in batch, serve the pinned model over HTTP, watch drift alerts fire under an injected regime change, retrain through the orchestrator, and onboard a second model from the extracted template. The first portfolio checkpoint is M01–M04 with a reproducible dataset release, a leakage-tested feature pipeline, a committed baseline report and a model that beats the seasonal baseline on held-out folds or documents why it does not.
