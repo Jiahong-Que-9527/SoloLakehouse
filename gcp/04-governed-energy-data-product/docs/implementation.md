@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
 
-**Status:** in progress — contract phase done locally. [Project brief](../README.md) and [technical design](design.md).
+**Status:** first delivery recorded (2026-11-21). [Project brief](../README.md), [technical design](design.md), [cloud verification](cloud-verification.md).
 
 **Sequence steps 1–2 done (2026-11-21, local only).** The expected state was
 written as fixtures first: a pinned actual_load_mwh week (672 intervals)
@@ -13,10 +13,22 @@ expected interval grid in both directions, so the masked gap fails even
 though counts match; the release boundary (approval → checksum → version
 table → manifest → view switch → ledger, with checksum-verified retry
 adoption and withdrawal fallback) is implemented against a store port and
-proven by 34 tests including the role-policy mapping the IAM must create
+proven by 37 tests including the role-policy mapping the IAM must create
 (analyst: view only; auditor: ledger only). The BigQuery adapter, publish
 job, Dockerfile and Terraform follow the G03 pattern; bootstrap and
 deployment run behind the cost gate and the `gcp-test` approval.
+
+**Sequence steps 3–5 done live (2026-11-21, `slh-gcp-test`).** The first
+governed release is published (`cand-2026-11-21-fourth`, 672 rows) after
+five publication defects were found and fixed on the way (window typing,
+Berlin-local dates, an exception import, the authorised-view rewrite
+permission and the streaming-buffer DML limit — each recorded in
+[cloud-verification.md](cloud-verification.md) with its fix PR). The
+access matrix ran with impersonated identities: the analyst reads the
+authorised view and nothing else, the auditor reads the ledger and
+nothing else. The drill blocked an invalid candidate while the view kept
+serving, withdrew the current release to the zero-row authorised
+placeholder, and republished corrected data under a fresh ID.
 
 ## First delivery
 

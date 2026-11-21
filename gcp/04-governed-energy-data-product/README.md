@@ -2,19 +2,22 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G04 · Contract phase implemented locally (2026-11-21)** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**G04 · First governed release live (2026-11-21)** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Cloud verification](docs/cloud-verification.md)
 
 Publish an approved energy dataset with a versioned schema, documented quality rules, restricted access and auditable release records.
 
-**Status:** in progress. The contracts are versioned YAML; the offline gate
-checks key-set completeness, grain uniqueness, value range and freshness;
-and the release boundary (approval, immutable candidate IDs, checksum
-retry adoption, quarantine on failure, withdrawal fallback) is tested
-against a store port (34 tests). The BigQuery adapter, publish job and
-Terraform are written; bootstrap ran with the owner's approval and
-`terraform plan` shows **14 adds, 0 destroys**. First apply through the
-`gcp-test` gate; live access proofs and the release/withdrawal drill are
-recorded afterwards in `docs/cloud-verification.md`.
+**Status:** first delivery recorded. The contracts are versioned YAML;
+the offline gate checks key-set completeness, grain uniqueness, value
+range and freshness; and the release boundary (approval, immutable
+candidate IDs, checksum retry adoption, quarantine on failure,
+append-only withdrawal) is tested against a store port (37 tests). The
+first publication is live: the gate passed all five checks, the
+authorised view serves the immutable version table
+`cand-2026-11-21-fourth` (672 rows) to the analyst identity only, and
+the release/withdrawal drill ran as the producer identity. The full
+evidence — five publication defects found and fixed on the way, the
+identity/denial matrix and the drill — is recorded in
+`docs/cloud-verification.md`.
 
 ## Technical scope
 
