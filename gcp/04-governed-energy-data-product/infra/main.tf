@@ -38,7 +38,7 @@ resource "google_service_account" "auditor" {
 }
 
 # Producer: dataViewer on G01's dataset (read the input release) plus
-# dataEditor + jobUser for the publication writes. This is the ONLY identity
+# dataOwner + jobUser for the publication writes. This is the ONLY identity
 # with any access to the source dataset.
 resource "google_bigquery_dataset_iam_member" "producer_source_reader" {
   dataset_id = "energy"
@@ -46,9 +46,15 @@ resource "google_bigquery_dataset_iam_member" "producer_source_reader" {
   member     = "serviceAccount:${google_service_account.producer.email}"
 }
 
-resource "google_bigquery_dataset_iam_member" "producer_product_writer" {
+# dataOwner, not dataEditor: the current view sits in the dataset access
+# entries as the authorised view, and EVERY rewrite of its definition —
+# DDL or the tables API — demands bigquery.datasets.update (the fifth
+# live execution's 403). dataOwner scoped to this one dataset is the
+# least standard role that carries it; the source dataset above stays
+# read-only, and no other identity gains anything.
+resource "google_bigquery_dataset_iam_member" "producer_product_owner" {
   dataset_id = google_bigquery_dataset.product.dataset_id
-  role       = "roles/bigquery.dataEditor"
+  role       = "roles/bigquery.dataOwner"
   member     = "serviceAccount:${google_service_account.producer.email}"
 }
 
