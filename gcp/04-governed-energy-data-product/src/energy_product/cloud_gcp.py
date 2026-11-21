@@ -1,24 +1,30 @@
 """Thin BigQuery adapters for the publication path (G03 pattern).
 
-Client libraries are imported lazily so the core package and its tests
-run without the `cloud` extra. The producer identity reads the G01 input
-release, the gate runs client-side, and the publication primitives issue
-DDL/DML statements whose shapes the tests pin structurally:
+``BigQueryProductStore`` implements the SAME store port the local
+``InMemoryProductStore`` satisfies, so ``publisher.publish`` and
+``publisher.withdraw`` run unchanged against BigQuery. Mapping decisions:
 
-- the version table is created once from the gated rows and never mutated;
-- the `_current` authorised view is one CREATE OR REPLACE VIEW statement;
-- the release row, quarantine rows and the manifest are plain inserts;
-- withdraw repoints the view at the previous passed release, or at an
-  empty view over the withdrawn table's schema.
+- the ``_current`` authorised view IS the current pointer; its definition
+  in INFORMATION_SCHEMA.VIEWS names the version table it selects from;
+- an empty authorised view uses the typed zero-row placeholder (no
+  version-table reference), so a withdrawn product reads as "no current";
+- the version table's description carries the rows checksum, which makes
+  the crash-between-table-and-view window checksum-verifiable on retry;
+- the release row's ``manifest`` column is the manifest's durable home,
+  so ``record_manifest`` is a deliberate no-op here;
+- client libraries are imported lazily; credentials come from the
+  environment (the producer SA in Cloud Run, ADC locally).
 """
 
-from datetime import datetime
+import json
+import re
+from datetime import UTC, datetime
 
 from energy_product.store import ReleaseRow
 
 
 class BigQueryProductStore:
-    """Runs the publication primitives against the `energy_product` dataset."""
+    """Publication primitives against the ``energy_product`` dataset."""
 
     def __init__(self, dataset: str, *, client=None) -> None:
         self._dataset = dataset
@@ -31,14 +37,17 @@ class BigQueryProductStore:
             self._client = bigquery.Client()
         return self._client
 
-    def _table(self, project: str, name: str) -> str:
-        return f"{project}.{self._dataset}.{name}"
+    def _table(self, name: str) -> str:
+        return f"{self._bigquery().project}.{self._dataset}.{name}"
 
-    def fetch_input_release(self, project: str, input_release_id: str) -> tuple[dict, list[dict]]:
+    # --- producer-side read of the G01 input ---------------------------------
+
+    def fetch_input_release(self, input_release_id: str) -> tuple[dict, list[dict]]:
         """The G01 ledger row and its observation rows (producer grant)."""
         from google.cloud.bigquery import QueryJobConfig, ScalarQueryParameter
 
         client = self._bigquery()
+        project = client.project
         ledger_sql = (
             f"SELECT release_id, window_start, window_end, input_checksum, row_count, git_sha, "
             f"quality_status, published_at FROM `{project}.energy.load_release` "
@@ -58,34 +67,93 @@ class BigQueryProductStore:
         rows = [dict(row) for row in client.query(rows_sql, job_config=config).result()]
         return ledger[0], rows
 
-    def fetch_release_rows(self, product: str, release_id: str) -> list[dict]:
-        client = self._bigquery()
-        sql = (
-            f"SELECT * FROM `{self._table(client.project, 'release')}` "
-            f"WHERE product = @product AND release_id = @release_id"
-        )
+    # --- the store port -------------------------------------------------------
+
+    def release_row(self, product: str, release_id: str) -> ReleaseRow | None:
         from google.cloud.bigquery import QueryJobConfig, ScalarQueryParameter
 
+        client = self._bigquery()
+        sql = (
+            f"SELECT * FROM `{self._table('release')}` "
+            f"WHERE product = @product AND release_id = @release_id"
+        )
         config = QueryJobConfig(
             query_parameters=[
                 ScalarQueryParameter("product", "STRING", product),
                 ScalarQueryParameter("release_id", "STRING", release_id),
             ]
         )
-        return [dict(row) for row in client.query(sql, job_config=config).result()]
+        rows = [dict(row) for row in client.query(sql, job_config=config).result()]
+        if not rows:
+            return None
+        row = rows[0]
+        return ReleaseRow(
+            product=row["product"],
+            release_id=row["release_id"],
+            input_release_id=row["input_release_id"],
+            contract_version=row["contract_version"],
+            status=row["status"],
+            output_table=row["output_table"],
+            git_sha=row.get("git_sha"),
+            approver=row["approver"],
+            checksum=row["checksum"],
+            published_at=row["published_at"],
+            manifest=json.loads(row["manifest"]),
+        )
 
-    def version_table_exists(self, product: str, release_id: str) -> bool:
+    def releases(self, product: str) -> tuple[ReleaseRow, ...]:
+        from google.cloud.bigquery import QueryJobConfig, ScalarQueryParameter
+
         client = self._bigquery()
-        from google.cloud.bigquery import NotFound
+        sql = (
+            f"SELECT * FROM `{self._table('release')}` WHERE product = @product "
+            f"ORDER BY published_at"
+        )
+        config = QueryJobConfig(
+            query_parameters=[ScalarQueryParameter("product", "STRING", product)]
+        )
+        return [
+            self.release_row(product, dict(row)["release_id"])
+            for row in client.query(sql, job_config=config).result()
+        ]
 
+    def recorded_checksum(self, product: str, release_id: str) -> str | None:
+        """The checksum travels in the version table's description, so it is
+        verbable before the ledger row exists (the crash window)."""
+        from google.cloud import bigquery
+
+        client = self._bigquery()
         try:
-            client.get_table(self._table(client.project, f"{product}_v{release_id}"))
-            return True
-        except NotFound:
-            return False
+            table = client.get_table(self._table(f"{product}_v{release_id}"))
+        except bigquery.NotFound:
+            return None
+        return table.description or None
+
+    def current_release_id(self, product: str) -> str | None:
+        """Parse the pointer out of the current view's definition."""
+        client = self._bigquery()
+        sql = (
+            f"SELECT view_definition FROM `{client.project}.{self._dataset}"
+            f".INFORMATION_SCHEMA.VIEWS` WHERE table_name = '{product}_current'"
+        )
+        rows = [dict(row) for row in client.query(sql).result()]
+        if not rows:
+            return None
+        match = re.search(rf"{re.escape(product)}_v([^`']+)", rows[0]["view_definition"])
+        return match.group(1) if match else None
+
+    def current_rows(self, product: str) -> list[dict]:
+        client = self._bigquery()
+        sql = f"SELECT * FROM `{self._table(f'{product}_current')}`"
+        return [dict(row) for row in client.query(sql).result()]
+
+    def version_rows(self, product: str, release_id: str) -> list[dict]:
+        client = self._bigquery()
+        sql = f"SELECT * FROM `{self._table(f'{product}_v{release_id}')}`"
+        return [dict(row) for row in client.query(sql).result()]
 
     def write_version_table(
-        self, project: str, product: str, release_id: str, rows: list[dict]
+        self, product: str, release_id: str, rows: list[dict], checksum: str
     ) -> None:
         from google.cloud.bigquery import LoadJobConfig, SourceFormat, WriteDisposition
 
@@ -93,33 +161,36 @@ class BigQueryProductStore:
         job_config = LoadJobConfig(
             source_format=SourceFormat.PARQUET, write_disposition=WriteDisposition.WRITE_EMPTY
         )
-        buffer = _rows_to_parquet(rows)
+        destination = self._table(f"{product}_v{release_id}")
         client.load_table_from_file(
-            buffer, self._table(client.project, f"{product}_v{release_id}"), job_config=job_config
+            _rows_to_parquet(rows), destination, job_config=job_config
         ).result()
+        table = client.get_table(destination)
+        table.description = checksum
+        client.update_table(table, ["description"])
 
-    def point_current_view(self, project: str, product: str, release_id: str) -> None:
+    def point_current_view(self, product: str, release_id: str) -> None:
         client = self._bigquery()
-        slug = product.replace("-", "_")
         sql = (
-            f"CREATE OR REPLACE VIEW `{self._table(client.project, f'{slug}_current')}` AS "
-            f"SELECT * FROM `{self._table(client.project, f'{slug}_v{release_id}')}`"
+            f"CREATE OR REPLACE VIEW `{self._table(f'{product}_current')}` AS "
+            f"SELECT * FROM `{self._table(f'{product}_v{release_id}')}`"
         )
         client.query(sql).result()
 
-    def empty_current_view(self, project: str, product: str, schema_table: str) -> None:
+    def empty_current_view(self, product: str, schema_table: str) -> None:
+        """The typed zero-row placeholder: schema preserved, no rows, and no
+        version-table reference so the pointer reads as empty."""
         client = self._bigquery()
-        slug = product.replace("-", "_")
         sql = (
-            f"CREATE OR REPLACE VIEW `{self._table(client.project, f'{slug}_current')}` AS "
-            f"SELECT * FROM `{self._table(client.project, schema_table)}` WHERE FALSE"
+            f"CREATE OR REPLACE VIEW `{self._table(f'{product}_current')}` AS "
+            f"SELECT * FROM `{self._table(schema_table)}` WHERE FALSE"
         )
         client.query(sql).result()
 
-    def insert_release_row(self, project: str, row: ReleaseRow) -> None:
+    def insert_release_row(self, row: ReleaseRow) -> None:
         client = self._bigquery()
         errors = client.insert_rows_json(
-            self._table(client.project, "release"),
+            self._table("release"),
             [
                 {
                     "product": row.product,
@@ -132,19 +203,21 @@ class BigQueryProductStore:
                     "approver": row.approver,
                     "checksum": row.checksum,
                     "published_at": _stamp(row.published_at),
-                    "manifest": _manifest_json(row.manifest),
+                    "manifest": json.dumps(
+                        row.manifest, sort_keys=True, separators=(",", ":"), default=str
+                    ),
                 }
             ],
         )
         if errors:
             raise OSError(f"release row rejected by the ledger: {errors}")
 
-    def mark_release_status(self, project: str, product: str, release_id: str, status: str) -> None:
+    def mark_release_status(self, product: str, release_id: str, status: str) -> None:
         from google.cloud.bigquery import QueryJobConfig, ScalarQueryParameter
 
         client = self._bigquery()
         sql = (
-            f"UPDATE `{self._table(client.project, 'release')}` SET status = @status "
+            f"UPDATE `{self._table('release')}` SET status = @status "
             f"WHERE product = @product AND release_id = @release_id"
         )
         config = QueryJobConfig(
@@ -156,7 +229,7 @@ class BigQueryProductStore:
         )
         client.query(sql, job_config=config).result()
 
-    def insert_quarantine_rows(self, project: str, rows: list[dict]) -> None:
+    def insert_quarantine_rows(self, rows: list[dict]) -> None:
         client = self._bigquery()
         payload = [
             {
@@ -165,14 +238,18 @@ class BigQueryProductStore:
                 "input_release_id": row["input_release_id"],
                 "check": row["check"],
                 "detail": row["detail"],
-                "offending": _offending_json(row["offending"]),
+                "offending": json.dumps([list(key) for key in row["offending"][:20]], default=str),
                 "recorded_at": _stamp(row["recorded_at"]),
             }
             for row in rows
         ]
-        errors = client.insert_rows_json(self._table(client.project, "quarantine"), payload)
+        errors = client.insert_rows_json(self._table("quarantine"), payload)
         if errors:
             raise OSError(f"quarantine rows rejected: {errors}")
+
+    def record_manifest(self, manifest: dict) -> None:
+        """No-op by design: the release row's manifest column is the durable
+        home, written in the same commit that marks the release passed."""
 
 
 def _rows_to_parquet(rows: list[dict]):
@@ -191,16 +268,6 @@ def _rows_to_parquet(rows: list[dict]):
 
 
 def _stamp(value: datetime) -> str:
-    return value.astimezone(value.tzinfo or datetime.now().astimezone().tzinfo).isoformat()
-
-
-def _manifest_json(manifest: dict) -> str:
-    import json
-
-    return json.dumps(manifest, sort_keys=True, separators=(",", ":"), default=str)
-
-
-def _offending_json(offending) -> str:
-    import json
-
-    return json.dumps([list(key) for key in offending[:20]], default=str)
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=UTC)
+    return value.astimezone(UTC).isoformat()

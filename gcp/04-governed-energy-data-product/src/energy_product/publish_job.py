@@ -24,8 +24,8 @@ from pathlib import Path
 
 from energy_product.cloud_gcp import BigQueryProductStore
 from energy_product.contract import load_contract
-from energy_product.publisher import PublishConflict, PublishRequest, publish
-from energy_product.store import AccessDenied
+from energy_product.publisher import PublishRequest, publish
+from energy_product.store import AccessDenied, PublishConflict
 
 
 def _evaluation_time() -> datetime:
@@ -41,10 +41,8 @@ def main() -> int:
 
     contract = load_contract(contract_path)
     store = BigQueryProductStore(dataset)
-    client = store._bigquery()
-    project = client.project
 
-    ledger, rows = store.fetch_input_release(project, input_release_id)
+    ledger, rows = store.fetch_input_release(input_release_id)
     ingested_at = ledger.get("published_at") or _evaluation_time()
     if isinstance(ingested_at, str):
         ingested_at = datetime.fromisoformat(ingested_at)
