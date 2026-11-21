@@ -3,22 +3,18 @@
 <!-- [房玄龄·2026-11-15] Define the G03 project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G03 · Contract phase implemented locally (2026-11-21)** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**G03 · Cloud delivery accepted 2026-11-21** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Cloud verification](docs/cloud-verification.md)
 
 Validate retries, duplicate delivery and late corrections in an event-driven system. Use synthetic energy revisions for comparison with G01 and synthetic
 airport operational events to exercise the same delivery behavior.
 
-**Status:** the local contract phase is done — envelope validation, the pure
-revision reducer, a transactional store port, the ack/nack/dead-letter
-consumer flow and the seeded airport + energy fixture batches (81 tests
-including the cloud adapters). The cloud delivery pieces (one-script
-BigQuery decision store, pull consumer job, fixture publisher, DLQ replay
-command) are implemented and tested; bootstrap and imports ran with the
-owner's approval and `terraform plan` shows **22 adds, 0 destroys**.
-Nothing is applied yet — the first apply happens through CI's
-`gcp-test` gate after the PR merges
-([bootstrap as-built](infra/BOOTSTRAP.md),
-[delivery playbook](../README.md#delivery-playbook-settled-by-g01--g02)).
+**Status:** accepted. The seeded airport and energy fixtures reconcile to
+their expected final state in BigQuery through the one-script decision
+store; duplicate, out-of-order, conflicting and malformed deliveries
+behave exactly as the local contract specifies; retry, crash recovery,
+dead-letter routing (both direct and via the subscription policy) and
+replay are verified against the live resources. 24 events accounted for,
+cost €0.00, all free-tier SKUs.
 
 ## Technical scope
 

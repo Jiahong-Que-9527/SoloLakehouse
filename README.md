@@ -162,7 +162,7 @@ local CSV exports are absent. Each project README documents the operational CLI.
 | Area | Current status | Next delivery |
 |---|---|---|
 | [Aviation acquisition](Fraport-adsb-intelligence/01-opensky-acquisition/README.md) | Implemented locally; 29 accepted monthly batches recorded as of 2026-11-21 | Five-year extension in progress; next batch is May 2024 |
-| [Energy pipeline](gcp/01-european-energy-pipeline/README.md) | Cloud delivery implemented and accepted (G01): WIF deploy, Cloud Run Job, scheduled publication | Event corrections with idempotent replays (G03) |
+| [Energy pipeline](gcp/01-european-energy-pipeline/README.md) | Cloud delivery implemented and accepted (G01): WIF deploy, Cloud Run Job, scheduled publication | Governed data product release (G04) |
 | [Energy Analytics API](gcp/02-energy-analytics-api/README.md) | Cloud delivery implemented and accepted (G02): authorized view, caller/runtime identity split, guards, revision rollback, bounded load | Release catalog and IAM product model (G04) |
 | [Aviation lakehouse](Fraport-adsb-intelligence/04-aviation-lakehouse/README.md) and [model serving](Fraport-adsb-intelligence/06-model-serving/README.md) | Project briefs and designs | Consume versioned Gold in Databricks; later serve a pinned model on Cloud Run |
 | [Finance](databricks/01-ecb-delta-lakehouse/README.md) | Project briefs in the current layout | ECB Silver / Delta Lakehouse workloads |

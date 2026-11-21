@@ -2,7 +2,14 @@
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
 
-**Status:** in progress. [Project brief](../README.md) and [technical design](design.md).
+**Status:** accepted. [Project brief](../README.md) and [technical design](design.md).
+
+**Sequence steps 1–5 complete; first delivery accepted 2026-11-21.** The
+live acceptance record — fixture-to-state reconciliation, transient
+failure, crash after commit, dead-letter routing and replay — is in
+[`cloud-verification.md`](cloud-verification.md). The delivery trail and
+the one apply failure (log-metric visibility race at the alert policy)
+are recorded there as well.
 
 **Sequence steps 1–2 done (2026-11-21, local only).** The expected state was
 written as fixtures first; the reducer contract is implemented and tested
