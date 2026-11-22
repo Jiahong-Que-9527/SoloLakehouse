@@ -63,9 +63,11 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   end on a synthetic EV-charging workload: point-in-time features, rolling
   backtests, MLflow lineage, a release gate, serving, drift monitoring and
   Dagster orchestration. M01 (data foundation), M02 (feature pipeline with
-  the leakage suite), M03 (baselines and the evaluation harness) and M04
-  (the model beats both baselines under full MLflow lineage) are accepted;
-  the registry and release gate are next.
+  the leakage suite), M03 (baselines and the evaluation harness), M04
+  (the model beats both baselines under full MLflow lineage) and M05
+  (one idempotent training pipeline, the model release pinned through the
+  promotion gate, tested rollback and a training image) are accepted;
+  batch scoring and serving are next.
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture
   query in Compose. K3s, Flux and recovery remain later project milestones.

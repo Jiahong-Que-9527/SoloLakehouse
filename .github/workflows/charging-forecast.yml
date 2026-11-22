@@ -31,3 +31,13 @@ jobs:
       - run: uv run --locked ruff check .
       - run: uv run --locked ruff format --check .
       - run: uv run --locked pytest
+
+  # The training image is built from M05 onward (delivery plan, M05): the
+  # pinned base image must keep building, and the CLI must start inside it.
+  image:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker build -t charging-forecast:ci Mlops-engineering/reference-workload
+      - run: docker run --rm charging-forecast:ci --version

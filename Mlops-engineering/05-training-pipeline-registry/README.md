@@ -2,7 +2,7 @@
 
 <!-- [魏征·2026-11-21] Initialize stage planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [ADR-005](../../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md)
+**Status:** accepted (2026-11-22) · [Roadmap](../README.md) · [ADR-005](../../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md) · [Acceptance record](evidence/m05-acceptance.md)
 
 Make training a product: one idempotent CLI from validation to registered release, a container image, and a manifest-based release gate with tested rollback.
 
