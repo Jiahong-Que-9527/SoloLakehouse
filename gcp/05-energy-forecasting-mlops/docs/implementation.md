@@ -4,7 +4,7 @@
 
 <!-- [GLM·2026-11-20] Replace the Vertex AI training step with the cloud-neutral path; see ADR-005. -->
 
-**Status:** planned. [Project brief](../README.md) and [technical design](design.md).
+**Status:** in progress — step 1 (pinned fixture, average-MW target, dataset validation) landed 2026-11-22; steps 2–5 open. [Project brief](../README.md) and [technical design](design.md).
 
 ## First delivery
 
