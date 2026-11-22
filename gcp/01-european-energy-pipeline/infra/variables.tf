@@ -15,3 +15,9 @@ variable "image" {
   description = "Container image reference for the Cloud Run job; set by the deploy workflow."
   type        = string
 }
+
+variable "git_sha" {
+  description = "Commit SHA the deployed image was built from; stamped into publish manifests via GIT_SHA. Left empty outside CI."
+  type        = string
+  default     = ""
+}

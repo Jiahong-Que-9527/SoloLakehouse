@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -21,6 +22,11 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 def revision() -> dict:
     """Record provenance without requiring Git in installed/container builds."""
+    # Container builds have no .git; the deploy workflow stamps the built
+    # commit into GIT_SHA so cloud manifests still trace to a revision.
+    env_sha = os.environ.get("GIT_SHA", "").strip()
+    if env_sha:
+        return {"git_sha": env_sha, "git_dirty": None}
     try:
         sha = subprocess.run(
             ["git", "rev-parse", "HEAD"],

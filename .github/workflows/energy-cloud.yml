@@ -61,7 +61,7 @@ jobs:
           terraform_version: '1.17.2'
       - run: terraform fmt -check -diff
       - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
-      - run: terraform plan -input=false -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=plan-only-placeholder"
+      - run: terraform plan -input=false -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=plan-only-placeholder" -var "git_sha=plan-only-placeholder"
 
   build-push:
     if: github.event_name == 'push'
@@ -112,4 +112,4 @@ jobs:
         with:
           terraform_version: '1.17.2'
       - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
-      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=${{ needs.build-push.outputs.image }}"
+      - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}" -var "image=${{ needs.build-push.outputs.image }}" -var "git_sha=${GITHUB_SHA}"
