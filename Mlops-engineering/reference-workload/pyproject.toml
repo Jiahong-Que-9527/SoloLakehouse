@@ -5,9 +5,12 @@ description = "Reference workload for ML Engineering: seeded EV charging dataset
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "mlflow>=3.18.0",
     "numpy>=2.0",
+    "pandas>=3.1.1",
     "pyarrow>=18",
     "pyyaml>=6",
+    "scikit-learn>=1.9.1",
 ]
 
 [project.scripts]

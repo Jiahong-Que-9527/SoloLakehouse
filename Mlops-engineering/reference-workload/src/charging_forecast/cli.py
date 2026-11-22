@@ -18,6 +18,11 @@ Subcommands:
       run the M03 protocol: monthly rolling-origin folds with embargo, both
       baselines, segment metrics and the seeded paired comparison; writes a
       deterministic baseline report (M03).
+  train-model --config <yaml> --release <dir> --features <dir> --out <dir>
+      [--tracking-uri <uri>]
+      grid selection on the internal split, then the M03 fold protocol with
+      both baselines; deterministic model report and MLflow runs with the
+      lineage tag schema (M04).
 """
 
 from __future__ import annotations
@@ -33,6 +38,7 @@ import yaml
 
 from . import __version__
 from . import eval as eval_mod
+from . import training as training_mod
 from .contract import build_manifest, git_commit, load_config, render_contract
 from .features import (
     FeatureBuilder,
@@ -196,6 +202,27 @@ def _cmd_eval_baselines(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_train_model(args: argparse.Namespace) -> int:
+    report = training_mod.run_model_training(
+        Path(args.release),
+        load_config(args.config),
+        Path(args.features),
+        Path(args.out),
+        tracking_uri=args.tracking_uri,
+        max_iter=args.max_iter,
+        seed=args.seed,
+        embargo_days=args.embargo_days,
+        median_window_days=args.median_window_days,
+    )
+    print(
+        f"model report: MAE model {report['results']['model']['overall']['mae']} vs "
+        f"seasonal-naive {report['results']['seasonal_naive']['overall']['mae']} and "
+        f"station-median {report['results']['station_median']['overall']['mae']} "
+        f"-> {args.out}"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="charging-forecast")
     parser.add_argument("--version", action="version", version=__version__)
@@ -246,6 +273,22 @@ def main(argv: list[str] | None = None) -> int:
     ev.add_argument("--median-window-days", type=int, default=eval_mod.MEDIAN_WINDOW_DAYS)
     ev.add_argument("--seed", type=int, default=eval_mod.BOOTSTRAP_SEED)
     ev.set_defaults(func=_cmd_eval_baselines)
+
+    tm = sub.add_parser("train-model", help="grid selection + M03 fold protocol (M04)")
+    tm.add_argument("--config", required=True)
+    tm.add_argument("--release", required=True)
+    tm.add_argument("--features", required=True)
+    tm.add_argument("--out", required=True)
+    tm.add_argument(
+        "--tracking-uri",
+        default=training_mod.DEFAULT_TRACKING_URI,
+        help="MLflow tracking URI (local sqlite by default)",
+    )
+    tm.add_argument("--max-iter", type=int, default=training_mod.MAX_ITER)
+    tm.add_argument("--seed", type=int, default=training_mod.RANDOM_SEED)
+    tm.add_argument("--embargo-days", type=int, default=training_mod.EMBARGO_DAYS)
+    tm.add_argument("--median-window-days", type=int, default=training_mod.MEDIAN_WINDOW_DAYS)
+    tm.set_defaults(func=_cmd_train_model)
 
     args = parser.parse_args(argv)
     return args.func(args)

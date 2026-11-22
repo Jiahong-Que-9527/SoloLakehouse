@@ -452,6 +452,36 @@ def load_issue_features(features_dir: Path, issue_day: date) -> pa.Table:
     return table.filter(avail <= t_us)
 
 
+def load_training_features(features_dir: Path, issue_start: date, issue_end: date) -> pa.Table:
+    """Bulk read path for training (contract rule 1: training and serving read
+    through charging_forecast.features).
+
+    The training split for issue day D is exactly the rows stamped
+    available_at == T(D) — the same split check_fold_leakage verifies day by
+    day, gathered here in one scan. Rows stamped at anything else cannot
+    belong to an issue day in the range and are dropped by the stamp filter;
+    an empty selection is refused loudly instead of silently training on
+    nothing.
+    """
+    check_schema_version(features_dir)
+    if issue_end < issue_start:
+        raise ValueError(f"empty issue range: {issue_start}..{issue_end}")
+    table = _read_partitions_up_to(features_dir, issue_end)
+    avail = _col_us(table, "available_at")
+    stamps = []
+    day = issue_start
+    while day <= issue_end:
+        stamps.append(int(issue_time_utc(day).timestamp() * 1_000_000))
+        day += timedelta(days=1)
+    mask = np.isin(avail, np.array(stamps))
+    if not mask.any():
+        raise ValueError(
+            f"no feature rows stamped at the issue times of {issue_start}..{issue_end} "
+            f"under {features_dir}"
+        )
+    return table.filter(mask)
+
+
 def check_fold_leakage(features_dir: Path, issue_day: date) -> tuple[bool, str]:
     """Acceptance check 3, per fold: inspect the raw split, not the filter.
 
