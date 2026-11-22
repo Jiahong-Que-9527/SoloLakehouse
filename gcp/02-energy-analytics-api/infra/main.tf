@@ -118,6 +118,17 @@ resource "google_cloud_run_v2_service" "energy_api" {
   # Owned and rebuilt by CI; a destroy is a deploy error, not a request.
   deletion_protection = false
 
+  # Deploy must mean "the new revision serves". The rollback drill's
+  # explicit update-traffic pin disabled Cloud Run's auto-shift to new
+  # revisions, so a later code deploy would create a revision that never
+  # receives traffic. Keeping the traffic policy under Terraform re-pins
+  # 100% to the latest revision on every apply; latest_revision is
+  # dynamic, so future revisions inherit it.
+  traffic {
+    percent = 100
+    type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+  }
+
   template {
     service_account = google_service_account.runtime.email
 
