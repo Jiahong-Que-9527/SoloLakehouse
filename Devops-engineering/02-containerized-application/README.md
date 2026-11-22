@@ -4,7 +4,7 @@
 
 <!-- [GLM·2026-11-20] Implement the image, compose stack and smoke procedure; record local evidence. -->
 
-**Status:** implemented locally; owner acceptance pending · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+**Status:** accepted 2026-11-22 · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
 
 Package the D01 service and reproduce its behavior in Docker Compose.
 
@@ -58,6 +58,38 @@ working tree uncommitted at record time):
 - **Host daemon note:** this machine's Docker daemon runs on a non-default
   socket; container commands require
   `export DOCKER_HOST=unix:///run/recordchat-docker.sock`.
+
+Owner acceptance, 2026-11-22 (run by the agent on the owner's behalf, WSL
+Ubuntu; same fresh GitHub clone as D01 @ `8bb3484`, service tree clean):
+
+- **Scenario:** clean-checkout image build (Acceptance 1). **Command:**
+  `docker build -t energy-quality-service:d02 .` in
+  `reference-service/` with the pinned client (28.5.2; the system
+  `/usr/bin/docker` remains broken per the D07 note). **Observed:** build
+  6 s, image id `sha256:98b0b7f29404…`, linux/amd64.
+- **Scenario:** compose smoke from the clone (Acceptance 1). **Command:**
+  `compose/smoke.sh energy-quality-service:d02` (passed fixture).
+  **Observed:** startup-to-healthy 6 s; three routes 200; identity check
+  OK (`eddf-load-20260608-audit-01`); stack torn down cleanly.
+- **Scenario:** recreate with external input (Acceptance 2). **Command:**
+  `compose/smoke.sh … report-failed.json`. **Observed:** healthy, quality
+  200 with 95/96 `coverage_result=failed`, identity check OK — a readable
+  failed audit is data, not an outage. Container identity is
+  `uid=10001(app)`; writing to the report mount fails with
+  `Read-only file system` (exit 1).
+- **Scenario:** unavailable and invalid input (Acceptance 3). Direct
+  `docker run` on ports 8733/8734. **Observed:** missing report → `/live`
+  200, `/ready` and quality 503 `report_unavailable`; malformed report →
+  503 `report_invalid` naming only the missing fields.
+- **Scenario:** image hygiene (Acceptance 3). **Command:** `docker
+  history`, `ls /app` inside the image, credential-pattern scan of layer
+  instructions. **Observed:** `/app` contains only `.venv`, `pyproject.toml`,
+  `src/`, `uv.lock`, `README.md` — no fixtures, tests, credentials or real
+  audit artifacts. The only credential-pattern hit is the base image's
+  `ENV GPG_KEY=…` (the official python:3.13-slim source-signing public
+  key fingerprint), assessed as not a credential.
+- **Run identity:** UTC `2026-11-22T16:09:14Z`, source commit `8bb3484`,
+  docker client/server 28.5.2, compose v5.7.0.
 
 Handed to D03: build invocation `docker build -t <image-ref> .` from
 `reference-service/`, and an image-reference smoke procedure

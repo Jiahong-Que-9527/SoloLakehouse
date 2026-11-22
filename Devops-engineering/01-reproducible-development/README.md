@@ -6,7 +6,7 @@
 
 <!-- [GLM·2026-11-20] Implement the service, fixtures, parser and routes; record local evidence. -->
 
-**Status:** implemented locally; owner acceptance pending · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+**Status:** accepted 2026-11-22 · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
 
 Start with the [reference service](../reference-service/README.md) and verify that another developer can reproduce its behavior from a fresh checkout.
 
@@ -49,14 +49,37 @@ working tree uncommitted at record time):
 - **Checks:** `uv run --locked ruff check .` and
   `uv run --locked ruff format --check .` clean.
 
-Pending owner acceptance (fresh-checkout gate, Acceptance 1):
+Owner acceptance, 2026-11-22 (run by the agent on the owner's behalf, WSL
+Ubuntu; fresh GitHub clone):
 
-1. Fresh clone, then `cd Devops-engineering/reference-service`.
-2. `time uv sync --locked`; record elapsed time and `uv run python -V`.
-3. `uv run --locked pytest`, `uv run --locked ruff check .`,
-   `uv run --locked ruff format --check .`.
-4. Serve with the checked-in fixture and record the three route responses
-   and the fixture checksum (commands in the reference service README).
+- **Scenario:** fresh-checkout gate (Acceptance 1). **Command:** clone of
+  `Jiahong-Que-9527/SoloLakehouse` @ `8bb3484` (== `origin/main` at run
+  time), then, in `Devops-engineering/reference-service`: `uv sync
+  --locked`, `uv run --locked python -V`, `uv run --locked pytest`,
+  `uv run --locked ruff check .`, `uv run --locked ruff format --check .`.
+  **Observed:** service tree clean in the clone (0 modified files);
+  locked install 0.33 s (25 packages, CPython 3.13.14 selected by uv);
+  Python 3.13.14 with uv 0.13.9; pytest 23 passed (0.24 s warm, 1.2 s
+  including first collection — v0.2.0 added the metrics tests, up from 21
+  at the 2026-11-20 record); ruff check clean and 7 files already
+  formatted (0.03 s each). Baseline timing recorded: sync 0.33 s, tests
+  0.2–1.2 s, lint under 0.05 s. Note: the clone sits on a different
+  filesystem from the uv cache, so the sync paid a full-copy fallback and
+  still finished in 0.33 s.
+- **Scenario:** fixture behaviors over real HTTP (Acceptance 2). Four
+  uvicorn runs on `127.0.0.1:8731`, one per fixture. **Observed:**
+  passed → `/live` 200, `/ready` 200, quality 200 with identity
+  `eddf-load-20260608-audit-01` (96/96, `coverage_result=passed`);
+  failed → quality 200 with 95/96 `coverage_result=failed`; malformed →
+  `/live` 200 with `/ready` and quality 503 `report_invalid` naming only
+  the missing fields; missing → `/live` 200 with 503 `report_unavailable`.
+  No error body contains a filesystem path or report content.
+- **Scenario:** fixture identity (Acceptance 3). **Command:**
+  `sha256sum fixtures/*.json` in the fresh clone. **Observed:** all three
+  checksums identical to the 2026-11-20 record (passed `b728777c…`,
+  failed `20fe0352…`, malformed `751fc1b0…`).
+- **Run identity:** UTC `2026-11-22T16:07:46Z`, source commit `8bb3484`,
+  Python 3.13.14, uv 0.13.9.
 
 <!-- [房玄龄·2026-11-17] Add the planned implementation sequence and portfolio evidence. -->
 

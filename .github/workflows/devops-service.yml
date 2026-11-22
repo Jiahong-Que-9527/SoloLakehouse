@@ -7,12 +7,14 @@ on:
       - 'Devops-engineering/reference-service/**'
       - 'Devops-engineering/03-continuous-integration/**'
       - 'Devops-engineering/04-continuous-delivery/**'
+      - 'Devops-engineering/05-kubernetes-gitops/**'
       - '.github/workflows/devops-service.yml'
   pull_request:
     paths:
       - 'Devops-engineering/reference-service/**'
       - 'Devops-engineering/03-continuous-integration/**'
       - 'Devops-engineering/04-continuous-delivery/**'
+      - 'Devops-engineering/05-kubernetes-gitops/**'
       - '.github/workflows/devops-service.yml'
   workflow_dispatch:
 
