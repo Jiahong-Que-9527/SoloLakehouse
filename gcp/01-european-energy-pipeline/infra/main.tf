@@ -225,6 +225,10 @@ resource "google_cloud_run_v2_job" "publisher" {
 
       containers {
         image = var.image
+        env {
+          name  = "GIT_SHA"
+          value = var.git_sha
+        }
         args = [
           "publish-cloud",
           "--mode", "sample",

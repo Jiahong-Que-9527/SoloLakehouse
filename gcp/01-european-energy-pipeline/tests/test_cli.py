@@ -76,3 +76,18 @@ def test_invalid_window_has_clear_error(tmp_path, capsys):
     args[args.index("--until") + 1] = "2026-06-08"
     assert main(args) == 1
     assert "--from must be earlier" in capsys.readouterr().err
+
+
+def test_git_sha_env_override(monkeypatch):
+    from energy_pipeline.cli import revision
+
+    monkeypatch.setenv("GIT_SHA", "abc123def4567890")
+    assert revision() == {"git_sha": "abc123def4567890", "git_dirty": None}
+
+
+def test_git_sha_env_blank_falls_back_to_git(monkeypatch):
+    from energy_pipeline.cli import revision
+
+    monkeypatch.setenv("GIT_SHA", "   ")
+    result = revision()
+    assert set(result) == {"git_sha", "git_dirty"}

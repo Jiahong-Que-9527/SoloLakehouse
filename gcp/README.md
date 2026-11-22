@@ -74,7 +74,7 @@ can apply G05 delivery practices to the flagship model.
 
 G04 residue, to fold into a hardening pass:
 
-1. Record `git_sha` in the publish manifest — the workflow does not set `GIT_SHA`, so the applied image tag is the de-facto revision pointer.
+1. ~~Record `git_sha` in the publish manifest~~ — resolved 2026-11-22: the deploy workflow passes `git_sha=${GITHUB_SHA}` into the job's `GIT_SHA` env, so scheduled and on-demand runs stamp the built commit into the manifest and the `load_release` ledger.
 2. Catalog and native lineage evidence stays unavailable in the test project; manifest lineage (release → input release → checksum → image tag) is the recorded substitute.
 
 **After G04**
