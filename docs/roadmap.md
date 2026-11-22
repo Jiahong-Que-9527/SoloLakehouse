@@ -61,8 +61,9 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   Engineering](../Mlops-engineering/README.md) closes one ML system end to
   end on a synthetic EV-charging workload: point-in-time features, rolling
   backtests, MLflow lineage, a release gate, serving, drift monitoring and
-  Dagster orchestration. M01 (data foundation) is accepted; the feature
-  pipeline is next.
+  Dagster orchestration. M01 (data foundation) and M02 (feature pipeline with
+  the leakage suite) are accepted; baselines and the evaluation harness are
+  next.
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture
   query in Compose. K3s, Flux and recovery remain later project milestones.

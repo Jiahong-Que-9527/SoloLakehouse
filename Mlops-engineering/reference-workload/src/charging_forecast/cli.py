@@ -1,4 +1,4 @@
-"""CLI for the charging forecast reference workload (M01).
+"""CLI for the charging forecast reference workload.
 
 Subcommands:
   generate --config <yaml> --out <dir>   build the data partitions
@@ -6,6 +6,14 @@ Subcommands:
   publish  --config <yaml> --release <dir> --approver <name> [--notes ...]
       validate, then write manifest.json, contract.yaml, validation.json,
       approval.json and a last-written _SUCCESS (the ADR-003 release shape).
+  features-build --config <yaml> --release <dir> --issue-start <date>
+      --issue-end <date> --out <dir>
+      point-in-time features over the issue range, partitioned Parquet plus
+      a feature manifest (M02).
+  features-load --features <dir> --issue-date <date>
+      the one read path: rows readable at the issue time T.
+  features-check-leaks --features <dir> --issue-start <date> --issue-end <date>
+      per-fold leakage check over the raw materialized rows (M02).
 """
 
 from __future__ import annotations
@@ -14,15 +22,60 @@ import argparse
 import json
 import sys
 import time
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import yaml
 
 from . import __version__
 from .contract import build_manifest, git_commit, load_config, render_contract
+from .features import (
+    FeatureBuilder,
+    check_fold_leakage,
+    load_issue_features,
+)
 from .generator import ChargingGenerator
 from .validation import validate_release
+
+
+def _parse_date(text: str) -> date:
+    return date.fromisoformat(text)
+
+
+def _cmd_features_build(args: argparse.Namespace) -> int:
+    cfg = load_config(args.config)
+    builder = FeatureBuilder(Path(args.release), cfg)
+    manifest = builder.materialize(
+        _parse_date(args.issue_start), _parse_date(args.issue_end), Path(args.out)
+    )
+    print(
+        f"features {manifest['feature_release_id']}: {manifest['issues']} issues, "
+        f"{manifest['rows']} rows, {len(manifest['files'])} partitions -> {args.out}"
+    )
+    return 0
+
+
+def _cmd_features_load(args: argparse.Namespace) -> int:
+    issue_day = _parse_date(args.issue_date)
+    table = load_issue_features(Path(args.features), issue_day)
+    print(f"readable at {issue_day} (T): {table.num_rows} rows")
+    return 0
+
+
+def _cmd_features_check_leaks(args: argparse.Namespace) -> int:
+    failed = 0
+    day = _parse_date(args.issue_start)
+    end = _parse_date(args.issue_end)
+    while day <= end:
+        passed, detail = check_fold_leakage(Path(args.features), day)
+        print(f"[{'PASS' if passed else 'FAIL'}] {detail}")
+        failed += not passed
+        day += timedelta(days=1)
+    if failed:
+        print(f"leakage check failed for {failed} fold(s)", file=sys.stderr)
+        return 1
+    print("no leakage detected across the fold range")
+    return 0
 
 
 def _cmd_generate(args: argparse.Namespace) -> int:
@@ -138,6 +191,25 @@ def main(argv: list[str] | None = None) -> int:
     pub.add_argument("--approver", required=True)
     pub.add_argument("--notes", default="")
     pub.set_defaults(func=_cmd_publish)
+
+    fbuild = sub.add_parser("features-build", help="materialize point-in-time features")
+    fbuild.add_argument("--config", required=True)
+    fbuild.add_argument("--release", required=True)
+    fbuild.add_argument("--issue-start", required=True)
+    fbuild.add_argument("--issue-end", required=True)
+    fbuild.add_argument("--out", required=True)
+    fbuild.set_defaults(func=_cmd_features_build)
+
+    fload = sub.add_parser("features-load", help="read features through the contract loader")
+    fload.add_argument("--features", required=True)
+    fload.add_argument("--issue-date", required=True)
+    fload.set_defaults(func=_cmd_features_load)
+
+    fleak = sub.add_parser("features-check-leaks", help="per-fold leakage check")
+    fleak.add_argument("--features", required=True)
+    fleak.add_argument("--issue-start", required=True)
+    fleak.add_argument("--issue-end", required=True)
+    fleak.set_defaults(func=_cmd_features_check_leaks)
 
     args = parser.parse_args(argv)
     return args.func(args)

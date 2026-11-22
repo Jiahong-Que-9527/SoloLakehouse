@@ -22,39 +22,50 @@ UTC = UTC
 # Physical type names used in schemas and contract YAML.
 TS = "timestamp[us, tz=UTC]"
 
-# Machine-readable availability table (docs/feature-contract.md, frozen M01).
+# Machine-readable availability table (docs/feature-contract.md v1, M02).
 # readable_at_issue=False families exist in the dataset but must never be
-# readable by a model issued at T; the M02 loader enforces this.
+# readable by a model issued at T. readability_bound=True means the row's
+# available_at stamp IS the readability bound the builder/loader enforces;
+# published schedules (calendar, tariff, events) are readable ahead of their
+# stamps and join by schedule semantics instead.
 AVAILABILITY_TABLE: dict[str, dict] = {
     "calendar": {
         "readable_at_issue": True,
-        "rule": "Known from the calendar; available at the start of the day "
-        "it describes (00:00 Europe/Berlin).",
+        "readability_bound": False,
+        "rule": "Published calendar: the row for any date in the window is "
+        "readable at any issue time; joined by the target hour's UTC date.",
     },
     "station_attributes": {
         "readable_at_issue": True,
-        "rule": "Static per dataset release; never time-varying in v1.",
+        "readability_bound": True,
+        "rule": "Static per dataset release; a station enters at its active_from.",
     },
     "demand_lags": {
         "readable_at_issue": True,
-        "rule": "Available at issue time only if the lagged hour closed before "
-        "T minus the ingestion delay.",
+        "readability_bound": True,
+        "rule": "Fixed clock windows anchored at T; the lagged hour must close "
+        "before T minus the ingestion delay (available_at <= T).",
     },
     "weather_forecasts": {
         "readable_at_issue": True,
-        "rule": "Only the forecast issued before T, joined by forecast reference "
-        "time; realized weather is never a feature.",
+        "readability_bound": True,
+        "rule": "Only forecasts with available_at <= T, joined by forecast "
+        "reference time; realized weather is never a feature.",
     },
     "tariff_events": {
         "readable_at_issue": True,
-        "rule": "Known from published schedules ahead of the target day.",
+        "readability_bound": False,
+        "rule": "Published schedules, known ahead of the target day; joined by "
+        "effectiveness/coverage, not by stamp.",
     },
     "weather_realized": {
         "readable_at_issue": False,
+        "readability_bound": True,
         "rule": "Never readable at issue time; exists for backtesting and monitoring only.",
     },
     "same_day_demand": {
         "readable_at_issue": False,
+        "readability_bound": True,
         "rule": "Demand of the target day is the prediction target and is never "
         "readable at issue time.",
     },

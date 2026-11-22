@@ -1,0 +1,245 @@
+{
+  "columns": [
+    [
+      "station_id",
+      "string"
+    ],
+    [
+      "hour_utc",
+      "timestamp[us, tz=UTC]"
+    ],
+    [
+      "available_at",
+      "timestamp[us, tz=UTC]"
+    ],
+    [
+      "hour_of_day",
+      "int8"
+    ],
+    [
+      "day_of_week",
+      "int8"
+    ],
+    [
+      "is_public_holiday",
+      "bool"
+    ],
+    [
+      "is_school_break",
+      "bool"
+    ],
+    [
+      "district",
+      "string"
+    ],
+    [
+      "poi_category",
+      "string"
+    ],
+    [
+      "capacity_kw",
+      "float64"
+    ],
+    [
+      "days_active",
+      "float64"
+    ],
+    [
+      "demand_lag_24h",
+      "float64"
+    ],
+    [
+      "demand_lag_168h",
+      "float64"
+    ],
+    [
+      "demand_rolling_7d_mean",
+      "float64"
+    ],
+    [
+      "demand_latest",
+      "float64"
+    ],
+    [
+      "fcst_temperature_c",
+      "float64"
+    ],
+    [
+      "fcst_precipitation_mm",
+      "float64"
+    ],
+    [
+      "price_current",
+      "float64"
+    ],
+    [
+      "price_at_target",
+      "float64"
+    ],
+    [
+      "is_event_active",
+      "bool"
+    ],
+    [
+      "event_boost",
+      "float64"
+    ]
+  ],
+  "feature_release_id": "feat-v1-dataset-v001",
+  "files": [
+    {
+      "path": "issue_month=2025-01/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "d955dcc1d049c0772531f3673ce499f13f7d7ad28ede44099efb2806386566c5",
+      "size_bytes": 57177
+    },
+    {
+      "path": "issue_month=2025-02/part-0000.parquet",
+      "rows": 24864,
+      "sha256": "8c1016be5d4b1606135b50c6251f494cc17b9ad602ef81eca3abe09affc8b731",
+      "size_bytes": 54278
+    },
+    {
+      "path": "issue_month=2025-03/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "d625432b4d25ddd1f4ceedf2b33113dfda3b7a26f26a0b8dc4c95df52f87f770",
+      "size_bytes": 59039
+    },
+    {
+      "path": "issue_month=2025-04/part-0000.parquet",
+      "rows": 26640,
+      "sha256": "569a01ef6433fe1f654ea0e92046ca63b5f051811003ea8724c671958571f7c6",
+      "size_bytes": 58007
+    },
+    {
+      "path": "issue_month=2025-05/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "ad6bac28af0d804d1440326ffbe0b8652a502eb68849a3c7266757706882aabd",
+      "size_bytes": 59143
+    },
+    {
+      "path": "issue_month=2025-06/part-0000.parquet",
+      "rows": 26640,
+      "sha256": "12f26a214a4db9805176d69d9d36d83cbbf527668c8c1e287cd5433c7cf15914",
+      "size_bytes": 57537
+    },
+    {
+      "path": "issue_month=2025-07/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "3638cf8efd29e9845285c6e912f04f600858e1f187195e8bae9d379a4a130f4d",
+      "size_bytes": 59041
+    },
+    {
+      "path": "issue_month=2025-08/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "c8a49d204af535e38d44ab7915a19ce5e38c6063dc7af5c1309c82a8beed480d",
+      "size_bytes": 58715
+    },
+    {
+      "path": "issue_month=2025-09/part-0000.parquet",
+      "rows": 26640,
+      "sha256": "03f1ba86ba29f1027c25a6e67c284c9a3d4eefeb7c92adfef284289d212e315e",
+      "size_bytes": 57653
+    },
+    {
+      "path": "issue_month=2025-10/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "91922e56966a9b6a60cbfe6dd91d05559c2814c6006ce85f13406c60382228d1",
+      "size_bytes": 58875
+    },
+    {
+      "path": "issue_month=2025-11/part-0000.parquet",
+      "rows": 26640,
+      "sha256": "cc0fc9268b6566fcc3a3ebb833afdbde3853219d69fddf1331c6314265018576",
+      "size_bytes": 57871
+    },
+    {
+      "path": "issue_month=2025-12/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "b04f13418dfd80ab67d7d43d53d5b60c9ac49de586c775ad134f0a28425dc403",
+      "size_bytes": 58813
+    },
+    {
+      "path": "issue_month=2026-01/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "2b3e8384ce6d311cc271553a861e6d499dd227692853d2a6bb06977f0addc2b7",
+      "size_bytes": 58984
+    },
+    {
+      "path": "issue_month=2026-02/part-0000.parquet",
+      "rows": 24864,
+      "sha256": "e96f149b30a853e4dc3235f2847ec239dc307b1feaf5b28ad133c7aacf465f39",
+      "size_bytes": 54640
+    },
+    {
+      "path": "issue_month=2026-03/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "07028fd1e785c7c219679345f9b534395556109f0ef40b64746f181c9999445e",
+      "size_bytes": 58810
+    },
+    {
+      "path": "issue_month=2026-04/part-0000.parquet",
+      "rows": 26640,
+      "sha256": "e6ab70efaa21783238f29f894bc89a93dd736ecfb8066faca8650cc36b44a759",
+      "size_bytes": 57863
+    },
+    {
+      "path": "issue_month=2026-05/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "4e7643761d00ad8ff11de3f1b0659fa35f0e673bc4acc31ed607de543869cb1b",
+      "size_bytes": 59005
+    },
+    {
+      "path": "issue_month=2026-06/part-0000.parquet",
+      "rows": 26640,
+      "sha256": "7102b19f9540dcfbcbb7d57d9eb138b84d3b3e39a80616934c4b175ac5a0a458",
+      "size_bytes": 57983
+    },
+    {
+      "path": "issue_month=2026-07/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "edaaa9f3b404ea8f1c36b8d373900986790002047f137ea86b09fd1fc48ea021",
+      "size_bytes": 60464
+    },
+    {
+      "path": "issue_month=2026-08/part-0000.parquet",
+      "rows": 27528,
+      "sha256": "551aa0f3cf53d511312238e61202fa3aa3b4007c376e3371ba113f516ac74d7b",
+      "size_bytes": 59089
+    },
+    {
+      "path": "issue_month=2026-09/part-0000.parquet",
+      "rows": 26640,
+      "sha256": "95b9b1c9f1ba0eebb81f5a729013f02d94732d5ce3159b3baef434bd67819a13",
+      "size_bytes": 58085
+    },
+    {
+      "path": "issue_month=2026-10/part-0000.parquet",
+      "rows": 29760,
+      "sha256": "d8b9c8bf7b3fcc2932506abb49e51ca4d50da26104b9436ba3f657bcb104cb64",
+      "size_bytes": 61909
+    },
+    {
+      "path": "issue_month=2026-11/part-0000.parquet",
+      "rows": 28800,
+      "sha256": "3e01d882e969a41ae525e219ec1da72629bbdd5d0f79cc3cc3151ee79509b1db",
+      "size_bytes": 59817
+    },
+    {
+      "path": "issue_month=2026-12/part-0000.parquet",
+      "rows": 28800,
+      "sha256": "687c406acfdc2d52234c592744f699d6718ba008e228eefab40e20f33c6b4af5",
+      "size_bytes": 59459
+    }
+  ],
+  "issue_end": "2026-12-30",
+  "issue_start": "2025-01-01",
+  "issues": 729,
+  "kind": "features",
+  "rows": 653904,
+  "schema_version": "charging-features-v1",
+  "source_commit": "047327de775d9d093d7669c31f0010d65a6417f7",
+  "source_config_sha256": "8c0dd791fa2575b654ab2dd4eba0248e157f8a724865c762551f078429aa7096",
+  "source_manifest_sha256": "e0c8096c8233bfa2be8fbb90e9f07bd179f0d1cdaa14d333b4a0d6b741e6bfa0",
+  "source_release_id": "dataset-v001"
+}
