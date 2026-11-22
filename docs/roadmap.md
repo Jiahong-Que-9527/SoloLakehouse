@@ -54,9 +54,10 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   Lakehouse](../databricks/01-ecb-delta-lakehouse/README.md) builds a versioned
   Gold product from one daily exchange-rate series.
 - **DevOps delivery.** [DevOps Delivery
-  Engineering](../Devops-engineering/README.md) plans a self-contained path
+  Engineering](../Devops-engineering/README.md) delivers a self-contained path
   from local development through CI, release, GitOps and recovery for one
-  reference service. D01 is the next implementation.
+  reference service. D01–D07 are accepted with recorded evidence; D01–D02
+  were accepted 2026-11-22 on a fresh GitHub checkout.
 - **ML engineering.** [ML
   Engineering](../Mlops-engineering/README.md) closes one ML system end to
   end on a synthetic EV-charging workload: point-in-time features, rolling
