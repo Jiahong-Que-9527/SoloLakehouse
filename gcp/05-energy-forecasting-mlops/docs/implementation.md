@@ -30,3 +30,28 @@ Predict average MW over the next 15-minute interval. Keep the source energy in M
 ## Acceptance record
 
 A trace from a single forecast to model and data versions, a leakage check and a rejected promotion. Separate measured model quality from evidence that model delivery and rollback work. Link the run record from the project brief after execution and identify any checks still pending.
+
+## Step records
+
+### Step 1 — pinned fixture, average-MW target, dataset validation (2026-11-22)
+
+Landed in [PR #253](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/253):
+
+- Pinned synthetic release `g05-fixture-v1` (status `passed`) in the G01
+  `metric_observation` schema: four aligned weeks from the 2026-06-08
+  anchor, so the seven-day seasonal lag exists for every interval from
+  day 8 onward. Values are a pure integer-arithmetic waveform (no libm,
+  no RNG) and the build is pinned by canonical checksum `f4d1f4d8…` —
+  replays are byte-identical.
+- Target conversion `load_mw = value (MWh) / duration (hours)`, recorded
+  in the dataset metadata: 10 MWh over a quarter-hour yields 40 MW.
+  Invalid durations, non-finite values and negative energy are refused.
+- Dataset build refuses a release without an id, a non-`passed` status,
+  duplicate business keys, and a grid with gaps or non-uniform interval
+  lengths; metadata records the target definition, window, row count and
+  input checksum.
+- 27 tests green, ruff clean, test-only CI workflow on the project paths.
+  All local, no cloud resources touched.
+
+Steps 2–5 (window freezing + leakage test, baseline vs candidate,
+MLflow registry + promotion gate, batch scoring + rollback) remain open.

@@ -39,7 +39,9 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
 
 - **Aviation.** [Fraport ADS-B Intelligence](../Fraport-adsb-intelligence/README.md)
   collects the Frankfurt historical ADS-B record locally. Local Silver/Gold
-  transformation and a versioned Gold release are the next stages. Lakehouse
+  transformation and a versioned Gold release are the next stages; the
+  two-year geometry-v2 Silver backfill (2024-11 → 2026-10) and its Gold
+  monthly packs are in flight as of 2026-11-22. Lakehouse
   and serving work stay in that programme as
   [Aviation Lakehouse Integration](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
   and [Model Serving Integration](../Fraport-adsb-intelligence/06-model-serving/README.md).
@@ -48,7 +50,11 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   electricity-market metric in a fixed date window. The
   [Energy Analytics API](../gcp/02-energy-analytics-api/README.md) and
   [Aviation Event Processing](../gcp/03-aviation-event-processing/README.md) add a
-  read-only interface and a correction-handling path.
+  read-only interface and a correction-handling path. The governed product is
+  live ([G04](../gcp/04-governed-energy-data-product/README.md), first release
+  2026-11-21) and forecasting MLOps has started
+  ([G05](../gcp/05-energy-forecasting-mlops/README.md): pinned fixture, MW
+  target and dataset validation landed 2026-11-22).
 - **Finance.** The [Local ECB Silver Pipeline](../local/ecb-silver-pipeline/README.md)
   specifies and verifies cleaned policy-rate rows. The [Databricks ECB Delta
   Lakehouse](../databricks/01-ecb-delta-lakehouse/README.md) builds a versioned
