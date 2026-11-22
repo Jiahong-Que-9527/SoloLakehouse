@@ -66,20 +66,20 @@ can apply G05 delivery practices to the flagship model.
 
 **Immediate operational checks**
 
-- Monday **2026-11-23, 05:15 Europe/Berlin**: the G01 scheduler (`energy-weekly`) fires for the first time since acceptance. Verify the Cloud Run execution succeeded, the `energy.load_release` ledger gained its next row, and the run stayed inside the free tier; record the evidence in the [G01 cloud verification](01-european-energy-pipeline/docs/cloud-verification.md).
+- Monday **2026-11-23, 05:15 Europe/Berlin**: the G01 scheduler (`energy-weekly`) fires for the first time since acceptance. Baseline recorded 2026-11-22 (read-only): four executions, four `energy.load_release` rows — all `passed`, all with `git_sha` null — the latest `0f249cdb2d1c44ab8155fb810b178302` published 2026-11-20T20:18:44Z by the forced run. Expect a fifth row, a scheduled-run execution id from the `energy-job` identity, and the first manifest with a real `git_sha` (`7322e658…`). The full checklist lives in the [G01 cloud verification](01-european-energy-pipeline/docs/cloud-verification.md).
+- **G02 traffic policy re-pin applied 2026-11-22**: the rescued Cloud Run traffic block ([PR #250](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/250)) went through the CI apply with a `gcp-test` gate approval; the live service now pins 100% to the latest revision (`energy-api-00004-bwx`), so future deploys receive traffic automatically again.
 - **Cost housekeeping recorded 2026-11-22** (read-only inventory plus a scoped cleanup, agent run): Artifact Registry went from 78 to 12 image versions — each package keeps only the live push group, resolved from the running deployments (`energy-pipeline:2ef73750`, `aviation-event-consumer:6147640a`, `energy-product-publisher:703b62a2`, and the energy-api digest pin `sha256:0bebbb7a…`). The live digest was pull-verified after deletion, so scale-to-zero cold starts keep working; released layers return to the 0.5 GB free tier as async GC completes (month cost ~$0). The `billing_export` BigQuery dataset is created and waits on the console-side "Standard usage cost" toggle (not configurable via gcloud v594); spend alerts are already covered by the existing €100 and €50 monthly budgets with 50/90/100% thresholds.
 - Keep the standing [cost gate](../AGENTS.md) in force for every plan and apply: expected SKUs only, 0 destroys, owner approval for anything unexpected.
 
-**Next delivery: G05 — Energy Forecasting MLOps** (G04's first governed release was recorded on 2026-11-21; [its verification](04-governed-energy-data-product/docs/cloud-verification.md) adds the playbook's sixth pattern: a release boundary is only proven once a live drill has blocked, withdrawn and republished). G05 pins the product release line that `cand-2026-11-21-fourth` started for training.
+**Current delivery: G05 — Energy Forecasting MLOps, in progress.** Step 1 landed 2026-11-22 ([PR #253](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/253)): a deterministic pinned fixture (`g05-fixture-v1`, G01 schema, four aligned weeks, checksum-pinned), the average-MW target conversion (MWh ÷ duration hours), and dataset validation with release refusals. Remaining steps: freeze train/validation/holdout windows with an issue-time leakage test → seasonal-naive baseline vs one fixed-seed CPU candidate → MLflow run + promotion gate (register only if holdout MAE ≤ baseline) → batch scoring into `energy_ml.prediction` with a rollback drill. G05 pins the product release line that `cand-2026-11-21-fourth` started for training (G04's first governed release was recorded on 2026-11-21; [its verification](04-governed-energy-data-product/docs/cloud-verification.md) adds the playbook's sixth pattern: a release boundary is only proven once a live drill has blocked, withdrawn and republished).
 
 G04 residue, to fold into a hardening pass:
 
 1. ~~Record `git_sha` in the publish manifest~~ — resolved 2026-11-22: the deploy workflow passes `git_sha=${GITHUB_SHA}` into the job's `GIT_SHA` env, so scheduled and on-demand runs stamp the built commit into the manifest and the `load_release` ledger.
 2. Catalog and native lineage evidence stays unavailable in the test project; manifest lineage (release → input release → checksum → image tag) is the recorded substitute.
 
-**After G04**
+**After G05**
 
-- **G05 — Energy Forecasting MLOps**: pin a G04 product release for training; MLflow tracking and registry with containerized training jobs ([ADR-005](../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md)), rollback drilled the way G02 drilled revisions.
 - **G06 — Cloud Platform Factory**: last. Turns the by-then-proven G01–G05 patterns (WIF pipeline, bootstrap record, environment gate, teardown) into a reusable template with two isolated environments and retirement evidence.
 
 ## Delivery playbook (settled by G01 + G02)

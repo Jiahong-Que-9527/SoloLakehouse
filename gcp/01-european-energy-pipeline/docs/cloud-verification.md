@@ -99,3 +99,39 @@ cost gate ([AGENTS.md](../../AGENTS.md)) exists to keep it that way.
 G02 API, event corrections (G03), release catalog and IAM product model
 (G04), training (G05), the reusable project factory (G06), live SMARD
 downloads from cloud IPs, growing backfills and a historical-refresh policy.
+
+## Scheduled-run verification (pending, first fire 2026-11-23)
+
+Baseline recorded 2026-11-22 (read-only checks, post-acceptance): four
+`energy-pipeline` executions and four `energy.load_release` rows, all
+`passed`, all with `git_sha` null — expected before the GIT_SHA fix —
+with the latest row `0f249cdb2d1c44ab8155fb810b178302` published
+2026-11-20T20:18:44Z by the forced run (`energy-pipeline-jlj6z`,
+`energy-job` identity). Row 1 (`aa25ae78…`, `energy-pipeline-mtj5r`)
+remains the recorded infrastructure-failure case: ledger says passed,
+the merge never happened.
+
+Since then the deployed image is `energy-pipeline:7322e658` and the
+job's `GIT_SHA` env carries `7322e658…` ([PR
+#251](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/251)), so
+the next manifest is expected to be the first with a real `git_sha`.
+
+Checklist for the Monday 2026-11-23 05:15 Europe/Berlin fire
+(`15 5 * * 1`, Europe/Berlin):
+
+1. A new execution of the `energy-pipeline` job run by
+   `energy-job@slh-gcp-test.iam.gserviceaccount.com` (scheduled, not a
+   manual run-by) — record the execution id.
+2. `energy.load_release` gains a fifth row with a new `release_id`.
+3. The new manifest records `git_sha = 7322e658…` (live confirmation of
+   the GIT_SHA fix) and `quality_status = passed`.
+4. The run stays inside the free tier (single task, well under a minute,
+   fixed sample window) — record the observed cost line items.
+5. Update this section from "pending" to the recorded result and adjust
+   the [GCP roadmap](../../gcp/README.md) check item.
+
+Verification commands (read-only, no cost-gate approval needed):
+`gcloud run jobs executions list --job energy-pipeline --region
+europe-west3 --project slh-gcp-test`, `bq query --use_legacy_sql=false
+'SELECT * FROM energy.load_release ORDER BY published_at'`, and the
+newest `*.manifest.json` in the raw bucket.
