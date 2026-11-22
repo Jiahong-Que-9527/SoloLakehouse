@@ -12,7 +12,7 @@
 <rect x="8" y="6" width="864" height="496" rx="20" fill="url(#bg)" stroke="#e2e8f0" filter="url(#sh)"/>
 <rect x="40" y="34" width="44" height="4" rx="2" fill="url(#hl)"/>
 <text x="40" y="66" fill="#0f172a" font-size="22" font-weight="700" letter-spacing="-0.3">Delivery progress</text>
-<text x="40" y="88" fill="#64748b" font-size="12.5">Share of each project's planned stages that are implemented and recorded · 2026-11-21</text>
+<text x="40" y="88" fill="#64748b" font-size="12.5">Share of each project's planned stages that are implemented and recorded · 2026-11-22</text>
 <rect x="550" y="52" width="14" height="8" rx="4" fill="#4f46e5" fill-opacity="1"/>
 <text x="570" y="60" fill="#475569" font-size="12">Accepted</text>
 <rect x="650" y="52" width="14" height="8" rx="4" fill="#4f46e5" fill-opacity="0.35"/>
@@ -27,49 +27,49 @@
 <rect x="445.4" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
 <rect x="503.1" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
 <rect x="560.9" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="618.6" y="126" width="53.7" height="20" rx="6" fill="#8b5cf6" fill-opacity="0.35"/>
-<rect x="676.3" y="126" width="53.7" height="20" rx="6" fill="#8b5cf6" fill-opacity="0.35"/>
-<text x="754" y="145" fill="#4f46e5" font-size="24" font-weight="700" letter-spacing="-0.5">93<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<rect x="618.6" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="676.3" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<text x="754" y="145" fill="#4f46e5" font-size="24" font-weight="700" letter-spacing="-0.5">100<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="164" fill="#94a3b8" font-size="11">7 stages</text>
 <line x1="40" x2="840" y1="176" y2="176" stroke="#eef2f7"/>
 <rect x="40" y="194" width="6" height="34" rx="3" fill="url(#g1)"/>
 <text x="60" y="209" fill="#0f172a" font-size="15" font-weight="650">Google Cloud</text>
-<text x="60" y="228" fill="#64748b" font-size="12">G01–G03 live · G04 in progress</text>
+<text x="60" y="228" fill="#64748b" font-size="12">G01–G04 live · G05 in progress</text>
 <rect x="330.0" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
 <rect x="397.3" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
 <rect x="464.7" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
-<rect x="532.0" y="200" width="63.3" height="20" rx="6" fill="#0ea5e9" fill-opacity="0.35"/>
-<rect x="599.3" y="200" width="63.3" height="20" rx="6" fill="#e8edf3"/>
+<rect x="532.0" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
+<rect x="599.3" y="200" width="63.3" height="20" rx="6" fill="#0ea5e9" fill-opacity="0.35"/>
 <rect x="666.7" y="200" width="63.3" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="219" fill="#2563eb" font-size="24" font-weight="700" letter-spacing="-0.5">60<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="754" y="219" fill="#2563eb" font-size="24" font-weight="700" letter-spacing="-0.5">70<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="238" fill="#94a3b8" font-size="11">6 stages</text>
 <line x1="40" x2="840" y1="250" y2="250" stroke="#eef2f7"/>
 <rect x="40" y="268" width="6" height="34" rx="3" fill="url(#g2)"/>
 <text x="60" y="283" fill="#0f172a" font-size="15" font-weight="650">Fraport ADS-B Intelligence</text>
-<text x="60" y="302" fill="#64748b" font-size="12">Acquisition and transformation under way</text>
+<text x="60" y="302" fill="#64748b" font-size="12">01–03 under way · backfill verified locally</text>
 <rect x="330.0" y="274" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
 <rect x="387.7" y="274" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
-<rect x="445.4" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
+<rect x="445.4" y="274" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
 <rect x="503.1" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
 <rect x="560.9" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
 <rect x="618.6" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
 <rect x="676.3" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="293" fill="#047857" font-size="24" font-weight="700" letter-spacing="-0.5">19<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="754" y="293" fill="#047857" font-size="24" font-weight="700" letter-spacing="-0.5">32<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="312" fill="#94a3b8" font-size="11">7 stages</text>
 <line x1="40" x2="840" y1="324" y2="324" stroke="#eef2f7"/>
 <rect x="40" y="342" width="6" height="34" rx="3" fill="url(#g3)"/>
 <text x="60" y="357" fill="#0f172a" font-size="15" font-weight="650">ML Engineering</text>
-<text x="60" y="376" fill="#64748b" font-size="12">Nine stages planned · M01 next</text>
-<rect x="330.0" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
-<rect x="374.9" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
-<rect x="419.8" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
-<rect x="464.7" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
-<rect x="509.6" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
-<rect x="554.4" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
+<text x="60" y="376" fill="#64748b" font-size="12">M01–M06 accepted · M07 next</text>
+<rect x="330.0" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="374.9" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="419.8" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="464.7" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="509.6" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="554.4" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
 <rect x="599.3" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
 <rect x="644.2" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
 <rect x="689.1" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="367" fill="#d97706" font-size="24" font-weight="700" letter-spacing="-0.5">0<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="754" y="367" fill="#d97706" font-size="24" font-weight="700" letter-spacing="-0.5">67<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="386" fill="#94a3b8" font-size="11">9 stages</text>
 <line x1="40" x2="840" y1="398" y2="398" stroke="#eef2f7"/>
 <rect x="40" y="416" width="6" height="34" rx="3" fill="url(#g4)"/>
