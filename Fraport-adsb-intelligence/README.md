@@ -12,11 +12,16 @@ locally, and only the Gold data product crosses to Google Cloud, as a versioned
 release. Each subproject chooses the runtime that fits its workload.
 
 **Status (2026-11-22):** acquisition gate G0 has passed. Batches b01 (2026-10)
-through b39 (2023-08) are validated, accepted and backed up to `E:`. b01
+through b41 (2023-06) are validated, accepted and backed up to `E:`. b01
 through b12 completed the twelve-month cut line. b24 finishes the two-year
 window. b25 through b36 finish the first-year cut of the five-year
-extension. The next work is batch b40 (2023-07). Details are in the
+extension. The next work is batch b42 (2023-05). Details are in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-22).
+
+**Geometry v2 backfill (2026-11-22):** the original two-year window is
+being processed locally. The November 2024 BigQuery pilot waits for all
+24 monthly packages to pass verification. See the [local handoff](02-aviation-transformation/README.md#backfill-status-and-handoff)
+and the [cloud acceptance checks](03-airport-analytics/README.md#geometry-v2-handoff-m5).
 
 **Status (2026-11-20):** the academic research track is now separate from
 this repository. Paper-1 experiments, the exploration notebooks and the

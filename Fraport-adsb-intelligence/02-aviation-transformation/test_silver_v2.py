@@ -134,6 +134,23 @@ class SilverV2Tests(unittest.TestCase):
         self.assertIn(DAY_STAMP+7200, [h for h, _ in unavailable])
         self.assertNotIn("ghost", coverage)
 
+    def test_aircraft_with_only_stale_positions_still_has_coverage(self):
+        t = DAY_STAMP
+        self.states(t, {
+            "icao24": ["aaa001"], "time": [t + 30], "lastposupdate": [t],
+            "lat": [50.0], "lon": [8.5],
+        })
+        self.run_main()
+
+        self.assertEqual(self.read("observations"), [])
+        self.assertEqual(self.read("segments"), [])
+        coverage, = self.read("daily_coverage")
+        self.assertEqual(coverage["icao24"], "aaa001")
+        self.assertEqual(coverage["observation_count"], 0)
+        self.assertEqual(coverage["stale_dropped"], 1)
+        self.assertIsNone(coverage["first_seen_epoch_s"])
+        self.assertIsNone(coverage["last_seen_epoch_s"])
+
     def test_source_partition_reason_is_unit_level(self):
         # A break can only cite a source partition when the unavailable hour's
         # window is crossed between two readable states.

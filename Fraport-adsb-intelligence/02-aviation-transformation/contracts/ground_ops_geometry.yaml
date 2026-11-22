@@ -1,0 +1,34 @@
+# Geometry-based taxi-in proxy. The Gold row layout is shared with v1.
+data_product: ground-ops
+version: "2"
+contract:
+  schema_version: gold-ground-ops-v1
+  label_version: taxi-in-geometry-v2
+  grain: [day_utc, flight_key]
+  required_columns:
+    - day_utc
+    - flight_key
+    - icao24
+    - callsign
+    - lastseen_epoch_s
+    - touchdown_estimate_epoch_s
+    - surface_start_epoch_s
+    - taxi_end_epoch_s
+    - taxi_in_s
+    - surface_point_count
+    - taxi_path_m
+    - mean_surface_gap_s
+    - max_surface_gap_s
+    - end_distance_m
+    - status
+  field_policy:
+    icao24: keep
+    callsign: keep
+quality_gates:
+  labeled_ratio_min: 0.5
+  taxi_in_s_min: 1
+  taxi_in_s_max: 2700
+  duplicate_keys_max: 0
+release:
+  approval_required: true
+  record_manifest: true

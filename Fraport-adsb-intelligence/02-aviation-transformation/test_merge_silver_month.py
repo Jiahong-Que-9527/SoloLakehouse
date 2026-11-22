@@ -1,5 +1,6 @@
 """Synthetic fixtures for the monthly Silver merge (02 M4)."""
 import contextlib
+import json
 import sys
 import tempfile
 import unittest
@@ -26,12 +27,13 @@ def patch_argv(*argv):
 
 class MergeMonthTests(unittest.TestCase):
     def setUp(self):
-        self.workspace = Path(tempfile.mkdtemp(prefix="merge-month-"))
+        self.workspace = Path(self.enterContext(tempfile.TemporaryDirectory(prefix="merge-month-")))
         self.daily = self.workspace / "daily"
         self.daily.mkdir()
         for day in DAYS:
             out = self.daily / day
             out.mkdir()
+            (out / "run_manifest.json").write_text(json.dumps({"dates_utc": [day]}))
             for table, schema in SCHEMAS.items():
                 pq.write_table(pa.table({f.name: pa.array([], type=f.type)
                                          for f in schema}), out / f"{table}.parquet")
@@ -58,19 +60,31 @@ class MergeMonthTests(unittest.TestCase):
         self.assertEqual(days, list(DAYS))
         for table in merge_silver_month.TABLES:
             self.assertTrue((out / f"{table}.parquet").is_file(), table)
+        manifest = json.loads((out / "run_manifest.json").read_text())
+        self.assertEqual(manifest["dates_utc"], list(DAYS))
+        self.assertEqual(len(manifest["missing_dates_utc"]), 28)
+        self.assertEqual(manifest["missing_dates_utc"][0], "2024-11-03")
 
     def test_month_days_covers_leap_and_year_end(self):
         self.assertEqual(merge_silver_month.month_days("2024-02")[1], "2024-02-02")
         self.assertEqual(len(merge_silver_month.month_days("2024-02")), 29)
         self.assertEqual(merge_silver_month.month_days("2024-12")[-1], "2024-12-31")
 
-    def test_missing_table_aborts(self):
-        for day in DAYS:
-            (self.daily / day / "segments.parquet").unlink()
-        with patch_argv("--daily-root", str(self.daily), "--month", "2024-12",
-                        "--output", str(self.workspace / "empty")):
-            with self.assertRaises(SystemExit):
-                merge_silver_month.main()
+    def test_incomplete_day_is_omitted_from_every_table(self):
+        (self.daily / DAYS[0] / "segments.parquet").unlink()
+        out = self.run_merge()
+        manifest = json.loads((out / "run_manifest.json").read_text())
+        self.assertEqual(manifest["dates_utc"], [DAYS[1]])
+        self.assertIn(DAYS[0], manifest["missing_dates_utc"])
+        dates = pq.read_table(out / "observations.parquet")["day_utc"].to_pylist()
+        self.assertEqual(dates, [date.fromisoformat(DAYS[1])])
+
+    def test_empty_month_records_all_dates(self):
+        out = self.run_merge("2024-12")
+        self.assertEqual(sorted(p.name for p in out.iterdir()), ["run_manifest.json"])
+        manifest = json.loads((out / "run_manifest.json").read_text())
+        self.assertEqual(manifest["dates_utc"], [])
+        self.assertEqual(manifest["missing_dates_utc"], merge_silver_month.month_days("2024-12"))
 
 
 if __name__ == "__main__":

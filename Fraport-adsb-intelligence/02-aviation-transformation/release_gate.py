@@ -23,6 +23,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import yaml
 
+from gold_ground_ops import GEOMETRY_LABEL_VERSION, RADIUS_LABEL_VERSION
 from silver_m1 import digest
 
 RELEASE_SCHEMA_VERSION = "release-v1"
@@ -37,6 +38,7 @@ class GroundOpsContract:
     data_product: str
     version: str
     schema_version: str
+    label_version: str
     grain: tuple[str, ...]
     required_columns: tuple[str, ...]
     field_policy: dict
@@ -79,6 +81,9 @@ def load_contract(path: Path) -> GroundOpsContract:
     version = _require(document, "version", str, "top level")
     contract = _require(document, "contract", dict, "top level")
     schema_version = _require(contract, "schema_version", str, "contract")
+    label_version = contract.get("label_version", RADIUS_LABEL_VERSION)
+    if label_version not in (RADIUS_LABEL_VERSION, GEOMETRY_LABEL_VERSION):
+        raise ContractError(f"contract: unsupported label_version {label_version!r}")
     grain = tuple(_require(contract, "grain", list, "contract"))
     required = tuple(_require(contract, "required_columns", list, "contract"))
     if not grain or not all(isinstance(g, str) for g in grain):
@@ -110,6 +115,7 @@ def load_contract(path: Path) -> GroundOpsContract:
 
     return GroundOpsContract(
         data_product=data_product, version=version, schema_version=schema_version,
+        label_version=label_version,
         grain=grain, required_columns=required, field_policy=dict(policy),
         labeled_ratio_min=float(labeled_ratio_min), taxi_in_s_min=taxi_min,
         taxi_in_s_max=taxi_max, duplicate_keys_max=duplicate_max,
@@ -240,6 +246,17 @@ def main():
         raise SystemExit(
             f"gold schema {gold_manifest.get('schema_version')!r} is not the "
             f"contract schema {contract.schema_version!r}")
+    label_version = gold_manifest.get("label_version", RADIUS_LABEL_VERSION)
+    if label_version != contract.label_version:
+        raise SystemExit(
+            f"gold label version {label_version!r} does not match "
+            f"contract label version {contract.label_version!r}")
+    geometry = gold_manifest.get("airport_geometry")
+    if label_version == GEOMETRY_LABEL_VERSION:
+        if not isinstance(geometry, dict) or not geometry.get("files"):
+            raise SystemExit("geometry label version requires a fingerprinted airport snapshot")
+    elif "airport_geometry" in gold_manifest:
+        raise SystemExit("a geometry Gold run requires an explicit geometry label version")
 
     table = pq.read_table(gold_root / "arrivals.parquet")
     rows = table.to_pylist()
@@ -257,16 +274,21 @@ def main():
         "data/part-0001.parquet": {"rows": len(rows), "bytes": data_file.stat().st_size,
                                    "sha256": digest(data_file)},
     }
+    input_metadata = {key: gold_manifest[key] for key in (
+        "silver_dates_utc", "missing_dates_utc", "missing_observation_dates_utc",
+        "airport_geometry",
+    ) if key in gold_manifest}
     manifest = {
         "release_id": args.release_id,
         "data_product": contract.data_product,
         "contract_version": contract.version,
         "schema_version": contract.schema_version,
+        "label_version": contract.label_version,
         "release_schema_version": RELEASE_SCHEMA_VERSION,
         "source_commit": source_commit(),
         "created_at": now.isoformat(),
         "input": {"gold_root": gold_root.name, "input_id": gold_manifest.get("input_id"),
-                  "dates_utc": gold_manifest.get("dates_utc")},
+                  "dates_utc": gold_manifest.get("dates_utc"), **input_metadata},
         "grain": list(contract.grain),
         "field_policy": contract.field_policy,
         "code_sha256": {p.name: digest(p) for p in sorted(Path(__file__).parent.glob("*.py"))},
