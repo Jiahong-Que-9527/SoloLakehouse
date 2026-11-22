@@ -345,6 +345,7 @@ name = "charging-forecast"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "joblib" },
     { name = "mlflow" },
     { name = "numpy" },
     { name = "pandas" },
@@ -361,6 +362,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "joblib", specifier = ">=1.6.0" },
     { name = "mlflow", specifier = ">=3.18.0" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "pandas", specifier = ">=3.1.1" },

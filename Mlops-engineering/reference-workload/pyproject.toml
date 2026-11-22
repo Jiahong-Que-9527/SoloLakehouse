@@ -5,6 +5,7 @@ description = "Reference workload for ML Engineering: seeded EV charging dataset
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "joblib>=1.6.0",
     "mlflow>=3.18.0",
     "numpy>=2.0",
     "pandas>=3.1.1",

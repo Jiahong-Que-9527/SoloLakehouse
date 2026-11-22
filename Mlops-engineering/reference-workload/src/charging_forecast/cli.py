@@ -23,6 +23,22 @@ Subcommands:
       grid selection on the internal split, then the M03 fold protocol with
       both baselines; deterministic model report and MLflow runs with the
       lineage tag schema (M04).
+  run-pipeline --config <yaml> --release <dir> --features <dir> --out <dir>
+      [--model-release-id <id>]
+      validate, features, train, evaluate, register and publish in one
+      idempotent sequence; every step is a no-op when its output already
+      matches the current inputs (M05).
+  register-model / publish-model --config <yaml> --release <dir>
+      --features <dir> --out <dir> --model-release-id <id>
+      the promotion steps alone: registry version (reuse by release-ID tag)
+      and the committed release manifest under releases/models/ (M05).
+  pin-model --model-release-id <id> [--releases-dir <dir>]
+      promote through the gate: strictly better pooled MAE than the pinned
+      release (first pin: better than the committed M03 baselines) (M05).
+  verify-pin --config <yaml> --release <dir> --features <dir>
+      [--issue-date <date>]
+      rollback verification: pinned artifact checksum plus a deterministic
+      scoring of the verification day (M05).
 """
 
 from __future__ import annotations
@@ -38,6 +54,7 @@ import yaml
 
 from . import __version__
 from . import eval as eval_mod
+from . import pipeline as pipeline_mod
 from . import training as training_mod
 from .contract import build_manifest, git_commit, load_config, render_contract
 from .features import (
@@ -223,6 +240,128 @@ def _cmd_train_model(args: argparse.Namespace) -> int:
     return 0
 
 
+def _release_step_args(args):
+    """Shared argument bundle for the promotion commands: ensure the training
+    report and release artifact exist (reusing them when the identity
+    matches), then hand them to the step."""
+    cfg = load_config(args.config)
+    report, artifact_path, _reused = pipeline_mod.step_train(
+        Path(args.release),
+        cfg,
+        Path(args.features),
+        Path(args.out),
+        args.model_release_id,
+        Path(args.models_dir),
+        tracking_uri=args.tracking_uri,
+    )
+    return cfg, report, artifact_path
+
+
+def _cmd_run_pipeline(args: argparse.Namespace) -> int:
+    summary = pipeline_mod.run_pipeline(
+        Path(args.release),
+        load_config(args.config),
+        Path(args.features),
+        Path(args.out),
+        args.model_release_id,
+        releases_dir=Path(args.releases_dir),
+        models_dir=Path(args.models_dir),
+        tracking_uri=args.tracking_uri,
+        max_iter=args.max_iter,
+        seed=args.seed,
+    )
+    print(
+        f"pipeline {args.model_release_id}: "
+        f"validate {summary['validate']['checks']} checks, features "
+        f"{'reused' if summary['features']['reused'] else 'built'}, "
+        f"train {'reused' if summary['train']['reused'] else 'ran'} "
+        f"(MAE {summary['train']['model_mae']}), "
+        f"register {'created' if summary['register']['created'] else 'reused'} "
+        f"v{summary['register']['version']}, "
+        f"publish {'created' if summary['publish']['created'] else 'confirmed'} "
+        f"-> {args.releases_dir}"
+    )
+    return 0
+
+
+def _cmd_register_model(args: argparse.Namespace) -> int:
+    cfg, report, artifact_path = _release_step_args(args)
+    info = pipeline_mod.step_register(
+        Path(args.release),
+        Path(args.features),
+        report,
+        artifact_path,
+        args.model_release_id,
+        tracking_uri=args.tracking_uri,
+    )
+    print(
+        f"registered {args.model_release_id}: "
+        f"{'created' if info['created'] else 'reused'} version "
+        f"{info['version']} (run {info['run_id'][:8]})"
+    )
+    return 0
+
+
+def _cmd_publish_model(args: argparse.Namespace) -> int:
+    cfg, report, artifact_path = _release_step_args(args)
+    info = pipeline_mod.step_register(
+        Path(args.release),
+        Path(args.features),
+        report,
+        artifact_path,
+        args.model_release_id,
+        tracking_uri=args.tracking_uri,
+    )
+    out = pipeline_mod.step_publish(
+        Path(args.release),
+        Path(args.features),
+        report,
+        artifact_path,
+        args.model_release_id,
+        info,
+        releases_dir=Path(args.releases_dir),
+    )
+    print(
+        f"published {args.model_release_id}: "
+        f"{'created' if out['created'] else 'confirmed'} manifest -> {out['path']}"
+    )
+    return 0
+
+
+def _cmd_pin_model(args: argparse.Namespace) -> int:
+    result = pipeline_mod.pin_model(
+        args.model_release_id,
+        releases_dir=Path(args.releases_dir),
+        tracking_uri=args.tracking_uri,
+    )
+    if not result["changed"]:
+        print(f"{result['pinned']} is already pinned; nothing changed")
+    else:
+        print(
+            f"pinned {result['pinned']}"
+            + (f" (previous: {result['previous']})" if result["previous"] else " (first pin)")
+        )
+    return 0
+
+
+def _cmd_verify_pin(args: argparse.Namespace) -> int:
+    result = pipeline_mod.verify_pin(
+        Path(args.release),
+        load_config(args.config),
+        Path(args.features),
+        releases_dir=Path(args.releases_dir),
+        models_dir=Path(args.models_dir),
+        issue_date=_parse_date(args.issue_date) if args.issue_date else None,
+        out_dir=Path(args.out) if args.out else None,
+    )
+    print(
+        f"verified pin {result['model_release_id']}: artifact {result['artifact_sha256'][:12]}… "
+        f"matches manifest; {result['rows']} predictions for {result['issue_day']} "
+        f"(sha256 {result['predictions_sha256'][:12]}…)"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="charging-forecast")
     parser.add_argument("--version", action="version", version=__version__)
@@ -289,6 +428,66 @@ def main(argv: list[str] | None = None) -> int:
     tm.add_argument("--embargo-days", type=int, default=training_mod.EMBARGO_DAYS)
     tm.add_argument("--median-window-days", type=int, default=training_mod.MEDIAN_WINDOW_DAYS)
     tm.set_defaults(func=_cmd_train_model)
+
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--config", required=True)
+    common.add_argument("--release", required=True)
+    common.add_argument("--features", required=True)
+    common.add_argument(
+        "--tracking-uri",
+        default=training_mod.DEFAULT_TRACKING_URI,
+        help="MLflow tracking URI (local sqlite by default)",
+    )
+    common.add_argument("--model-release-id", default=pipeline_mod.DEFAULT_MODEL_RELEASE_ID)
+    common.add_argument(
+        "--models-dir",
+        default=pipeline_mod.DEFAULT_MODELS_DIR,
+        help="model artifact directory (outside Git)",
+    )
+    common.add_argument(
+        "--releases-dir",
+        default=pipeline_mod.DEFAULT_RELEASES_DIR,
+        help="committed release manifests directory",
+    )
+
+    pl = sub.add_parser(
+        "run-pipeline",
+        parents=[common],
+        help="validate, features, train, evaluate, register, publish (M05)",
+    )
+    pl.add_argument("--out", required=True)
+    pl.add_argument("--max-iter", type=int, default=training_mod.MAX_ITER)
+    pl.add_argument("--seed", type=int, default=training_mod.RANDOM_SEED)
+    pl.set_defaults(func=_cmd_run_pipeline)
+
+    reg = sub.add_parser(
+        "register-model",
+        parents=[common],
+        help="register the release artifact as a model version (M05)",
+    )
+    reg.add_argument("--out", required=True)
+    reg.set_defaults(func=_cmd_register_model)
+
+    pubm = sub.add_parser(
+        "publish-model", parents=[common], help="write the committed release manifest (M05)"
+    )
+    pubm.add_argument("--out", required=True)
+    pubm.set_defaults(func=_cmd_publish_model)
+
+    pin = sub.add_parser("pin-model", help="promote a release through the gate (M05)")
+    pin.add_argument("--model-release-id", required=True)
+    pin.add_argument("--releases-dir", default=pipeline_mod.DEFAULT_RELEASES_DIR)
+    pin.add_argument("--tracking-uri", default=training_mod.DEFAULT_TRACKING_URI)
+    pin.set_defaults(func=_cmd_pin_model)
+
+    ver = sub.add_parser(
+        "verify-pin",
+        parents=[common],
+        help="verify the pinned artifact and score the verification day (M05)",
+    )
+    ver.add_argument("--issue-date", default=None)
+    ver.add_argument("--out", default=None, help="optional directory for the verification bytes")
+    ver.set_defaults(func=_cmd_verify_pin)
 
     args = parser.parse_args(argv)
     return args.func(args)

@@ -1,0 +1,39 @@
+{
+  "artifact": {
+    "path": "model.joblib",
+    "sha256": "24e3bb5b5a4382e59f050bcfa652d03938dd7a49ee1f4a1e0a7c9ee27816bb27",
+    "size_bytes": 840843
+  },
+  "data_manifest_sha256": "e0c8096c8233bfa2be8fbb90e9f07bd179f0d1cdaa14d333b4a0d6b741e6bfa0",
+  "data_release_id": "dataset-v001",
+  "feature_manifest_sha256": "0d12d224c59928b85660d797c7a8a3af89702642f3cc7b288148321bd7f4f946",
+  "feature_release_id": "feat-v1-dataset-v001",
+  "kind": "model",
+  "max_iter": 250,
+  "metrics": {
+    "model_mae": 6.377663,
+    "model_rmse": 9.859102,
+    "model_smape": 8.519428,
+    "seasonal_naive_mae": 9.151699,
+    "station_median_mae": 7.689936
+  },
+  "mlflow_model_version": 2,
+  "model_config": {
+    "learning_rate": 0.1,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 40
+  },
+  "model_release_id": "model-v002",
+  "protocol": {
+    "embargo_days": 1,
+    "n_folds": 23,
+    "skipped_months": [
+      "2025-01"
+    ]
+  },
+  "registered_model_name": "charging_demand_forecast",
+  "schema_version": "charging-model-release-v1",
+  "seed": 20261122,
+  "source_commit": "7842ab6215de4959e0d85983cbfe97b4b1d3ff06",
+  "source_run_id": "ad7f63b5db4d44848814fe69db6a52ed"
+}
