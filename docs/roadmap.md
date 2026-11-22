@@ -66,8 +66,10 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   the leakage suite), M03 (baselines and the evaluation harness), M04
   (the model beats both baselines under full MLflow lineage) and M05
   (one idempotent training pipeline, the model release pinned through the
-  promotion gate, tested rollback and a training image) are accepted;
-  batch scoring and serving are next.
+  promotion gate, tested rollback and a training image), M06 (idempotent
+  batch scoring with committed manifests and the pinned model served over
+  HTTP) are accepted;
+  drift monitoring and retraining triggers are next.
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture
   query in Compose. K3s, Flux and recovery remain later project milestones.

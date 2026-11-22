@@ -2,7 +2,7 @@
 
 <!-- [魏征·2026-11-21] Initialize stage planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+**Status:** accepted (2026-11-22) · [Roadmap](../README.md) · [Acceptance record](evidence/m06-acceptance.md)
 
 Deliver predictions two ways: a scheduled batch score with versioned output, and an HTTP API serving the pinned model with contract tests and shadow comparison.
 
