@@ -1,0 +1,2054 @@
+{
+  "acceptance": {
+    "beats_seasonal_naive": true,
+    "beats_station_median": true,
+    "gate": "M03 protocol: pooled MAE over the monthly folds vs the seasonal-naive baseline",
+    "gate_mae": 9.151699,
+    "median_mae": 7.689936,
+    "model_mae": 6.352612
+  },
+  "baseline_params": {
+    "median_window_days": 90
+  },
+  "feature_importance": [
+    {
+      "feature": "hour_of_day",
+      "importance_mae_kwh": 45.635049
+    },
+    {
+      "feature": "demand_rolling_7d_mean",
+      "importance_mae_kwh": 17.815751
+    },
+    {
+      "feature": "capacity_kw",
+      "importance_mae_kwh": 13.476804
+    },
+    {
+      "feature": "day_of_week",
+      "importance_mae_kwh": 12.102242
+    },
+    {
+      "feature": "poi_category",
+      "importance_mae_kwh": 10.816896
+    },
+    {
+      "feature": "demand_latest",
+      "importance_mae_kwh": 4.921603
+    },
+    {
+      "feature": "demand_lag_24h",
+      "importance_mae_kwh": 1.139351
+    },
+    {
+      "feature": "event_boost",
+      "importance_mae_kwh": 0.324827
+    },
+    {
+      "feature": "demand_lag_168h",
+      "importance_mae_kwh": 0.244229
+    },
+    {
+      "feature": "district",
+      "importance_mae_kwh": 0.105075
+    },
+    {
+      "feature": "fcst_precipitation_mm",
+      "importance_mae_kwh": 0.087808
+    },
+    {
+      "feature": "fcst_temperature_c",
+      "importance_mae_kwh": 0.021617
+    },
+    {
+      "feature": "price_current",
+      "importance_mae_kwh": 0.015994
+    },
+    {
+      "feature": "price_at_target",
+      "importance_mae_kwh": 0.003152
+    },
+    {
+      "feature": "days_active",
+      "importance_mae_kwh": 0.0
+    },
+    {
+      "feature": "is_event_active",
+      "importance_mae_kwh": 0.0
+    },
+    {
+      "feature": "is_public_holiday",
+      "importance_mae_kwh": 0.0
+    },
+    {
+      "feature": "is_school_break",
+      "importance_mae_kwh": 0.0
+    }
+  ],
+  "feature_manifest_sha256": "0d12d224c59928b85660d797c7a8a3af89702642f3cc7b288148321bd7f4f946",
+  "feature_release_id": "feat-v1-dataset-v001",
+  "fold_plan": {
+    "embargo_days": 1,
+    "folds": [
+      {
+        "issue_end": "2025-02-28",
+        "issue_start": "2025-02-01",
+        "issues": 28,
+        "mae_model": 6.57812,
+        "mae_seasonal_naive": 7.821218,
+        "mae_station_median": 7.144971,
+        "rows": 26880,
+        "train_last_issue": "2025-01-30"
+      },
+      {
+        "issue_end": "2025-03-31",
+        "issue_start": "2025-03-01",
+        "issues": 31,
+        "mae_model": 6.345871,
+        "mae_seasonal_naive": 7.940852,
+        "mae_station_median": 7.002322,
+        "rows": 29760,
+        "train_last_issue": "2025-02-27"
+      },
+      {
+        "issue_end": "2025-04-30",
+        "issue_start": "2025-04-01",
+        "issues": 30,
+        "mae_model": 9.048152,
+        "mae_seasonal_naive": 10.918091,
+        "mae_station_median": 10.109694,
+        "rows": 28800,
+        "train_last_issue": "2025-03-30"
+      },
+      {
+        "issue_end": "2025-05-31",
+        "issue_start": "2025-05-01",
+        "issues": 31,
+        "mae_model": 6.507412,
+        "mae_seasonal_naive": 9.354006,
+        "mae_station_median": 6.9201,
+        "rows": 29760,
+        "train_last_issue": "2025-04-29"
+      },
+      {
+        "issue_end": "2025-06-30",
+        "issue_start": "2025-06-01",
+        "issues": 30,
+        "mae_model": 5.976609,
+        "mae_seasonal_naive": 9.552642,
+        "mae_station_median": 6.811778,
+        "rows": 28800,
+        "train_last_issue": "2025-05-30"
+      },
+      {
+        "issue_end": "2025-07-31",
+        "issue_start": "2025-07-01",
+        "issues": 31,
+        "mae_model": 6.104372,
+        "mae_seasonal_naive": 8.538095,
+        "mae_station_median": 7.253501,
+        "rows": 29760,
+        "train_last_issue": "2025-06-29"
+      },
+      {
+        "issue_end": "2025-08-31",
+        "issue_start": "2025-08-01",
+        "issues": 31,
+        "mae_model": 6.153242,
+        "mae_seasonal_naive": 9.025756,
+        "mae_station_median": 7.895146,
+        "rows": 29760,
+        "train_last_issue": "2025-07-30"
+      },
+      {
+        "issue_end": "2025-09-30",
+        "issue_start": "2025-09-01",
+        "issues": 30,
+        "mae_model": 6.147058,
+        "mae_seasonal_naive": 8.048792,
+        "mae_station_median": 7.647643,
+        "rows": 28800,
+        "train_last_issue": "2025-08-30"
+      },
+      {
+        "issue_end": "2025-10-31",
+        "issue_start": "2025-10-01",
+        "issues": 31,
+        "mae_model": 6.382778,
+        "mae_seasonal_naive": 9.942059,
+        "mae_station_median": 7.626222,
+        "rows": 29760,
+        "train_last_issue": "2025-09-29"
+      },
+      {
+        "issue_end": "2025-11-30",
+        "issue_start": "2025-11-01",
+        "issues": 30,
+        "mae_model": 6.714166,
+        "mae_seasonal_naive": 8.514262,
+        "mae_station_median": 6.944363,
+        "rows": 28800,
+        "train_last_issue": "2025-10-30"
+      },
+      {
+        "issue_end": "2025-12-31",
+        "issue_start": "2025-12-01",
+        "issues": 31,
+        "mae_model": 6.691998,
+        "mae_seasonal_naive": 10.600478,
+        "mae_station_median": 8.804711,
+        "rows": 29760,
+        "train_last_issue": "2025-11-29"
+      },
+      {
+        "issue_end": "2026-01-31",
+        "issue_start": "2026-01-01",
+        "issues": 31,
+        "mae_model": 6.290815,
+        "mae_seasonal_naive": 10.466989,
+        "mae_station_median": 7.264103,
+        "rows": 29760,
+        "train_last_issue": "2025-12-30"
+      },
+      {
+        "issue_end": "2026-02-28",
+        "issue_start": "2026-02-01",
+        "issues": 28,
+        "mae_model": 5.956947,
+        "mae_seasonal_naive": 8.466149,
+        "mae_station_median": 7.423751,
+        "rows": 26880,
+        "train_last_issue": "2026-01-30"
+      },
+      {
+        "issue_end": "2026-03-31",
+        "issue_start": "2026-03-01",
+        "issues": 31,
+        "mae_model": 5.956142,
+        "mae_seasonal_naive": 8.169839,
+        "mae_station_median": 8.156733,
+        "rows": 29760,
+        "train_last_issue": "2026-02-27"
+      },
+      {
+        "issue_end": "2026-04-30",
+        "issue_start": "2026-04-01",
+        "issues": 30,
+        "mae_model": 6.16109,
+        "mae_seasonal_naive": 10.945773,
+        "mae_station_median": 10.076874,
+        "rows": 28800,
+        "train_last_issue": "2026-03-30"
+      },
+      {
+        "issue_end": "2026-05-31",
+        "issue_start": "2026-05-01",
+        "issues": 31,
+        "mae_model": 5.782783,
+        "mae_seasonal_naive": 10.24375,
+        "mae_station_median": 7.397232,
+        "rows": 29760,
+        "train_last_issue": "2026-04-29"
+      },
+      {
+        "issue_end": "2026-06-30",
+        "issue_start": "2026-06-01",
+        "issues": 30,
+        "mae_model": 5.848369,
+        "mae_seasonal_naive": 8.322815,
+        "mae_station_median": 6.43513,
+        "rows": 28800,
+        "train_last_issue": "2026-05-30"
+      },
+      {
+        "issue_end": "2026-07-31",
+        "issue_start": "2026-07-01",
+        "issues": 31,
+        "mae_model": 6.923973,
+        "mae_seasonal_naive": 9.808749,
+        "mae_station_median": 8.287183,
+        "rows": 29760,
+        "train_last_issue": "2026-06-29"
+      },
+      {
+        "issue_end": "2026-08-31",
+        "issue_start": "2026-08-01",
+        "issues": 31,
+        "mae_model": 6.066006,
+        "mae_seasonal_naive": 8.318602,
+        "mae_station_median": 7.770522,
+        "rows": 29760,
+        "train_last_issue": "2026-07-30"
+      },
+      {
+        "issue_end": "2026-09-30",
+        "issue_start": "2026-09-01",
+        "issues": 30,
+        "mae_model": 6.095979,
+        "mae_seasonal_naive": 8.588718,
+        "mae_station_median": 7.795945,
+        "rows": 28800,
+        "train_last_issue": "2026-08-30"
+      },
+      {
+        "issue_end": "2026-10-31",
+        "issue_start": "2026-10-01",
+        "issues": 31,
+        "mae_model": 6.261867,
+        "mae_seasonal_naive": 9.088677,
+        "mae_station_median": 7.903726,
+        "rows": 29760,
+        "train_last_issue": "2026-09-29"
+      },
+      {
+        "issue_end": "2026-11-30",
+        "issue_start": "2026-11-01",
+        "issues": 30,
+        "mae_model": 6.093351,
+        "mae_seasonal_naive": 8.16125,
+        "mae_station_median": 6.579073,
+        "rows": 28800,
+        "train_last_issue": "2026-10-30"
+      },
+      {
+        "issue_end": "2026-12-30",
+        "issue_start": "2026-12-01",
+        "issues": 30,
+        "mae_model": 6.087233,
+        "mae_seasonal_naive": 9.516212,
+        "mae_station_median": 7.656448,
+        "rows": 28800,
+        "train_last_issue": "2026-11-29"
+      }
+    ],
+    "min_train_issues": 14,
+    "skipped_months": [
+      "2025-01"
+    ]
+  },
+  "model": {
+    "early_stopping": false,
+    "kind": "sklearn.HistGradientBoostingRegressor",
+    "max_iter": 300,
+    "seed": 20261122,
+    "selected_config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 40
+    },
+    "threads_pinned": "OMP_NUM_THREADS=1"
+  },
+  "paired_comparison": {
+    "model_vs_seasonal_naive": {
+      "ci95": [
+        -2.824427,
+        -2.774531
+      ],
+      "mean_abs_error_diff": -2.799631,
+      "model_a": "model",
+      "model_b": "seasonal_naive",
+      "n": 625944,
+      "positive_means_model_a_worse": false,
+      "resamples": 2000,
+      "seed": 20261122
+    },
+    "model_vs_station_median": {
+      "ci95": [
+        -1.353366,
+        -1.31561
+      ],
+      "mean_abs_error_diff": -1.334329,
+      "model_a": "model",
+      "model_b": "station_median",
+      "n": 624144,
+      "positive_means_model_a_worse": false,
+      "resamples": 2000,
+      "seed": 20261122
+    }
+  },
+  "report_schema_version": "charging-model-report-v1",
+  "residuals": {
+    "bias_kwh": 0.073861,
+    "mean_abs_kwh": 6.355607,
+    "p90_abs_kwh": 15.48241,
+    "p99_abs_kwh": 34.251381
+  },
+  "results": {
+    "model": {
+      "by_district": {
+        "D1": {
+          "excluded": 0,
+          "mae": 7.433616,
+          "n": 134016,
+          "rmse": 11.396514,
+          "smape": 8.155101
+        },
+        "D2": {
+          "excluded": 0,
+          "mae": 6.327909,
+          "n": 100512,
+          "rmse": 9.961458,
+          "smape": 9.008658
+        },
+        "D3": {
+          "excluded": 0,
+          "mae": 5.21438,
+          "n": 117264,
+          "rmse": 7.978039,
+          "smape": 8.645154
+        },
+        "D4": {
+          "excluded": 0,
+          "mae": 6.826706,
+          "n": 117264,
+          "rmse": 10.632238,
+          "smape": 8.6619
+        },
+        "D5": {
+          "excluded": 0,
+          "mae": 6.464002,
+          "n": 100512,
+          "rmse": 9.520293,
+          "smape": 7.82036
+        },
+        "D6": {
+          "excluded": 43704,
+          "mae": 5.019954,
+          "n": 56808,
+          "rmse": 7.740943,
+          "smape": 8.437645
+        }
+      },
+      "by_hour": {
+        "0": {
+          "excluded": 1821,
+          "mae": 2.671224,
+          "n": 26099,
+          "rmse": 3.709586,
+          "smape": 9.625236
+        },
+        "1": {
+          "excluded": 1821,
+          "mae": 2.283408,
+          "n": 26099,
+          "rmse": 3.204895,
+          "smape": 9.905573
+        },
+        "10": {
+          "excluded": 1821,
+          "mae": 8.307747,
+          "n": 26099,
+          "rmse": 11.98362,
+          "smape": 7.636396
+        },
+        "11": {
+          "excluded": 1821,
+          "mae": 7.883282,
+          "n": 26099,
+          "rmse": 11.338106,
+          "smape": 7.600926
+        },
+        "12": {
+          "excluded": 1821,
+          "mae": 8.039603,
+          "n": 26099,
+          "rmse": 11.570871,
+          "smape": 7.516328
+        },
+        "13": {
+          "excluded": 1821,
+          "mae": 7.886517,
+          "n": 26099,
+          "rmse": 11.381474,
+          "smape": 7.416817
+        },
+        "14": {
+          "excluded": 1821,
+          "mae": 8.011263,
+          "n": 26099,
+          "rmse": 11.477067,
+          "smape": 7.591817
+        },
+        "15": {
+          "excluded": 1821,
+          "mae": 8.079245,
+          "n": 26099,
+          "rmse": 11.539816,
+          "smape": 7.491412
+        },
+        "16": {
+          "excluded": 1821,
+          "mae": 8.900032,
+          "n": 26099,
+          "rmse": 12.720586,
+          "smape": 7.370592
+        },
+        "17": {
+          "excluded": 1821,
+          "mae": 9.517918,
+          "n": 26099,
+          "rmse": 13.427907,
+          "smape": 7.057901
+        },
+        "18": {
+          "excluded": 1821,
+          "mae": 9.740873,
+          "n": 26099,
+          "rmse": 13.683303,
+          "smape": 7.133309
+        },
+        "19": {
+          "excluded": 1821,
+          "mae": 9.1519,
+          "n": 26099,
+          "rmse": 12.983607,
+          "smape": 7.303833
+        },
+        "2": {
+          "excluded": 1821,
+          "mae": 2.152763,
+          "n": 26099,
+          "rmse": 3.084392,
+          "smape": 11.144537
+        },
+        "20": {
+          "excluded": 1821,
+          "mae": 7.750097,
+          "n": 26099,
+          "rmse": 10.845035,
+          "smape": 7.730462
+        },
+        "21": {
+          "excluded": 1821,
+          "mae": 6.151043,
+          "n": 26099,
+          "rmse": 8.326839,
+          "smape": 8.656695
+        },
+        "22": {
+          "excluded": 1821,
+          "mae": 4.595841,
+          "n": 26099,
+          "rmse": 6.238996,
+          "smape": 9.185351
+        },
+        "23": {
+          "excluded": 1821,
+          "mae": 3.520614,
+          "n": 26099,
+          "rmse": 4.758721,
+          "smape": 9.823846
+        },
+        "3": {
+          "excluded": 1821,
+          "mae": 2.10277,
+          "n": 26099,
+          "rmse": 3.037832,
+          "smape": 11.206767
+        },
+        "4": {
+          "excluded": 1821,
+          "mae": 2.472419,
+          "n": 26099,
+          "rmse": 3.543081,
+          "smape": 10.941537
+        },
+        "5": {
+          "excluded": 1821,
+          "mae": 3.155285,
+          "n": 26099,
+          "rmse": 4.413649,
+          "smape": 9.134456
+        },
+        "6": {
+          "excluded": 1821,
+          "mae": 5.232893,
+          "n": 26099,
+          "rmse": 7.292359,
+          "smape": 8.832312
+        },
+        "7": {
+          "excluded": 1821,
+          "mae": 7.588844,
+          "n": 26099,
+          "rmse": 11.211827,
+          "smape": 7.813981
+        },
+        "8": {
+          "excluded": 1821,
+          "mae": 8.546044,
+          "n": 26099,
+          "rmse": 12.570795,
+          "smape": 7.360781
+        },
+        "9": {
+          "excluded": 1821,
+          "mae": 8.721053,
+          "n": 26099,
+          "rmse": 12.799096,
+          "smape": 7.333518
+        }
+      },
+      "by_station": {
+        "S001": {
+          "excluded": 0,
+          "mae": 10.392087,
+          "n": 16752,
+          "rmse": 13.914426,
+          "smape": 6.827845
+        },
+        "S002": {
+          "excluded": 0,
+          "mae": 11.380376,
+          "n": 16752,
+          "rmse": 18.09081,
+          "smape": 12.470809
+        },
+        "S003": {
+          "excluded": 0,
+          "mae": 4.230757,
+          "n": 16752,
+          "rmse": 5.625947,
+          "smape": 7.236164
+        },
+        "S004": {
+          "excluded": 0,
+          "mae": 8.533964,
+          "n": 16752,
+          "rmse": 11.853408,
+          "smape": 6.846513
+        },
+        "S005": {
+          "excluded": 0,
+          "mae": 9.991038,
+          "n": 16752,
+          "rmse": 13.433198,
+          "smape": 7.000118
+        },
+        "S006": {
+          "excluded": 0,
+          "mae": 4.943269,
+          "n": 16752,
+          "rmse": 7.792807,
+          "smape": 10.535181
+        },
+        "S007": {
+          "excluded": 0,
+          "mae": 3.46718,
+          "n": 16752,
+          "rmse": 4.63907,
+          "smape": 7.24439
+        },
+        "S008": {
+          "excluded": 0,
+          "mae": 6.530256,
+          "n": 16752,
+          "rmse": 9.12696,
+          "smape": 7.079791
+        },
+        "S009": {
+          "excluded": 0,
+          "mae": 5.771737,
+          "n": 16752,
+          "rmse": 9.165194,
+          "smape": 10.268427
+        },
+        "S010": {
+          "excluded": 0,
+          "mae": 7.497718,
+          "n": 16752,
+          "rmse": 11.927343,
+          "smape": 10.728815
+        },
+        "S011": {
+          "excluded": 0,
+          "mae": 6.085281,
+          "n": 16752,
+          "rmse": 8.418212,
+          "smape": 7.366199
+        },
+        "S012": {
+          "excluded": 0,
+          "mae": 6.405962,
+          "n": 16752,
+          "rmse": 8.572954,
+          "smape": 7.13036
+        },
+        "S013": {
+          "excluded": 0,
+          "mae": 9.069672,
+          "n": 16752,
+          "rmse": 14.404421,
+          "smape": 11.438412
+        },
+        "S014": {
+          "excluded": 0,
+          "mae": 3.137082,
+          "n": 16752,
+          "rmse": 4.156006,
+          "smape": 7.119735
+        },
+        "S015": {
+          "excluded": 0,
+          "mae": 4.574074,
+          "n": 16752,
+          "rmse": 6.334543,
+          "smape": 7.721499
+        },
+        "S016": {
+          "excluded": 0,
+          "mae": 6.252248,
+          "n": 16752,
+          "rmse": 8.371142,
+          "smape": 7.040093
+        },
+        "S017": {
+          "excluded": 0,
+          "mae": 6.843336,
+          "n": 16752,
+          "rmse": 10.700707,
+          "smape": 11.264321
+        },
+        "S018": {
+          "excluded": 0,
+          "mae": 2.522886,
+          "n": 16752,
+          "rmse": 3.352848,
+          "smape": 7.105391
+        },
+        "S019": {
+          "excluded": 0,
+          "mae": 8.33582,
+          "n": 16752,
+          "rmse": 11.656422,
+          "smape": 6.592111
+        },
+        "S020": {
+          "excluded": 0,
+          "mae": 4.978252,
+          "n": 16752,
+          "rmse": 7.615546,
+          "smape": 13.979272
+        },
+        "S021": {
+          "excluded": 0,
+          "mae": 2.994043,
+          "n": 16752,
+          "rmse": 3.96559,
+          "smape": 6.813394
+        },
+        "S022": {
+          "excluded": 0,
+          "mae": 8.105673,
+          "n": 16752,
+          "rmse": 11.329641,
+          "smape": 6.626055
+        },
+        "S023": {
+          "excluded": 0,
+          "mae": 10.310664,
+          "n": 16752,
+          "rmse": 13.771554,
+          "smape": 6.724307
+        },
+        "S024": {
+          "excluded": 0,
+          "mae": 8.305397,
+          "n": 16752,
+          "rmse": 13.137056,
+          "smape": 10.826289
+        },
+        "S025": {
+          "excluded": 0,
+          "mae": 2.840058,
+          "n": 16752,
+          "rmse": 3.744599,
+          "smape": 7.010003
+        },
+        "S026": {
+          "excluded": 0,
+          "mae": 4.245656,
+          "n": 16752,
+          "rmse": 5.883941,
+          "smape": 7.899437
+        },
+        "S027": {
+          "excluded": 0,
+          "mae": 8.345646,
+          "n": 16752,
+          "rmse": 13.12575,
+          "smape": 10.993383
+        },
+        "S028": {
+          "excluded": 0,
+          "mae": 5.633849,
+          "n": 16752,
+          "rmse": 8.932225,
+          "smape": 10.553825
+        },
+        "S029": {
+          "excluded": 0,
+          "mae": 4.541236,
+          "n": 16752,
+          "rmse": 6.110054,
+          "smape": 7.262912
+        },
+        "S030": {
+          "excluded": 0,
+          "mae": 8.004863,
+          "n": 16752,
+          "rmse": 11.218288,
+          "smape": 7.342589
+        },
+        "S031": {
+          "excluded": 0,
+          "mae": 4.981513,
+          "n": 16752,
+          "rmse": 7.910413,
+          "smape": 10.855724
+        },
+        "S032": {
+          "excluded": 0,
+          "mae": 4.59464,
+          "n": 16752,
+          "rmse": 6.128649,
+          "smape": 7.307469
+        },
+        "S033": {
+          "excluded": 0,
+          "mae": 5.651517,
+          "n": 16752,
+          "rmse": 7.817564,
+          "smape": 7.262147
+        },
+        "S034": {
+          "excluded": 0,
+          "mae": 11.010239,
+          "n": 16752,
+          "rmse": 14.811611,
+          "smape": 6.891322
+        },
+        "S035": {
+          "excluded": 0,
+          "mae": 5.196606,
+          "n": 16752,
+          "rmse": 8.2268,
+          "smape": 10.642882
+        },
+        "S036": {
+          "excluded": 0,
+          "mae": 2.851332,
+          "n": 16752,
+          "rmse": 3.771885,
+          "smape": 6.752895
+        },
+        "S037": {
+          "excluded": 0,
+          "mae": 7.164585,
+          "n": 16752,
+          "rmse": 10.034754,
+          "smape": 7.332266
+        },
+        "S038": {
+          "excluded": 14568,
+          "mae": 4.682386,
+          "n": 2184,
+          "rmse": 7.047068,
+          "smape": 10.650123
+        },
+        "S039": {
+          "excluded": 14568,
+          "mae": 6.368084,
+          "n": 2184,
+          "rmse": 9.696844,
+          "smape": 11.723434
+        },
+        "S040": {
+          "excluded": 14568,
+          "mae": 2.838422,
+          "n": 2184,
+          "rmse": 3.783576,
+          "smape": 7.425703
+        }
+      },
+      "overall": {
+        "excluded": 43704,
+        "mae": 6.352612,
+        "n": 626376,
+        "rmse": 9.837125,
+        "smape": 8.450599
+      }
+    },
+    "seasonal_naive": {
+      "by_district": {
+        "D1": {
+          "excluded": 0,
+          "mae": 10.559626,
+          "n": 134016,
+          "rmse": 17.215669,
+          "smape": 10.320778
+        },
+        "D2": {
+          "excluded": 0,
+          "mae": 9.158223,
+          "n": 100512,
+          "rmse": 15.941518,
+          "smape": 10.989871
+        },
+        "D3": {
+          "excluded": 0,
+          "mae": 7.29477,
+          "n": 117264,
+          "rmse": 12.091312,
+          "smape": 10.325755
+        },
+        "D4": {
+          "excluded": 0,
+          "mae": 10.138192,
+          "n": 117264,
+          "rmse": 17.223657,
+          "smape": 10.926589
+        },
+        "D5": {
+          "excluded": 0,
+          "mae": 9.357655,
+          "n": 100512,
+          "rmse": 14.696636,
+          "smape": 10.376822
+        },
+        "D6": {
+          "excluded": 44136,
+          "mae": 7.236512,
+          "n": 56376,
+          "rmse": 12.047684,
+          "smape": 10.71483
+        }
+      },
+      "by_hour": {
+        "0": {
+          "excluded": 1839,
+          "mae": 3.450424,
+          "n": 26081,
+          "rmse": 5.089614,
+          "smape": 10.614716
+        },
+        "1": {
+          "excluded": 1839,
+          "mae": 2.947166,
+          "n": 26081,
+          "rmse": 4.447087,
+          "smape": 10.532603
+        },
+        "10": {
+          "excluded": 1839,
+          "mae": 12.511873,
+          "n": 26081,
+          "rmse": 19.181496,
+          "smape": 10.895401
+        },
+        "11": {
+          "excluded": 1839,
+          "mae": 11.570835,
+          "n": 26081,
+          "rmse": 17.573781,
+          "smape": 10.665845
+        },
+        "12": {
+          "excluded": 1839,
+          "mae": 12.094182,
+          "n": 26081,
+          "rmse": 18.396632,
+          "smape": 10.817905
+        },
+        "13": {
+          "excluded": 1839,
+          "mae": 12.040477,
+          "n": 26081,
+          "rmse": 18.359245,
+          "smape": 10.793023
+        },
+        "14": {
+          "excluded": 1839,
+          "mae": 12.006932,
+          "n": 26081,
+          "rmse": 18.206427,
+          "smape": 10.825375
+        },
+        "15": {
+          "excluded": 1839,
+          "mae": 12.140327,
+          "n": 26081,
+          "rmse": 18.350656,
+          "smape": 10.668561
+        },
+        "16": {
+          "excluded": 1839,
+          "mae": 13.266425,
+          "n": 26081,
+          "rmse": 20.118502,
+          "smape": 10.552384
+        },
+        "17": {
+          "excluded": 1839,
+          "mae": 13.606361,
+          "n": 26081,
+          "rmse": 21.113378,
+          "smape": 9.863002
+        },
+        "18": {
+          "excluded": 1839,
+          "mae": 14.524202,
+          "n": 26081,
+          "rmse": 21.707306,
+          "smape": 10.270098
+        },
+        "19": {
+          "excluded": 1839,
+          "mae": 13.291112,
+          "n": 26081,
+          "rmse": 20.276344,
+          "smape": 9.967374
+        },
+        "2": {
+          "excluded": 1839,
+          "mae": 2.617522,
+          "n": 26081,
+          "rmse": 4.074562,
+          "smape": 10.55346
+        },
+        "20": {
+          "excluded": 1839,
+          "mae": 11.091285,
+          "n": 26081,
+          "rmse": 16.685052,
+          "smape": 10.355431
+        },
+        "21": {
+          "excluded": 1839,
+          "mae": 8.755156,
+          "n": 26081,
+          "rmse": 12.596094,
+          "smape": 11.02396
+        },
+        "22": {
+          "excluded": 1839,
+          "mae": 6.438287,
+          "n": 26081,
+          "rmse": 9.350599,
+          "smape": 11.07555
+        },
+        "23": {
+          "excluded": 1839,
+          "mae": 4.521897,
+          "n": 26081,
+          "rmse": 6.542665,
+          "smape": 10.540532
+        },
+        "3": {
+          "excluded": 1839,
+          "mae": 2.581405,
+          "n": 26081,
+          "rmse": 4.055235,
+          "smape": 10.623124
+        },
+        "4": {
+          "excluded": 1839,
+          "mae": 2.931938,
+          "n": 26081,
+          "rmse": 4.544396,
+          "smape": 10.595393
+        },
+        "5": {
+          "excluded": 1839,
+          "mae": 4.162313,
+          "n": 26081,
+          "rmse": 6.20687,
+          "smape": 10.610254
+        },
+        "6": {
+          "excluded": 1839,
+          "mae": 7.092298,
+          "n": 26081,
+          "rmse": 10.573566,
+          "smape": 10.786484
+        },
+        "7": {
+          "excluded": 1839,
+          "mae": 10.822317,
+          "n": 26081,
+          "rmse": 16.931381,
+          "smape": 10.637342
+        },
+        "8": {
+          "excluded": 1839,
+          "mae": 12.415163,
+          "n": 26081,
+          "rmse": 19.699471,
+          "smape": 10.366468
+        },
+        "9": {
+          "excluded": 1839,
+          "mae": 12.760885,
+          "n": 26081,
+          "rmse": 19.862081,
+          "smape": 10.456914
+        }
+      },
+      "by_station": {
+        "S001": {
+          "excluded": 0,
+          "mae": 15.505567,
+          "n": 16752,
+          "rmse": 21.315178,
+          "smape": 10.005936
+        },
+        "S002": {
+          "excluded": 0,
+          "mae": 15.152809,
+          "n": 16752,
+          "rmse": 27.300071,
+          "smape": 11.824699
+        },
+        "S003": {
+          "excluded": 0,
+          "mae": 5.872014,
+          "n": 16752,
+          "rmse": 8.112072,
+          "smape": 9.851255
+        },
+        "S004": {
+          "excluded": 0,
+          "mae": 12.107775,
+          "n": 16752,
+          "rmse": 17.556586,
+          "smape": 9.395404
+        },
+        "S005": {
+          "excluded": 0,
+          "mae": 14.557779,
+          "n": 16752,
+          "rmse": 20.181284,
+          "smape": 10.008568
+        },
+        "S006": {
+          "excluded": 0,
+          "mae": 7.406381,
+          "n": 16752,
+          "rmse": 13.17799,
+          "smape": 12.219167
+        },
+        "S007": {
+          "excluded": 0,
+          "mae": 4.814272,
+          "n": 16752,
+          "rmse": 6.620902,
+          "smape": 9.935548
+        },
+        "S008": {
+          "excluded": 0,
+          "mae": 9.060409,
+          "n": 16752,
+          "rmse": 13.137124,
+          "smape": 9.325649
+        },
+        "S009": {
+          "excluded": 0,
+          "mae": 8.805854,
+          "n": 16752,
+          "rmse": 15.704917,
+          "smape": 12.209861
+        },
+        "S010": {
+          "excluded": 0,
+          "mae": 11.097174,
+          "n": 16752,
+          "rmse": 19.837009,
+          "smape": 12.070369
+        },
+        "S011": {
+          "excluded": 0,
+          "mae": 8.361916,
+          "n": 16752,
+          "rmse": 12.08861,
+          "smape": 9.467377
+        },
+        "S012": {
+          "excluded": 0,
+          "mae": 9.261923,
+          "n": 16752,
+          "rmse": 12.705907,
+          "smape": 10.099067
+        },
+        "S013": {
+          "excluded": 0,
+          "mae": 13.069365,
+          "n": 16752,
+          "rmse": 23.267391,
+          "smape": 12.319635
+        },
+        "S014": {
+          "excluded": 0,
+          "mae": 4.353107,
+          "n": 16752,
+          "rmse": 5.974487,
+          "smape": 9.772915
+        },
+        "S015": {
+          "excluded": 0,
+          "mae": 6.018117,
+          "n": 16752,
+          "rmse": 8.731243,
+          "smape": 9.456449
+        },
+        "S016": {
+          "excluded": 0,
+          "mae": 9.068475,
+          "n": 16752,
+          "rmse": 12.469012,
+          "smape": 10.01364
+        },
+        "S017": {
+          "excluded": 0,
+          "mae": 10.072474,
+          "n": 16752,
+          "rmse": 17.74977,
+          "smape": 12.277654
+        },
+        "S018": {
+          "excluded": 0,
+          "mae": 3.48275,
+          "n": 16752,
+          "rmse": 4.789494,
+          "smape": 9.773617
+        },
+        "S019": {
+          "excluded": 0,
+          "mae": 11.626159,
+          "n": 16752,
+          "rmse": 16.851318,
+          "smape": 8.978402
+        },
+        "S020": {
+          "excluded": 0,
+          "mae": 6.596136,
+          "n": 16752,
+          "rmse": 11.67638,
+          "smape": 12.253306
+        },
+        "S021": {
+          "excluded": 0,
+          "mae": 4.19928,
+          "n": 16752,
+          "rmse": 5.778375,
+          "smape": 9.527219
+        },
+        "S022": {
+          "excluded": 0,
+          "mae": 11.566746,
+          "n": 16752,
+          "rmse": 16.978506,
+          "smape": 9.21984
+        },
+        "S023": {
+          "excluded": 0,
+          "mae": 15.837601,
+          "n": 16752,
+          "rmse": 21.819645,
+          "smape": 10.157166
+        },
+        "S024": {
+          "excluded": 0,
+          "mae": 12.515635,
+          "n": 16752,
+          "rmse": 21.994224,
+          "smape": 12.34152
+        },
+        "S025": {
+          "excluded": 0,
+          "mae": 4.086407,
+          "n": 16752,
+          "rmse": 5.67004,
+          "smape": 10.019297
+        },
+        "S026": {
+          "excluded": 0,
+          "mae": 5.756443,
+          "n": 16752,
+          "rmse": 8.488847,
+          "smape": 9.956952
+        },
+        "S027": {
+          "excluded": 0,
+          "mae": 12.594285,
+          "n": 16752,
+          "rmse": 22.227467,
+          "smape": 12.382719
+        },
+        "S028": {
+          "excluded": 0,
+          "mae": 8.610229,
+          "n": 16752,
+          "rmse": 15.17227,
+          "smape": 12.408627
+        },
+        "S029": {
+          "excluded": 0,
+          "mae": 6.452846,
+          "n": 16752,
+          "rmse": 9.025402,
+          "smape": 10.202054
+        },
+        "S030": {
+          "excluded": 0,
+          "mae": 11.152854,
+          "n": 16752,
+          "rmse": 16.457913,
+          "smape": 9.746686
+        },
+        "S031": {
+          "excluded": 0,
+          "mae": 7.601861,
+          "n": 16752,
+          "rmse": 13.412506,
+          "smape": 12.443209
+        },
+        "S032": {
+          "excluded": 0,
+          "mae": 6.423541,
+          "n": 16752,
+          "rmse": 8.910303,
+          "smape": 10.106788
+        },
+        "S033": {
+          "excluded": 0,
+          "mae": 7.779807,
+          "n": 16752,
+          "rmse": 11.417378,
+          "smape": 9.444295
+        },
+        "S034": {
+          "excluded": 0,
+          "mae": 16.735019,
+          "n": 16752,
+          "rmse": 23.536792,
+          "smape": 10.3179
+        },
+        "S035": {
+          "excluded": 0,
+          "mae": 7.905315,
+          "n": 16752,
+          "rmse": 13.915723,
+          "smape": 12.397688
+        },
+        "S036": {
+          "excluded": 0,
+          "mae": 4.081745,
+          "n": 16752,
+          "rmse": 5.682864,
+          "smape": 9.707247
+        },
+        "S037": {
+          "excluded": 0,
+          "mae": 10.188283,
+          "n": 16752,
+          "rmse": 15.009548,
+          "smape": 9.924114
+        },
+        "S038": {
+          "excluded": 14712,
+          "mae": 6.61577,
+          "n": 2040,
+          "rmse": 10.888524,
+          "smape": 11.914344
+        },
+        "S039": {
+          "excluded": 14712,
+          "mae": 7.600309,
+          "n": 2040,
+          "rmse": 12.749449,
+          "smape": 11.535911
+        },
+        "S040": {
+          "excluded": 14712,
+          "mae": 3.668359,
+          "n": 2040,
+          "rmse": 4.967681,
+          "smape": 9.642211
+        }
+      },
+      "overall": {
+        "excluded": 44136,
+        "mae": 9.151699,
+        "n": 625944,
+        "rmse": 15.329156,
+        "smape": 10.587133
+      }
+    },
+    "station_median": {
+      "by_district": {
+        "D1": {
+          "excluded": 0,
+          "mae": 8.857863,
+          "n": 134016,
+          "rmse": 14.381112,
+          "smape": 8.699512
+        },
+        "D2": {
+          "excluded": 0,
+          "mae": 7.757275,
+          "n": 100512,
+          "rmse": 13.507062,
+          "smape": 9.310249
+        },
+        "D3": {
+          "excluded": 0,
+          "mae": 6.143299,
+          "n": 117264,
+          "rmse": 10.225424,
+          "smape": 8.714895
+        },
+        "D4": {
+          "excluded": 0,
+          "mae": 8.45778,
+          "n": 117264,
+          "rmse": 14.448316,
+          "smape": 9.119674
+        },
+        "D5": {
+          "excluded": 0,
+          "mae": 7.811246,
+          "n": 100512,
+          "rmse": 12.03549,
+          "smape": 8.739439
+        },
+        "D6": {
+          "excluded": 45936,
+          "mae": 6.147908,
+          "n": 54576,
+          "rmse": 10.24298,
+          "smape": 9.045079
+        }
+      },
+      "by_hour": {
+        "0": {
+          "excluded": 1914,
+          "mae": 2.907219,
+          "n": 26006,
+          "rmse": 4.273655,
+          "smape": 8.938794
+        },
+        "1": {
+          "excluded": 1914,
+          "mae": 2.512571,
+          "n": 26006,
+          "rmse": 3.759789,
+          "smape": 9.013736
+        },
+        "10": {
+          "excluded": 1914,
+          "mae": 10.463152,
+          "n": 26006,
+          "rmse": 15.989743,
+          "smape": 9.114934
+        },
+        "11": {
+          "excluded": 1914,
+          "mae": 9.717694,
+          "n": 26006,
+          "rmse": 14.7071,
+          "smape": 8.958272
+        },
+        "12": {
+          "excluded": 1914,
+          "mae": 10.133647,
+          "n": 26006,
+          "rmse": 15.383125,
+          "smape": 9.088743
+        },
+        "13": {
+          "excluded": 1914,
+          "mae": 9.9193,
+          "n": 26006,
+          "rmse": 15.19291,
+          "smape": 8.919525
+        },
+        "14": {
+          "excluded": 1914,
+          "mae": 9.976634,
+          "n": 26006,
+          "rmse": 14.980179,
+          "smape": 9.071386
+        },
+        "15": {
+          "excluded": 1914,
+          "mae": 10.123279,
+          "n": 26006,
+          "rmse": 15.24102,
+          "smape": 8.954704
+        },
+        "16": {
+          "excluded": 1914,
+          "mae": 11.0016,
+          "n": 26006,
+          "rmse": 16.733861,
+          "smape": 8.756715
+        },
+        "17": {
+          "excluded": 1914,
+          "mae": 11.537262,
+          "n": 26006,
+          "rmse": 17.839649,
+          "smape": 8.302983
+        },
+        "18": {
+          "excluded": 1914,
+          "mae": 12.213404,
+          "n": 26006,
+          "rmse": 18.178425,
+          "smape": 8.603947
+        },
+        "19": {
+          "excluded": 1914,
+          "mae": 11.069962,
+          "n": 26006,
+          "rmse": 16.849808,
+          "smape": 8.327078
+        },
+        "2": {
+          "excluded": 1914,
+          "mae": 2.23062,
+          "n": 26006,
+          "rmse": 3.434318,
+          "smape": 8.976998
+        },
+        "20": {
+          "excluded": 1914,
+          "mae": 9.256868,
+          "n": 26006,
+          "rmse": 13.837789,
+          "smape": 8.679858
+        },
+        "21": {
+          "excluded": 1914,
+          "mae": 7.266817,
+          "n": 26006,
+          "rmse": 10.50275,
+          "smape": 9.150815
+        },
+        "22": {
+          "excluded": 1914,
+          "mae": 5.3935,
+          "n": 26006,
+          "rmse": 7.830229,
+          "smape": 9.276641
+        },
+        "23": {
+          "excluded": 1914,
+          "mae": 3.842514,
+          "n": 26006,
+          "rmse": 5.521537,
+          "smape": 8.960099
+        },
+        "3": {
+          "excluded": 1914,
+          "mae": 2.191121,
+          "n": 26006,
+          "rmse": 3.405252,
+          "smape": 9.032527
+        },
+        "4": {
+          "excluded": 1914,
+          "mae": 2.484245,
+          "n": 26006,
+          "rmse": 3.826777,
+          "smape": 9.017911
+        },
+        "5": {
+          "excluded": 1914,
+          "mae": 3.526447,
+          "n": 26006,
+          "rmse": 5.221799,
+          "smape": 8.993444
+        },
+        "6": {
+          "excluded": 1914,
+          "mae": 5.986494,
+          "n": 26006,
+          "rmse": 8.914133,
+          "smape": 9.120022
+        },
+        "7": {
+          "excluded": 1914,
+          "mae": 9.194109,
+          "n": 26006,
+          "rmse": 14.408483,
+          "smape": 9.026425
+        },
+        "8": {
+          "excluded": 1914,
+          "mae": 10.655827,
+          "n": 26006,
+          "rmse": 16.897508,
+          "smape": 8.828344
+        },
+        "9": {
+          "excluded": 1914,
+          "mae": 10.954187,
+          "n": 26006,
+          "rmse": 17.059898,
+          "smape": 8.878296
+        }
+      },
+      "by_station": {
+        "S001": {
+          "excluded": 0,
+          "mae": 12.777273,
+          "n": 16752,
+          "rmse": 17.480552,
+          "smape": 8.328857
+        },
+        "S002": {
+          "excluded": 0,
+          "mae": 12.715946,
+          "n": 16752,
+          "rmse": 23.05181,
+          "smape": 9.835527
+        },
+        "S003": {
+          "excluded": 0,
+          "mae": 5.035093,
+          "n": 16752,
+          "rmse": 6.99045,
+          "smape": 8.467078
+        },
+        "S004": {
+          "excluded": 0,
+          "mae": 10.191342,
+          "n": 16752,
+          "rmse": 14.683414,
+          "smape": 7.948106
+        },
+        "S005": {
+          "excluded": 0,
+          "mae": 12.088549,
+          "n": 16752,
+          "rmse": 16.643806,
+          "smape": 8.364362
+        },
+        "S006": {
+          "excluded": 0,
+          "mae": 6.220573,
+          "n": 16752,
+          "rmse": 11.001661,
+          "smape": 10.128445
+        },
+        "S007": {
+          "excluded": 0,
+          "mae": 4.169736,
+          "n": 16752,
+          "rmse": 5.764976,
+          "smape": 8.57956
+        },
+        "S008": {
+          "excluded": 0,
+          "mae": 7.664395,
+          "n": 16752,
+          "rmse": 11.037145,
+          "smape": 7.944158
+        },
+        "S009": {
+          "excluded": 0,
+          "mae": 7.452612,
+          "n": 16752,
+          "rmse": 13.31388,
+          "smape": 10.26168
+        },
+        "S010": {
+          "excluded": 0,
+          "mae": 9.452022,
+          "n": 16752,
+          "rmse": 16.920067,
+          "smape": 10.154668
+        },
+        "S011": {
+          "excluded": 0,
+          "mae": 7.123714,
+          "n": 16752,
+          "rmse": 10.271331,
+          "smape": 8.135455
+        },
+        "S012": {
+          "excluded": 0,
+          "mae": 7.682538,
+          "n": 16752,
+          "rmse": 10.481441,
+          "smape": 8.431192
+        },
+        "S013": {
+          "excluded": 0,
+          "mae": 11.018215,
+          "n": 16752,
+          "rmse": 19.716883,
+          "smape": 10.323729
+        },
+        "S014": {
+          "excluded": 0,
+          "mae": 3.814548,
+          "n": 16752,
+          "rmse": 5.194218,
+          "smape": 8.554768
+        },
+        "S015": {
+          "excluded": 0,
+          "mae": 5.1222,
+          "n": 16752,
+          "rmse": 7.40422,
+          "smape": 8.049811
+        },
+        "S016": {
+          "excluded": 0,
+          "mae": 7.445511,
+          "n": 16752,
+          "rmse": 10.265394,
+          "smape": 8.266345
+        },
+        "S017": {
+          "excluded": 0,
+          "mae": 8.472296,
+          "n": 16752,
+          "rmse": 15.051997,
+          "smape": 10.261985
+        },
+        "S018": {
+          "excluded": 0,
+          "mae": 3.013066,
+          "n": 16752,
+          "rmse": 4.161224,
+          "smape": 8.451984
+        },
+        "S019": {
+          "excluded": 0,
+          "mae": 9.840674,
+          "n": 16752,
+          "rmse": 14.380424,
+          "smape": 7.620825
+        },
+        "S020": {
+          "excluded": 0,
+          "mae": 5.488338,
+          "n": 16752,
+          "rmse": 9.79571,
+          "smape": 10.116733
+        },
+        "S021": {
+          "excluded": 0,
+          "mae": 3.621008,
+          "n": 16752,
+          "rmse": 5.00833,
+          "smape": 8.236586
+        },
+        "S022": {
+          "excluded": 0,
+          "mae": 9.746398,
+          "n": 16752,
+          "rmse": 14.280699,
+          "smape": 7.799283
+        },
+        "S023": {
+          "excluded": 0,
+          "mae": 12.978312,
+          "n": 16752,
+          "rmse": 17.798028,
+          "smape": 8.384527
+        },
+        "S024": {
+          "excluded": 0,
+          "mae": 10.551944,
+          "n": 16752,
+          "rmse": 18.779277,
+          "smape": 10.304094
+        },
+        "S025": {
+          "excluded": 0,
+          "mae": 3.490925,
+          "n": 16752,
+          "rmse": 4.86178,
+          "smape": 8.54584
+        },
+        "S026": {
+          "excluded": 0,
+          "mae": 4.821686,
+          "n": 16752,
+          "rmse": 7.09097,
+          "smape": 8.376275
+        },
+        "S027": {
+          "excluded": 0,
+          "mae": 10.437824,
+          "n": 16752,
+          "rmse": 18.65643,
+          "smape": 10.169668
+        },
+        "S028": {
+          "excluded": 0,
+          "mae": 7.177372,
+          "n": 16752,
+          "rmse": 12.881241,
+          "smape": 10.258028
+        },
+        "S029": {
+          "excluded": 0,
+          "mae": 5.512391,
+          "n": 16752,
+          "rmse": 7.62733,
+          "smape": 8.761875
+        },
+        "S030": {
+          "excluded": 0,
+          "mae": 9.372097,
+          "n": 16752,
+          "rmse": 13.609119,
+          "smape": 8.248403
+        },
+        "S031": {
+          "excluded": 0,
+          "mae": 6.290622,
+          "n": 16752,
+          "rmse": 11.140027,
+          "smape": 10.342441
+        },
+        "S032": {
+          "excluded": 0,
+          "mae": 5.465788,
+          "n": 16752,
+          "rmse": 7.518785,
+          "smape": 8.624623
+        },
+        "S033": {
+          "excluded": 0,
+          "mae": 6.542979,
+          "n": 16752,
+          "rmse": 9.523801,
+          "smape": 7.953359
+        },
+        "S034": {
+          "excluded": 0,
+          "mae": 13.683598,
+          "n": 16752,
+          "rmse": 18.825482,
+          "smape": 8.505932
+        },
+        "S035": {
+          "excluded": 0,
+          "mae": 6.681994,
+          "n": 16752,
+          "rmse": 11.885561,
+          "smape": 10.375395
+        },
+        "S036": {
+          "excluded": 0,
+          "mae": 3.488239,
+          "n": 16752,
+          "rmse": 4.825522,
+          "smape": 8.293929
+        },
+        "S037": {
+          "excluded": 0,
+          "mae": 8.497898,
+          "n": 16752,
+          "rmse": 12.426876,
+          "smape": 8.362206
+        },
+        "S038": {
+          "excluded": 15312,
+          "mae": 5.949196,
+          "n": 1440,
+          "rmse": 10.228672,
+          "smape": 10.340483
+        },
+        "S039": {
+          "excluded": 15312,
+          "mae": 6.987672,
+          "n": 1440,
+          "rmse": 12.065514,
+          "smape": 10.350726
+        },
+        "S040": {
+          "excluded": 15312,
+          "mae": 2.896254,
+          "n": 1440,
+          "rmse": 3.926765,
+          "smape": 7.650478
+        }
+      },
+      "overall": {
+        "excluded": 45936,
+        "mae": 7.689936,
+        "n": 624144,
+        "rmse": 12.851236,
+        "smape": 8.916342
+      }
+    }
+  },
+  "selection": {
+    "grid": {
+      "learning_rate": [
+        0.05,
+        0.1
+      ],
+      "max_leaf_nodes": [
+        31,
+        63
+      ],
+      "min_samples_leaf": [
+        20,
+        40
+      ]
+    },
+    "results": [
+      {
+        "config": {
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 20
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.490749,
+          "n": 26640,
+          "rmse": 9.560799,
+          "smape": 8.513049
+        }
+      },
+      {
+        "config": {
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 40
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.496436,
+          "n": 26640,
+          "rmse": 9.577507,
+          "smape": 8.550563
+        }
+      },
+      {
+        "config": {
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 20
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.218543,
+          "n": 26640,
+          "rmse": 9.302005,
+          "smape": 7.860256
+        }
+      },
+      {
+        "config": {
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 40
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.202285,
+          "n": 26640,
+          "rmse": 9.303434,
+          "smape": 7.80711
+        }
+      },
+      {
+        "config": {
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 20
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.312987,
+          "n": 26640,
+          "rmse": 9.390941,
+          "smape": 8.155976
+        }
+      },
+      {
+        "config": {
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 31,
+          "min_samples_leaf": 40
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.287446,
+          "n": 26640,
+          "rmse": 9.371362,
+          "smape": 8.08741
+        }
+      },
+      {
+        "config": {
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 20
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.106949,
+          "n": 26640,
+          "rmse": 9.229155,
+          "smape": 7.534448
+        }
+      },
+      {
+        "config": {
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 63,
+          "min_samples_leaf": 40
+        },
+        "n_train_rows": 539904,
+        "n_val_rows": 26640,
+        "val_metrics": {
+          "excluded": 0,
+          "mae": 6.086714,
+          "n": 26640,
+          "rmse": 9.200584,
+          "smape": 7.530009
+        }
+      }
+    ],
+    "selected_config": {
+      "learning_rate": 0.1,
+      "max_leaf_nodes": 63,
+      "min_samples_leaf": 40
+    },
+    "split": {
+      "train_end": "2026-08-31",
+      "train_rows": 539904,
+      "val_end": "2026-09-30",
+      "val_rows": 26640,
+      "val_start": "2026-09-01"
+    }
+  },
+  "source_commit": "8bb34846a9fcdbbb9f3214f25d088fc236e3c87d",
+  "source_config_sha256": "8c0dd791fa2575b654ab2dd4eba0248e157f8a724865c762551f078429aa7096",
+  "source_manifest_sha256": "e0c8096c8233bfa2be8fbb90e9f07bd179f0d1cdaa14d333b4a0d6b741e6bfa0",
+  "source_release_id": "dataset-v001"
+}

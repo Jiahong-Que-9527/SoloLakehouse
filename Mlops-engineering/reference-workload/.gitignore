@@ -5,3 +5,5 @@ mlruns/
 __pycache__/
 *.pyc
 uv.lock.bak
+mlruns.db
+mlartifacts/

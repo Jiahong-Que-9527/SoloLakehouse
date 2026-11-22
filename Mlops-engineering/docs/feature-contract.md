@@ -47,3 +47,5 @@ Resolved semantics (binding for every later stage):
 - **Forecast test**: a forecast row whose issue time does not match the day-ahead convention for its reference time (issued at 06:00 Europe/Berlin the day before) fails the build; a target hour with no readable forecast row also fails the build.
 - **Duplicate test**: two materializations from the same data release ID produce byte-identical Parquet and manifests.
 - **Fold check**: for every issue date in a range, an automated check verifies that the split's rows carry `available_at <= T` (in fact `== T`) and that every target hour is strictly after `T`.
+
+The training read path (M04) is the same rule gathered in one scan: `load_training_features` selects exactly the rows stamped at the issue times of a day range, so a training split and the per-day loader selection coincide by construction, and a shifted stamp drops out of both.
