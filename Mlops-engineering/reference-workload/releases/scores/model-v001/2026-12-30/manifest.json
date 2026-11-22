@@ -1,0 +1,23 @@
+{
+  "data_release_id": "dataset-v001",
+  "feature_manifest_sha256": "0d12d224c59928b85660d797c7a8a3af89702642f3cc7b288148321bd7f4f946",
+  "feature_release_id": "feat-v1-dataset-v001",
+  "git_sha": "7842ab6215de4959e0d85983cbfe97b4b1d3ff06",
+  "issue_date": "2026-12-30",
+  "issue_time_utc": "2026-12-30T05:00:00Z",
+  "kind": "scores",
+  "mlflow_model_version": 1,
+  "model_release_id": "model-v001",
+  "predictions": {
+    "path": "predictions.parquet",
+    "sha256": "a010987718a6fc4ce8033bcb1799005a2bbcc15cb7702e799c94bed1448995bb",
+    "size_bytes": 12303
+  },
+  "rows": 960,
+  "schema_version": "charging-scores-v1",
+  "stations": 40,
+  "target_window": {
+    "end": "2026-12-31T23:00:00Z",
+    "start": "2026-12-31T00:00:00Z"
+  }
+}

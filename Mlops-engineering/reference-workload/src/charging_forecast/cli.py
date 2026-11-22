@@ -39,6 +39,18 @@ Subcommands:
       [--issue-date <date>]
       rollback verification: pinned artifact checksum plus a deterministic
       scoring of the verification day (M05).
+  score-batch --config <yaml> --release <dir> --features <dir>
+      [--issue-date <date>] [--scores-dir <dir>]
+      score one issue day with the pinned release; idempotent per issue
+      time, predictions Parquet outside Git, score manifest under
+      releases/scores/ (M06).
+  shadow-compare --candidate <id> --config <yaml> --release <dir>
+      --features <dir> [--issue-days <d1,d2,…>] [--out <path>]
+      candidate and pinned score the same request set side by side, offline
+      (M06).
+  serve --config <yaml> --release <dir> --features <dir> [--host --port]
+      serve the pinned release over HTTP: /health, /v1/model, /v1/predict
+      (M06).
 """
 
 from __future__ import annotations
@@ -55,6 +67,7 @@ import yaml
 from . import __version__
 from . import eval as eval_mod
 from . import pipeline as pipeline_mod
+from . import serving as serving_mod
 from . import training as training_mod
 from .contract import build_manifest, git_commit, load_config, render_contract
 from .features import (
@@ -362,6 +375,89 @@ def _cmd_verify_pin(args: argparse.Namespace) -> int:
     return 0
 
 
+def _features_issue_bounds(features: Path) -> tuple[str, str]:
+    fmanifest = json.loads((features / "manifest.json").read_text(encoding="utf-8"))
+    return fmanifest["issue_start"], fmanifest["issue_end"]
+
+
+def _cmd_score_batch(args: argparse.Namespace) -> int:
+    pinned = serving_mod.load_pinned_release(
+        releases_dir=Path(args.releases_dir), models_dir=Path(args.models_dir)
+    )
+    issue_date = args.issue_date or _features_issue_bounds(Path(args.features))[1]
+    out = serving_mod.score_issue_day(
+        pinned,
+        Path(args.release),
+        load_config(args.config),
+        Path(args.features),
+        issue_date,
+        scores_dir=Path(args.scores_dir),
+        score_releases_dir=Path(args.score_releases_dir),
+    )
+    m = out["manifest"]
+    print(
+        f"scored {m['issue_date']} with {m['model_release_id']} "
+        f"({'reused' if out['reused'] else 'created'}): {m['rows']} rows, "
+        f"{m['stations']} stations, predictions sha256 {m['predictions']['sha256'][:12]}… "
+        f"-> {out['manifest_path']}"
+    )
+    return 0
+
+
+def _cmd_shadow_compare(args: argparse.Namespace) -> int:
+    pinned = serving_mod.load_pinned_release(
+        releases_dir=Path(args.releases_dir), models_dir=Path(args.models_dir)
+    )
+    candidate = serving_mod.load_release(
+        args.candidate, releases_dir=Path(args.releases_dir), models_dir=Path(args.models_dir)
+    )
+    lo, hi = _features_issue_bounds(Path(args.features))
+    if args.issue_days:
+        days = [d.strip() for d in args.issue_days.split(",") if d.strip()]
+    else:
+        end = date.fromisoformat(hi)
+        days = [
+            (end - timedelta(days=i)).isoformat()
+            for i in range(3)
+            if end - timedelta(days=i) >= date.fromisoformat(lo)
+        ][::-1]
+    report = serving_mod.shadow_compare(
+        pinned,
+        candidate,
+        Path(args.release),
+        load_config(args.config),
+        Path(args.features),
+        days,
+        out_path=Path(args.out) if args.out else None,
+    )
+    print(
+        f"shadow {report['candidate']['model_release_id']} vs pinned "
+        f"{report['pinned']['model_release_id']}: overall mean|Δ| "
+        f"{report['overall']['mean_abs_delta']} kWh over {len(days)} issue day(s)"
+        + (f" -> {args.out}" if args.out else "")
+    )
+    return 0
+
+
+def _cmd_serve(args: argparse.Namespace) -> int:
+    import uvicorn
+
+    from .api import PinnedScoringPort, create_app
+
+    pinned = serving_mod.load_pinned_release(
+        releases_dir=Path(args.releases_dir), models_dir=Path(args.models_dir)
+    )
+    port = PinnedScoringPort(
+        pinned, Path(args.release), load_config(args.config), Path(args.features)
+    )
+    print(
+        f"serving {pinned.model_release_id} (manifest {pinned.manifest_sha256[:12]}…) "
+        f"on http://{args.host}:{args.port}"
+    )
+    uvicorn.run(create_app(port), host=args.host, port=args.port, log_level="info")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="charging-forecast")
     parser.add_argument("--version", action="version", version=__version__)
@@ -488,6 +584,47 @@ def main(argv: list[str] | None = None) -> int:
     ver.add_argument("--issue-date", default=None)
     ver.add_argument("--out", default=None, help="optional directory for the verification bytes")
     ver.set_defaults(func=_cmd_verify_pin)
+
+    sc = sub.add_parser("score-batch", help="score one issue day with the pinned release (M06)")
+    sc.add_argument("--config", required=True)
+    sc.add_argument("--release", required=True)
+    sc.add_argument("--features", required=True)
+    sc.add_argument("--issue-date", default=None, help="default: the features' last issue day")
+    sc.add_argument("--scores-dir", default=serving_mod.DEFAULT_SCORES_DIR)
+    sc.add_argument(
+        "--score-releases-dir",
+        default=serving_mod.DEFAULT_SCORE_RELEASES_DIR,
+        help="committed score manifest directory",
+    )
+    sc.add_argument("--models-dir", default=pipeline_mod.DEFAULT_MODELS_DIR)
+    sc.add_argument("--releases-dir", default=pipeline_mod.DEFAULT_RELEASES_DIR)
+    sc.set_defaults(func=_cmd_score_batch)
+
+    sh = sub.add_parser(
+        "shadow-compare",
+        help="candidate and pinned score the same request set side by side (M06)",
+    )
+    sh.add_argument("--candidate", required=True, help="candidate model release ID")
+    sh.add_argument("--config", required=True)
+    sh.add_argument("--release", required=True)
+    sh.add_argument("--features", required=True)
+    sh.add_argument(
+        "--issue-days", default=None, help="comma-separated; default: last 3 issue days"
+    )
+    sh.add_argument("--out", default=None, help="optional path for the shadow report JSON")
+    sh.add_argument("--models-dir", default=pipeline_mod.DEFAULT_MODELS_DIR)
+    sh.add_argument("--releases-dir", default=pipeline_mod.DEFAULT_RELEASES_DIR)
+    sh.set_defaults(func=_cmd_shadow_compare)
+
+    sv = sub.add_parser("serve", help="serve the pinned release over HTTP (M06)")
+    sv.add_argument("--config", required=True)
+    sv.add_argument("--release", required=True)
+    sv.add_argument("--features", required=True)
+    sv.add_argument("--host", default="127.0.0.1")
+    sv.add_argument("--port", type=int, default=8000)
+    sv.add_argument("--models-dir", default=pipeline_mod.DEFAULT_MODELS_DIR)
+    sv.add_argument("--releases-dir", default=pipeline_mod.DEFAULT_RELEASES_DIR)
+    sv.set_defaults(func=_cmd_serve)
 
     args = parser.parse_args(argv)
     return args.func(args)
