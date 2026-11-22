@@ -2,7 +2,7 @@
 
 <!-- [魏征·2026-11-21] Initialize stage planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Contract](../docs/feature-contract.md)
+**Status:** accepted (2026-11-22) · [Roadmap](../README.md) · [Contract](../docs/feature-contract.md) · [Acceptance record](evidence/m02-acceptance.md)
 
 Turn the availability table into code: point-in-time features that training and serving compute through one path, with leakage tests that fail loudly.
 

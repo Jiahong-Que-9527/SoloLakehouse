@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 import yaml
 
-from charging_forecast.contract import load_config
+from charging_forecast.contract import build_manifest, git_commit, load_config
 from charging_forecast.generator import ChargingGenerator
 
 TINY_CONFIG: dict = {
@@ -59,10 +61,19 @@ def write_config(path, overrides: dict | None = None):
     return path
 
 
+def publish_manifest(release, cfg) -> None:
+    """Write the release manifest (the FeatureBuilder's consumption gate)."""
+    manifest = build_manifest(release, cfg, git_commit(release))
+    (release / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
 @pytest.fixture()
 def tiny_release(tmp_path):
     config_path = write_config(tmp_path / "config.yaml")
     cfg = load_config(config_path)
     out = tmp_path / "release"
     ChargingGenerator(cfg).generate(out)
+    publish_manifest(out, cfg)
     return out, cfg

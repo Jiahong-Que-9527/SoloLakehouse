@@ -27,6 +27,19 @@ def test_unreadable_families_are_flagged():
         assert AVAILABILITY_TABLE[family]["readable_at_issue"] is True, family
 
 
+def test_readability_bounds_match_the_contract():
+    # Stamps are the readability bound for content-bearing families only;
+    # published schedules (calendar, tariff, events) join by schedule semantics.
+    bounded = ("station_attributes", "demand_lags", "weather_forecasts")
+    published = ("calendar", "tariff_events")
+    for family in bounded:
+        assert AVAILABILITY_TABLE[family]["readability_bound"] is True, family
+    for family in published:
+        assert AVAILABILITY_TABLE[family]["readability_bound"] is False, family
+    for family in ("weather_realized", "same_day_demand"):
+        assert AVAILABILITY_TABLE[family]["readability_bound"] is True, family
+
+
 def test_issue_time_is_0600_berlin():
     assert issue_time_utc(date(2025, 1, 15)).utcoffset().total_seconds() == 0
     assert issue_time_utc(date(2025, 1, 15)).hour == 5  # CET -> 05:00Z
