@@ -2,7 +2,7 @@
 
 <!-- [魏征·2026-11-21] Initialize stage planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md)
+**Status:** accepted (2026-11-22) · [Roadmap](../README.md) · [Evidence guide](../docs/evidence-guide.md) · [Acceptance record](evidence/m03-acceptance.md) · [Baseline report](evidence/baseline-report.md)
 
 Fix the rules of comparison before training anything: a rolling backtest protocol, a segment-aware metric suite and a deterministic report that every later stage reuses.
 
