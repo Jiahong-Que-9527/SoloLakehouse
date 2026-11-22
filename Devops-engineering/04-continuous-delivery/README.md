@@ -40,7 +40,9 @@ docker via the non-default daemon socket):
   `state.json` and the history.
 - **Acceptance 2 (rejected candidate):** a manifest with a wrong fixture
   checksum was rejected before any state change; the running release kept
-  serving 200 with the same report identity.
+  serving 200 with the same report identity. (`manifest-R004-BAD.json` is
+  that intentional bad candidate, kept as rejection evidence — do not
+  "clean up".)
 - **Acceptance 2 (fails after startup):** R004-002 pinned the same image
   with the malformed fixture; readiness never arrived within the 90 s
   window, the deployer rolled back automatically to R004-001, and the
