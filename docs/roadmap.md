@@ -57,6 +57,12 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   Engineering](../Devops-engineering/README.md) plans a self-contained path
   from local development through CI, release, GitOps and recovery for one
   reference service. D01 is the next implementation.
+- **ML engineering.** [ML
+  Engineering](../Mlops-engineering/README.md) closes one ML system end to
+  end on a synthetic EV-charging workload: point-in-time features, rolling
+  backtests, MLflow lineage, a release gate, serving, drift monitoring and
+  Dagster orchestration. M01 (data foundation) is accepted; the feature
+  pipeline is next.
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture
   query in Compose. K3s, Flux and recovery remain later project milestones.
