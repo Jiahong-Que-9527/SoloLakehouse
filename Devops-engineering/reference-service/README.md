@@ -6,7 +6,7 @@
 
 <!-- [GLM·2026-11-20] Implement D01: v1 contract, fixtures, parser and API. -->
 
-**Status:** D01 implemented; acceptance runs pending · [D01](../01-reproducible-development/README.md)
+**Status:** D01 accepted 2026-11-22 on a fresh GitHub checkout · [D01](../01-reproducible-development/README.md)
 
 Provide a read-only answer to a practical question. Which checks did the configured synthetic energy snapshot pass, and when was it audited?
 
