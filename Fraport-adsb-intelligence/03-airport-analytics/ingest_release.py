@@ -39,6 +39,10 @@ LEDGER_SCHEMA = [
 ]
 
 DDL_TYPES = {n: t for n, t in TABLE_SCHEMA}
+RADIUS_LABEL_VERSION = "taxi-in-radius-v1"
+GEOMETRY_LABEL_VERSION = "taxi-in-geometry-v2"
+RADIUS_TABLE = "ground_ops_arrivals"
+GEOMETRY_TABLE = "ground_ops_arrivals_geometry_v2"
 
 
 def digest(path: Path) -> str:
@@ -165,6 +169,25 @@ def download_release(landing: str, workspace: Path) -> Path:
     return local_dir
 
 
+def target_table(manifest: dict, requested: str | None) -> str:
+    """Keep geometry and radius labels in separate Iceberg tables."""
+    label_version = manifest.get("label_version", RADIUS_LABEL_VERSION)
+    if label_version == GEOMETRY_LABEL_VERSION:
+        if manifest.get("contract_version") != "2":
+            raise ValueError("geometry labels require contract version 2")
+        if requested not in (None, GEOMETRY_TABLE):
+            raise ValueError(f"{label_version} must use {GEOMETRY_TABLE}")
+        return GEOMETRY_TABLE
+    if label_version != RADIUS_LABEL_VERSION:
+        raise ValueError(f"unsupported label version {label_version!r}")
+    if (manifest.get("contract_version") == "2"
+            or "airport_geometry" in manifest.get("input", {})):
+        raise ValueError("geometry release requires an explicit geometry label version")
+    if requested == GEOMETRY_TABLE:
+        raise ValueError(f"{GEOMETRY_TABLE} requires {GEOMETRY_LABEL_VERSION}")
+    return requested or RADIUS_TABLE
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--landing", required=True,
@@ -174,7 +197,7 @@ def main():
     parser.add_argument("--region", default="europe-west3")
     parser.add_argument("--gold-bucket", required=True)
     parser.add_argument("--connection", default="aviation-gold-conn")
-    parser.add_argument("--table", default="ground_ops_arrivals")
+    parser.add_argument("--table", help="target table, defaults to the label version's table")
     args = parser.parse_args()
 
     workspace = Path(tempfile.mkdtemp(prefix="aviation-ingest-"))
@@ -185,6 +208,11 @@ def main():
             print(json.dumps({"status": "blocked", "reason": verdict.reason}))
             sys.exit(1)  # nothing was written to any table
         manifest = verdict.manifest
+        try:
+            table = target_table(manifest, args.table)
+        except ValueError as exc:
+            print(json.dumps({"status": "blocked", "reason": str(exc)}))
+            sys.exit(1)
         release_id = manifest["release_id"]
         data_product = manifest.get("data_product", "unknown")
         manifest_sha = digest(local_dir / "manifest.json")
@@ -196,11 +224,11 @@ def main():
             print(json.dumps({"status": "already_ingested",
                               "release_id": release_id, "rows_added": 0}))
             return
-        ops.ensure_table(args.table, args.gold_bucket, args.connection)
-        external = f"tmp_ingest_{args.table}"
+        ops.ensure_table(table, args.gold_bucket, args.connection)
+        external = f"tmp_ingest_{table}"
         parquet_uri = f"{args.landing.rstrip('/')}/data/part-0001.parquet"
         ops.stage_external(external, parquet_uri)
-        rows = ops.apply_release(args.table, external, release_id, expected_rows)
+        rows = ops.apply_release(table, external, release_id, expected_rows)
         ops.record(release_id, data_product, manifest_sha, rows,
                    "ingested", "")
         print(json.dumps({"status": "ingested", "release_id": release_id,

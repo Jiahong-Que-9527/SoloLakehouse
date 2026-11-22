@@ -182,11 +182,11 @@ def build_day(con, root, day, records, tables):
         tables["observations"].extend(observation_rows)
         tables["segments"].extend(segment_rows)
         gaps = [s["max_internal_gap_s"] for s in segment_rows if s["max_internal_gap_s"]]
-        points = [o for o in observation_rows]
+        points = observation_rows
         coverage.append(dict(
             day_utc=day, icao24=icao, observation_count=len(points),
-            first_seen_epoch_s=min(p["time_epoch_s"] for p in points),
-            last_seen_epoch_s=max(p["time_epoch_s"] for p in points),
+            first_seen_epoch_s=min((p["time_epoch_s"] for p in points), default=None),
+            last_seen_epoch_s=max((p["time_epoch_s"] for p in points), default=None),
             segment_count=len(segment_rows), break_count=sum(1 for s in segment_rows if s["ends_before_break"]),
             max_gap_s=max(gaps) if gaps else None,
             stale_dropped=counters["stale_dropped"], invalid_dropped=counters["invalid_dropped"],

@@ -6,6 +6,7 @@ data_product: ground-ops
 version: "1"
 contract:
   schema_version: gold-ground-ops-v1
+  label_version: taxi-in-radius-v1
   # One row per candidate arrival per UTC day (flight_key embeds icao24
   # and lastseen, so the pair is unique).
   grain: [day_utc, flight_key]

@@ -68,10 +68,10 @@ def load_geometry(directory):
             values=np.linalg.norm(d-t[:,None]*heading,axis=1)
             np.minimum.at(result,indices,values)
         return result
-    def gdist(xy):
+    def gdist(xy, *, with_stands=True):
         r=np.stack([segdist(xy,[p]) for _,p in RW],axis=1)
         tx=taxi_dist(xy)
-        stand=np.sqrt(((xy[:,None,:]-ST)**2).sum(2).min(1))
+        stand=np.sqrt(((xy[:,None,:]-ST)**2).sum(2).min(1)) if with_stands else None
         apron=np.any([p.contains_points(xy) for p in APR],axis=0)
         return r,tx,stand,apron
     return gdist, [ref for ref, _ in RW], {

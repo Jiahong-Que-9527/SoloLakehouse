@@ -18,6 +18,7 @@ DAY = "2030-01-01"
 DAY_STAMP = int(datetime(2030, 1, 1, tzinfo=timezone.utc).timestamp())
 T = DAY_STAMP
 CONTRACT = Path(release_gate.__file__).resolve().parent / "contracts" / "ground_ops.yaml"
+GEOMETRY_CONTRACT = CONTRACT.with_name("ground_ops_geometry.yaml")
 
 
 def arrival(icao, flight_key, status, taxi_in_s=None):
@@ -41,7 +42,7 @@ class ReleaseGateTests(unittest.TestCase):
         self.output = self.workspace / "release"
         self.build_gold()
 
-    def build_gold(self, rows=None):
+    def build_gold(self, rows=None, **manifest_fields):
         rows = rows if rows is not None else [
             arrival("aaa001", "aaa001:1", "labeled", taxi_in_s=360),
             arrival("bbb002", "bbb002:2", "labeled", taxi_in_s=600),
@@ -51,7 +52,7 @@ class ReleaseGateTests(unittest.TestCase):
         pq.write_table(pa.Table.from_pylist(rows, schema=schema),
                        self.gold / "arrivals.parquet")
         meta = {"schema_version": gold_ground_ops.SCHEMA_VERSION, "adr": "ADR-006",
-                "dates_utc": [DAY], "policy": {}}
+                "dates_utc": [DAY], "policy": {}, **manifest_fields}
         meta["input_id"] = hashlib.sha256(
             json.dumps(meta, sort_keys=True).encode()).hexdigest()
         artifacts = {"arrivals.parquet": {"rows": len(rows),
@@ -62,9 +63,9 @@ class ReleaseGateTests(unittest.TestCase):
             json.dumps(meta, indent=2, sort_keys=True) + "\n")
         (self.gold / "coverage_report.md").write_text("# coverage\n")
 
-    def run_main(self, output=None, expect_success=True):
+    def run_main(self, output=None, expect_success=True, contract=CONTRACT):
         argv = ["release_gate.py", "--gold-root", str(self.gold),
-                "--contract", str(CONTRACT), "--output", str(output or self.output),
+                "--contract", str(contract), "--output", str(output or self.output),
                 "--release-id", "v001", "--approver", "test", "--notes", "synthetic"]
         with patch.object(sys, "argv", argv):
             if expect_success:
@@ -82,6 +83,7 @@ class ReleaseGateTests(unittest.TestCase):
         manifest = json.loads((self.output / "manifest.json").read_text())
         self.assertEqual(manifest["release_id"], "v001")
         self.assertEqual(manifest["data_product"], "ground-ops")
+        self.assertEqual(manifest["label_version"], gold_ground_ops.RADIUS_LABEL_VERSION)
         self.assertEqual(manifest["field_policy"], {"icao24": "keep", "callsign": "keep"})
         self.assertIn("data/part-0001.parquet", manifest["files"])
         validation = json.loads((self.output / "validation.json").read_text())
@@ -94,6 +96,30 @@ class ReleaseGateTests(unittest.TestCase):
         for other in self.output.rglob("*"):
             if other.name != "_SUCCESS" and other.is_file():
                 self.assertLessEqual(other.stat().st_mtime_ns, success_time, other.name)
+
+    def test_label_versions_require_the_matching_contract(self):
+        code = self.run_main(contract=GEOMETRY_CONTRACT, expect_success=False)
+        self.assertIn("does not match", code)
+        self.assertFalse(self.output.exists())
+        snapshot = {"files": {"geometry-00.osm": "snapshot-checksum"}}
+        self.build_gold(label_version=gold_ground_ops.GEOMETRY_LABEL_VERSION,
+                        airport_geometry=snapshot)
+        code = self.run_main(expect_success=False)
+        self.assertIn("does not match", code)
+        self.assertFalse(self.output.exists())
+        self.run_main(contract=GEOMETRY_CONTRACT)
+        manifest = json.loads((self.output / "manifest.json").read_text())
+        self.assertEqual(manifest["contract_version"], "2")
+        self.assertEqual(manifest["label_version"], gold_ground_ops.GEOMETRY_LABEL_VERSION)
+        self.assertEqual(manifest["input"]["airport_geometry"], snapshot)
+
+    def test_geometry_requires_explicit_version_and_snapshot(self):
+        self.build_gold(airport_geometry={"files": {"geometry-00.osm": "snapshot-checksum"}})
+        self.assertIn("explicit geometry label version", self.run_main(expect_success=False))
+        self.build_gold(label_version=gold_ground_ops.GEOMETRY_LABEL_VERSION)
+        self.assertIn("fingerprinted airport snapshot",
+                      self.run_main(contract=GEOMETRY_CONTRACT, expect_success=False))
+        self.assertFalse(self.output.exists())
 
     def test_repeat_release_is_byte_identical(self):
         self.run_main()

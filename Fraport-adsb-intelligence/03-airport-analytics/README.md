@@ -58,6 +58,13 @@ Recorded runs (2026-11-21, project `slh-gcp-test`):
   (`storage.objects.get`/`delete` denied) — release immutability is
   enforced by IAM, not by convention.
 
+The ingestion target follows the release manifest's `label_version`.
+Radius v1 and historical radius releases use `ground_ops_arrivals` by
+default. `taxi-in-geometry-v2` with contract version 2 uses
+`ground_ops_arrivals_geometry_v2`. The existing three views query the
+radius table. Use the geometry table when analysing a geometry-only
+series.
+
 ## Analytics model (M4)
 
 **[GLM·2026-11-21]** Three reusable views over `ground_ops_arrivals`, each
@@ -108,6 +115,30 @@ passing (2026-11-21). Query cost for the three view queries on the sample:
   `ground_ops` market carries no runway evidence (ADR-006). Recorded run
   below.
 - **M5.** Full dataset release, cost record and findings report.
+
+### Geometry v2 handoff (M5)
+
+1. Confirm that `local-verification.json` in the
+   [active backfill directory](../02-aviation-transformation/README.md#backfill-status-and-handoff)
+   lists all 24 release IDs from `geometry-v2-2024-11` through
+   `geometry-v2-2026-10`. Check that every monthly date is either present
+   or recorded as missing.
+2. Check `logs/cloud-pilot.log` and `cloud-pilot-verification.json` in
+   that directory. The approved November 2024 pilot is queued behind
+   local verification. Its destination is the private Frankfurt dataset
+   `slh-gcp-test.aviation`, table `ground_ops_arrivals_geometry_v2`.
+   Expect **17,051 rows**, **13,413 labeled rows**, **0 duplicate
+   (day_utc, flight_key) keys**, and **0 rows added by a repeat import**.
+   Record the BigQuery job IDs and bytes billed.
+3. If the pilot stops, check the error before retrying. Reuse an existing
+   Landing object only if its checksum matches the local package. For a
+   retry, use the same release ID and geometry table, and keep the
+   pilot's 100 MiB per-query cap.
+4. After the pilot reconciles, size the remaining 23 packages and assess
+   their import under the repository's GCP cost rules. Then schedule
+   the remaining imports sequentially, reconcile each release, and
+   write the cost and findings report. Use the geometry table for the
+   series and report taxi-in as an ADS-B proxy.
 
 ## Acceptance
 

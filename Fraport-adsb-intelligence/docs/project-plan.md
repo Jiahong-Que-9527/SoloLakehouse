@@ -118,11 +118,10 @@ release.
 **Status (2026-11-21):** Silver v2 (M1'), the `gold/ground_ops` market (M2),
 the Release Gate (M3) and the container image with CI (M5) are implemented
 and recorded. `v001` is released from the 2026-07-01 gold output, `v002`
-from the pilot week, and a failing fixture is blocked. The full dataset run
-(M4) is in progress and paused at 208/727 Silver days of the two-year
-window (2024-11-01 to 2026-10-31); the resume procedure is in the 02
-README. The earlier full-silver output on local disk is the superseded
-arrival-anchored M1 design, not Silver v2.
+from the pilot week, and a failing fixture is blocked. The two-year
+Geometry v2 backfill (M4) is running for 2024-11-01 through 2026-10-31.
+Its [handoff and completion checks](../02-aviation-transformation/README.md#backfill-status-and-handoff)
+cover the 730 Silver dates and 24 monthly packages.
 
 ## Phase 3: 03 Airport Analytics and cloud Gold
 
@@ -138,9 +137,11 @@ findings report.
 **Status (2026-11-21):** M1 (ADR-004 spike, managed Iceberg accepted),
 M2 (Terraform foundation applied via CI), M3 (idempotent ingestion of the
 synthetic and `v002` releases) and M4 (analytics views verified on the
-fixed sample) are done. Remaining: M5, the full dataset release with the
-cost record and findings report — it waits for 02 M4, the full-dataset
-Silver v2 and Gold run.
+fixed sample) are done. M5 starts by reconciling the November 2024
+Geometry v2 package in BigQuery after the 24 local packages pass
+verification. The [M5 handoff](../03-airport-analytics/README.md#geometry-v2-handoff-m5)
+lists the expected counts and the conditions for starting the remaining
+imports and findings report.
 
 ## Phase 4: 04 Lakehouse Integration
 

@@ -67,9 +67,8 @@ Release  versioned Gold folder with manifest, contract and checks
   the 2026-07-01 gold output and `v002` from the pilot week, which closes
   the vertical slice V0 of the project plan.
 - **M4.** Full dataset. Record run ID, source window, quality results and the
-  outcome of a repeat run. In progress (2026-11-21, paused at 208/727
-  Silver days — see "Full dataset run (M4, in progress)" below for the
-  resume procedure).
+  outcome of a repeat run. The two-year Geometry v2 backfill is running
+  locally. See [the backfill status and handoff](#backfill-status-and-handoff).
 - **M5.** Container image and CI. Optional engine comparison (DuckDB, Polars,
   Spark) on the same input. Done (2026-11-21, image builds and runs the
   synthetic suite in CI; the optional engine comparison is not planned).
@@ -119,48 +118,137 @@ ignored its input; fixed on 2026-11-21.
 
 Recorded pilot-week run (2026-10-12 to 2026-10-18, from
 `eddf-silver-v2-pilotweek-20261121a`): 4,656 candidates, 2,583 labeled
-(55.5%), 1,894 censored (`censored_few_points` — the ADS-B ground-coverage
-limit), 174 no_surface, 2 no_airborne_approach, 3 surface_without_approach.
+(55.5%), 1,894 censored with fewer than two points qualifying under the
+1 km rule, 174 no_surface, 2 no_airborne_approach, 3 surface_without_approach.
 Output: `eddf-gold-ground-ops-pilotweek-20261121a`.
 
 Recorded run (2026-07-01): 650 candidates -> 395 labeled (61%), 244
-censored (surface points < 2 - the ADS-B ground-coverage limit), 9
+censored with fewer than two qualifying points under the 1 km rule, 9
 no_surface, 2 no_airborne_approach. Labeled taxi-in: median 1.8 min, max
 14.8 min, path up to 3,285 m; 169 flights carry a >30 s taxi gap.
 
 ## Full dataset run (M4, in progress)
 
 **[GLM·2026-11-21]** Scope: the two-year window 2024-11-01 to 2026-10-31
-(727 days, dataset `v1` as defined in the batch plan). The extension months
+(730 calendar days, dataset `v1` as defined in the batch plan). The extension months
 (2024-01 to 2024-10 collected so far, later b35-b60) ride a second pass
 once acquisition finishes. Pipeline, chosen for the 30 GB RAM budget:
 
 1. **Silver per day** (`full_run.sh silver`) — a single multi-month run
    would accumulate ~90M rows in Python and OOM; per-day peaks at ~3 GB,
    runs 2 workers in parallel, and is restartable at day granularity.
-2. **Monthly merge** (`merge_silver_month.py`) — DuckDB streams a month of
-   daily outputs into one root without Python-side accumulation.
-3. **Gold per month** (`full_run.sh gold`) — deliberately not per day:
-   taxi-in windows cross midnight, so a day-local gold run would lose
-   boundary arrivals.
-4. Monthly releases through the gate, then ingestion (03 M5).
+2. **Monthly merge** (`merge_silver_month.py`) — DuckDB streams completed
+   daily outputs into one root. The monthly `run_manifest.json` records
+   included and missing dates. Missing days are skipped without triggering a
+   daily run. A month with no completed days writes its manifest and skips Gold.
+3. **Gold per month** (`full_run.sh gold`) — each flight stays with its
+   original Silver date. Its observation window can cross UTC midnight.
+   When the window reaches outside the month, Gold reads observations from
+   the relevant daily Silver folders and records unavailable dates. Release
+   manifests retain the date coverage and observation gaps.
+4. Monthly releases through the matching label contract, then ingestion (03 M5).
 
-**Status (paused 2026-11-21):** 208/727 days of Silver are complete
-(through 2025-05), zero failures, all with verified manifests. Half-done
-days are auto-redone: the driver counts a day as done only when its
-`run_manifest.json` exists. To resume, run:
+### Backfill status and handoff
+
+**Checkpoint (2026-11-22, 22:34 CET):** 636 of 730 Silver dates and 13 of
+24 Geometry v2 monthly packages were complete. The February 21, 2026 run
+was recovered after fixing coverage statistics for aircraft whose
+positions were all stale. Bronze manifests were present for all 730 days
+and their hourly partitions.
+
+The active run is under
+`/home/bill/slh-data/full-20241101-20261031-geometry-v2`. Its local
+supervisor resumes unfinished phases and verifies the series. Check
+`logs/driver-silver.log`, `logs/driver-ready-months.log`,
+`logs/driver-gold-release.log`, and `logs/supervisor.log` before starting
+a recovery run. The local completion evidence is `local-verification.json`
+with 24 verified releases, each month's row count, and its Silver and
+observation coverage. Use [the cloud pilot checklist](../03-airport-analytics/README.md#geometry-v2-handoff-m5)
+after local verification.
+
+If the supervisor has exited before completion, resume against the same
+run directory and geometry snapshot:
 
 ```bash
 cd Fraport-adsb-intelligence/02-aviation-transformation
-./full_run.sh silver   # continues from 2025-05-XX, skips the 208 done days
-./full_run.sh gold     # after silver completes: monthly merge + gold
+export PARENT=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+export GEOMETRY_DIR=/path/to/local/osm-snapshot
+./full_run.sh silver
+./full_run.sh gold
+APPROVER="..." ./full_run.sh release
 ```
 
-State lives in `/home/bill/slh-data/full-20241101-20261031/`
-(`silver/`, `silver-monthly/`, `gold/`, `logs/`), outside the repository.
-After both phases: one release per month (`v003-2024-11` … `v003-2026-10`)
-through `release_gate.py`, repeat-run verification on one month, then
-ingestion and the findings report in project 03 (its M5).
+Keep boundary-day Silver under `silver/` when available so edge flights
+can use those observations without adding those dates to a release.
+With `GEOMETRY_DIR` set, the driver uses `gold-geometry-v2/` and
+`releases-geometry-v2/` under `PARENT`. It skips completed outputs and
+retains the validation record for a blocked release.
+Each monthly release passes through `release_gate.py` before ingestion
+and the findings report in project 03 (its M5). Use a single label version
+for the monthly series.
+
+**November 2024 radius v1 verification (2026-11-22).** All 30 Silver dates
+were available. Gold produced 17,051 candidates and 7,912 labeled rows
+(46.4%). A repeat produced identical Gold data, report and manifest.
+The release check blocked `v003-2024-11` at the 50% label-coverage
+minimum. Synthetic tests verify observation windows that cross UTC
+midnight and month end.
+
+### Taxi-in coverage investigation
+
+In November 2024, 6,723 of the 6,728 `censored_few_points` arrivals had
+zero qualifying points within 1 km. A deterministic sample took four
+arrivals per day from the censored pool with at least two distinct
+surface position updates in the existing time window. All 120 sampled
+arrivals had an observation beyond 1 km within 30 m of a mapped taxiway
+or inside a mapped apron, and more than 30 m from the runway centreline.
+61 showed at least 30 m of movement between sequential distinct updates
+no more than 30 s apart on those surfaces.
+
+To build Geometry v2, pass `--geometry-dir /path/to/local/osm-snapshot`
+to `gold_ground_ops.py` with a fresh output directory. It admits observations
+beyond 1 km when they meet the mapped-surface criteria, within the existing
+5 km and time windows. It counts each position update once and records the
+snapshot checksums and matching tolerances in the Gold manifest. The
+geometry rule is opt-in. The comparison uses the local November 2026 OSM
+snapshot as reference evidence for historical observations.
+
+| Silver month | Arrival candidates | 1 km coverage | Geometry coverage | Median change on arrivals labeled by both |
+|---------------|-------------------:|--------------:|------------------:|-------------------------------------------:|
+| 2024-11 | 17,051 | 46.4% | 78.7% | +185 s |
+| 2025-01 | 15,033 | 52.9% | 87.1% | +168 s |
+| 2025-03 | 17,265 | 53.1% | 97.0% | +212 s |
+
+The geometry outputs passed the existing contract checks locally, and
+the November repeat produced identical arrivals and coverage report.
+These are proxy labels. The paired difference quantifies a change to
+the metric, so a geometry release should identify its label definition
+when compared with the 1 km releases.
+
+### Taxi-in label versions
+
+| Label version | Gold invocation | Release contract |
+|---------------|-----------------|------------------|
+| `taxi-in-radius-v1` | Default Gold invocation | [ground_ops.yaml](contracts/ground_ops.yaml), version 1 |
+| `taxi-in-geometry-v2` | Gold with `--geometry-dir` | [ground_ops_geometry.yaml](contracts/ground_ops_geometry.yaml), version 2 |
+
+Both versions use the same Gold columns. The release gate validates the
+label version and copies it into the release manifest. It treats historical
+radius manifests without a version field as v1. Geometry v2 requires an
+explicit version and snapshot checksums. Rebuild experimental geometry
+outputs with the current Gold command before packaging.
+
+Local acceptance also covered the 2026-10-12 to 2026-10-18 pilot week.
+Geometry v2 labeled 4,405 of 4,656 arrivals (94.6%), compared with
+2,583 (55.5%) in the original radius release.
+
+```bash
+uv run --locked python release_gate.py \
+  --gold-root /path/to/monthly-geometry-gold \
+  --contract contracts/ground_ops_geometry.yaml \
+  --output /path/to/new/local-release \
+  --release-id geometry-v2-2024-11 --approver "..."
+```
 
 ## Release Gate (M3)
 

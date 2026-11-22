@@ -13,7 +13,7 @@ DATA = b"parquet-bytes"
 
 
 def build_release(root: Path, release_id="v002", data_product="ground-ops",
-                  rows=3, gate_status="passed", data_bytes=DATA):
+                  rows=3, gate_status="passed", data_bytes=DATA, **manifest_fields):
     root.mkdir(parents=True, exist_ok=True)
     data = root / "data"
     data.mkdir(exist_ok=True)
@@ -32,7 +32,7 @@ def build_release(root: Path, release_id="v002", data_product="ground-ops",
         {"release_id": release_id, "status": gate_status, "checks": checks}))
     (root / "manifest.json").write_text(json.dumps(
         {"release_id": release_id, "data_product": data_product,
-         "files": files}, sort_keys=True) + "\n")
+         "files": files, **manifest_fields}, sort_keys=True) + "\n")
     return root
 
 
@@ -75,9 +75,11 @@ class IngestTests(unittest.TestCase):
         self.workspace = Path(tempfile.mkdtemp(prefix="ingest-test-"))
         self.release = build_release(self.workspace / "release")
 
-    def run_main(self, expect_exit=None):
+    def run_main(self, expect_exit=None, table=None):
         argv = ["ingest_release.py", "--landing", str(self.release),
                 "--project", "test-proj", "--gold-bucket", "test-gold"]
+        if table:
+            argv.extend(["--table", table])
         with patch.object(sys, "argv", argv), \
              patch.object(ingest_release, "BigQueryOps", FakeOps):
             if expect_exit is None:
@@ -91,6 +93,7 @@ class IngestTests(unittest.TestCase):
         self.run_main()
         ops = FakeOps.instances[0]
         self.assertEqual(ops.calls[0], "ensure_ledger")
+        self.assertIn(("ensure_table", ingest_release.RADIUS_TABLE), ops.calls)
         self.assertIn(("apply", "v002", 3), ops.calls)
         self.assertIn(("record", "ingested", ""), ops.calls)
 
@@ -103,6 +106,28 @@ class IngestTests(unittest.TestCase):
         # The second run never touched the table.
         self.assertNotIn(("ensure_table", "ground_ops_arrivals"), second.calls)
         self.assertEqual(second.ledger, {"v002": "ingested"})
+
+    def test_geometry_uses_a_separate_table(self):
+        self.release = build_release(
+            self.workspace / "geometry", release_id="geometry-v2-2030-01",
+            label_version=ingest_release.GEOMETRY_LABEL_VERSION, contract_version="2")
+        self.run_main()
+        self.assertIn(("ensure_table", ingest_release.GEOMETRY_TABLE),
+                      FakeOps.instances[0].calls)
+
+    def test_requested_table_cannot_mix_label_versions(self):
+        self.run_main(expect_exit=1, table=ingest_release.GEOMETRY_TABLE)
+        self.release = build_release(
+            self.workspace / "geometry", label_version=ingest_release.GEOMETRY_LABEL_VERSION,
+            contract_version="2")
+        self.run_main(expect_exit=1, table=ingest_release.RADIUS_TABLE)
+        self.assertEqual(FakeOps.instances, [])
+
+    def test_unversioned_geometry_is_blocked(self):
+        self.release = build_release(
+            self.workspace / "experimental", input={"airport_geometry": {"files": {}}})
+        self.run_main(expect_exit=1)
+        self.assertEqual(FakeOps.instances, [])
 
     def test_failing_gate_is_blocked(self):
         self.release = build_release(self.workspace / "blocked",
