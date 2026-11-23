@@ -5,7 +5,7 @@
 
 Deliver an end-to-end modern **Data Engineering** platform on **Python, SQL, dbt, DuckDB, Google BigQuery, and Apache Airflow** over a hybrid German EV charging and roaming commerce workload (`European EV Charging & Roaming Commerce`). Each stage builds verifiable capabilities expected of a mid-to-senior Data Engineer: resumable raw ingestion, Kimball dimensional modeling, dbt testing pyramids and data contracts, incremental merge with late-arriving settlements and SCD Type 2 snapshots, Slim CI, BigQuery partitioning and cost governance, Airflow orchestration with failure recovery, and run observability.
 
-**Status:** E01 implemented (evidence recorded, pending owner review); E02–E08 planned (architecture, contracts, stage designs, and implementation plans ready; **E02** next).
+**Status:** E01 accepted (PR #277 merged; contract at v1.3); E02 in progress (dbt project + models landed, tests/CI pending); E03–E08 planned (architecture, stage designs, and implementation plans ready).
 
 ## Human quick start
 
@@ -77,8 +77,8 @@ To combine real-world dirty data with deterministic end-to-end financial reconci
 
 | Stage | Status | Acceptance record |
 |---|---|---|
-| E01 · Ingestion and raw layer | implemented | [e01-acceptance.md](01-ingestion-raw-layer/evidence/e01-acceptance.md) |
-| E02 · Dimensional modeling with dbt | planned | — |
+| E01 · Ingestion and raw layer | accepted | [e01-acceptance.md](01-ingestion-raw-layer/evidence/e01-acceptance.md) |
+| E02 · Dimensional modeling with dbt | in progress | — |
 | E03 · Testing, contracts and versioning | planned | — |
 | E04 · Incremental, backfill and SCD2 | planned | — |
 | E05 · Macros, exposures and Slim CI | planned | — |
