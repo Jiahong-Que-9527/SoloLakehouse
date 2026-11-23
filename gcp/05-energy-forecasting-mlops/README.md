@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G05 · Steps 1–2 landed (2026-11-23: pinned fixture, MW target, dataset validation; window freeze, issue-time cutoff, leakage test)** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**G05 · Steps 1–4 landed (2026-11-23: fixture v2, MW target, validation; windows + leakage test; holdout comparison — candidate 0.212 MW vs baseline 4.897; registry, gate and manifest — losing candidate refused and recorded)** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Build a traceable model delivery workflow. Use released or synthetic energy data to train a simple load-forecast baseline, register a model and serve a selected
 version.

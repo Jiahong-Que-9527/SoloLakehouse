@@ -4,7 +4,7 @@
 
 <!-- [GLM·2026-11-20] Replace the Vertex AI training step with the cloud-neutral path; see ADR-005. -->
 
-**Status:** in progress — step 1 (pinned fixture, average-MW target, dataset validation) landed 2026-11-22; step 2 (window freeze, issue-time cutoff, leakage test) landed 2026-11-23; steps 3–5 open. [Project brief](../README.md) and [technical design](design.md).
+**Status:** in progress — steps 1–2 landed (2026-11-22/23); steps 3–4 (evaluation, registry, gate) landed 2026-11-23; step 5 (batch scoring + rollback) open. [Project brief](../README.md) and [technical design](design.md).
 
 ## First delivery
 
@@ -76,5 +76,41 @@ Landed in [PR #253](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/253):
   and calendar fields not derived from `interval_start`.
 - 40 tests green (18 new), ruff clean. All local, no cloud resources.
 
-Steps 3–5 (baseline vs candidate, MLflow registry + promotion gate,
-batch scoring + rollback) remain open.
+### Step 3 — baseline vs candidate on the frozen holdout (2026-11-23)
+
+- `evaluation.py`: the seasonal-naive baseline predicts the value at the
+  same interval seven days earlier (`lag_7d_mw`), so both models score
+  identical timestamps under identical missing-data rules. The candidate
+  is one LightGBM regressor (CPU, fixed seed 20261123, deterministic
+  single-thread fit) on the training contract's features: daily lags
+  1d–7d (all from completed intervals, each carrying its source
+  `interval_end` in the row) plus hour and weekday.
+- **Fixture re-pin v1 → v2** (allowed by the step-1 replay rule): the v1
+  waveform's only noise was a 19-interval wiggle no feature set may
+  learn, which made the seasonal-naive baseline unbeatable (candidate
+  MAE 0.166 vs naive 0.113 MW). v2 adds a two-week persistence anomaly
+  the daily lags track: holdout MAE candidate **0.211887 MW** vs naive
+  **4.896972 MW** — replays byte-identical, tolerance recorded
+  (1e-6 MW). New pin `4d0e12e0…f271`, release id `g05-fixture-v2`.
+- Selection on validation, then the frozen holdout comparison; the
+  report records windows, seed, git SHA, library version, both models'
+  MAE/RMSE/n and the replay tolerance.
+
+### Step 4 — registry, promotion gate and manifest (2026-11-23)
+
+- `registry.py`: the baseline registers first as version 1 (the rollback
+  target); the candidate passes the gate (holdout MAE ≤ baseline) and
+  registers as version 2. The manifest (`releases/model-manifest.json`)
+  carries release id, input checksum, git SHA, seed, run and version
+  ids, the evaluation-report checksum and both holdout metric sets.
+- **Refusal drill:** a deliberately underfit candidate (one split, one
+  round) on the separate `g05-fixture-losing-v1` fixture loses to the
+  baseline (3.215 vs 0.113 MW); `PromotionRefused` blocks registration,
+  the refusal message carries both MAEs, and the run stays queryable
+  tagged `experiment_only=true` with **no registry version**.
+- `pipeline.py` makes both drills repeatable:
+  `python -m energy_forecast.pipeline promote` and `refuse-drill`.
+- 51 tests green (11 new), ruff clean. All local, no cloud resources.
+
+Step 5 (batch scoring into `energy_ml.prediction` with a rollback drill)
+remains open.

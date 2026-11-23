@@ -1,0 +1,7 @@
+data/
+.venv/
+__pycache__/
+*.pyc
+mlruns/
+mlruns.db
+mlartifacts/

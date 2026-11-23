@@ -1,0 +1,77 @@
+{
+  "baseline": {
+    "definition": "load_mw at the same interval seven days earlier",
+    "name": "seasonal_naive_7d"
+  },
+  "candidate": {
+    "config": {
+      "deterministic": true,
+      "force_row_wise": true,
+      "learning_rate": 0.05,
+      "min_data_in_leaf": 40,
+      "num_boost_round": 300,
+      "num_leaves": 31,
+      "num_threads": 1,
+      "objective": "regression",
+      "seed": 20261123
+    },
+    "features": [
+      "lag_1d_mw",
+      "lag_2d_mw",
+      "lag_3d_mw",
+      "lag_4d_mw",
+      "lag_5d_mw",
+      "lag_6d_mw",
+      "lag_7d_mw",
+      "hour",
+      "weekday"
+    ],
+    "library": "lightgbm",
+    "library_version": null
+  },
+  "git_sha": "43c29b6ff9361daf0bb2e1c5907310d3533f3498",
+  "holdout": {
+    "baseline": {
+      "mae_mw": 4.896972,
+      "n": 672,
+      "rmse_mw": 5.656743
+    },
+    "candidate": {
+      "mae_mw": 0.211887,
+      "n": 672,
+      "rmse_mw": 0.285377
+    }
+  },
+  "input_sha256": "4d0e12e0998c288a6bda6b76bf5e077e78aec296580fbdc2581a29fc570f6271",
+  "missing_data_rule": "identical rows for both models; rows without a readable seven-day lag are excluded before the split and counted in the dataset metadata",
+  "release_id": "g05-fixture-v2",
+  "replay_tolerance_mw": 1e-06,
+  "report_schema_version": "g05-eval-report-v1",
+  "seed": 20261123,
+  "validation": {
+    "baseline": {
+      "mae_mw": 4.898053,
+      "n": 672,
+      "rmse_mw": 5.657674
+    },
+    "candidate": {
+      "mae_mw": 3.326956,
+      "n": 672,
+      "rmse_mw": 3.81666
+    }
+  },
+  "windows": {
+    "holdout": {
+      "end_exclusive": "2026-07-06T00:00:00+00:00",
+      "start": "2026-06-29T00:00:00+00:00"
+    },
+    "train": {
+      "end_exclusive": "2026-06-22T00:00:00+00:00",
+      "start": "2026-06-08T00:00:00+00:00"
+    },
+    "validation": {
+      "end_exclusive": "2026-06-29T00:00:00+00:00",
+      "start": "2026-06-22T00:00:00+00:00"
+    }
+  }
+}
