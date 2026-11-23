@@ -23,7 +23,7 @@ individual stages are stable.
 - **M1.** Verified the local monthly dependency graph with synthetic tests and
   a real November 2024 Gold release.
 - **M2.** Verified release detection, ingestion and reconciliation locally.
-  The live BigQuery handoff is a separate verification step.
+  The live BigQuery handoff reconciles previously ingested releases read-only.
 - **M3.** Add feature build and training.
 - **M4.** Failure injection, recovery exercise and runbook.
 
@@ -159,3 +159,34 @@ receipts. Source commit `0f1facc89eef5032bb6237d6a220e151b9279368`.
 |---|---|---|
 | 2024-12 | `097a782a-fc52-4cf1-b86f-7abba0ee0d9d` | `92f70aa6-754a-4e75-b4b8-f5422067d05a` |
 | 2025-01 | `79cb6ea0-f080-4eea-ac3b-386630db9116` | `ea8be018-49a1-497c-acec-52c89e53e58f` |
+
+## M2 read-only BigQuery reconciliation
+
+Use `reconcile_month_bigquery` explicitly for an already-ingested month.
+The sensor continues to target the local job. The BigQuery job rechecks the
+local handoff and package, then runs a parameterized `SELECT` against the
+ingest ledger and Geometry v2 table in `europe-west3`. It accepts exactly
+one matching `ingested` ledger record and reconciles the local manifest
+hash, total rows, labeled rows and duplicate keys. Missing or inconsistent
+evidence fails the job. Each query has a fixed 100 MiB billing cap. The
+result records the query job ID and actual bytes billed.
+
+With `bq` authenticated for the project and a fresh state directory as
+above, verify the local handoff once and run the read-only asset:
+
+```bash
+export FRAPORT_BQ_PROJECT=slh-gcp-test
+uv run --locked python orchestration.py verify_month 2024-12
+uv run --locked python orchestration.py reconcile_month_bigquery 2024-12
+```
+
+The existing phase 03 operator workflow owns first-time cloud uploads and
+ingestion. This job only reconciles existing releases and reports `rows_added: 0`.
+
+The live check and its repeat matched the 2024-12 manifest and counts:
+16,218 rows, 13,079 labeled rows, and zero duplicate keys. Both runs
+reported `already_ingested` with zero additions. The first `SELECT` billed
+20 MiB. The repeat hit the query cache and billed zero bytes. The local
+Dagster instance recorded one upstream verification and two independent
+BigQuery reconciliations. Nine tests passed.
+[Recorded live evidence](evidence/bigquery-reconciliation-2024-12.json)

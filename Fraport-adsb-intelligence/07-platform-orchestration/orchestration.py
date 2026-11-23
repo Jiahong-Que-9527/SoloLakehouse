@@ -1,6 +1,7 @@
 """Verify a monthly Geometry v2 release and rehearse its analytics ingestion."""
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -26,7 +27,8 @@ from dagster import (
     sensor,
 )
 
-from local_analytics import PHASE_03, ingest_local
+from cloud_analytics import reconcile_existing_release
+from local_analytics import PHASE_03, ingest_local, phase03
 
 HERE = Path(__file__).resolve().parent
 VERIFIER_PATH = HERE.parent / "04-aviation-lakehouse" / "release_inputs.py"
@@ -106,22 +108,42 @@ def local_handoff(context: AssetExecutionContext, approved_gold: dict) -> None:
                                  "created": created, "source_commit": approved_gold["source_commit"]})
 
 
-@asset(partitions_def=MONTHS, deps=[local_handoff], description="Rehearse phase 03 ingestion in local DuckDB.")
-def local_analytics(context: AssetExecutionContext) -> dict:
-    month = context.partition_key
+def verified_handoff(month: str) -> tuple[Path, dict, str]:
     directory = release_directory(month)
-    handoff = release_inputs.read_json(handoff_path(month))
+    raw = handoff_path(month).read_bytes()
+    handoff = json.loads(raw)
     if (handoff["schema_version"] != "fraport-local-handoff-v1" or handoff["status"] != "verified_local"
             or handoff["release_id"] != directory.name or handoff["month_utc"] != month
             or handoff["code_sha256"] != code_digests() or handoff["control_sha256"] != control_digests(directory)):
         raise Failure("analytics requires an unchanged verified handoff for this partition", allow_retries=False)
+    return directory, handoff, hashlib.sha256(raw).hexdigest()
+
+
+@asset(partitions_def=MONTHS, deps=[local_handoff], description="Rehearse phase 03 ingestion in local DuckDB.")
+def local_analytics(context: AssetExecutionContext) -> dict:
+    directory, handoff, handoff_sha = verified_handoff(context.partition_key)
     database = Path(os.environ["FRAPORT_STATE_DIR"]) / "analytics.duckdb"
     result = ingest_local(directory, handoff, database)
-    result["handoff_sha256"] = release_inputs.file_digest(handoff_path(month))
+    result["handoff_sha256"] = handoff_sha
     result["analytics_code_sha256"] = {path.name: release_inputs.file_digest(path)
                                        for path in (HERE / "local_analytics.py", PHASE_03)}
     context.add_output_metadata({"release_id": result["release_id"], "status": result["status"],
                                  "rows_added": result["rows_added"], **result["geometry_counts"]})
+    return result
+
+
+@asset(partitions_def=MONTHS, deps=[local_handoff], description="Read-only reconciliation of an existing BigQuery release.")
+def bigquery_reconciliation(context: AssetExecutionContext) -> dict:
+    directory, handoff, handoff_sha = verified_handoff(context.partition_key)
+    verdict = phase03.verify_release(directory)
+    if not verdict.ok or control_digests(directory) != handoff["control_sha256"]:
+        raise Failure(f"phase 03 could not reverify the pinned release: {verdict.reason}", allow_retries=False)
+    result = reconcile_existing_release(os.environ["FRAPORT_BQ_PROJECT"], handoff)
+    result["handoff_sha256"] = handoff_sha
+    result["cloud_analytics_sha256"] = release_inputs.file_digest(HERE / "cloud_analytics.py")
+    context.add_output_metadata({"release_id": result["release_id"], "status": result["status"],
+                                 "rows_added": result["rows_added"], "job_id": result["job_id"],
+                                 "bytes_billed": result["bytes_billed"], **result["geometry_counts"]})
     return result
 
 
@@ -150,12 +172,13 @@ def geometry_release_ready():
 
 
 defs = Definitions(
-    assets=[approved_gold, local_handoff, local_analytics],
+    assets=[approved_gold, local_handoff, local_analytics, bigquery_reconciliation],
     jobs=[
         define_asset_job("verify_month", selection=[approved_gold, local_handoff], executor_def=in_process_executor),
         define_asset_job("resume_local_handoff", selection=[local_handoff], executor_def=in_process_executor),
         analytics_job,
         define_asset_job("resume_local_analytics", selection=[local_analytics], executor_def=in_process_executor),
+        define_asset_job("reconcile_month_bigquery", selection=[bigquery_reconciliation], executor_def=in_process_executor),
     ],
     sensors=[geometry_release_ready],
     resources={"io_manager": FilesystemIOManager(base_dir=EnvVar("FRAPORT_STATE_DIR"))},
@@ -164,12 +187,15 @@ defs = Definitions(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("job", choices=("verify_month", "resume_local_handoff", "ingest_month_local", "resume_local_analytics"))
+    parser.add_argument("job", choices=("verify_month", "resume_local_handoff", "ingest_month_local",
+                                        "resume_local_analytics", "reconcile_month_bigquery"))
     parser.add_argument("month", help="UTC partition, YYYY-MM")
     args = parser.parse_args()
     for setting in ("DAGSTER_HOME", "FRAPORT_RELEASES_DIR", "FRAPORT_STATE_DIR"):
         if not os.environ.get(setting):
             parser.error(f"set {setting} before running the local job")
+    if args.job == "reconcile_month_bigquery" and not os.environ.get("FRAPORT_BQ_PROJECT"):
+        parser.error("set FRAPORT_BQ_PROJECT before reconciling BigQuery")
     if not MONTHS.has_partition_key(args.month):
         parser.error(f"unknown completed UTC month partition: {args.month}")
     with DagsterInstance.get() as instance:
@@ -179,6 +205,8 @@ def main() -> None:
     report = {"run_id": result.run_id, "job": args.job, "partition": args.month, "success": result.success}
     if result.success and args.job in ("ingest_month_local", "resume_local_analytics"):
         report["analytics"] = result.output_for_node("local_analytics")
+    if result.success and args.job == "reconcile_month_bigquery":
+        report["analytics"] = result.output_for_node("bigquery_reconciliation")
     print(json.dumps(report))
     if not result.success:
         raise SystemExit(1)

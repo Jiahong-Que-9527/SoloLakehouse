@@ -128,6 +128,14 @@ class LocalOrchestrationTests(unittest.TestCase):
             self.assertFalse(self.execute(instance, "resume_local_analytics").success)
         self.assertFalse((self.state / "analytics.duckdb").exists())
 
+    def test_bigquery_reconciliation_never_calls_cloud_if_gold_changes_after_handoff(self):
+        with DagsterInstance.local_temp(str(self.instance_dir)) as instance:
+            self.assertTrue(self.execute(instance, "verify_month").success)
+            (self.release / "data/part-0001.parquet").write_bytes(b"changed after verification")
+            with patch("orchestration.reconcile_existing_release") as reconcile:
+                self.assertFalse(self.execute(instance, "reconcile_month_bigquery").success)
+                reconcile.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
