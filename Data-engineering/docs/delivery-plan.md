@@ -2,6 +2,7 @@
 
 <!-- [Antigravity·2026-11-23] Initialize Data Engineering delivery plan. -->
 <!-- [Antigravity·2026-11-23] Add stage-to-file ownership map and agent session handoff checklist. -->
+<!-- [ZCode·2026-11-23] E07 ADR moved to docs/adr/ADR-0003; E03 v1→v2 change resolved as non-breaking additive by data-contract v1.1. -->
 
 ## Intended outcome
 
@@ -23,7 +24,7 @@ From a fresh checkout and a deterministic seed + locked German open-data fixture
 | **E04** | `dbt_project/snapshots/*`, incremental `fct_charging_sessions.sql`, backfill scripts/CLI flags, `tests/test_incremental_scd2.py` | `04-incremental-backfill-scd2/evidence/e04-acceptance.md` |
 | **E05** | `dbt_project/packages.yml`, `dbt_project/macros/*`, `dbt_project/models/exposures.yml`, Slim CI steps in `.github/workflows/data-engineering.yml` | `05-macros-exposures-slim-ci/evidence/e05-acceptance.md` |
 | **E06** | `dbt_project/profiles.yml` (`bq` target), BigQuery partitioning/clustering macro & IAM/view Terraform or manifest under `06-bigquery-warehouse-finops/infra/` | `06-bigquery-warehouse-finops/docs/cloud-verification.md` |
-| **E07** | `airflow/{pyproject.toml,uv.lock,dags/charging_commerce_dag.py,docker-compose.yml}`, `tests/test_airflow_dag.py`, `07-orchestration-airflow/docs/adr-airflow-vs-dagster.md` | `07-orchestration-airflow/evidence/e07-acceptance.md` |
+| **E07** | `airflow/{pyproject.toml,uv.lock,dags/charging_commerce_dag.py,docker-compose.yml}`, `tests/test_airflow_dag.py`, `docs/adr/ADR-0003-airflow-vs-dagster.md` | `07-orchestration-airflow/evidence/e07-acceptance.md` |
 | **E08** | `src/charging_commerce/observability.py`, `template/*` + 2nd onboarded domain, `tests/test_observability.py` | `08-observability-template/evidence/e08-acceptance.md` |
 
 ## Working loop
@@ -52,7 +53,7 @@ Every agent picking up a stage must verify:
 
 - **E01:** Freeze the exact locked BNetzA Hesse/Frankfurt station subset row count, SMARD/ECB window, mock roaming API page size/drift rules, and raw table lineage columns.
 - **E02:** Freeze `dbt-core` / `dbt-duckdb` / `dbt-bigquery` / `sqlfluff` pinned versions in `uv.lock`, schema naming (`raw`, `stg`, `int`, `mart`), and star-schema table list.
-- **E03:** Freeze which models carry `contract: {enforced: true}`, the revenue conservation tolerance (`0.00 EUR`), and the `fct_daily_revenue` `v1 → v2` breaking/non-breaking column change.
+- **E03:** Freeze which models carry `contract: {enforced: true}`, the revenue conservation tolerance (`0.00 EUR`), and the `fct_daily_revenue` `v1 → v2` breaking/non-breaking column change. *(Partially resolved by [data-contract v1.1](data-contract.md): v1 → v2 is the non-breaking additive change (`+wholesale_cost_eur`, `+gross_margin_eur`); the remaining E03 decision is the exact contract-constrained model list.)*
 - **E04:** Freeze the 48-hour incremental lookback boundary, backfill CLI variables (`start_date`, `end_date`), and `dbt snapshot` check columns for stations and tariffs.
 - **E05:** Freeze the CI `manifest.json` artifact storage mechanism for `state:modified+ --defer` Slim CI in GitHub Actions.
 - **E06:** Confirm BigQuery dataset layout in `slh-gcp-test` (`europe-west3`), `require_partition_filter: true` enforcement, authorized view reader role, and 100 MiB query billing caps.
