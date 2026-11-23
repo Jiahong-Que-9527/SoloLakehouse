@@ -1,0 +1,57 @@
+{
+  "runs": [
+    {
+      "analytics": {
+        "backend": "bigquery_read_only",
+        "bytes_billed": 20971520,
+        "cache_hit": false,
+        "cloud_analytics_sha256": "348679f94612a1cb93c6c5484bc532d70c22f875564fcd1627a2decfd002cdc0",
+        "geometry_counts": {
+          "duplicate_keys": 0,
+          "labeled_rows": 13079,
+          "rows": 16218
+        },
+        "handoff_sha256": "b88dc9b0c448e3015cce0184f2b28fb24c23eed7251425e573f70858bb3f7935",
+        "job_id": "fraport_reconcile_60b835e9133d405ca1ed62e3f480dbbe",
+        "location": "europe-west3",
+        "manifest_sha256": "4ea7b5272708752368073f14d6257a43d3813b14ff7a5a20b170b11a1958bd53",
+        "max_bytes_billed": 104857600,
+        "project": "slh-gcp-test",
+        "release_id": "geometry-v2-2024-12",
+        "rows_added": 0,
+        "status": "already_ingested"
+      },
+      "job": "reconcile_month_bigquery",
+      "partition": "2024-12",
+      "run_id": "bbe37a99-608b-4aee-9afc-3de57e6007c0",
+      "success": true
+    },
+    {
+      "analytics": {
+        "backend": "bigquery_read_only",
+        "bytes_billed": 0,
+        "cache_hit": true,
+        "cloud_analytics_sha256": "348679f94612a1cb93c6c5484bc532d70c22f875564fcd1627a2decfd002cdc0",
+        "geometry_counts": {
+          "duplicate_keys": 0,
+          "labeled_rows": 13079,
+          "rows": 16218
+        },
+        "handoff_sha256": "b88dc9b0c448e3015cce0184f2b28fb24c23eed7251425e573f70858bb3f7935",
+        "job_id": "fraport_reconcile_290f1940ae914e6b996177aa9928314b",
+        "location": "europe-west3",
+        "manifest_sha256": "4ea7b5272708752368073f14d6257a43d3813b14ff7a5a20b170b11a1958bd53",
+        "max_bytes_billed": 104857600,
+        "project": "slh-gcp-test",
+        "release_id": "geometry-v2-2024-12",
+        "rows_added": 0,
+        "status": "already_ingested"
+      },
+      "job": "reconcile_month_bigquery",
+      "partition": "2024-12",
+      "run_id": "f6e6fc71-3c20-4cae-97a2-6ad95ae7b8fc",
+      "success": true
+    }
+  ],
+  "source_commit": "c302f267c129b99c1613b2a6aae401181d8af132"
+}

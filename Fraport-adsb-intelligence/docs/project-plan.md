@@ -214,10 +214,13 @@ Cloud monitoring and revision rollback remain to be exercised after M3.
 The recovery reused the upstream asset, and a repeat produced the same
 checkpoint. M2 detected approved releases and rehearsed phase 03 ingestion
 locally for December and January. Both months matched the recorded BigQuery
-receipts with zero duplicate keys and zero new rows on replay. The live
-Dagster-to-BigQuery handoff remains open.
+receipts with zero duplicate keys and zero new rows on replay. Dagster then
+verified the existing 2024-12 release against the live BigQuery ledger and
+table twice. Both checks returned zero additions. The phase 03 operator
+workflow continues to handle first-time cloud ingestion.
 [M1 run evidence](../07-platform-orchestration/README.md#m1-verification) ·
-[M2 local evidence](../07-platform-orchestration/README.md#m2-release-detection-and-local-analytics)
+[M2 local evidence](../07-platform-orchestration/README.md#m2-release-detection-and-local-analytics) ·
+[M2 BigQuery evidence](../07-platform-orchestration/README.md#m2-read-only-bigquery-reconciliation)
 
 ## Programme acceptance
 
