@@ -2,7 +2,7 @@
 name = "eddf-taxi-in-prediction"
 version = "0.1.0"
 requires-python = ">=3.13,<3.14"
-dependencies = ["mlflow==3.18.0", "pyarrow==26.0.1"]
+dependencies = ["mlflow==3.18.0", "numpy==2.5.5", "pyarrow==26.0.1", "scikit-learn==1.9.1"]
 
 [tool.uv]
 package = false

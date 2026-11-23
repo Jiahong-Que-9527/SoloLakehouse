@@ -171,11 +171,11 @@ availability remains open for serving. [Phase 04 evidence](../04-aviation-lakeho
 **Exit:** versioned model, traceable to a release ID, and an honest comparison
 against the baseline.
 
-**Status:** the first chronological median baseline is recorded in local
-MLflow. Its 299-second prediction gave 140.3 seconds MAE on 2,527 labeled
-November 2024 holdout predictions. The next model should be compared against
-this split before evaluating it over a wider time window.
-[Baseline protocol](../05-taxi-in-prediction/README.md#november-2024-baseline)
+**Status:** the November 2024 baseline and boosted candidate are recorded
+in local MLflow. The candidate reduced MAE from 140.3 to 129.3 seconds on
+the same 2,527 labeled holdout predictions. Wider time-window evaluation and
+model packaging remain open.
+[Candidate evaluation](../05-taxi-in-prediction/README.md#november-2024-boosted-candidate)
 
 ## Phase 6: 06 Model Serving
 

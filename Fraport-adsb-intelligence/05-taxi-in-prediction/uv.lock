@@ -357,13 +357,17 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "mlflow" },
+    { name = "numpy" },
     { name = "pyarrow" },
+    { name = "scikit-learn" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "mlflow", specifier = "==3.18.0" },
+    { name = "numpy", specifier = "==2.5.5" },
     { name = "pyarrow", specifier = "==26.0.1" },
+    { name = "scikit-learn", specifier = "==1.9.1" },
 ]
 
 [[package]]
