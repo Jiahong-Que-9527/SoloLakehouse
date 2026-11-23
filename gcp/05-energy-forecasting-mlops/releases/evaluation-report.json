@@ -29,7 +29,7 @@
     "library": "lightgbm",
     "library_version": null
   },
-  "git_sha": "43c29b6ff9361daf0bb2e1c5907310d3533f3498",
+  "git_sha": "55fe4c48a4483ad081b6dcacf4040e50eba694ba",
   "holdout": {
     "baseline": {
       "mae_mw": 4.896972,

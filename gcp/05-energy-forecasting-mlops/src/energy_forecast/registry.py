@@ -42,6 +42,21 @@ def _tracking_uri(tracking_dir: Path) -> str:
     return f"sqlite:///{Path(tracking_dir) / 'mlflow.db'}"
 
 
+def _log_model_artifact(mlflow, model) -> None:
+    """Log the fitted model as run artifacts under ``model/``.
+
+    Uses save + log_artifacts rather than ``log_model``: MLflow 3 routes
+    the latter into a LoggedModel entity, while the registry versions
+    this project creates reference the classic ``runs:/<run>/model``
+    source (which the batch job resolves).
+    """
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmp:
+        mlflow.lightgbm.save_model(model, path=f"{tmp}/model")
+        mlflow.log_artifacts(f"{tmp}/model", artifact_path="model")
+
+
 def _ensure_registered_model(client) -> None:
     from mlflow.exceptions import MlflowException
 
@@ -80,7 +95,7 @@ def _log_run(mlflow, dataset: TrainingDataset, report: dict, model, experiment_o
             "holdout_candidate_mae_mw": report["holdout"]["candidate"]["mae_mw"],
         }
     )
-    mlflow.lightgbm.log_model(model, name="model")
+    _log_model_artifact(mlflow, model)
     return mlflow.active_run().info.run_id
 
 
@@ -100,7 +115,7 @@ def register_baseline(
     with mlflow.start_run(run_name="baseline-seasonal-naive-7d") as run:
         mlflow.set_tags({**_baseline_tags(dataset, report, git_sha), "role": "baseline"})
         mlflow.log_metrics({"holdout_baseline_mae_mw": report["holdout"]["baseline"]["mae_mw"]})
-        mlflow.lightgbm.log_model(model, name="model")
+        _log_model_artifact(mlflow, model)
         run_id = run.info.run_id
     client = mlflow.tracking.MlflowClient()
     _ensure_registered_model(client)

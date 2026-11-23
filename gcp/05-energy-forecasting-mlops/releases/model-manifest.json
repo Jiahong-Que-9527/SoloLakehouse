@@ -25,7 +25,7 @@
     "library": "lightgbm",
     "library_version": null
   },
-  "evaluation_report_sha256": "22b53c421fe5f3ac5bf4e394a9b7350f0c283155e85cb46437d718eb9696952e",
+  "evaluation_report_sha256": "71ef929c0af26f8bbe91619f99bad0f576d68d05ff2416e7518ce3fc5d61ec81",
   "gate": {
     "decision": "promoted",
     "holdout_mae_mw": {
@@ -34,7 +34,7 @@
     },
     "rule": "holdout candidate MAE <= baseline MAE"
   },
-  "git_sha": "43c29b6ff9361daf0bb2e1c5907310d3533f3498",
+  "git_sha": "55fe4c48a4483ad081b6dcacf4040e50eba694ba",
   "holdout_metrics": {
     "baseline": {
       "mae_mw": 4.896972,
@@ -49,10 +49,10 @@
   },
   "input_sha256": "4d0e12e0998c288a6bda6b76bf5e077e78aec296580fbdc2581a29fc570f6271",
   "manifest_schema_version": "g05-model-manifest-v1",
-  "mlflow_run_id": "79292c4a340147be8b3289afa64aadda",
+  "mlflow_run_id": "756cb44f366d4b42b3e4cdca1ac42ecf",
   "model_name": "g05_load_forecast",
   "model_version": 2,
-  "registered_at": "2026-11-23T19:04:23.812713+00:00",
+  "registered_at": "2026-11-23T19:19:24.857178+00:00",
   "release_id": "g05-fixture-v2",
   "seed": 20261123
 }
