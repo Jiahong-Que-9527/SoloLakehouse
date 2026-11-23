@@ -173,10 +173,11 @@ against the baseline.
 
 **Status:** the boosted candidate reduced MAE from 140.3 to 129.3 seconds
 on 2,527 November holdout labels. The frozen model reduced MAE from 148.6
-to 137.5 seconds on 7,182 independently replayed December labels. The
-reports and runs are recorded in local MLflow. Container reproducibility,
-model registration and wider seasonal evaluation remain open.
-[Frozen evaluation](../05-taxi-in-prediction/README.md#december-2024-independent-evaluation)
+to 137.5 seconds on 7,182 independently replayed December labels. Offline
+Docker reproduced the model and both reports byte for byte. Local MLflow
+has candidate version 1 and the release manifest pins its evidence. M5
+remains open for evaluation across hours, seasons and traffic levels.
+[Local candidate release](../05-taxi-in-prediction/README.md#local-candidate-release)
 
 ## Phase 6: 06 Model Serving
 

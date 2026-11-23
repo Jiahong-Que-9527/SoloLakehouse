@@ -34,7 +34,9 @@ airport ground truth. Report label coverage and definition with every result.
 - **M3.** Histogram gradient-boosted candidate selected on the inner time
   split and evaluated against the pinned November holdout and an independent
   December replay in local MLflow.
-- **M4.** Repeat the training as a containerized job, register the model version in MLflow and publish its release manifest (ADR-005).
+- **M4.** Offline Docker replay verified the model and both reports byte for
+  byte. The candidate is registered in local MLflow and recorded in the
+  [release manifest](releases/fraport-taxi-in-f3b6b1ebf360fce8.json).
 - **M5.** Evaluation report with error by hour, season and traffic level.
 
 ## Acceptance
@@ -155,3 +157,58 @@ OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 uv run --locked python frozen_evaluatio
   --baseline-report "$baseline/first/baseline-report.json" \
   --tracking-dir "$baseline/mlflow" --output "$out/first"
 ```
+
+## Local candidate release
+
+Release `fraport-taxi-in-f3b6b1ebf360fce8` maps to local MLflow version
+`models:/fraport-taxi-in/1`. The manifest pins the image ID, Git commit,
+data manifests, evaluation reports and model checksum. The model and the
+registry database are stored locally. The manifest records the five-second
+simulated observation delay used in the evaluation. Verify measured
+availability before promoting a version for serving.
+
+Run from this directory in a clean checkout with Docker, GNU tar and uv.
+Set `run_root` to the directory containing the pinned local artifacts.
+The container runs without network access and reads copies of the inputs.
+Use the manifest's `source_commit` to rebuild the recorded code version.
+
+```bash
+set -euo pipefail
+run_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+training=features/features-2024-11-947edc9a58661dcd
+evaluation=features/features-2024-12-cc0d68f941eb2b79
+baseline=baselines/geometry-v2-2024-11-median
+baseline_report=$baseline/first/baseline-report.json
+commit=$(git rev-parse HEAD)
+image=fraport-taxi-in:m4
+out=$(mktemp -d /tmp/fraport-model-release.XXXXXX)
+
+docker build --build-arg "SOURCE_COMMIT=$commit" -t "$image" .
+docker run --rm --network none "$image"
+container=$(docker create --network none "$image" /bin/sh /app/container_replay.sh \
+  "/input/$training" "/input/$evaluation" "/input/$baseline_report" 2024-11-16 /output)
+trap 'docker rm -f "$container" >/dev/null' EXIT
+tar -C "$run_root" --mode=a+rX -cf - "$training" "$evaluation" "$baseline_report" \
+  | docker cp - "$container:/input"
+docker start -a "$container"
+test "$(docker inspect "$container" --format '{{.State.ExitCode}}')" = 0
+mkdir "$out/replay"
+docker cp "$container:/output/." - | tar -xf - -C "$out/replay"
+
+candidate="$run_root/candidates/geometry-v2-2024-11-boosted/first"
+frozen="$run_root/evaluations/geometry-v2-2024-12-frozen/first"
+uv run --locked python model_release.py verify-container \
+  --candidate "$candidate" --evaluation "$frozen" --replay "$out/replay" \
+  --image-id "$(docker image inspect "$image" --format '{{.Id}}')" \
+  --source-commit "$commit" --output "$out/container-verification.json"
+uv run --locked python model_release.py register \
+  --candidate "$candidate" --evaluation "$frozen" \
+  --container-evidence "$out/container-verification.json" \
+  --tracking-dir "$run_root/$baseline/mlflow" --output "$out/release"
+```
+
+Registration checks that the model and both reports match the verified SHA-256
+values and that the candidate improves MAE on both scored windows. It then
+checks that the version can be loaded from MLflow and emits `manifest.json`
+alongside the pinned model. Repeating registration with the same evidence in
+the same local registry reuses the version.
