@@ -1,5 +1,5 @@
 stack_name          = "bravo"
 environment         = "dev"
 owner               = "jiahongque25@gmail.com"
-image               = "europe-west3-docker.pkg.dev/slh-gcp-test/g06-factory/reference-batch@sha256:5d25938cfc753d16e9c2751f2df65b389afaa2f8bc341107bea6eee969edb2f3"
+image              = "europe-west3-docker.pkg.dev/slh-gcp-test/g06-factory/reference-batch@sha256:14ac181303cd239aa94f9e3b7c26bfec8e3d134e9475df8607e0f81141043190"
 budget_display_name = "g06-stack-bravo"

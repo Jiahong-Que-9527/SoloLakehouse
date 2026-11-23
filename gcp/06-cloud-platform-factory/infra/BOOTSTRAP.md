@@ -27,7 +27,11 @@ Terraform lives inside the stacks and is destroyed with them.
 
 ## Reference workload image
 
-`europe-west3-docker.pkg.dev/slh-gcp-test/g06-factory/reference-batch@sha256:5d25938cfc753d16e9c2751f2df65b389afaa2f8bc341107bea6eee969edb2f3`
+v2 (2026-11-23): the first smoke row recorded `default` as the principal
+(google.auth on Cloud Run) and left the timestamp empty; v2 reads the
+metadata server and stamps `inserted_at`.
+
+`europe-west3-docker.pkg.dev/slh-gcp-test/g06-factory/reference-batch@sha256:14ac181303cd239aa94f9e3b7c26bfec8e3d134e9475df8607e0f81141043190`
 built once via Cloud Build from `reference-workload/` (a 40-line job that
 reads its stack's fixture object and inserts one smoke row). Stacks pin
 the digest; the image is rebuilt only when the reference workload changes.
