@@ -4,7 +4,7 @@
 
 <!-- [GLM·2026-11-20] Replace the Vertex AI training step with the cloud-neutral path; see ADR-005. -->
 
-**Status:** in progress — steps 1–2 landed (2026-11-22/23); steps 3–4 (evaluation, registry, gate) landed 2026-11-23; step 5 (batch scoring + rollback) open. [Project brief](../README.md) and [technical design](design.md).
+**Status:** complete — all five steps landed (2026-11-22 → 2026-11-23). See the step records and [cloud verification](cloud-verification.md). [Project brief](../README.md) and [technical design](design.md).
 
 ## First delivery
 
@@ -112,5 +112,32 @@ Landed in [PR #253](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/253):
   `python -m energy_forecast.pipeline promote` and `refuse-drill`.
 - 51 tests green (11 new), ruff clean. All local, no cloud resources.
 
-Step 5 (batch scoring into `energy_ml.prediction` with a rollback drill)
-remains open.
+### Step 5 — batch scoring and rollback (2026-11-23)
+
+- `scoring.py`: `score_batch` writes the serving record — one row per
+  predicted interval with `interval_start`, `predicted_mw`,
+  `model_version`, `release_id`, `predicted_at` and a deterministic
+  `batch_id` (canonical checksum of the scored rows and issue time).
+  Upserts are a BigQuery MERGE keyed on (model_version, interval_start):
+  a second batch for the same version and interval replaces those keys.
+- `verify_trace` re-checks one prediction's lineage end to end: model
+  version and release id against the manifest, the interval inside the
+  feature build, and re-scoring reproduces the recorded value.
+- **Cloud drill** (project `slh-gcp-test`, all local compute; the model
+  loads from the local registry by version):
+  - bootstrap (outside Terraform, recorded as-built): dataset
+    `energy_ml` and table `energy_ml.prediction` in `europe-west3`
+    (matching the `energy` dataset's location).
+  - candidate batch: 96 intervals of the holdout day 2026-06-29 scored
+    with version 2, MERGE job `g05_score_v2_…`, batch
+    `batch-427bbd34b43436dc`.
+  - rollback: the same window re-scored with version 1 (the baseline),
+    batch `batch-05a41ed06776783b`; the serving record holds both
+    versions side by side (96 rows each) and no version is deleted.
+  - a BigQuery row traced back through `verify_trace` to the manifest
+    (model version, release id) and the feature build.
+- One BigQuery schema lesson recorded in `TABLE_DDL`: `bq mk` parses
+  `name:TYPE` pairs — a space-separated DDL silently creates STRING
+  columns named "interval_start TIMESTAMP".
+- 55 tests green (4 new), ruff clean. Costs: KB-scale storage and a
+  handful of KB-scale queries — inside the free tier, no credits burned.
