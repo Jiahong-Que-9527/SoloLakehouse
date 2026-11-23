@@ -46,8 +46,9 @@ the cloud. Silver, Gold and the cloud track remain engineering scope here.
 
 The [04 November 2024 feature replay](04-aviation-lakehouse/README.md#first-delivery)
 produced 8,570 predictions and 7,607 usable labels under a documented
-availability simulation. Project 05 takes the pinned training artifact for
-the chronological baseline.
+availability simulation. Project 05 used that pinned artifact for a
+[chronological median baseline](05-taxi-in-prediction/README.md#november-2024-baseline)
+with 140.3 seconds MAE on 2,527 labeled holdout predictions.
 
 ## Documents
 
