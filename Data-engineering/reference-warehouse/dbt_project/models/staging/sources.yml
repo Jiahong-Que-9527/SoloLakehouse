@@ -24,3 +24,4 @@ sources:
             description: "Tariff schedule snapshots; grain (tariff_id, snapshot_date)."
           - name: raw_quarantine
             description: "Contract-rejected payloads with reject_reason; never read by models."
+            freshness: null  # no _ingested_at lineage column (uses quarantined_at)

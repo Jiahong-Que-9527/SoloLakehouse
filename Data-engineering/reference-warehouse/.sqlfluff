@@ -2,7 +2,10 @@
 templater = dbt
 dialect = duckdb
 max_line_length = 100
-exclude_rules = LT12
+# ST06/ST09: column/join-ordering taste; ST09's default contradicts AM05's
+# (joined-table-first ON clauses). AM04: wildcard pass-throughs (select s.*)
+# are idiomatic in dbt staging/intermediate layers. LT12: function parentheses.
+exclude_rules = LT12, ST06, ST09, AM04
 
 [sqlfluff:templater:dbt]
 project_dir = dbt_project

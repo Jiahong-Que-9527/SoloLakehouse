@@ -20,8 +20,8 @@ From a fresh checkout and a deterministic seed + locked German open-data fixture
 
 - **E01 · accepted** (PR #277): fixtures locked (BNetzA Rhein-Main 3,233 stations from the 2026-11-12 register; SMARD DE-LU 21,313 15-min slots 2025-10..2026-05; ECB 507 daily rates), seeded generator + resumable CLI + `raw_quarantine` implemented, 13 offline tests green, raw-side revenue conservation Δ 0.00 per currency. Evidence: `01-ingestion-raw-layer/evidence/e01-acceptance.md`.
 - **Data contract at v1.3** (PR #281): two-layer dedup (`stg` 1:1 + `int_sessions_latest` reduction, which is the sole merge source), whole-row replacement merge semantics, deterministic wholesale boundary fallback without a labeling column.
-- **E02 · in progress**: dbt-core 1.12.7 / dbt-duckdb 1.11.1 / dbt-bigquery 1.12.4 / sqlfluff 4.5.0 locked in `uv.lock`; dbt project scaffolded with 6 `stg_*` + 3 `int_*` + 5 mart models per contract v1.3 (cross-db macros for Berlin dates, ISO weekday, date spine); path-scoped GitHub Actions workflow drafted; pytest harness with fixture-exact FX / SMARD wholesale / DST attribution assertions written. Remaining: sqlfluff + pytest green, negative freshness drill verified, acceptance evidence, PR.
-- **Next:** land E02 with evidence, then E03 (contract-enforced marts, native `unit_tests`, `fct_daily_revenue` v1 → v2).
+- **E02 · implemented** (this branch, pending review): dbt-core 1.12.7 / dbt-duckdb 1.11.1 / dbt-bigquery 1.12.4 / sqlfluff 4.5.0 locked in `uv.lock`; 14-model dbt project (6 `stg_*` + 3 `int_*` + 5 mart tables) per contract v1.3 with cross-warehouse macros (`to_berlin_date`, `iso_day_of_week`, `date_spine`); 75 data tests green; zero-fan-out proof (12,728 raw events → 12,000 sessions, `count(distinct)` == int == fct); fact↔daily net reconciliation Δ 0.00; negative drills (stale freshness, lint injection) verified. Evidence: `02-dimensional-modeling-dbt/evidence/e02-acceptance.md`.
+- **Next:** land E02 review, then E03 (contract-enforced marts, native `unit_tests`, `fct_daily_revenue` v1 → v2).
 
 ## Stage-to-file ownership map
 

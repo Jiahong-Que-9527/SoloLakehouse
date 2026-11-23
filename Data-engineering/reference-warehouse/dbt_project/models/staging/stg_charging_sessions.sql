@@ -18,10 +18,10 @@ select
     energy_kwh,
     gross_amount_local,
     event_type,
-    min(_batch_id) as _batch_id,
-    min(_ingested_at) as _ingested_at,
     _source_name,
-    _source_hash
+    _source_hash,
+    min(_batch_id) as _batch_id,
+    min(_ingested_at) as _ingested_at
 from {{ source('raw', 'raw_charging_sessions') }}
 group by
     session_id,

@@ -12,7 +12,7 @@ import csv
 import os
 import shutil
 import subprocess
-from datetime import date
+from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
@@ -20,7 +20,7 @@ import duckdb
 import pytest
 
 from charging_commerce import ingestion
-from charging_commerce.generator import generate
+from charging_commerce.generator import MockRoamingServer, generate
 from charging_commerce.open_data import load_fx_table
 
 REPO = Path(__file__).resolve().parents[1]
@@ -71,6 +71,13 @@ def warehouse(tmp_path_factory) -> Path:
         name = ingestion.SOURCE_PAYLOADS[source]
         payload = gen_dir / name if source in GENERATED_SOURCES else FIXTURES_DIR / name
         ingestion.ingest_file(source, payload, batch, db_path, state_dir)
+    # Roaming flows through the in-process mock API so all six raw sources are fresh.
+    server = MockRoamingServer(gen_dir / "settlements.jsonl", gen_dir / "roaming_faults.json")
+    server.start()
+    try:
+        ingestion.ingest_roaming(server.base_url, "roaming-window-0001", db_path, state_dir)
+    finally:
+        server.stop()
 
     env = {"CHARGING_COMMERCE_DUCKDB": str(db_path)}
     freshness = _dbt("source", "freshness", env=env)
@@ -94,23 +101,29 @@ def _query(db_path: Path, sql: str):
 # --------------------------------------------------------------------------
 
 
+def _scalar(db_path: Path, sql: str):
+    conn = duckdb.connect(str(db_path))
+    try:
+        return conn.execute(sql).fetchone()[0]
+    finally:
+        conn.close()
+
+
 def test_zero_fanout_fact_matches_raw_sessions(warehouse: Path):
-    (raw_sessions,) = _query(
+    raw_sessions = _scalar(
         warehouse, "select count(distinct session_id) from raw.raw_charging_sessions"
     )
-    (int_rows,) = _query(warehouse, "select count(*) from int.int_sessions_latest")
-    (fct_rows,) = _query(warehouse, "select count(*) from mart.fct_charging_sessions")
+    int_rows = _scalar(warehouse, "select count(*) from int.int_sessions_latest")
+    fct_rows = _scalar(warehouse, "select count(*) from mart.fct_charging_sessions")
     assert raw_sessions == int_rows == fct_rows
     assert fct_rows > 0
 
 
 def test_daily_revenue_reconciles_to_fact(warehouse: Path):
-    (fact_net,) = _query(warehouse, "select sum(net_amount_eur) from mart.fct_charging_sessions")
-    (daily_rows, daily_net) = _query(
-        warehouse,
-        "select count(*), sum(net_amount_eur) from mart.fct_daily_revenue",
-    )[0]
-    assert daily_net == fact_net
+    fact_net = _scalar(warehouse, "select sum(net_amount_eur) from mart.fct_charging_sessions")
+    daily_net = _scalar(warehouse, "select sum(net_amount_eur) from mart.fct_daily_revenue")
+    (daily_rows,) = _query(warehouse, "select count(*) from mart.fct_daily_revenue")[0]
+    assert daily_net == fact_net, "daily grain must reconcile to the fact, cent-exact"
     assert daily_rows > 0
 
 
@@ -154,7 +167,7 @@ def test_wholesale_cost_matches_smard_slot(warehouse: Path):
         warehouse,
         """
         select session_id, session_started_at, energy_kwh, wholesale_eur_mwh, wholesale_cost_eur
-        from mart.fct_charging_sessions
+        from int.int_sessions_wholesale_cost
         """,
     )
     assert rows
@@ -175,13 +188,17 @@ def test_dst_boundary_revenue_date(warehouse: Path):
         warehouse,
         """
         select session_id, session_started_at, revenue_date
-        from mart.fct_charging_sessions
+        from int.int_sessions_enriched_fx
         where session_id like 'S-DST-20251025-%'
         """,
     )
     assert rows, "expected DST-window sessions"
     for _, started_at, revenue_date in rows:
-        assert started_at.strftime("%Y-%m-%d") == "2025-10-25"
+        # Window spans 2025-10-25 22:00Z .. 2025-10-26 02:00Z — the CET→CEST night.
+        # DuckDB returns naive-UTC timestamps, so compare against naive bounds.
+        assert started_at >= datetime(2025, 10, 25, 22, 0)
+        assert started_at <= datetime(2025, 10, 26, 2, 0)
+        # Every such session attributes to the Berlin civil date 2025-10-26.
         assert revenue_date.isoformat() == "2025-10-26"
 
 
@@ -193,15 +210,17 @@ def test_dim_date_calendar(warehouse: Path):
             """
             select date_day, is_weekend, is_de_holiday
             from mart.dim_date
-            where date_day in (date '2025-10-03', date '2025-10-04', date '2026-04-06', date '2026-01-02')
+            where date_day in (
+                date '2025-10-03', date '2025-10-04', date '2026-04-06', date '2026-01-02'
+            )
             """,
         )
     }
     assert rows[date(2025, 10, 3)] == (False, True)  # Tag der Deutschen Einheit, Friday
     assert rows[date(2025, 10, 4)] == (True, False)  # Saturday
-    assert rows[date(2026, 4, 6)] == (True, True)  # Easter Monday
-    assert rows[date(2026, 1, 2)] == (True, False)  # Friday
-    (days,) = _query(warehouse, "select count(*) from mart.dim_date")
+    assert rows[date(2026, 4, 6)] == (False, True)  # Easter Monday — a Monday, not a weekend
+    assert rows[date(2026, 1, 2)] == (False, False)  # Friday — a weekday
+    days = _scalar(warehouse, "select count(*) from mart.dim_date")
     assert days == 243  # 2025-10-01..2026-05-31 inclusive
 
 

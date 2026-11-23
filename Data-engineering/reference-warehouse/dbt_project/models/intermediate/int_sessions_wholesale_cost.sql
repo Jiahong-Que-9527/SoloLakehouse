@@ -8,18 +8,20 @@
 -- available price.
 
 with prices as (
-    select timestamp_utc, wholesale_eur_mwh
-    from {{ ref('stg_smard_prices') }}
-    where market_zone = 'DE-LU'
+    select
+        p.timestamp_utc,
+        p.wholesale_eur_mwh
+    from {{ ref('stg_smard_prices') }} as p
+    where p.market_zone = 'DE-LU'
 ),
 
 priced as (
     select
         s.session_id,
         p.wholesale_eur_mwh as slot_price
-    from {{ ref('int_sessions_enriched_fx') }} s
-    left join prices p
-        on p.timestamp_utc <= s.session_started_at
+    from {{ ref('int_sessions_enriched_fx') }} as s
+    left join prices as p
+        on s.session_started_at >= p.timestamp_utc
     qualify row_number() over (
         partition by s.session_id
         order by p.timestamp_utc desc
@@ -28,13 +30,21 @@ priced as (
 
 boundary as (
     select
-        (select wholesale_eur_mwh from prices order by timestamp_utc asc limit 1) as earliest_price
+        (
+            select pb.wholesale_eur_mwh
+            from prices as pb
+            order by pb.timestamp_utc asc
+            limit 1
+        ) as earliest_price
 )
 
 select
     s.*,
     coalesce(p.slot_price, b.earliest_price) as wholesale_eur_mwh,
-    round(s.energy_kwh * coalesce(p.slot_price, b.earliest_price) / 1000, 2) as wholesale_cost_eur
-from {{ ref('int_sessions_enriched_fx') }} s
-join priced p on p.session_id = s.session_id
-cross join boundary b
+    cast(
+        round(s.energy_kwh * coalesce(p.slot_price, b.earliest_price) / 1000, 2) as decimal(18, 2)
+    ) as wholesale_cost_eur
+from {{ ref('int_sessions_enriched_fx') }} as s
+inner join priced as p
+    on p.session_id = s.session_id
+cross join boundary as b

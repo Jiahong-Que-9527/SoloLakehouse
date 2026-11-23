@@ -5,16 +5,14 @@
 -- column is derived from raw values with a single rounding; net and margin are
 -- exact additions/subtractions of 2-decimal components (no re-rounding).
 
-with sessions as (
-    select * from {{ ref('int_sessions_wholesale_cost') }}
-),
-
-amounts as (
+with amounts as (
+    -- DuckDB (and BigQuery) return DOUBLE for DECIMAL division; the cast back to
+    -- DECIMAL(18,2) makes every EUR column exact 2-decimal money per contract §3.3.
     select
-        s.*,
-        round(s.gross_amount_local / s.fx_rate_to_eur, 2) as gross_amount_eur,
-        round(s.roaming_fee_local / s.fx_rate_to_eur, 2) as roaming_fee_eur
-    from sessions s
+        w.*,
+        cast(round(w.gross_amount_local / w.fx_rate_to_eur, 2) as decimal(18, 2)) as gross_amount_eur,
+        cast(round(w.roaming_fee_local / w.fx_rate_to_eur, 2) as decimal(18, 2)) as roaming_fee_eur
+    from {{ ref('int_sessions_wholesale_cost') }} as w
 )
 
 select
@@ -34,6 +32,8 @@ select
     a.gross_amount_eur + a.roaming_fee_eur - a.wholesale_cost_eur as gross_margin_eur,
     a.event_type,
     a.settled_at
-from amounts a
-join {{ ref('dim_stations') }} st on st.station_id = a.station_id
-join {{ ref('dim_tariffs') }} ta on ta.tariff_id = a.tariff_id
+from amounts as a
+inner join {{ ref('dim_stations') }} as st
+    on st.station_id = a.station_id
+inner join {{ ref('dim_tariffs') }} as ta
+    on ta.tariff_id = a.tariff_id

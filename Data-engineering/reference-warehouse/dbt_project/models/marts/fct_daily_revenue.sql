@@ -13,6 +13,7 @@ select
     sum(f.gross_amount_eur) as gross_amount_eur,
     sum(f.roaming_fee_eur) as roaming_fee_eur,
     sum(f.net_amount_eur) as net_amount_eur
-from {{ ref('fct_charging_sessions') }} f
-join {{ ref('dim_stations') }} d on d.station_sk = f.station_sk
+from {{ ref('fct_charging_sessions') }} as f
+inner join {{ ref('dim_stations') }} as d
+    on d.station_sk = f.station_sk
 group by f.revenue_date, f.country_code, d.operator_name

@@ -6,34 +6,34 @@
 
 with sessions as (
     select
-        *,
-        {{ to_berlin_date('session_started_at') }} as revenue_date
-    from {{ ref('int_sessions_latest') }}
+        s.*,
+        {{ to_berlin_date('s.session_started_at') }} as revenue_date
+    from {{ ref('int_sessions_latest') }} as s
 ),
 
 roaming_fees as (
     select
-        session_id,
-        sum(roaming_fee_local) as roaming_fee_local
-    from {{ ref('stg_roaming_settlements') }}
-    group by session_id
+        r.session_id,
+        sum(r.roaming_fee_local) as roaming_fee_local
+    from {{ ref('stg_roaming_settlements') }} as r
+    group by r.session_id
 ),
 
 fx_lookup as (
     select
         s.session_id,
         s.revenue_date,
-        s.currency_code,
         coalesce(f.rate, cast(1.0 as decimal(12, 6))) as fx_rate_to_eur,
         case
             when s.currency_code = 'EUR' then 'observed'
             when f.observation_date = s.revenue_date then 'observed'
             else 'carried_forward'
         end as fx_rate_status
-    from sessions s
-    left join {{ ref('stg_ecb_fx') }} f
-        on f.currency_pair = 'EUR/' || s.currency_code
-        and f.observation_date <= s.revenue_date
+    from sessions as s
+    left join {{ ref('stg_ecb_fx') }} as f
+        on
+            f.currency_pair = 'EUR/' || s.currency_code
+            and f.observation_date <= s.revenue_date
     qualify row_number() over (
         partition by s.session_id
         order by f.observation_date desc
@@ -57,6 +57,8 @@ select
     s.gross_amount_local,
     coalesce(r.roaming_fee_local, cast(0.0 as decimal(12, 2))) as roaming_fee_local,
     s.event_type
-from sessions s
-join fx_lookup fx on fx.session_id = s.session_id
-left join roaming_fees r on r.session_id = s.session_id
+from sessions as s
+inner join fx_lookup as fx
+    on fx.session_id = s.session_id
+left join roaming_fees as r
+    on r.session_id = s.session_id
