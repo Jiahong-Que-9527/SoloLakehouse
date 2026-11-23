@@ -1,0 +1,84 @@
+{
+  "window": "2025-Q1",
+  "source_window": {
+    "start_date": "2025-01-01",
+    "end_date": "2025-03-31"
+  },
+  "missing_calendar_date_absent_from_silver": "2025-01-01",
+  "initial_silver_counts": {
+    "fx_rows": 10,
+    "fx_rejects": 5,
+    "fx_duplicate_drops": 1,
+    "policy_rate_rows": 3,
+    "policy_rate_rejects": 0,
+    "policy_rate_duplicate_drops": 1
+  },
+  "conflicting_duplicate_date": "2025-02-14",
+  "checked_gold_rows": [
+    {
+      "observation_date": "2025-01-02",
+      "usd_per_eur": "1.0321",
+      "policy_rate": "3.00",
+      "policy_rate_status": "carried_forward",
+      "policy_rate_source_date": "2024-12-18"
+    },
+    {
+      "observation_date": "2025-02-05",
+      "usd_per_eur": "1.0412",
+      "policy_rate": "2.75",
+      "policy_rate_status": "observed",
+      "policy_rate_source_date": "2025-02-05"
+    },
+    {
+      "observation_date": "2025-02-06",
+      "usd_per_eur": "1.0380",
+      "policy_rate": "2.75",
+      "policy_rate_status": "carried_forward",
+      "policy_rate_source_date": "2025-02-05"
+    },
+    {
+      "observation_date": "2025-03-12",
+      "usd_per_eur": "1.0890",
+      "policy_rate": "2.50",
+      "policy_rate_status": "observed",
+      "policy_rate_source_date": "2025-03-12"
+    }
+  ],
+  "monthly_summary_initial": [
+    {
+      "month_utc": "2025-01",
+      "last_fx_date": "2025-01-31",
+      "last_usd_per_eur": "1.0393",
+      "avg_usd_per_eur": "1.032950",
+      "last_policy_rate": "3.00",
+      "observation_days": 4
+    },
+    {
+      "month_utc": "2025-02",
+      "last_fx_date": "2025-02-28",
+      "last_usd_per_eur": "1.0411",
+      "avg_usd_per_eur": "1.040100",
+      "last_policy_rate": "2.75",
+      "observation_days": 3
+    },
+    {
+      "month_utc": "2025-03",
+      "last_fx_date": "2025-03-31",
+      "last_usd_per_eur": "1.0815",
+      "avg_usd_per_eur": "1.085667",
+      "last_policy_rate": "2.50",
+      "observation_days": 3
+    }
+  ],
+  "revision_check": {
+    "series_key": "EXR.D.USD.EUR.SP00.A",
+    "observation_date": "2025-02-05",
+    "before_value": "1.0412",
+    "after_value": "1.0425",
+    "before_batch": "batch-2025q1-init",
+    "after_batch": "batch-2025q1-rev1",
+    "untouched_date": "2025-02-06",
+    "untouched_batch": "batch-2025q1-init",
+    "feb_avg_after": "1.040533"
+  }
+}
