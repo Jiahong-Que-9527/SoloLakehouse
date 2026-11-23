@@ -16,8 +16,8 @@ airport ground truth. Report label coverage and definition with every result.
 ## Scope
 
 - Define the target: start and end events, and the rules for edge cases.
-- Use the per-flight features from the Gold release, with a strict prediction
-  cutoff. Features and labels are built in project 02.
+- Train from the pinned Parquet dataset and feature manifest produced by
+  project 04. The Geometry v2 release from project 02 supplies proxy labels.
 - Use a time-ordered split. Never shuffle across time.
 - Establish baselines first (historical mean or median by condition), then a
   gradient-boosted model.
@@ -35,18 +35,19 @@ airport ground truth. Report label coverage and definition with every result.
 
 ## Acceptance
 
-- Training is reproducible from a release ID, table snapshot and commit.
-- No feature uses information from after the cutoff.
+- Training is reproducible from the label release ID, label and training
+  manifest hashes, source commit and recorded split dates.
+- The feature manifest gives the prediction cutoff, timestamp provenance and
+  passed leakage checks for the rows used in training.
 - The model beats the baseline on the held-out period, or the report says it
   does not.
 
 ## Depends on
 
-Training pins the Gold label-table version and release ID from the
-[project 04 lakehouse handoff](../04-aviation-lakehouse/README.md#handoff-to-taxi-in-prediction).
-Predictive features require a separate point-in-time source with documented
-event and availability timestamps. The Geometry v2 table supplies proxy
-labels and join metadata.
+The [project 04 feature handoff](../04-aviation-lakehouse/README.md#first-delivery)
+supplies the versioned local training artifact. Record label coverage,
+matching losses and any simulated historical availability when reporting
+baseline results in MLflow.
 
 ## Outputs
 

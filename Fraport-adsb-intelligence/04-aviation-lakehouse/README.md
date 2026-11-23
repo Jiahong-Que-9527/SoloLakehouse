@@ -1,111 +1,93 @@
-# 04 · Aviation Lakehouse Integration
+# 04 · Point-in-Time Feature Dataset
 
-Project 04 uses **Databricks Free Edition** for Spark, managed Delta tables,
-Unity Catalog and Serverless Jobs. Its Bronze, Silver and Gold layers begin
-with a Geometry v2 release staged in a Unity Catalog **managed volume**. The
-OpenSky observations and the original aviation Bronze and Silver remain in
-the acquisition and transformation projects.
+**Runtime:** local DuckDB SQL and Python over Parquet. Project 04 builds the
+versioned training dataset for [05 Taxi-in Prediction](../05-taxi-in-prediction/README.md).
+Project 02 provides the accepted Geometry v2 labels, and project 03 uses the
+same Gold releases for cloud analytics in BigQuery managed Iceberg.
 
-**Status (2026-11-23)** All 24 Geometry v2 releases passed a local Delta Lake
-rehearsal and reconciled against M5 BigQuery. Free Edition workspace
-acceptance and the Databricks CLI smoke test are pending.
+**Status:** the November 2024 simulated feature replay produced 8,570
+predictions and 7,607 usable labels. The previous platform rehearsal and
+implementation are historical evidence. [Historical Delta prototype](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/262)
 
-## Schema mapping and quality checks
+## Inputs and data contract
 
-| Delta table | Grain and fields | Validation |
+| Input | Role | What the build pins |
 |---|---|---|
-| `aviation_bronze_release` | `(release_id, day_utc, flight_key)` with all 15 published Parquet fields and release lineage | Checks the two manifest payload checksums, passed gate, approval, completion marker, schema and expected row count |
-| `aviation_silver_arrivals` | Same grain and fields, plus `is_labeled` | Checks the release month, reconstructed event key, uniqueness, known statuses and labeled event chronology. The target must equal taxi end minus surface start and fall within the release bounds |
-| `aviation_gold_taxi_in_labels` | Same grain for labeled rows. Keeps the event key, release ID, manifest SHA-256, label version, release creation time and `taxi_in_s` | Publishes labels after Bronze and Silver read-back. Reports total candidates and status counts alongside the label coverage |
+| Project 02 Geometry v2 Gold Parquet release | Outcome labels and label coverage | `release_id`, manifest SHA-256, label version and verified payload checksums |
+| Local Silver observations and their source manifests | Candidate source for events and features | Observation partitions, checksums and the provenance of each availability timestamp |
+| Feature SQL and configuration | Cutoff event, lookback windows, feature allowlist and matching rules | Code revision and configuration hash |
 
-A run compares the persisted slice to the expected rows and reports the Delta
-version and a deterministic SHA-256 for each table. Replays reuse matching
-slices and reject differences. A run interrupted between tables resumes from
-its matching slices. The three tables commit independently, and job success
-records the completed release after all three checks.
+Choose a cutoff triggered by an event observable by the intended scoring
+system. Create a stable `prediction_id` at that event and record its UTC
+`prediction_at`. Build the prediction population from observations available
+at that time. Select each feature only from inputs whose event time and
+availability time are at or before `prediction_at`. Define how ties,
+duplicates and missing observations are handled. If historical availability
+cannot be established, label the dataset as a simulated replay and state the
+assumption. Treat verified availability as a requirement for serving.
 
-## Local release rehearsal
+Join Geometry v2 outcomes after the feature rows are built. Treat `flight_key`
+(which embeds OpenSky `lastseen`), the label status and release fields as
+retrospective join or audit metadata. The feature allowlist excludes the
+published touchdown estimate, taxi-end time and full surface-window statistics.
+Keep predictions without an outcome in the denominator when reporting label
+coverage. `taxi_in_s` is an ADS-B proxy target.
+
+## Implemented replay rules
+
+A prediction is triggered by a reported air-to-ground transition within 5 km of the
+airport reference, with a preceding airborne observation at most 120 seconds
+earlier. The trigger belongs to the UTC month of its event time. The replay
+reads the prior day's partition for month-start context, chooses the first
+available observation at each aircraft event time, and ignores stale arrivals
+that come after a newer event. The seven predictor fields are listed in the
+manifest. The predecessor timestamps remain available for audit.
+
+After the feature build, match an aircraft's trigger to the nearest Geometry
+v2 surface start within 90 seconds. The match must be nearest on both sides,
+with stable keys breaking ties. Keep unmatched rows, rows that match an
+unlabeled outcome, and outcomes that already ended at prediction time in the
+artifact. Project 05 trains only on `match_status = 'matched_labeled'` and
+uses the manifest's `training_features` allowlist.
+
+The Silver archive lacks per-observation receipt times. The November pilot
+assigns availability at event time plus five seconds as a simulation. Runs
+without `--simulated-delay-seconds` require `available_at_epoch_s` in the source.
+
+## First delivery
+
+1. Run a synthetic replay that covers a late-arriving observation, duplicate
+   input, an unmatched label and events around a UTC month boundary. A late
+   observation with an earlier event time must be excluded from the affected
+   feature row.
+2. Replay one month, using the accepted November 2024 Geometry v2 release as
+   the initial label input. Its 17,051 candidates and 13,413 labels are source
+   checks, while replay and matching produce their own counts and coverage.
+3. Write a versioned training Parquet artifact and manifest outside Git. Pin
+   the source identities and feature definition, record artifact checksums,
+   feature nulls and label-match rates, and verify the same logical output on
+   a repeat run. Hand the manifest and dataset to project 05 for the
+   chronological baseline. [Label release contract](../02-aviation-transformation/contracts/ground_ops_geometry.yaml)
+   · [Cloud reconciliation](../docs/project-plan.md#phase-3-03-airport-analytics-and-cloud-gold)
 
 ```bash
 cd Fraport-adsb-intelligence/04-aviation-lakehouse
 uv sync --locked
 uv run --locked python -m unittest discover -v
-
-release=/home/bill/slh-data/full-20241101-20261031-geometry-v2/releases-geometry-v2/geometry-v2-2024-11
-out=$(mktemp -d /tmp/fraport-lakehouse.XXXXXX)
-uv run --locked python lakehouse.py "$release" --local-delta "$out/delta" > "$out/first.json"
-uv run --locked python lakehouse.py "$release" --local-delta "$out/delta" > "$out/replay.json"
+run_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+out=$(mktemp -d /tmp/fraport-feature-replay.XXXXXX)
+for run in first replay; do
+  uv run --locked python feature_replay.py --silver-root "$run_root/silver" \
+    --label-release "$run_root/releases-geometry-v2/geometry-v2-2024-11" \
+    --output "$out/$run" --simulated-delay-seconds 5
+done
+cmp "$out/first/manifest.json" "$out/replay/manifest.json"
+cmp "$out/first/training.parquet" "$out/replay/training.parquet"
 ```
 
-The accepted November 2024 input produced 17,051 rows each in Bronze and
-Silver and 13,413 rows in Gold (78.7% of candidates), matching the M5 BigQuery
-receipt. The repeat reproduced all three table hashes and versions. December
-appended 16,218 candidates and 13,079 labels. A November replay after that
-append reused the November rows without advancing any table version.
-All 24 months together reconciled to 433,694 candidates and 400,942 labels.
-
-## Free Edition workspace acceptance
-
-Use a writable Unity Catalog catalog, an isolated schema such as
-`fraport_free_pilot`, a managed input volume and Serverless compute. Keep this
-pilot in the Free Edition allowance. The private GCS Landing bucket stays in
-project 03. Direct GCS access through a storage credential and external
-location is deferred and carries its own acceptance evidence if taken up
-later. [Free Edition limits](https://docs.databricks.com/gcp/en/getting-started/free-edition-limitations)
-· [Managed volumes](https://docs.databricks.com/gcp/en/volumes/)
-
-1. Run the synthetic Geometry v2 release in a compatible Spark 4 Python
-   environment. A managed volume holds the complete release directory with
-   its manifest, contract, validation, approval, completion marker and
-   `data/part-0001.parquet`. The expected counts are 3 Bronze, 3 Silver and
-   2 Gold. The prepared interactive Notebook can stage its embedded fixture
-   in the volume. [Serverless environments](https://docs.databricks.com/gcp/en/release-notes/serverless/environment-version/)
-2. Replay the same release and record all three table hashes and Delta
-   versions. Acceptance requires matching counts and hashes, all three
-   slices marked `reused`, and unchanged table versions. Run serially in the
-   pilot schema. Users who create the pilot objects need the corresponding
-   Unity Catalog privileges on that catalog and schema.
-3. Once the synthetic path passes, a monthly release may be tested in the
-   same managed-volume workflow if it is approved for transfer to the
-   workspace. For November 2024, the reference counts are 17,051 Bronze and
-   Silver rows and 13,413 Gold labels (78.7% coverage). The two-year series
-   has already been reconciled locally against BigQuery.
-
-## Databricks CLI plan
-
-The CLI has workspace import, managed-volume file and Jobs commands for this
-workflow. The first test is interactive workspace OAuth and read access in the
-actual Free Edition workspace. CLI support for this project is accepted after
-that workspace returns the synthetic result and replay evidence. [CLI authentication](https://docs.databricks.com/gcp/en/dev-tools/cli/authentication)
-· [CLI command reference](https://docs.databricks.com/gcp/en/dev-tools/cli/commands)
-
-| Step | Planned check |
-|---|---|
-| 1. Authenticate | Register the Free Edition workspace in the browser and install the current Databricks CLI locally. Run `databricks auth login --host "$workspace_url" --profile fraport-free`, complete the browser sign-in, then run `databricks current-user me --profile fraport-free` and `databricks workspace list / --profile fraport-free`. Use workspace-level user OAuth. |
-| 2. Import a synthetic launcher | Prepare a reproducible Notebook from the current `lakehouse.py` and a synthetic release, then use `databricks workspace import "$notebook_path" --format JUPYTER --file "$notebook_file" --profile fraport-free`. Use a new pilot path on first import. The embedded fixture lets the Notebook create and seed the managed volume. For a separately approved input file, the later upload path is `databricks fs cp` with a `dbfs:/Volumes/...` destination. |
-| 3. Submit a single run | Use `databricks jobs submit --json @run.json --profile fraport-free` with one Serverless notebook task targeting the imported workspace path, a finite task timeout and no schedule. The Notebook runs the first publish and replay serially and returns compact JSON through `dbutils.notebook.exit`. The output-return step is part of the planned CLI launcher. |
-| 4. Save acceptance evidence | Use `databricks jobs get-run` to capture the run status and task run ID. Use `databricks jobs get-run-output` with that task run ID and save the JSON locally. Check the synthetic 3/3/2 counts and replay hashes and versions. Record the tested CLI version and workspace capabilities. |
-
-If the workspace blocks OAuth or a required Jobs operation, use the Free
-Edition UI to import the Notebook and run it, then record which CLI step was
-unavailable. Keep automated CI and account-level operations outside this
-pilot. [Workspace import](https://docs.databricks.com/gcp/en/dev-tools/cli/reference/workspace-commands)
-· [Volume file commands](https://docs.databricks.com/gcp/en/dev-tools/cli/reference/fs-commands)
-· [Jobs CLI](https://docs.databricks.com/gcp/en/dev-tools/cli/reference/jobs-commands)
-
-## Handoff to taxi-in prediction
-
-`aviation_gold_taxi_in_labels` is the outcome table. `taxi_in_s` is the
-Geometry v2 ADS-B proxy target. The flight key embeds OpenSky `lastseen` and
-serves as retrospective join metadata. Treat the key, date, label version,
-and release creation time as metadata. The creation timestamp provides
-release lineage and does not establish when a feature became available.
-
-Project 05 needs a separate observation-time feature source and a prediction
-cutoff supplied by an event available to the scoring system. Require both
-feature event time and availability time to be at or before that cutoff, and
-retain source/version lineage for each feature. The published touchdown
-estimate, taxi-end time, surface-window statistics, callsign and candidate
-selection have no verified point-in-time availability in this release. The
-Gold allowlist exposes no predictive features. Use labeled-target coverage
-when reporting training and evaluation scope.
+The November pilot matched 8,238 of 8,570 predictions (96.1%). Of the
+matched outcomes, 7,607 were usable labels, 522 had no label and 109 had
+already ended. The usable rows cover 88.8% of triggered predictions and 56.7%
+of the source release's 13,413 labeled arrivals. The repeated run reproduced
+the manifest and Parquet bytes. The five-second assumption applies to every
+observation; serving still needs measured availability.

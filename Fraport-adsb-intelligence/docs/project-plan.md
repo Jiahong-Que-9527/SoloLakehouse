@@ -4,9 +4,11 @@ Plan for the Fraport ADS-B Intelligence programme. Durations are rough
 estimates for one person working part-time. Replace them with measured
 values after the first phase.
 
-Architecture in one line: **local Bronze and Silver, a governed Gold release,
-then cloud Gold, analytics and models.** See
-[ADR-003](adr/ADR-003-local-bronze-silver-published-gold.md).
+The governed Gold Parquet release is the shared boundary. DuckDB and local
+Parquet serve feature engineering and training. BigQuery, GCS and managed
+Iceberg serve cloud analytics. See
+[ADR-003](adr/ADR-003-local-bronze-silver-published-gold.md) and
+[ADR-004](adr/ADR-004-gold-table-format-and-catalog.md).
 
 ## Overview
 
@@ -15,10 +17,11 @@ flowchart LR
     p0["Phase 0<br/>Preparation"] --> p1["Phase 1<br/>01 Acquisition"]
     p1 --> p2["Phase 2<br/>02 Transformation"]
     p2 --> p3["Phase 3<br/>03 Cloud Gold + Analytics"]
-    p3 --> p4["Phase 4<br/>04 Lakehouse"]
-    p3 --> p5["Phase 5<br/>05 Prediction"]
+    p2 --> p4["Phase 4<br/>04 Point-in-time features"]
+    p4 --> p5["Phase 5<br/>05 Prediction"]
     p5 --> p6["Phase 6<br/>06 Serving"]
     p6 --> p7["Phase 7<br/>07 Orchestration"]
+    p3 --> p7
 ```
 
 | Phase | Subproject | Runtime | Estimate |
@@ -27,12 +30,13 @@ flowchart LR
 | 1 | 01 OpenSky Acquisition | Local | 4 to 6 weeks |
 | 2 | 02 Aviation Transformation | Local | 4 to 5 weeks |
 | 3 | 03 Airport Analytics | GCP | 4 to 5 weeks |
-| 4 | 04 Lakehouse Integration | Databricks Free Edition | 3 to 4 weeks |
+| 4 | 04 Point-in-Time Feature Dataset | Local DuckDB + Parquet | Estimate after the one-month replay |
 | 5 | 05 Taxi-in Prediction | Local + MLflow | 4 to 5 weeks |
 | 6 | 06 Model Serving | Cloud Run | 2 to 3 weeks |
-| 7 | 07 Orchestration | GCP Workflows or Dagster | 3 to 4 weeks |
+| 7 | 07 Orchestration | Local Dagster | 3 to 4 weeks |
 
-Phases 4 and 5 can run in parallel after phase 3.
+Phase 04 takes approved local releases and feeds phase 05. Cloud analytics
+in phase 03 runs independently after the same Release Gate.
 
 ## Vertical slice V0
 
@@ -56,10 +60,10 @@ pilot week -> Silver -> Gold -> release v001 -> cloud ingestion -> BigQuery quer
 check passes, and a first query reconciles with the release manifest. Only
 after this do phases 2 to 3 scale up to the full dataset.
 
-**Status (2026-11-21):** the local half of the slice is closed. The pilot
-week (2026-10-12 to 2026-10-18) ran through Silver v2, the `gold/ground_ops`
-market and the Release Gate, and is published as release `v002`. The cloud
-ingestion steps belong to phase 3.
+**Status:** the pilot week (2026-10-12 to 2026-10-18) ran through Silver v2,
+the `gold/ground_ops` market and the Release Gate. Phase 03 ingested release
+`v002` and a replay added zero rows. See the
+[ingestion record](../03-airport-analytics/README.md#release-ingestion-m3).
 
 ## Phase 0: Preparation
 
@@ -86,16 +90,9 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 | M4 | Manifest export and DuckDB catalog | Accepted hours readable through the catalog |
 | M5 | Dataset sign-off | Full verify, dataset summary, backup restore tested |
 
-**Status (2026-11-16):** M0 to M2 are done. Batches b01 (2026-10) through b24
-(2024-11) are collected, validated, accepted and backed up. b01 through b12
-completed the twelve-month cut line. b24 finishes the M3 monthly window. A
-five-year extension back to 2021-11 is in progress. b25 through b35 are
-accepted. Next is b36 (2023-11), the first-year cut. M4 and M5 are not
-started. The
-working list is the
-[acquisition status](../01-opensky-acquisition/README.md#status-2026-11-16).
-Vertical slice V0 (Silver for the pilot week) can start in parallel. It is
-not the next acquisition step.
+**Status:** the initial two-year window completed at batch b24. The
+[acquisition README](../01-opensky-acquisition/README.md) records the current
+checkpoint for the independent five-year extension.
 
 CI: tests and lint on pull requests that touch this directory.
 Bronze is not uploaded to the cloud.
@@ -105,7 +102,7 @@ Bronze is not uploaded to the cloud.
 Local Silver, Gold and Release Gate with Python and DuckDB.
 
 1. Silver for one day, with tests (pilot week).
-2. Gold features and labels with a label coverage report.
+2. Gold outcome labels and descriptive fields with a label coverage report.
 3. Data contract, field policy and Release Gate. Release `v001` and a blocked
    failing fixture.
 4. Synthetic data generator in the same schema.
@@ -115,13 +112,13 @@ Local Silver, Gold and Release Gate with Python and DuckDB.
 **Exit:** reproducible Silver and Gold output and an immutable, verified
 release.
 
-**Status (2026-11-21):** Silver v2 (M1'), the `gold/ground_ops` market (M2),
+**Status (2026-11-23):** Silver v2 (M1'), the `gold/ground_ops` market (M2),
 the Release Gate (M3) and the container image with CI (M5) are implemented
 and recorded. `v001` is released from the 2026-07-01 gold output, `v002`
 from the pilot week, and a failing fixture is blocked. The two-year
-Geometry v2 backfill (M4) is running for 2024-11-01 through 2026-10-31.
-Its [handoff and completion checks](../02-aviation-transformation/README.md#backfill-status-and-handoff)
-cover the 730 Silver dates and 24 monthly packages.
+Geometry v2 backfill (M4) verified 730 Silver dates and 24 monthly packages.
+The [handoff](../02-aviation-transformation/README.md#backfill-status-and-handoff)
+describes monthly release verification.
 
 ## Phase 3: 03 Airport Analytics and cloud Gold
 
@@ -134,40 +131,39 @@ cover the 730 Silver dates and 24 monthly packages.
 **Exit:** reconciled tables, documented grain, idempotent ingestion and a
 findings report.
 
-**Status (2026-11-21):** M1 (ADR-004 spike, managed Iceberg accepted),
+**Status (2026-11-23):** M1 (ADR-004 spike, managed Iceberg accepted),
 M2 (Terraform foundation applied via CI), M3 (idempotent ingestion of the
 synthetic and `v002` releases) and M4 (analytics views verified on the
-fixed sample) are done. M5 starts by reconciling the November 2024
-Geometry v2 package in BigQuery after the 24 local packages pass
-verification. The [M5 handoff](../03-airport-analytics/README.md#geometry-v2-handoff-m5)
-lists the expected counts and the conditions for starting the remaining
-imports and findings report.
+fixed sample) are done. M5 is accepted. BigQuery reconciled 24 monthly
+Geometry v2 releases covering November 2024 through October 2026 with
+433,694 candidates and 400,942 labels. The November and December pilot
+replays added zero rows. The remaining 22 releases and report billed
+1,116 MiB combined. See the [M5 workflow](../03-airport-analytics/README.md#geometry-v2-handoff-m5).
 
-## Phase 4: 04 Lakehouse Integration
+## Phase 4: 04 Point-in-Time Feature Dataset
 
-1. Map the Geometry v2 schema and stage a synthetic release in a Unity
-   Catalog managed volume in Databricks Free Edition.
-2. Run the release through Bronze, Silver and Gold on Serverless and verify
-   a replay. Test workspace OAuth, import and run evidence with the
-   [Databricks CLI plan](../04-aviation-lakehouse/README.md#databricks-cli-plan).
-3. Hand off the versioned Gold label table and the point-in-time feature
-   requirements to project 05.
+1. Define an observable prediction cutoff and the evidence for event and
+   availability timestamps. Pin local observation partitions and accepted
+   Geometry v2 label releases by manifest hash.
+2. Build the feature replay in DuckDB. Prove cutoff behavior with synthetic
+   late arrivals, then replay one approved month.
+3. Emit versioned training Parquet and a manifest with input lineage,
+   label-match coverage, feature checks, and a reproducible replay result.
 
-**Exit:** reproducible Gold labels and reported coverage in Free Edition.
-The managed-volume read and replay are part of acceptance. A direct private
-GCS connection is deferred beyond this scope.
+**Exit:** project 05 can reproduce the pinned training input and verify
+that the feature build applied the cutoff using the recorded availability
+model. When using a simulated replay, document the assumption and keep
+serving acceptance pending verified availability.
 
-**Status (2026-11-23):** all 24 Geometry v2 releases passed local Delta
-reconciliation against BigQuery. The November 2024 replay reproduced the
-same data without a new Delta version. Project 05 has a documented
-label-table handoff and needs a separate point-in-time feature source.
-Managed-volume reads, managed Delta writes and the CLI smoke test remain
-pending in the [Free Edition workspace](../04-aviation-lakehouse/README.md#free-edition-workspace-acceptance).
+**Status:** the November 2024 simulated replay is reproducible. The output
+contains 8,570 predictions and 7,607 usable labels. Project 05 can start the
+chronological median baseline using the pinned artifact. Actual observation
+availability remains open for serving. [Phase 04 evidence](../04-aviation-lakehouse/README.md#first-delivery)
 
 ## Phase 5: 05 Taxi-in Prediction
 
-1. Label definition and coverage.
-2. Baselines on a time-ordered split.
+1. Pin the phase 04 training manifest and define chronological folds.
+2. Run a historical-median baseline and report error and label coverage.
 3. Gradient-boosted model with experiment tracking.
 4. Containerized training job with MLflow tracking and model registration (ADR-005).
 5. Evaluation report.
@@ -186,9 +182,9 @@ against the baseline.
 
 ## Phase 7: 07 Platform Orchestration
 
-1. ADR comparing Workflows and Dagster.
-2. Orchestrate release detection, ingestion and analytics.
-3. Add features and training.
+1. Model local partitions, dependencies, and retries in Dagster.
+2. Track the approved release into cloud ingestion and analysis.
+3. Add local feature and training runs keyed by their input manifests.
 4. Failure injection and recovery runbook.
 
 **Exit:** a failed stage reruns without redoing earlier stages.
@@ -200,7 +196,7 @@ against the baseline.
 | Reliability | Repeating a run or a release ingestion creates no duplicates |
 | Data quality | Schema, row counts, checksums and business rules pass checks |
 | Governance | A release that fails its contract is blocked from upload |
-| Reproducibility | A release ID and a table snapshot reproduce a model input |
+| Reproducibility | Pinned release and training manifest hashes plus the code revision reproduce a model input |
 | Portability | A fork runs the full flow with synthetic data in its own GCP project |
 | Security | The cloud cannot read local Bronze or Silver. Upload and runtime identities are separate |
 | Observability | Failed jobs, durations, data volume and cost are visible |
@@ -228,15 +224,15 @@ against the baseline.
 | Data volume above estimate | Disk shortage | Seven-day size test before the full backfill |
 | Proxy labels are noisy | Weak model or overclaimed results | Report coverage, validate a sample independently |
 | Vertex AI is unavailable on the trial account | Training and registry milestones cannot run as designed | Cloud-neutral MLflow path (ADR-005); training stays local and cloud runs are small and cost-recorded |
-| Gold too coarse for the model | The cloud cannot train a per-flight model | Gold contract requires per-flight features and labels from the start |
+| Feature availability is unknown | Historical evaluation may leak future observations | Define an observable cutoff, document availability evidence, and test late-arriving inputs |
 | Table format unverified | Rework of cloud tables | ~~Time-boxed spike and ADR-004 before cloud table code~~ Resolved 2026-11-21: managed Iceberg tables, ADR-004 Accepted |
 | Layers meet late | Integration surprises after weeks of work | Vertical slice V0 on the pilot week |
 | Scope growth | Programme stalls | Finish each phase exit criterion before starting the next |
-| Overlap with existing aviation projects | Duplicate work | Subprojects 04 and 06 link to them and own only integration |
+| Overlap between local and cloud processing | Duplicate data products | Share the accepted Gold release. Build the training dataset locally and serve cloud analytics from phase 03 |
 
 ## Open decisions
 
 - Final geographic bounds and the field list for `v1`.
-- GCP Workflows or Dagster for phase 7.
+- Prediction trigger and evidence for historical observation availability in phase 04.
 - Cloud region for the bucket and BigQuery: the ADR-004 spike confirmed
   `europe-west3` for managed Iceberg tables (2026-11-21).

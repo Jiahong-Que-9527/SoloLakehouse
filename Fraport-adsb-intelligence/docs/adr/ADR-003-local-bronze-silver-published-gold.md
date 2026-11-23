@@ -1,6 +1,7 @@
 # ADR-003: Local Bronze and Silver, published Gold
 
-**Status:** Proposed
+**Status:** Accepted. The local feature and training handoff was clarified on
+2026-11-23.
 
 ## Context
 
@@ -18,12 +19,13 @@ The cloud side should still do real engineering work, not just store files.
 ## Decision
 
 ```text
-LOCAL   Bronze (01) -> Silver (02) -> Gold (02) -> Release Gate -> release
-CLOUD   GCS Landing -> validation -> Gold tables -> BigQuery -> models
+LOCAL   Bronze (01) -> Silver (02) -> Gold (02) -> Release Gate -> Parquet release
+LOCAL   Silver observations + approved release -> DuckDB features (04) -> Python/MLflow (05)
+CLOUD   Approved release -> GCS Landing -> BigQuery managed Iceberg -> analytics (03)
 ```
 
-1. **Bronze and Silver stay local.** Python and DuckDB build Silver. Local
-   orchestration is a CLI and batch scripts. No Dagster and no local Iceberg.
+1. **Bronze and Silver stay local.** Python and DuckDB build Silver. The CLI
+   and batch scripts run today. Phase 07 adds local Dagster orchestration.
 2. **Gold is built locally and published.** Gold holds the flight-level and
    hourly products that later projects need. Only Gold crosses the boundary.
 3. **The Release Gate is the interface.** A release is an immutable, versioned
@@ -51,17 +53,18 @@ CLOUD   GCS Landing -> validation -> Gold tables -> BigQuery -> models
    is decided in [ADR-004](ADR-004-gold-table-format-and-catalog.md).
 6. **Cloud cannot reach Bronze or Silver.** The upload identity can only write
    to Landing.
-7. **Gold must carry flight-level features.** An hourly aggregate alone would
-   make the Taxi-in model impossible. The Gold contract must include the
-   per-flight features and labels, with label coverage.
+7. **Keep flight-level outcome labels and their coverage.** Project 04 builds
+   prediction features separately from local observations and enforces the
+   cutoff and availability rules. The local training input pins the Gold
+   release ID, manifest hash, feature version and artifact checksums.
 
 ## Rationale
 
 - Right-sized compute: a single machine handles the data, so a cluster would
   add cost and operations without benefit.
 - A release is easy to verify, version and reproduce from a release ID.
-- The cloud still demonstrates validation, idempotent loading, table
-  management, analytics, training and orchestration.
+- The cloud path demonstrates validation, idempotent loading, managed Iceberg
+  and analytics. Local training and orchestration can use the pinned files.
 - Forks can run the whole flow with synthetic data and their own GCP project.
 
 ## Consequences
@@ -69,7 +72,9 @@ CLOUD   GCS Landing -> validation -> Gold tables -> BigQuery -> models
 - Subproject 02 moves to the local machine. Silver, Gold and the Release Gate
   live there. The code is containerised so the same logic can run in CI.
 - Subproject 01 has no cloud upload.
-- Subprojects 03 to 06 consume Gold releases, not Bronze or Silver.
+- Project 03 consumes approved Gold releases. Project 04 combines local
+  observations with release labels. Projects 05 and 06 take the training
+  artifact and versioned model respectively.
 - The cloud cannot recompute Silver. Changing Silver means a new local run and
   a new release.
 - Real-data runs in the cloud cover only what Gold contains. Synthetic data

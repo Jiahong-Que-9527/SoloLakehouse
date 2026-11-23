@@ -1,12 +1,12 @@
 # ADR-004: Gold table format and catalog
 
-**Status:** Accepted (2026-11-21, spike passed).
+**Status:** Accepted (2026-11-21, spike passed). The local training handoff was
+clarified on 2026-11-23.
 
 ## Context
 
 Gold releases (ADR-003) land in Cloud Storage. They need to become managed
-tables that BigQuery, Databricks and Vertex AI can query, with snapshots that
-link back to a release ID.
+tables for BigQuery analytics, with rows traceable to the approved release.
 
 The candidates are:
 
@@ -14,8 +14,7 @@ The candidates are:
   schema evolution and an open format.
 - **BigQuery native tables** loaded from the release Parquet. Simplest, but
   the data is held in BigQuery storage.
-- **Delta Lake** in Databricks. The Aviation Lakehouse project already uses it
-  (subproject 04).
+- **Delta Lake** in Databricks was considered during the initial design.
 
 The Google catalog service, its names, its regional availability, its engine
 support for writes and the BigQuery integration have not been verified for
@@ -23,10 +22,10 @@ this programme.
 
 ## Decision
 
-Prefer Apache Iceberg for the cloud Gold tables, provided a one-day spike on
-synthetic data confirms every check below. Otherwise load BigQuery native
-tables. Subproject 04 keeps Delta either way, because it is the integration
-with the existing Databricks project.
+Use BigQuery managed Apache Iceberg on GCS for cloud Gold. The spike below
+validated the choice. Subproject 04 consumes the approved local Gold Parquet
+release and builds features in DuckDB. Parquet artifacts and manifests are
+the local training handoff.
 
 ## Spike checks
 
@@ -59,9 +58,7 @@ BigQuery free tier).
 3. **Cheap writer: BigQuery DML itself.** `INSERT INTO` the managed
    Iceberg table loaded the release directly — no Cloud Run job and no
    Dataproc Serverless batch is needed for ingestion. (Dataproc Serverless
-   was rejected: per-batch minimum billing. A PyIceberg writer against the
-   BigLake REST catalog remains a follow-up for subproject 04 if Databricks
-   needs it.)
+   was rejected during the spike because of per-batch minimum billing.)
 4. **Idempotence: PASS.** The release-apply guard counts rows already
    carrying the release ID and skips the append; a repeated apply inserted
    0 rows and the row count stayed 4,656. **Deviation from the original
@@ -81,8 +78,8 @@ BigQuery free tier).
   connection, in `europe-west3`.
 - Gold tables carry the release ID as a column on every row, and the
   ingestion guard checks it before writing.
-- Subproject 04 keeps Delta, because it is the integration
-  with the existing Databricks project.
+- Project 04 pins the original release manifest for feature and training
+  reproducibility. The cloud table supports analytics on the same releases.
 
 ## Revisit when
 
