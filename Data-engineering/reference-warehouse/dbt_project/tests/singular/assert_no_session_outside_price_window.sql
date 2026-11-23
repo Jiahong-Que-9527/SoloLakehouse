@@ -10,7 +10,8 @@ from {{ ref('int_sessions_enriched_fx') }} as s
 where not exists (
     select 1
     from {{ ref('stg_smard_prices') }} as p
-    where p.market_zone = 'DE-LU'
+    where
+        p.market_zone = 'DE-LU'
         and p.timestamp_utc <= s.session_started_at
         and s.session_started_at < {{ dbt.dateadd('minute', 15, 'p.timestamp_utc') }}
 )
