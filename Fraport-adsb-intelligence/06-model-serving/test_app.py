@@ -4,8 +4,10 @@ import pickle
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from httpx import ASGITransport, AsyncClient
+from prometheus_client.parser import text_string_to_metric_families
 
 from app import FEATURES, create_app, load_model
 
@@ -83,6 +85,27 @@ class ServingTests(unittest.IsolatedAsyncioTestCase):
         self.manifest["feature_columns"].reverse()
         with self.assertRaisesRegex(ValueError, "serving contract"):
             load_model(self.release, self.write_manifest())
+
+    async def test_metrics_count_success_validation_error_and_model_error(self):
+        self.assertEqual((await self.client.post("/v1/predict", json=self.body)).status_code, 200)
+        self.assertEqual((await self.client.post("/v1/predict", json={})).status_code, 400)
+        with patch.object(FakeEstimator, "predict", return_value=[float("nan")]):
+            with self.assertLogs("uvicorn.error", level="ERROR"):
+                self.assertEqual((await self.client.post("/v1/predict", json=self.body)).status_code, 500)
+        await self.client.get("/health")
+        await self.client.get("/v1/model")
+        for _ in range(2):
+            response = await self.client.get("/metrics")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("text/plain", response.headers["Content-Type"])
+            samples = {(sample.name, tuple(sorted(sample.labels.items()))): sample.value
+                       for family in text_string_to_metric_families(response.text) for sample in family.samples}
+            for status_class in ("2xx", "4xx", "5xx"):
+                self.assertEqual(samples["eddf_prediction_requests_total", (("status_class", status_class),)], 1)
+            self.assertEqual(samples["eddf_prediction_request_duration_seconds_count", ()], 3)
+            self.assertGreaterEqual(samples["eddf_prediction_request_duration_seconds_sum", ()], 0)
+            labels = (("model_release_id", self.manifest["model_release_id"]), ("model_version", "1"))
+            self.assertEqual(samples["eddf_serving_model_info", labels], 1)
 
 
 if __name__ == "__main__":
