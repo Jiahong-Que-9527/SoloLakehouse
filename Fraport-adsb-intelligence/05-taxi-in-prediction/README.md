@@ -42,8 +42,11 @@ airport ground truth. Report label coverage and definition with every result.
 
 ## Depends on
 
-Gold releases from project 02, ingested by project 03. Training reads the
-table version that matches a release ID.
+Training pins the Gold label-table version and release ID from the
+[project 04 lakehouse handoff](../04-aviation-lakehouse/README.md#handoff-to-taxi-in-prediction).
+Predictive features require a separate point-in-time source with documented
+event and availability timestamps. The Geometry v2 table supplies proxy
+labels and join metadata.
 
 ## Outputs
 

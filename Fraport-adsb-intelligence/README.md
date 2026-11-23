@@ -36,7 +36,7 @@ the cloud. Silver, Gold and the cloud track remain engineering scope here.
 | 01 | [OpenSky Acquisition](01-opensky-acquisition/README.md) | Local | Ingestion, reliability, data manifest |
 | 02 | [Aviation Transformation](02-aviation-transformation/README.md) | Local (Python, DuckDB) | Silver, Gold, Release Gate |
 | 03 | [Airport Analytics](03-airport-analytics/README.md) | GCP (Terraform, GCS, BigQuery) | Cloud Gold, SQL, infrastructure as code |
-| 04 | [Aviation Lakehouse Integration](04-aviation-lakehouse/README.md) | Databricks, reads Gold releases | Spark, Delta Lake, governance |
+| 04 | [Aviation Lakehouse Integration](04-aviation-lakehouse/README.md) | **Databricks Free Edition**, Serverless and a managed volume | Spark, managed Delta tables, Unity Catalog, CLI pilot |
 | 05 | [Taxi-in Prediction](05-taxi-in-prediction/README.md) | Local + MLflow | Features, training, evaluation |
 | 06 | [Model Serving Integration](06-model-serving/README.md) | Cloud Run | API, versioning, monitoring |
 | 07 | [Platform Orchestration](07-platform-orchestration/README.md) | GCP Workflows or Dagster | Scheduling, lineage, recovery |

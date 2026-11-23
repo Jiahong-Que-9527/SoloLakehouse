@@ -27,7 +27,7 @@ flowchart LR
 | 1 | 01 OpenSky Acquisition | Local | 4 to 6 weeks |
 | 2 | 02 Aviation Transformation | Local | 4 to 5 weeks |
 | 3 | 03 Airport Analytics | GCP | 4 to 5 weeks |
-| 4 | 04 Lakehouse Integration | Databricks | 3 to 4 weeks |
+| 4 | 04 Lakehouse Integration | Databricks Free Edition | 3 to 4 weeks |
 | 5 | 05 Taxi-in Prediction | Local + MLflow | 4 to 5 weeks |
 | 6 | 06 Model Serving | Cloud Run | 2 to 3 weeks |
 | 7 | 07 Orchestration | GCP Workflows or Dagster | 3 to 4 weeks |
@@ -145,11 +145,24 @@ imports and findings report.
 
 ## Phase 4: 04 Lakehouse Integration
 
-1. Schema mapping and Cloud Storage access from Databricks.
-2. One release through Bronze, Silver and Gold in the Databricks project.
-3. Feature contract with project 05.
+1. Map the Geometry v2 schema and stage a synthetic release in a Unity
+   Catalog managed volume in Databricks Free Edition.
+2. Run the release through Bronze, Silver and Gold on Serverless and verify
+   a replay. Test workspace OAuth, import and run evidence with the
+   [Databricks CLI plan](../04-aviation-lakehouse/README.md#databricks-cli-plan).
+3. Hand off the versioned Gold label table and the point-in-time feature
+   requirements to project 05.
 
-**Exit:** reproducible Gold features with reported label coverage.
+**Exit:** reproducible Gold labels and reported coverage in Free Edition.
+The managed-volume read and replay are part of acceptance. A direct private
+GCS connection is deferred beyond this scope.
+
+**Status (2026-11-23):** all 24 Geometry v2 releases passed local Delta
+reconciliation against BigQuery. The November 2024 replay reproduced the
+same data without a new Delta version. Project 05 has a documented
+label-table handoff and needs a separate point-in-time feature source.
+Managed-volume reads, managed Delta writes and the CLI smoke test remain
+pending in the [Free Edition workspace](../04-aviation-lakehouse/README.md#free-edition-workspace-acceptance).
 
 ## Phase 5: 05 Taxi-in Prediction
 

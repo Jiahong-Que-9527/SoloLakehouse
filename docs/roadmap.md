@@ -95,11 +95,12 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
    repeat run. Document deployment and runtime identities, failure handling
    and observed cost when a cloud environment is used.
    [Cloud Run Jobs](https://docs.cloud.google.com/run/docs/execute/jobs)
-3. **Databricks Aviation Lakehouse.** Reproduce a small batch through
-   Bronze, Silver and Gold. Verify event identity, proxy coverage and the
-   feature cutoff. Add job definitions and experiment tracking after the
-   transformations are reproducible in an approved workspace.
-   [Databricks Bundles](https://docs.databricks.com/gcp/en/dev-tools/bundles)
+3. **Databricks Aviation Lakehouse.** Reproduce a synthetic batch through
+   Bronze, Silver and Gold in Databricks Free Edition using a managed volume
+   and Serverless compute. Verify event identity, proxy coverage and replay.
+   Document the feature cutoff requirements for project 05 and verify the
+   CLI workflow in the Free Edition workspace.
+   [Fraport 04 plan](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md#databricks-cli-plan)
 4. **Aviation model serving.** Version the API contract and model artifact.
    Validate the synthetic request first. A later deployment milestone
    records the served model version, predictions, logs and recovery steps.
