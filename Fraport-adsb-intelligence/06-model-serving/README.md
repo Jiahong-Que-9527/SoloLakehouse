@@ -119,3 +119,43 @@ The smoke inputs use M5 replay features with simulated observation delay.
 The archive audit found no measured receipt column in 731 daily Silver
 partitions. M3 is pending a measured EDDF input sample and review of its
 trigger replay. [Phase 04 availability audit](../04-aviation-lakehouse/README.md#measured-availability-audit)
+
+## Full archive HTTP replay
+
+The replay prepares one request for every row in the four M5 feature
+partitions. It verifies the frozen model and the recorded input checksums,
+then compares each HTTP response with the offline prediction, UTC timestamp
+and pinned model lineage. It also recomputes MAE on the same proxy labels.
+All traffic in this check goes to the isolated local service.
+
+From this directory, prepare the fixture with the phase 05 locked environment:
+
+```bash
+data_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+out=$(mktemp -d /tmp/fraport-archive-http.XXXXXX)
+OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 uv run --project ../05-taxi-in-prediction --locked \
+  python archive_replay.py prepare \
+  --release ../05-taxi-in-prediction/releases/fraport-taxi-in-f3b6b1ebf360fce8.json \
+  --evaluation ../05-taxi-in-prediction/reports/seasonal-evaluation.json \
+  --model "$data_root/model-releases/geometry-v2-2024-11-m4/release/model.pkl" \
+  --features "$data_root/features" --output "$out/fixture.jsonl"
+```
+
+With the isolated service running on loopback as in the local startup
+instructions, run:
+
+```bash
+python3 archive_replay.py verify --fixture "$out/fixture.jsonl" \
+  --output "$out/archive-evidence.json"
+```
+
+Keep the replay fixture outside Git. It contains individual observations
+and proxy labels. The summary contains only aggregate counts and provenance.
+The archived feature partitions retain the five-second simulated availability
+used in M5. The production availability check still needs measured receipts.
+
+The network-isolated Docker run matched all **65,981 predictions** exactly.
+The service recorded 65,981 successful requests and zero 4xx or 5xx responses.
+The **51,319** usable proxy labels reproduced the offline MAE of **171.2871 s**.
+The replay container was removed after verification.
+[Full archive evidence](evidence/archive-http-replay.json)
