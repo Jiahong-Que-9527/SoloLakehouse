@@ -7,23 +7,23 @@ vectors for a 75 km region around `EDDF` and keeps them as a traceable Parquet
 dataset. The deliverable is the tool plus the dataset, ready for later
 lakehouse ETL. It is not a cloud deployment.
 
-## Status (2026-11-22)
+## Status (2026-11-23)
 
 Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
-(pull requests #123 to #125). Batches **b01 (2026-10)** through **b41 (2023-06)**
+(pull requests #123 to #125). Batches **b01 (2026-10)** through **b42 (2023-05)**
 are accepted and backed up. b01 through b12 completed the twelve-month cut
 line from 2025-11 through 2026-10. b24 finishes the original two-year window.
 b25 through b36 finish the first-year cut of the five-year extension
-(three years on disk, Nov 2023 through Oct 2026). The second cut is at b41.
-The next session collects batch **b42 (2023-05)**. Do not start b43 until
-b42 is published.
+(three years on disk, Nov 2023 through Oct 2026). The second cut is at b42.
+The next session collects batch **b43 (2023-04)**. Do not start b44 until
+b43 is published.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
 
-- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2023-06.
+- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2023-05.
 - Flights, `eddf_flights` v1: 2026-10-01 through 2026-11-01, and all of
-  2026-09 through 2023-06.
+  2026-09 through 2023-05.
 - Batch b01: 109,641,931 state-vector rows, 2.13 GB, 40,844 flights. Validation
   outcome `review` for six early-morning hours after the 2026-10-25 clock
   change; every hour is complete. Accepted and published.
@@ -230,6 +230,10 @@ git.
   complete. Sample reconcile of 2023-06-10 matched 24/24; T12 and T13 also
   matched the source. Accepted and published (`copied: 1493`, `checked: 741`).
   Report: `reports/batches/b41/report.md`.
+- Batch b42: 104,960,659 state-vector rows, 1.88 GB, 35,640 flights.
+  Validation outcome `passed` (744/744 hours, 0 problems, 0 anomalies).
+  Sample reconcile of 2023-05-10 matched 24/24. Accepted and published
+  (`copied: 1552`, `checked: 775`). Report: `reports/batches/b42/report.md`.
 - Hour reconciliation matched 168/168:
   `reports/reconcile/20261114T221544Z-3852.json`.
 - The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
@@ -251,16 +255,16 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Collect b42, May 2023. State vectors:
-   `run --from 2023-05-01T00:00:00Z --until 2023-06-01T00:00:00Z`.
-   Flights: `collect-flights --from 2023-05-01 --until 2023-06-01`.
+1. Collect b43, April 2023. State vectors:
+   `run --from 2023-04-01T00:00:00Z --until 2023-05-01T00:00:00Z`.
+   Flights: `collect-flights --from 2023-04-01 --until 2023-05-01`.
    No documented gap hours in this month.
-2. `validate --batch b42`, `report --batch b42`, then `accept` and `publish`.
+2. `validate --batch b43`, `report --batch b43`, then `accept` and `publish`.
    A validation outcome of `review` needs `--notes`. A `failed` outcome stops
    the gate. Stop the backfill if a day exceeds 6 million rows, 100 MB of
-   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b43
-   until b42 is published.
-3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b41.
+   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b44
+   until b43 is published.
+3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b42.
    Commit only when asked.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run
