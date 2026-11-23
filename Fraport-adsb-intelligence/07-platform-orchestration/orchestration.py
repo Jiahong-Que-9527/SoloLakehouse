@@ -1,9 +1,10 @@
-"""Verify a monthly Geometry v2 release and record its local Dagster handoff."""
+"""Verify a monthly Geometry v2 release and rehearse its analytics ingestion."""
 
 import argparse
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -17,10 +18,15 @@ from dagster import (
     FilesystemIOManager,
     MonthlyPartitionsDefinition,
     RetryPolicy,
+    RunRequest,
+    SkipReason,
     asset,
     define_asset_job,
     in_process_executor,
+    sensor,
 )
+
+from local_analytics import PHASE_03, ingest_local
 
 HERE = Path(__file__).resolve().parent
 VERIFIER_PATH = HERE.parent / "04-aviation-lakehouse" / "release_inputs.py"
@@ -50,6 +56,10 @@ def release_directory(month: str) -> Path:
 
 def control_digests(directory: Path) -> dict:
     return {name: release_inputs.file_digest(directory / name) for name in CONTROLS}
+
+
+def handoff_path(month: str) -> Path:
+    return Path(os.environ["FRAPORT_STATE_DIR"]) / "handoffs" / f"geometry-v2-{month}.json"
 
 
 @asset(partitions_def=MONTHS, description="Verified Geometry v2 monthly Gold release and label quality.")
@@ -88,7 +98,7 @@ def local_handoff(context: AssetExecutionContext, approved_gold: dict) -> None:
     if (approved_gold["release_id"] != directory.name or approved_gold["code_sha256"] != code_digests()
             or approved_gold["control_sha256"] != control_digests(directory)):
         raise Failure("Gold controls or verification code changed; reverify the partition", allow_retries=False)
-    output = Path(os.environ["FRAPORT_STATE_DIR"]) / "handoffs" / f"{directory.name}.json"
+    output = handoff_path(context.partition_key)
     evidence = {"schema_version": "fraport-local-handoff-v1", "month_utc": context.partition_key,
                 "status": "verified_local", **approved_gold}
     created = write_handoff(output, evidence)
@@ -96,19 +106,65 @@ def local_handoff(context: AssetExecutionContext, approved_gold: dict) -> None:
                                  "created": created, "source_commit": approved_gold["source_commit"]})
 
 
+@asset(partitions_def=MONTHS, deps=[local_handoff], description="Rehearse phase 03 ingestion in local DuckDB.")
+def local_analytics(context: AssetExecutionContext) -> dict:
+    month = context.partition_key
+    directory = release_directory(month)
+    handoff = release_inputs.read_json(handoff_path(month))
+    if (handoff["schema_version"] != "fraport-local-handoff-v1" or handoff["status"] != "verified_local"
+            or handoff["release_id"] != directory.name or handoff["month_utc"] != month
+            or handoff["code_sha256"] != code_digests() or handoff["control_sha256"] != control_digests(directory)):
+        raise Failure("analytics requires an unchanged verified handoff for this partition", allow_retries=False)
+    database = Path(os.environ["FRAPORT_STATE_DIR"]) / "analytics.duckdb"
+    result = ingest_local(directory, handoff, database)
+    result["handoff_sha256"] = release_inputs.file_digest(handoff_path(month))
+    result["analytics_code_sha256"] = {path.name: release_inputs.file_digest(path)
+                                       for path in (HERE / "local_analytics.py", PHASE_03)}
+    context.add_output_metadata({"release_id": result["release_id"], "status": result["status"],
+                                 "rows_added": result["rows_added"], **result["geometry_counts"]})
+    return result
+
+
+analytics_job = define_asset_job("ingest_month_local", selection=[approved_gold, local_handoff, local_analytics],
+                                 executor_def=in_process_executor)
+
+
+@sensor(job=analytics_job)
+def geometry_release_ready():
+    root = Path(os.environ["FRAPORT_RELEASES_DIR"])
+    if not root.is_dir():
+        return SkipReason("Geometry v2 release directory is unavailable")
+    runs = []
+    for directory in sorted(root.glob("geometry-v2-*")):
+        month = directory.name.removeprefix("geometry-v2-")
+        if not directory.is_dir() or not re.fullmatch(r"\d{4}-\d{2}", month) or not MONTHS.has_partition_key(month):
+            continue
+        if not all((directory / name).is_file() for name in CONTROLS):
+            continue
+        try:
+            manifest_hash = release_inputs.file_digest(directory / "manifest.json")
+        except FileNotFoundError:
+            continue
+        runs.append(RunRequest(run_key=f"{directory.name}:{manifest_hash}", partition_key=month))
+    return runs or SkipReason("No completed monthly release with all gate files")
+
+
 defs = Definitions(
-    assets=[approved_gold, local_handoff],
+    assets=[approved_gold, local_handoff, local_analytics],
     jobs=[
         define_asset_job("verify_month", selection=[approved_gold, local_handoff], executor_def=in_process_executor),
         define_asset_job("resume_local_handoff", selection=[local_handoff], executor_def=in_process_executor),
+        analytics_job,
+        define_asset_job("resume_local_analytics", selection=[local_analytics], executor_def=in_process_executor),
     ],
+    sensors=[geometry_release_ready],
     resources={"io_manager": FilesystemIOManager(base_dir=EnvVar("FRAPORT_STATE_DIR"))},
 )
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("job", choices=("verify_month", "resume_local_handoff"))
+    parser.add_argument("job", choices=("verify_month", "resume_local_handoff", "ingest_month_local", "resume_local_analytics"))
     parser.add_argument("month", help="UTC partition, YYYY-MM")
     args = parser.parse_args()
     for setting in ("DAGSTER_HOME", "FRAPORT_RELEASES_DIR", "FRAPORT_STATE_DIR"):
@@ -120,7 +176,10 @@ def main() -> None:
         result = defs.resolve_job_def(args.job).execute_in_process(
             instance=instance, partition_key=args.month, raise_on_error=False,
         )
-    print(json.dumps({"run_id": result.run_id, "job": args.job, "partition": args.month, "success": result.success}))
+    report = {"run_id": result.run_id, "job": args.job, "partition": args.month, "success": result.success}
+    if result.success and args.job in ("ingest_month_local", "resume_local_analytics"):
+        report["analytics"] = result.output_for_node("local_analytics")
+    print(json.dumps(report))
     if not result.success:
         raise SystemExit(1)
 
