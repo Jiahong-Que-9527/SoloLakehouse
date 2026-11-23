@@ -2,6 +2,8 @@
 
 **E06 · Design specification (planned).** [Brief](../README.md) · [Implementation plan](implementation.md) · [GCP cost gate](../../../AGENTS.md)
 
+<!-- [ZCode·2026-11-23] Unify dataset name (de_consumer) and raw-upload size bound (< 10 MB); add per-query cap vs monthly free-tier allowance math. -->
+
 Run the identical E02–E05 `dbt` project against live **Google BigQuery** in `slh-gcp-test` (`europe-west3`) using `--target bq`, enforce daily partitioning and clustering on fact tables, expose one read-only Authorized View, and measure scan cost savings in `INFORMATION_SCHEMA.JOBS`.
 
 ## 1. Decisions
@@ -12,8 +14,8 @@ Run the identical E02–E05 `dbt` project against live **Google BigQuery** in `s
 | Authentication | Application Default Credentials (ADC) locally; Workload Identity Federation (WIF) if triggered via CI |
 | Safety budget | `maximum_bytes_billed: 104857600` (100 MiB per query) in `profiles.yml` `bq` target |
 | Partitioning & clustering | Daily partition on `revenue_date` with `require_partition_filter: true`; `cluster_by: ['country_code', 'station_sk']` |
-| Consumer governance | Separate `de_mart_consumer` dataset holding an Authorized View (`v_daily_revenue`) for an analyst identity; raw/staging denied |
-| Cost ceiling | **€0** inside BigQuery Free Tier (10 GB storage, 1 TB query/month); zero paid VMs, Cloud Composer, or NAT |
+| Consumer governance | Separate `de_consumer` dataset holding an Authorized View (`v_daily_revenue`) for an analyst identity; raw/staging denied |
+| Cost ceiling | **€0** inside BigQuery Free Tier (10 GB storage, 1 TB query/month); zero paid VMs, Cloud Composer, or NAT. The 100 MiB `maximum_bytes_billed` cap bounds every query, so even ~10,000 full-cap queries per month stay inside the 1 TB free scan allowance. |
 
 ## 2. Scope boundary
 
@@ -25,7 +27,7 @@ Out of scope: changing business SQL for BigQuery (parity rule), paid BigQuery BI
 
 ```text
 E01 Parquet/CSV fixtures
-        |  (upload to de_raw dataset in europe-west3, < 5 MB)
+        |  (upload to de_raw dataset in europe-west3, < 10 MB)
         v
 BigQuery: de_raw.* ---> dbt snapshot & dbt build --target bq
         |

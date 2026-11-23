@@ -118,11 +118,36 @@ Data-engineering/
 5. **Honest acceptance & evidence:** a stage stays `planned` until every check in its `implementation.md` passes after the final edit and its evidence note is committed under `<stage>/evidence/`. Never silently drop malformed rows — route them to `raw_quarantine` and reconcile every cent in revenue conservation.
 6. **Worktree isolation:** verify you are in a dedicated branch/worktree for `Data-engineering/` work and never overwrite uncommitted work from sibling project sessions.
 
-## 5. Related documents
+## 5. Data volumes, retention and free-tier budget
+
+<!-- [ZCode·2026-11-23] Add volume estimates and retention policy so FinOps (E06) and the free-tier gate have numbers to reconcile against. -->
+
+**Volume estimates (locked fixtures, deterministic):**
+
+| Source | Rows | Raw size |
+|---|---|---|
+| BNetzA Hesse/Frankfurt station slice × `t0/t1/t2` | ≤ 10,000 | < 2 MB |
+| SMARD hourly prices + load (locked window) | ≤ 50,000 | < 2 MB |
+| ECB daily FX (3 pairs) | ≤ 2,000 | < 0.1 MB |
+| Seeded charging sessions (incl. duplicates/late/dirty) | ≤ 100,000 | < 5 MB |
+| Roaming settlements (paginated mock API) | ≤ 30,000 | < 2 MB |
+
+Total: well under 200,000 rows / ~10 MB — local DuckDB stays tens of MB, and the BigQuery `de_raw` upload is `< 10 MB` (E06), i.e. `< 0.1%` of the 10 GB Free-Tier storage and `< 0.01%` of the 1 TB monthly scan allowance even before partition pruning.
+
+**Retention policy:**
+
+- Local raw databases/Parquet and Airflow state stay outside Git (`.gitignore`) and may be rebuilt from fixtures + seed at any time; nothing local is authoritative.
+- Git holds code, contracts, fixtures manifests, and evidence — the authoritative artifacts.
+- BigQuery uses **passive expiration, not active destroys**: `de_raw`/`de_stg` datasets get a 90-day `default_table_expiration`, marts persist for the life of the track. This preserves the `0 destroys` cost-gate rule while bounding storage.
+- Evidence receipts (`INFORMATION_SCHEMA.JOBS`, acceptance records) are copied into Git at acceptance time, so cloud state can expire safely.
+
+## 6. Related documents
 
 - [Project overview](../README.md)
 - [Delivery plan](delivery-plan.md)
 - [Data contract](data-contract.md)
 - [Evidence guide](evidence-guide.md)
+- [Glossary](glossary.md)
+- [Architecture decision records](adr/README.md)
 - [Reference warehouse](../reference-warehouse/README.md)
 - [Databricks track (separate free-edition track)](../../databricks/README.md)
