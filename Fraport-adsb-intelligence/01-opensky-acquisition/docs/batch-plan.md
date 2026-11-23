@@ -280,7 +280,7 @@ February 2024 has 29 days (696 hours). February 2022 and 2023 have 28 days
 | b43 | 2023-04 | 720 | 0 |
 | b44 | 2023-03 | 744 | 0 |
 | b45 | 2023-02 | 672 | 0 |
-| b46 | 2023-01 | 744 | 127 |
+| b46 | 2023-01 | 744 | 198 |
 | b47 | 2022-12 | 744 | 0 |
 | b48 | 2022-11 | 720 | 0 |
 | b49 | 2022-10 | 744 | 0 |
@@ -317,8 +317,9 @@ regional hour is `empty`.
 
 The long gaps make whole flight days likely `source_gap` when the global day
 partition is empty: **2023-01-19, 2023-01-20, 2023-01-21, 2023-01-22,
-2023-12-03 and 2023-12-04**. b46 (2023-01) is the heavy one: 127 gap hours
-across 2023-01-02T23–03T10 and 2023-01-18T11–23T07. That is an expected
+2023-12-03 and 2023-12-04**. b46 (2023-01) is the heavy one: 198 gap hours
+across 2023-01-02T22–03T10, 2023-01-11T23–12T15, 2023-01-12T16–14T22,
+and 2023-01-18T11–23T07. A one-hour island at 2023-01-12T15 is present. That is an expected
 result, not a failed batch.
 
 `SOURCE_MISSING` still stops the range. Probe the global hour and its
