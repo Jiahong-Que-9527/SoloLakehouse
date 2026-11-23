@@ -1,0 +1,36 @@
+version: 2
+
+models:
+    - name: int_sessions_latest
+      description: "One row per session: the binding latest-event reduction (contract §3.2)."
+      data_tests:
+          - unique:
+              arguments:
+                  column_name: session_id
+      columns:
+          - name: session_id
+            data_tests: [not_null]
+
+    - name: int_sessions_enriched_fx
+      description: "Latest events enriched with revenue_date (Europe/Berlin), ECB FX and billed roaming fees."
+      columns:
+          - name: fx_rate_to_eur
+            data_tests: [not_null]
+          - name: fx_rate_status
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['observed', 'carried_forward']
+          - name: revenue_date
+            data_tests: [not_null]
+          - name: roaming_fee_local
+            data_tests: [not_null]
+
+    - name: int_sessions_wholesale_cost
+      description: "Adds the DE-LU SMARD slot price containing session_started_at and wholesale_cost_eur."
+      columns:
+          - name: wholesale_eur_mwh
+            data_tests: [not_null]
+          - name: wholesale_cost_eur
+            data_tests: [not_null]

@@ -1,0 +1,122 @@
+version: 2
+
+models:
+    - name: stg_bnetza_stations
+      description: "BNetzA station snapshots, light-typed; grain (station_id, snapshot_date)."
+      columns:
+          - name: station_id
+            data_tests: [not_null]
+          - name: snapshot_date
+            data_tests: [not_null]
+          - name: operator_name
+            data_tests: [not_null]
+          - name: nominal_power_kw
+            data_tests: [not_null]
+
+    - name: stg_charging_sessions
+      description: "Session events, 1:1 with raw minus byte-identical duplicates (contract §3.2)."
+      data_tests:
+          - unique:
+              arguments:
+                  column_name: "session_id || '|' || cast(event_seq as varchar)"
+      columns:
+          - name: session_id
+            data_tests: [not_null]
+          - name: event_seq
+            data_tests: [not_null]
+          - name: station_id
+            data_tests:
+                - not_null
+                - relationships:
+                    arguments:
+                        to: ref('stg_bnetza_stations')
+                        field: station_id
+          - name: tariff_id
+            data_tests:
+                - not_null
+                - relationships:
+                    arguments:
+                        to: ref('stg_tariff_plans')
+                        field: tariff_id
+          - name: country_code
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['DE', 'CH', 'PL']
+          - name: currency_code
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['EUR', 'CHF', 'PLN']
+          - name: event_type
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['charge', 'late_adjustment', 'refund']
+          - name: energy_kwh
+            data_tests: [not_null]
+          - name: gross_amount_local
+            data_tests: [not_null]
+
+    - name: stg_smard_prices
+      description: "SMARD DE-LU day-ahead prices; grain (timestamp_utc, market_zone)."
+      columns:
+          - name: timestamp_utc
+            data_tests: [not_null]
+          - name: market_zone
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['DE-LU']
+          - name: wholesale_eur_mwh
+            data_tests: [not_null]
+
+    - name: stg_ecb_fx
+      description: "ECB daily reference rates; grain (currency_pair, observation_date)."
+      data_tests:
+          - unique:
+              arguments:
+                  column_name: "currency_pair || '|' || cast(observation_date as varchar)"
+      columns:
+          - name: currency_pair
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['EUR/CHF', 'EUR/PLN', 'EUR/USD']
+          - name: observation_date
+            data_tests: [not_null]
+          - name: rate
+            data_tests: [not_null]
+
+    - name: stg_roaming_settlements
+      description: "Roaming clearing records; grain (settlement_id). May reference sessions whose charge events were quarantined at ingestion (source-system reality); the fact build is session-driven, so orphans never reach marts — hence no FK test here."
+      columns:
+          - name: settlement_id
+            data_tests: [not_null, unique]
+          - name: session_id
+            data_tests: [not_null]
+          - name: roaming_fee_local
+            data_tests: [not_null]
+
+    - name: stg_tariff_plans
+      description: "Tariff snapshots; grain (tariff_id, snapshot_date)."
+      data_tests:
+          - unique:
+              arguments:
+                  column_name: "tariff_id || '|' || cast(snapshot_date as varchar)"
+      columns:
+          - name: tariff_id
+            data_tests: [not_null]
+          - name: snapshot_date
+            data_tests: [not_null]
+          - name: plan_tier
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['standard', 'fast_dc', 'fleet']

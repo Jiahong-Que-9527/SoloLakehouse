@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+    - name: raw
+      description: "E01 append-only raw layer (contract v1.3, §1); written by the charging-commerce ingestion CLI."
+      schema: raw
+      loader: charging_commerce_ingest
+      loaded_at_field: _ingested_at
+      freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+      tables:
+          - name: raw_stations_bnetza
+            description: "BNetzA Ladesäulenregister slice, snapshot grain (station_id, snapshot_date)."
+          - name: raw_smard_prices
+            description: "SMARD DE-LU day-ahead prices, 15-minute slots, UTC window 2025-10-01..2026-05-11."
+          - name: raw_ecb_fx_rates
+            description: "ECB daily reference rates in ECB base notation (rate = foreign units per 1 EUR)."
+          - name: raw_charging_sessions
+            description: "Seeded charging-session events; grain (session_id, event_seq); may contain byte-identical duplicates."
+          - name: raw_roaming_settlements
+            description: "Roaming clearing records; grain (settlement_id)."
+          - name: raw_tariff_plans
+            description: "Tariff schedule snapshots; grain (tariff_id, snapshot_date)."
+          - name: raw_quarantine
+            description: "Contract-rejected payloads with reject_reason; never read by models."
+            freshness: null  # no _ingested_at lineage column (uses quarantined_at)

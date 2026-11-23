@@ -1,12 +1,17 @@
 [project]
 name = "charging-commerce"
 version = "0.1.0"
-description = "E01 ingestion and raw layer for the European EV Charging & Roaming Commerce reference warehouse."
+description = "E01+ ingestion, raw layer and dbt warehouse for the European EV Charging & Roaming Commerce reference warehouse."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "duckdb>=1.1.3",
     "pyarrow>=17.0.0",
+    "dbt-core>=1.9,<2",
+    "dbt-duckdb>=1.9,<2",
+    "dbt-bigquery>=1.9,<2",
+    "sqlfluff>=3.3",
+    "sqlfluff-templater-dbt>=3.3",
 ]
 
 [project.scripts]

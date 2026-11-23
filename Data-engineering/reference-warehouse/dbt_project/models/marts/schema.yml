@@ -1,0 +1,78 @@
+version: 2
+
+models:
+    - name: dim_date
+      description: "Date spine 2025-10-01..2026-05-31 with ISO weekday and German holiday flags (frozen list, see acceptance evidence)."
+      columns:
+          - name: date_day
+            data_tests: [not_null, unique]
+
+    - name: dim_stations
+      description: "Current-state stations from the latest raw snapshot (t2); view over SCD2 from E04 (contract §2)."
+      columns:
+          - name: station_sk
+            data_tests: [not_null, unique]
+          - name: station_id
+            data_tests: [not_null, unique]
+          - name: operator_name
+            data_tests: [not_null]
+
+    - name: dim_tariffs
+      description: "Current-state tariffs from the latest raw snapshot (t2); view over SCD2 from E04 (contract §2)."
+      columns:
+          - name: tariff_sk
+            data_tests: [not_null, unique]
+          - name: tariff_id
+            data_tests: [not_null, unique]
+
+    - name: fct_charging_sessions
+      description: "Session fact, grain (session_id); E02 materialization is a table (incremental merge lands in E04)."
+      columns:
+          - name: session_id
+            data_tests: [not_null, unique]
+          - name: station_sk
+            data_tests:
+                - not_null
+                - relationships:
+                    arguments:
+                        to: ref('dim_stations')
+                        field: station_sk
+          - name: tariff_sk
+            data_tests:
+                - not_null
+                - relationships:
+                    arguments:
+                        to: ref('dim_tariffs')
+                        field: tariff_sk
+          - name: revenue_date
+            data_tests: [not_null]
+          - name: fx_rate_to_eur
+            data_tests: [not_null]
+          - name: gross_amount_eur
+            data_tests: [not_null]
+          - name: net_amount_eur
+            data_tests: [not_null]
+          - name: wholesale_cost_eur
+            data_tests: [not_null]
+          - name: gross_margin_eur
+            data_tests: [not_null]
+
+    - name: fct_daily_revenue
+      description: "Daily revenue, grain (revenue_date, country_code, operator_name); fct_daily_revenue v1 column set (versioning in E03)."
+      data_tests:
+          - unique:
+              arguments:
+                  column_name: "cast(revenue_date as varchar) || '|' || country_code || '|' || operator_name"
+      columns:
+          - name: revenue_date
+            data_tests: [not_null]
+          - name: country_code
+            data_tests:
+                - not_null
+                - accepted_values:
+                    arguments:
+                        values: ['DE', 'CH', 'PL']
+          - name: operator_name
+            data_tests: [not_null]
+          - name: session_count
+            data_tests: [not_null]

@@ -1,0 +1,8 @@
+charging_commerce:
+    target: duckdb
+    outputs:
+        duckdb:
+            type: duckdb
+            path: "{{ env_var('CHARGING_COMMERCE_DUCKDB', 'data/warehouse.duckdb') }}"
+            threads: 4
+        # bq target lands with E06 (BigQuery FinOps); dbt-bigquery adapter is already pinned in uv.lock.
