@@ -1,0 +1,63 @@
+name: Fraport Cloud Run deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Private Artifact Registry image reference pinned by digest
+        required: true
+        type: string
+      mode:
+        description: Initial private service or zero-traffic candidate revision
+        required: true
+        type: choice
+        options: [initial, candidate]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fraport-eddf-cloud-run
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment: gcp-test
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: Fraport-adsb-intelligence/06-model-serving
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Check the measured availability audit on main
+        run: python3 -c 'from deploy_cloud_run import measured_audit; from pathlib import Path; print(measured_audit(Path("../04-aviation-lakehouse/evidence/availability-measured.json")))'
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.FRAPORT_RUN_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - name: Deploy and verify the pinned revision
+        env:
+          PROJECT: ${{ vars.GCP_PROJECT_ID }}
+          REPOSITORY: ${{ vars.FRAPORT_ARTIFACT_REPOSITORY }}
+          RUNTIME: ${{ vars.FRAPORT_RUN_RUNTIME_SA }}
+          INVOKER: ${{ vars.FRAPORT_RUN_INVOKER_SA }}
+          IMAGE: ${{ inputs.image }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          python3 deploy_cloud_run.py --project "$PROJECT" --repository "$REPOSITORY" \
+            --runtime "$RUNTIME" --invoker "$INVOKER" --image "$IMAGE" --mode "$MODE" \
+            --suffix "r$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --audit ../04-aviation-lakehouse/evidence/availability-measured.json \
+            --output "$RUNNER_TEMP/fraport-cloud-acceptance.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fraport-cloud-acceptance
+          path: ${{ runner.temp }}/fraport-cloud-acceptance.json
