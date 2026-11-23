@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**G06 · Planned** · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**G06 · Complete (2026-11-23)** — two stacks applied through WIF, isolation proven by a 403 cross-read, both stacks destroyed with zero residuals. Evidence: [acceptance record](evidence/g06-acceptance.md). · [Google Cloud roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Use experience from deployed GCP workloads to provide a documented way to provision, deploy, verify and retire isolated test environments.
 
