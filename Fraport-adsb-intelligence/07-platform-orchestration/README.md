@@ -22,8 +22,8 @@ individual stages are stable.
 
 - **M1.** Verified the local monthly dependency graph with synthetic tests and
   a real November 2024 Gold release.
-- **M2.** Orchestrate release detection, ingestion and analytics load end to
-  end.
+- **M2.** Verified release detection, ingestion and reconciliation locally.
+  The live BigQuery handoff is a separate verification step.
 - **M3.** Add feature build and training.
 - **M4.** Failure injection, recovery exercise and runbook.
 
@@ -46,7 +46,7 @@ An orchestrated pipeline, run history and a recovery runbook.
 
 ```mermaid
 flowchart LR
-    approved_gold[Verify approved Geometry v2 Gold] --> local_handoff[Record the local handoff]
+    approved_gold[Verify approved Geometry v2 Gold] --> local_handoff[Record the local handoff] --> analytics[Rehearse analytics ingestion in DuckDB]
 ```
 
 The partition key is a completed UTC month (`YYYY-MM`). `approved_gold`
@@ -87,8 +87,7 @@ uv run --locked python orchestration.py resume_local_handoff 2024-11
 
 The handoff retries once and refuses a changed control file or conflicting
 checkpoint. If inputs or verification code changed, review the difference
-and create a new state directory before reverifying the release. The current
-jobs read Gold locally. M2 will connect the checkpoint to analytics ingestion.
+and create a new state directory before reverifying the release.
 
 ## M1 verification
 
@@ -112,3 +111,51 @@ recorded one `approved_gold` materialization across all three runs.
 The run used commit `35ef2bb85bf48c6ff080fa1a5a9e8c95431a8396`.
 The handoff SHA-256 was `0eedd7e162db5c8793983425beda39c94b9be5f2d07c06c5a839c53a8ec6e545`.
 The instance and checkpoints are local. The drill used no Google Cloud calls.
+
+## M2 release detection and local analytics
+
+The Dagster sensor `geometry_release_ready` detects completed monthly
+directories containing all four gate files and proposes a run keyed by
+release ID and manifest SHA-256. It defaults to stopped. The job verifies
+the full Gold package before publishing a handoff, then checks the pinned
+controls again before ingesting. The ingestion asset reuses phase 03's
+release verifier and target-table selection. It stages the approved Parquet
+in local DuckDB and reconciles total rows, labeled rows and duplicate
+`(day_utc, flight_key)` keys. The local table and ledger commit together.
+
+Use a fresh state directory when upgrading from the M1 code. With the
+environment configured as above, run the entire path and then replay only
+the analytics asset:
+
+```bash
+uv run --locked python orchestration.py ingest_month_local 2024-12
+uv run --locked python orchestration.py resume_local_analytics 2024-12
+```
+
+Both commands print a Dagster run ID, release and manifest identity, rows
+added, and reconciliation counts. The database is
+`FRAPORT_STATE_DIR/analytics.duckdb`. The recovery command uses the existing
+handoff. It refuses a changed payload or a mismatch against the ledger and
+target table. Each invocation is a foreground process. The local jobs
+make no BigQuery or Cloud Storage requests.
+
+### Local verification
+
+The sensor identified 24 completed release partitions. Five integration
+tests passed, including the incomplete-release check, stable sensor run
+keys and refusal to replay after payload drift or local table corruption.
+
+| Release | Rows | Labeled | Duplicate keys | Rows added on replay |
+|---|---:|---:|---:|---:|
+| `geometry-v2-2024-12` | 16,218 | 13,079 | 0 | 0 |
+| `geometry-v2-2025-01` | 15,033 | 13,089 | 0 | 0 |
+
+The first run added 31,251 rows in total and the ledger recorded two
+releases. The replay materialized only the analytics asset. Both months
+matched the manifest SHA-256 and counts in the stored phase 03 BigQuery
+receipts. Source commit `0f1facc89eef5032bb6237d6a220e151b9279368`.
+
+| Release month | First run | Analytics-only replay |
+|---|---|---|
+| 2024-12 | `097a782a-fc52-4cf1-b86f-7abba0ee0d9d` | `92f70aa6-754a-4e75-b4b8-f5422067d05a` |
+| 2025-01 | `79cb6ea0-f080-4eea-ac3b-386630db9116` | `ea8be018-49a1-497c-acec-52c89e53e58f` |
