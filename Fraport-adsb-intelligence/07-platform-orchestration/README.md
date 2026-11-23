@@ -24,7 +24,8 @@ individual stages are stable.
   a real November 2024 Gold release.
 - **M2.** Verified release detection, ingestion and reconciliation locally.
   The live BigQuery handoff reconciles previously ingested releases read-only.
-- **M3.** Add feature build and training.
+- **M3.** Orchestrate phase 04 feature builds and the pinned phase 05
+  container replay, with checksum-verified reuse.
 - **M4.** Failure injection, recovery exercise and runbook.
 
 ## Acceptance
@@ -190,3 +191,53 @@ reported `already_ingested` with zero additions. The first `SELECT` billed
 Dagster instance recorded one upstream verification and two independent
 BigQuery reconciliations. Nine tests passed.
 [Recorded live evidence](evidence/bigquery-reconciliation-2024-12.json)
+
+## M3 feature builds and container replay
+
+`monthly_features` extends each verified Gold handoff with a point-in-time
+feature dataset from phase 04. The cache key includes the Gold manifest,
+the Silver manifests for the month and preceding UTC day, the feature
+code hashes and the five-second simulated availability setting. A cache
+hit rechecks the output manifest against those pins and verifies the
+output Parquet checksum.
+
+`container_training` depends on the training month and its following
+holdout month. The current replay uses November and December 2024. It
+checks the two feature manifests and the frozen median baseline report
+against the committed phase 05 model release, then invokes that release's
+local Docker image with networking disabled. It verifies the model and
+both reports against their published SHA-256 values before publishing a
+local cache entry. The replay does not register a new model version.
+
+Use a fresh Dagster state directory as in the setup above. The local Docker
+daemon must have the image ID recorded in the phase 05 release manifest.
+`FRAPORT_DOCKER` can name a local alternate executable such as Docker
+Desktop's `docker.exe` on WSL. The default is `docker`.
+
+```bash
+data_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+export FRAPORT_SILVER_ROOT="$data_root/silver"
+export FRAPORT_BASELINE_REPORT="$data_root/baselines/geometry-v2-2024-11-median/first/baseline-report.json"
+
+uv run --locked python orchestration.py build_month_features 2024-11
+uv run --locked python orchestration.py build_month_features 2024-12
+uv run --locked python orchestration.py replay_model_month 2024-11
+```
+
+If the feature stage fails after the Gold handoff, use `resume_month_features`
+for that month. If training fails, fix the local Docker problem and run
+`replay_model_month` again against the same state directory. Feature and
+training results report whether a verified cache entry was reused. A bad
+checksum fails the run before it can claim reuse.
+
+### M3 verification
+
+The foreground jobs reproduced the pinned November and December feature
+manifests, with 8,570 and 8,249 prediction rows respectively. Both feature
+repeats returned `reused: true`. An injected Docker startup failure stopped
+the training asset. After restoring Docker, rerunning only that asset
+reproduced the model, candidate report and frozen evaluation report byte
+for byte. A final replay succeeded with the failing Docker executable still
+configured, demonstrating checksum-verified reuse without container startup.
+All replay containers were removed. The phase 07 suite passed 12 tests.
+[Recorded run IDs and hashes](evidence/orchestrated-model-replay-2024-11.json)
