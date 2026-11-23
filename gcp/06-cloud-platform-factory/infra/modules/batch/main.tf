@@ -16,10 +16,13 @@ terraform {
 locals {
   prefix     = "slh-batch-${var.environment}-${var.stack_name}"
   dataset_id = replace(local.prefix, "-", "_")
+  # GCP label values reject "@" and ".", so the owner email is sanitised;
+  # the full address stays in BOOTSTRAP.md and the tfvars.
+  owner_label = replace(var.owner, "/[@.]/", "-")
   labels = {
     stack       = var.stack_name
     environment = var.environment
-    owner       = var.owner
+    owner       = local.owner_label
     managed_by  = "g06-factory"
   }
 }
