@@ -193,8 +193,9 @@ pin for phase 06.
 
 **Status:** M1 and M2 are verified. The local container scored 14 fixed
 features from the four M5 months and matched the offline model exactly.
-An incorrect release pin prevented startup. M3 depends on measured
-observation availability, and M4 remains open for monitoring and rollback.
+An incorrect release pin prevented startup. The availability audit found no
+receipt-time column in 731 archive partitions. M3 awaits a measured sample
+at the feature input, and M4 remains open for monitoring and rollback.
 [Local serving evidence](../06-model-serving/README.md#m1m2-verification)
 
 ## Phase 7: 07 Platform Orchestration
