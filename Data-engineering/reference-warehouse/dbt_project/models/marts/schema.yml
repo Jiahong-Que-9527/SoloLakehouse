@@ -28,13 +28,13 @@ models:
             constraints: [{type: not_null}]
 
     - name: dim_stations
-      description: "Current-state stations from the latest raw snapshot (t2); view over SCD2 from E04 (contract §2)."
+      description: "Current-state stations: view over dim_stations_scd2 filtered to dbt_valid_to is null (contract §2). station_sk = dbt_scd_id."
       config:
           contract:
               enforced: true
       columns:
           - name: station_sk
-            data_type: bigint
+            data_type: varchar
             constraints: [{type: not_null}]
             data_tests: [not_null, unique]
           - name: station_id
@@ -64,13 +64,13 @@ models:
             data_type: date
 
     - name: dim_tariffs
-      description: "Current-state tariffs from the latest raw snapshot (t2); view over SCD2 from E04 (contract §2)."
+      description: "Current-state tariffs: view over dim_tariffs_scd2 filtered to dbt_valid_to is null (contract §2). tariff_sk = dbt_scd_id."
       config:
           contract:
               enforced: true
       columns:
           - name: tariff_sk
-            data_type: bigint
+            data_type: varchar
             constraints: [{type: not_null}]
             data_tests: [not_null, unique]
           - name: tariff_id
@@ -93,7 +93,7 @@ models:
             data_type: date
 
     - name: fct_charging_sessions
-      description: "Session fact, grain (session_id); E02/E03 materialization is a table (incremental merge lands in E04)."
+      description: "Session fact, grain (session_id); incremental merge with a 48h late-arrival lookback (contract §3.5) and point-in-time SCD2 joins (§3.6)."
       config:
           contract:
               enforced: true
@@ -103,23 +103,23 @@ models:
             constraints: [{type: not_null}]
             data_tests: [not_null, unique]
           - name: station_sk
-            data_type: bigint
+            data_type: varchar
             constraints: [{type: not_null}]
             data_tests:
                 - not_null
                 - relationships:
                     arguments:
-                        to: ref('dim_stations')
-                        field: station_sk
+                        to: ref('dim_stations_scd2')
+                        field: dbt_scd_id
           - name: tariff_sk
-            data_type: bigint
+            data_type: varchar
             constraints: [{type: not_null}]
             data_tests:
                 - not_null
                 - relationships:
                     arguments:
-                        to: ref('dim_tariffs')
-                        field: tariff_sk
+                        to: ref('dim_tariffs_scd2')
+                        field: dbt_scd_id
           - name: revenue_date
             data_type: date
             constraints: [{type: not_null}]
@@ -263,7 +263,14 @@ unit_tests:
     - name: fct_charging_sessions_golden_refund_signs
       model: fct_charging_sessions
       description: "Contract §4 golden example Event 3: full CH refund keeps energy positive, reverses amounts and wholesale cost."
+      overrides:
+          macros:
+              is_incremental: true  # exercise the incremental path; `this` is mocked below so the 48h lookback filter sees a watermark
       given:
+          - input: this
+            rows:
+                - session_id: 'S-CH-0002'
+                  settled_at: '2026-03-05 20:00:00'
           - input: ref('int_sessions_wholesale_cost')
             rows:
                 - session_id: 'S-CH-0002'
@@ -284,9 +291,9 @@ unit_tests:
                   event_type: 'refund'
                   wholesale_eur_mwh: 95.0
                   wholesale_cost_eur: -4.29
-          - input: ref('dim_stations')
+          - input: ref('dim_stations_scd2')
             rows:
-                - station_sk: 7
+                - dbt_scd_id: 'sk-station-7'
                   station_id: 'BNA-F-0001'
                   operator_name: 'deer GmbH'
                   city: 'Rüsselsheim'
@@ -296,9 +303,9 @@ unit_tests:
                   connector_count: 2
                   dbt_valid_from: '2025-09-15'
                   dbt_valid_to: null
-          - input: ref('dim_tariffs')
+          - input: ref('dim_tariffs_scd2')
             rows:
-                - tariff_sk: 3
+                - dbt_scd_id: 'sk-tariff-3'
                   tariff_id: 'T-ROAM-CH-01'
                   plan_tier: 'standard'
                   price_per_kwh_eur: 0.55
@@ -308,8 +315,8 @@ unit_tests:
       expect:
           rows:
               - session_id: 'S-CH-0002'
-                station_sk: 7
-                tariff_sk: 3
+                station_sk: 'sk-station-7'
+                tariff_sk: 'sk-tariff-3'
                 revenue_date: '2026-03-02'
                 country_code: 'CH'
                 currency_code: 'CHF'
