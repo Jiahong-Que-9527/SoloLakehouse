@@ -14,6 +14,7 @@ import os
 import shutil
 from pathlib import Path
 
+import pytest
 from conftest import DBT_PROJECT, _dbt
 
 
@@ -170,6 +171,21 @@ def test_mart_columns_fully_documented(warehouse):
     )
     gaps = _mart_column_doc_gaps(manifest)
     assert gaps == [], f"undocumented mart columns: {gaps[:5]}"
+
+
+def test_restored_prod_state_manifest_is_valid(warehouse):
+    """CI plumbing check: when the workflow restores a main artifact, it must be
+    a parseable manifest covering the full model set. Skipped locally (no
+    artifact) — exercised on every PR run after the first main build."""
+    import os
+
+    env_state = os.environ.get("PROD_STATE_DIR")
+    if not env_state or not (Path(env_state) / "manifest.json").is_file():
+        pytest.skip("no restored prod-state artifact (first bootstrap or local run)")
+    manifest = json.loads((Path(env_state) / "manifest.json").read_text())
+    models = [uid for uid in manifest["nodes"] if uid.startswith("model.")]
+    assert len(models) >= 15
+    assert manifest["metadata"]["project_name"] == "charging_commerce"
 
 
 def test_doc_coverage_check_catches_missing_description(warehouse, tmp_path):
