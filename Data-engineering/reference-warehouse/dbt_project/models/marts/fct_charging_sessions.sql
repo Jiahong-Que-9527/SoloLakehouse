@@ -31,9 +31,11 @@ select
     a.energy_kwh,
     a.gross_amount_eur,
     a.roaming_fee_eur,
-    a.gross_amount_eur + a.roaming_fee_eur as net_amount_eur,
+    cast(a.gross_amount_eur + a.roaming_fee_eur as decimal(18, 2)) as net_amount_eur,
     a.wholesale_cost_eur,
-    a.gross_amount_eur + a.roaming_fee_eur - a.wholesale_cost_eur as gross_margin_eur,
+    cast(
+        a.gross_amount_eur + a.roaming_fee_eur - a.wholesale_cost_eur as decimal(18, 2)
+    ) as gross_margin_eur,
     a.event_type,
     a.settled_at
 from amounts as a

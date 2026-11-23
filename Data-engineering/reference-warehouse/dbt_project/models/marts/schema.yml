@@ -3,34 +3,108 @@ version: 2
 models:
     - name: dim_date
       description: "Date spine 2025-10-01..2026-05-31 with ISO weekday and German holiday flags (frozen list, see acceptance evidence)."
+      config:
+          contract:
+              enforced: true
       columns:
           - name: date_day
+            data_type: date
+            constraints: [{type: not_null}]
             data_tests: [not_null, unique]
+          - name: year_num
+            data_type: bigint
+            constraints: [{type: not_null}]
+          - name: month_num
+            data_type: bigint
+            constraints: [{type: not_null}]
+          - name: day_of_week
+            data_type: bigint
+            constraints: [{type: not_null}]
+          - name: is_weekend
+            data_type: boolean
+            constraints: [{type: not_null}]
+          - name: is_de_holiday
+            data_type: boolean
+            constraints: [{type: not_null}]
 
     - name: dim_stations
       description: "Current-state stations from the latest raw snapshot (t2); view over SCD2 from E04 (contract §2)."
+      config:
+          contract:
+              enforced: true
       columns:
           - name: station_sk
+            data_type: bigint
+            constraints: [{type: not_null}]
             data_tests: [not_null, unique]
           - name: station_id
+            data_type: varchar
+            constraints: [{type: not_null}]
             data_tests: [not_null, unique]
           - name: operator_name
-            data_tests: [not_null]
+            data_type: varchar
+            constraints: [{type: not_null}]
+          - name: city
+            data_type: varchar
+          - name: federal_state
+            data_type: varchar
+            constraints: [{type: not_null}]
+          - name: postal_code
+            data_type: varchar
+          - name: nominal_power_kw
+            data_type: decimal(10, 2)
+            constraints: [{type: not_null}]
+          - name: connector_count
+            data_type: integer
+            constraints: [{type: not_null}]
+          - name: dbt_valid_from
+            data_type: date
+            constraints: [{type: not_null}]
+          - name: dbt_valid_to
+            data_type: date
 
     - name: dim_tariffs
       description: "Current-state tariffs from the latest raw snapshot (t2); view over SCD2 from E04 (contract §2)."
+      config:
+          contract:
+              enforced: true
       columns:
           - name: tariff_sk
+            data_type: bigint
+            constraints: [{type: not_null}]
             data_tests: [not_null, unique]
           - name: tariff_id
+            data_type: varchar
+            constraints: [{type: not_null}]
             data_tests: [not_null, unique]
+          - name: plan_tier
+            data_type: varchar
+            constraints: [{type: not_null}]
+          - name: price_per_kwh_eur
+            data_type: decimal(10, 4)
+            constraints: [{type: not_null}]
+          - name: roaming_surcharge_eur
+            data_type: decimal(10, 2)
+            constraints: [{type: not_null}]
+          - name: dbt_valid_from
+            data_type: date
+            constraints: [{type: not_null}]
+          - name: dbt_valid_to
+            data_type: date
 
     - name: fct_charging_sessions
-      description: "Session fact, grain (session_id); E02 materialization is a table (incremental merge lands in E04)."
+      description: "Session fact, grain (session_id); E02/E03 materialization is a table (incremental merge lands in E04)."
+      config:
+          contract:
+              enforced: true
       columns:
           - name: session_id
+            data_type: varchar
+            constraints: [{type: not_null}]
             data_tests: [not_null, unique]
           - name: station_sk
+            data_type: bigint
+            constraints: [{type: not_null}]
             data_tests:
                 - not_null
                 - relationships:
@@ -38,6 +112,8 @@ models:
                         to: ref('dim_stations')
                         field: station_sk
           - name: tariff_sk
+            data_type: bigint
+            constraints: [{type: not_null}]
             data_tests:
                 - not_null
                 - relationships:
@@ -45,34 +121,205 @@ models:
                         to: ref('dim_tariffs')
                         field: tariff_sk
           - name: revenue_date
-            data_tests: [not_null]
+            data_type: date
+            constraints: [{type: not_null}]
+          - name: country_code
+            data_type: varchar
+            constraints: [{type: not_null}]
+          - name: currency_code
+            data_type: varchar
+            constraints: [{type: not_null}]
           - name: fx_rate_to_eur
-            data_tests: [not_null]
+            data_type: decimal(12, 6)
+            constraints: [{type: not_null}]
+          - name: fx_rate_status
+            data_type: varchar
+            constraints: [{type: not_null}]
+            data_tests:
+                - accepted_values:
+                    arguments:
+                        values: ['observed', 'carried_forward']
+          - name: energy_kwh
+            data_type: decimal(12, 4)
+            constraints: [{type: not_null}]
+            data_tests: [not_null, non_negative]
           - name: gross_amount_eur
-            data_tests: [not_null]
+            data_type: decimal(18, 2)
+            constraints: [{type: not_null}]
+            data_tests: [not_null, non_negative_unless_refund]
+          - name: roaming_fee_eur
+            data_type: decimal(18, 2)
+            constraints: [{type: not_null}]
+            data_tests: [not_null, non_negative_unless_refund]
           - name: net_amount_eur
-            data_tests: [not_null]
+            data_type: decimal(18, 2)
+            constraints: [{type: not_null}]
+            data_tests: [not_null, non_negative_unless_refund]
           - name: wholesale_cost_eur
+            data_type: decimal(18, 2)
+            constraints: [{type: not_null}]
             data_tests: [not_null]
           - name: gross_margin_eur
+            data_type: decimal(18, 2)
+            constraints: [{type: not_null}]
             data_tests: [not_null]
-
-    - name: fct_daily_revenue
-      description: "Daily revenue, grain (revenue_date, country_code, operator_name); fct_daily_revenue v1 column set (versioning in E03)."
-      data_tests:
-          - unique:
-              arguments:
-                  column_name: "cast(revenue_date as varchar) || '|' || country_code || '|' || operator_name"
-      columns:
-          - name: revenue_date
-            data_tests: [not_null]
-          - name: country_code
+          - name: event_type
+            data_type: varchar
+            constraints: [{type: not_null}]
             data_tests:
                 - not_null
                 - accepted_values:
                     arguments:
-                        values: ['DE', 'CH', 'PL']
-          - name: operator_name
-            data_tests: [not_null]
-          - name: session_count
-            data_tests: [not_null]
+                        values: ['charge', 'late_adjustment', 'refund']
+          - name: settled_at
+            data_type: timestamp
+            constraints: [{type: not_null}]
+
+    - name: fct_daily_revenue
+      description: "Daily revenue, grain (revenue_date, country_code, operator_name). v2 (latest) adds wholesale_cost_eur and gross_margin_eur as a non-breaking additive change (contract §2)."
+      latest_version: 2
+      config:
+          contract:
+              enforced: true
+      versions:
+          - v: 1
+            defined_in: fct_daily_revenue_v1
+            deprecation_date: 2027-02-28
+            columns:
+                - name: revenue_date
+                  data_type: date
+                  constraints: [{type: not_null}]
+                  data_tests: [not_null]
+                - name: country_code
+                  data_type: varchar
+                  constraints: [{type: not_null}]
+                  data_tests:
+                      - not_null
+                      - accepted_values:
+                          arguments:
+                              values: ['DE', 'CH', 'PL']
+                - name: operator_name
+                  data_type: varchar
+                  constraints: [{type: not_null}]
+                  data_tests: [not_null]
+                - name: session_count
+                  data_type: bigint
+                  constraints: [{type: not_null}]
+                  data_tests: [not_null]
+                - name: total_energy_kwh
+                  data_type: decimal(18, 4)
+                  constraints: [{type: not_null}]
+                - name: gross_amount_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+                - name: roaming_fee_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+                - name: net_amount_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+          - v: 2
+            columns:
+                - name: revenue_date
+                  data_type: date
+                  constraints: [{type: not_null}]
+                  data_tests: [not_null]
+                - name: country_code
+                  data_type: varchar
+                  constraints: [{type: not_null}]
+                  data_tests:
+                      - not_null
+                      - accepted_values:
+                          arguments:
+                              values: ['DE', 'CH', 'PL']
+                - name: operator_name
+                  data_type: varchar
+                  constraints: [{type: not_null}]
+                  data_tests: [not_null]
+                - name: session_count
+                  data_type: bigint
+                  constraints: [{type: not_null}]
+                  data_tests: [not_null]
+                - name: total_energy_kwh
+                  data_type: decimal(18, 4)
+                  constraints: [{type: not_null}]
+                - name: gross_amount_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+                - name: roaming_fee_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+                - name: net_amount_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+                - name: wholesale_cost_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+                - name: gross_margin_eur
+                  data_type: decimal(18, 2)
+                  constraints: [{type: not_null}]
+
+unit_tests:
+    - name: fct_charging_sessions_golden_refund_signs
+      model: fct_charging_sessions
+      description: "Contract §4 golden example Event 3: full CH refund keeps energy positive, reverses amounts and wholesale cost."
+      given:
+          - input: ref('int_sessions_wholesale_cost')
+            rows:
+                - session_id: 'S-CH-0002'
+                  event_seq: 2
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-ROAM-CH-01'
+                  country_code: 'CH'
+                  currency_code: 'CHF'
+                  revenue_date: '2026-03-02'
+                  fx_rate_to_eur: 0.941
+                  fx_rate_status: 'observed'
+                  session_started_at: '2026-03-02 18:30:00'
+                  session_ended_at: '2026-03-02 19:15:00'
+                  settled_at: '2026-03-03 20:00:00'
+                  energy_kwh: 45.2
+                  gross_amount_local: -25.09
+                  roaming_fee_local: -1.41
+                  event_type: 'refund'
+                  wholesale_eur_mwh: 95.0
+                  wholesale_cost_eur: -4.29
+          - input: ref('dim_stations')
+            rows:
+                - station_sk: 7
+                  station_id: 'BNA-F-0001'
+                  operator_name: 'deer GmbH'
+                  city: 'Rüsselsheim'
+                  federal_state: 'Hessen'
+                  postal_code: '65428'
+                  nominal_power_kw: 50
+                  connector_count: 2
+                  dbt_valid_from: '2025-09-15'
+                  dbt_valid_to: null
+          - input: ref('dim_tariffs')
+            rows:
+                - tariff_sk: 3
+                  tariff_id: 'T-ROAM-CH-01'
+                  plan_tier: 'standard'
+                  price_per_kwh_eur: 0.55
+                  roaming_surcharge_eur: 1.5
+                  dbt_valid_from: '2025-09-15'
+                  dbt_valid_to: null
+      expect:
+          rows:
+              - session_id: 'S-CH-0002'
+                station_sk: 7
+                tariff_sk: 3
+                revenue_date: '2026-03-02'
+                country_code: 'CH'
+                currency_code: 'CHF'
+                fx_rate_to_eur: 0.941
+                fx_rate_status: 'observed'
+                energy_kwh: 45.2
+                gross_amount_eur: -26.66
+                roaming_fee_eur: -1.5
+                net_amount_eur: -28.16
+                wholesale_cost_eur: -4.29
+                gross_margin_eur: -23.87
+                event_type: 'refund'
+                settled_at: '2026-03-03 20:00:00'

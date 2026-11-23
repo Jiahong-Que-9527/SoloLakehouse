@@ -30,6 +30,6 @@ jobs:
                   uv run --locked ruff check .
                   uv run --locked ruff format --check .
             - name: SQLFluff lint (dbt templater, duckdb dialect)
-              run: uv run --locked sqlfluff lint dbt_project/models
+              run: uv run --locked sqlfluff lint dbt_project/models dbt_project/tests
             - name: Ingest fixtures + dbt source freshness + dbt build + pytest
               run: uv run --locked pytest -q
