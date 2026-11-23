@@ -113,4 +113,6 @@ under a different manifest pin.
 - Local Docker image ID `sha256:0f2ad73ef39a6638a3c6ad7a283cfe290f13dc2944c279121d89f72650693b2e`
 
 The smoke inputs use M5 replay features with simulated observation delay.
-Measured observation availability is required before M3 live deployment.
+The archive audit found no measured receipt column in 731 daily Silver
+partitions. M3 is pending a measured EDDF input sample and review of its
+trigger replay. [Phase 04 availability audit](../04-aviation-lakehouse/README.md#measured-availability-audit)

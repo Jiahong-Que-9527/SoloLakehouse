@@ -91,3 +91,48 @@ already ended. The usable rows cover 88.8% of triggered predictions and 56.7%
 of the source release's 13,413 labeled arrivals. The repeated run reproduced
 the manifest and Parquet bytes. The five-second assumption applies to every
 observation; serving still needs measured availability.
+
+## Measured availability audit
+
+`availability_audit.py` checks whether the serving feature input has measured
+receipt times. It verifies the daily Silver manifests and Parquet checksums
+for measured partitions. It reports receipt delay (median, p95, maximum and
+count within five seconds), then replays arrival triggers with measured and
+simulated timing on the same input. It counts triggers unique to each replay
+and changes to predictors among shared triggers. This audit uses no outcome
+labels and does not make a deployment decision.
+
+Use a UTC day window and include the preceding UTC day's partition for
+approach context. The existing Silver observation columns and manifest remain
+the input contract. Add integer `available_at_epoch_s`, recorded when each
+observation first becomes available to the feature input, with the following
+`availability` entry in the daily `run_manifest.json`. Use the actual source
+and describe its clock. Historical retrieval times and event-time offsets do
+not establish availability to the live feature input.
+
+```json
+{
+  "mode": "observed",
+  "timestamp_column": "available_at_epoch_s",
+  "recorded_at": "feature_input",
+  "source": "<recording source>",
+  "clock": "<UTC clock and synchronization method>"
+}
+```
+
+```bash
+uv run --locked python availability_audit.py \
+  --silver-root /home/bill/slh-data/full-20241101-20261031-geometry-v2/silver \
+  --from 2024-11-01 --until 2026-11-01 --output /tmp/eddf-archive-availability.json
+```
+
+The end date is exclusive. Exit 0 produces measured evidence when the window
+contains observable arrival triggers. Exit 2 records a blocked audit (for
+example, absent receipt fields, invalid timestamps or no observed triggers).
+Exit 1 indicates a tool or input integrity error. Choose a new output path on
+each run.
+
+The archive audit covered 730 days plus one context day. All **731** daily
+Parquet schemas lack `available_at_epoch_s`, and two audit runs produced
+identical JSON. The next input is a measured EDDF sample from the collection
+owner. [Archive audit result](evidence/availability-archive.json)
