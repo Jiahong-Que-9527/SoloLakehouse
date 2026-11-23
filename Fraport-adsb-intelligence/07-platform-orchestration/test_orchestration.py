@@ -8,9 +8,10 @@ from unittest.mock import patch
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-from dagster import AssetKey, DagsterInstance
+import duckdb
+from dagster import AssetKey, DagsterInstance, SkipReason
 
-from orchestration import defs, release_inputs
+from orchestration import defs, geometry_release_ready, release_inputs
 
 
 class LocalOrchestrationTests(unittest.TestCase):
@@ -89,6 +90,43 @@ class LocalOrchestrationTests(unittest.TestCase):
             self.assertFalse(self.execute(instance, "verify_month").success)
             self.assertEqual(len(instance.fetch_materializations(AssetKey("approved_gold"), limit=10).records), 0)
         self.assertFalse(self.checkpoint.exists())
+
+    def test_sensor_skips_incomplete_releases_and_reuses_the_same_run_key(self):
+        (self.release / "_SUCCESS").unlink()
+        self.assertIsInstance(geometry_release_ready(), SkipReason)
+        self.write_control("_SUCCESS")
+        first, = geometry_release_ready()
+        repeat, = geometry_release_ready()
+        self.assertEqual(first.partition_key, "2024-11")
+        self.assertEqual(first.run_key, repeat.run_key)
+        self.assertTrue(first.run_key.startswith("geometry-v2-2024-11:"))
+
+    def test_local_ingestion_and_reconciliation_are_idempotent(self):
+        database = self.state / "analytics.duckdb"
+        with DagsterInstance.local_temp(str(self.instance_dir)) as instance:
+            first = self.execute(instance, "ingest_month_local")
+            self.assertTrue(first.success)
+            repeat = self.execute(instance, "resume_local_analytics")
+            self.assertTrue(repeat.success)
+            loaded = first.output_for_node("local_analytics")
+            replayed = repeat.output_for_node("local_analytics")
+            self.assertEqual(loaded["status"], "ingested")
+            self.assertEqual(loaded["rows_added"], 1)
+            self.assertEqual(replayed["status"], "already_ingested")
+            self.assertEqual(replayed["rows_added"], 0)
+            self.assertEqual(replayed["geometry_counts"], {"rows": 1, "labeled_rows": 1, "duplicate_keys": 0})
+            self.assertEqual(len(instance.fetch_materializations(AssetKey("approved_gold"), limit=10).records), 1)
+            with duckdb.connect(str(database), config={"threads": 2}) as connection:
+                self.assertEqual(connection.execute("SELECT count(*) FROM ingest_ledger").fetchone(), (1,))
+                connection.execute("DELETE FROM ground_ops_arrivals_geometry_v2")
+            self.assertFalse(self.execute(instance, "resume_local_analytics").success)
+
+    def test_analytics_rechecks_payload_after_handoff(self):
+        with DagsterInstance.local_temp(str(self.instance_dir)) as instance:
+            self.assertTrue(self.execute(instance, "verify_month").success)
+            (self.release / "data/part-0001.parquet").write_bytes(b"changed after verification")
+            self.assertFalse(self.execute(instance, "resume_local_analytics").success)
+        self.assertFalse((self.state / "analytics.duckdb").exists())
 
 
 if __name__ == "__main__":

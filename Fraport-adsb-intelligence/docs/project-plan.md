@@ -212,8 +212,12 @@ Cloud monitoring and revision rollback remain to be exercised after M3.
 **Status:** M1 is verified. The local Dagster graph validated the November
 2024 Geometry v2 release and recovered its handoff after a bounded retry.
 The recovery reused the upstream asset, and a repeat produced the same
-checkpoint. M2 opens with release detection and analytics ingestion.
-[M1 run evidence](../07-platform-orchestration/README.md#m1-verification)
+checkpoint. M2 detected approved releases and rehearsed phase 03 ingestion
+locally for December and January. Both months matched the recorded BigQuery
+receipts with zero duplicate keys and zero new rows on replay. The live
+Dagster-to-BigQuery handoff remains open.
+[M1 run evidence](../07-platform-orchestration/README.md#m1-verification) ·
+[M2 local evidence](../07-platform-orchestration/README.md#m2-release-detection-and-local-analytics)
 
 ## Programme acceptance
 
