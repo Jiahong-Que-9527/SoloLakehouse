@@ -10,8 +10,12 @@ with amounts as (
     -- DECIMAL(18,2) makes every EUR column exact 2-decimal money per contract §3.3.
     select
         w.*,
-        cast(round(w.gross_amount_local / w.fx_rate_to_eur, 2) as decimal(18, 2)) as gross_amount_eur,
-        cast(round(w.roaming_fee_local / w.fx_rate_to_eur, 2) as decimal(18, 2)) as roaming_fee_eur
+        cast(
+            round(w.gross_amount_local / w.fx_rate_to_eur, 2) as decimal(18, 2)
+        ) as gross_amount_eur,
+        cast(
+            round(w.roaming_fee_local / w.fx_rate_to_eur, 2) as decimal(18, 2)
+        ) as roaming_fee_eur
     from {{ ref('int_sessions_wholesale_cost') }} as w
 )
 
