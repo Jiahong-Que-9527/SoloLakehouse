@@ -8,3 +8,5 @@ state: data/m08
 calibration: data/m07/calibration.json
 # Set when the local M07 metrics stack is running.
 # pushgateway: http://127.0.0.1:19091
+# Pin an explicit clock only for a disposable replay of future-dated decisions.
+# replay_clock: "2027-01-01T00:00:00+00:00"

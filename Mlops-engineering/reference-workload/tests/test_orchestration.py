@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -31,6 +32,22 @@ def settings(tiny_release, tmp_path):
         dataset_release=release,
         model_releases=releases,
     )
+
+
+def _retrain_report(settings, as_of):
+    identity = _identity(settings)
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "kind": "monitor-window",
+        "issue_date": "2025-03-19",
+        "as_of": as_of,
+        "model_release_id": "model-test",
+        "model_manifest_sha256": identity["pin_manifest_sha256"],
+        "data_manifest_sha256": identity["data_manifest_sha256"],
+        "signals": {"residual.mae_kwh": {"breached": True}},
+    }
+    report["decision"] = retraining_decision(report)
+    return report
 
 
 def test_schedules_use_tick_dates_and_skip_unavailable_release(settings):
@@ -115,6 +132,33 @@ def test_sensor_deduplicates_matching_decision_and_rejects_invalid_inputs(settin
     (inbox / "monitor-a.json").unlink()
     (inbox / "monitor-b.json").unlink()
     assert not sensor.evaluate_tick(build_sensor_context()).run_requests
+
+
+def test_sensor_defers_future_decisions_until_the_clock_passes(settings):
+    inbox = settings.path(settings.state) / "decisions"
+    future = "2999-01-01T00:00:00+00:00"
+    write_json(inbox / "monitor-future.json", _retrain_report(settings, future))
+
+    live = build_definitions(settings).resolve_sensor_def("retraining_decision_sensor")
+    tick = live.evaluate_tick(build_sensor_context())
+    assert not tick.run_requests
+    assert "deferred" in tick.skip_message
+
+    replayed = replace(settings, replay_clock=future)
+    replay = build_definitions(replayed).resolve_sensor_def("retraining_decision_sensor")
+    tick = replay.evaluate_tick(build_sensor_context())
+    assert len(tick.run_requests) == 1
+    config = tick.run_requests[0].run_config["ops"]["candidate_model"]["config"]
+    assert config["as_of"] == future
+    assert config["trigger_id"] == _retrain_report(settings, future)["decision"]["decision_id"]
+
+    mature = "2025-03-21T02:00:00+00:00"
+    write_json(inbox / "monitor-mature.json", _retrain_report(settings, mature))
+    tick = live.evaluate_tick(build_sensor_context())
+    assert len(tick.run_requests) == 1
+    config = tick.run_requests[0].run_config["ops"]["candidate_model"]["config"]
+    assert config["trigger_id"] == _retrain_report(settings, mature)["decision"]["decision_id"]
+    assert config["as_of"] > mature  # the effective clock, not the decision time
 
 
 def test_worker_rejects_lookahead_and_a_stale_pin_before_running_cli(settings):

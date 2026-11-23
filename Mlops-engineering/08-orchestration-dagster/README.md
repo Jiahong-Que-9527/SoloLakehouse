@@ -2,7 +2,7 @@
 
 <!-- [魏征·2026-11-21] Initialize stage planning. -->
 
-**Status** Implemented and exercised locally. Final replay verification pending. · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
+**Status** Accepted. · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
 
 The open-source Dagster daemon and webserver run in WSL2 through
 `dagster dev` with a persistent, local `DAGSTER_HOME`. Each asset starts
@@ -27,9 +27,12 @@ The sensor reads `state/decisions/monitor-*.json`, verifies the M07 policy
 result against the report and matches the dataset and model manifest
 hashes to the active configuration. Dagster uses the M07 decision ID as
 its persistent run key. A report for a held decision or a superseded input
-does not launch a candidate. Training waits until the configured dataset's
-final label is available at the effective training time. Retrospective
-tests can use a historical schedule tick or an explicit replay `as_of`.
+does not launch a candidate. A future-dated decision waits: live ticks
+defer it until wall time passes its `as_of`, and a disposable replay pins
+an explicit clock with the `replay_clock` setting. Training waits until
+the configured dataset's final label is available at the effective
+training time. Retrospective tests can use a historical schedule tick or
+an explicit replay `as_of`.
 
 Training expects a published dataset and complete features for that
 release. Candidate identity includes the dataset, feature and pin manifest
@@ -102,12 +105,9 @@ template.
 
 ## Session handoff
 
-The scheduled replay, live sensor-triggered training and failure recovery
-passed. The [acceptance record](evidence/m08-acceptance.md) lists their
-run IDs and artifacts. The repeat training run for the final candidate
-identity and artifact-directory changes was stopped at session close.
-
-Next, give the disposable replay an explicit clock. In live mode, defer
-future-dated M07 reports until wall time allows them. Rerun the
-sensor-triggered candidate with the final code and check direct
-`run-pipeline` reuse against its artifact and manifest. Then begin M09.
+M08 is closed. The scheduled replay, live sensor-triggered training,
+failure recovery, the final-candidate replay under an explicit clock
+(A4) and the direct training reuse comparison (A5) all passed. See the
+[acceptance record](evidence/m08-acceptance.md). The remaining open
+decision for M09 is the second workload; see the
+[delivery plan](../docs/delivery-plan.md).
