@@ -1,6 +1,6 @@
 # E04 · Incremental models, backfill and SCD Type 2
 
-**Status:** planned · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
+**Status:** planned · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md)
 
 Handle late-arriving settlements, deterministic window backfills, and slowly changing station/tariff attributes without rewriting full history or corrupting historical facts.
 
