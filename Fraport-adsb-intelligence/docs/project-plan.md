@@ -171,11 +171,16 @@ availability remains open for serving. [Phase 04 evidence](../04-aviation-lakeho
 **Exit:** versioned model, traceable to a release ID, and an honest comparison
 against the baseline.
 
-**Status:** the first chronological median baseline is recorded in local
-MLflow. Its 299-second prediction gave 140.3 seconds MAE on 2,527 labeled
-November 2024 holdout predictions. The next model should be compared against
-this split before evaluating it over a wider time window.
-[Baseline protocol](../05-taxi-in-prediction/README.md#november-2024-baseline)
+**Status:** the boosted candidate reduced MAE from 140.3 to 129.3 seconds
+on 2,527 November holdout labels. The frozen model reduced MAE from 148.6
+to 137.5 seconds on 7,182 independently replayed December labels. Offline
+Docker reproduced the model and both reports byte for byte. Local MLflow
+has candidate version 1 and the release manifest pins its evidence. M5
+evaluated four held-out months across seasons, local hours and traffic levels.
+The candidate lowered pooled MAE from 180.2 to 171.3 seconds across 51,319
+usable labels (77.8% of predictions). Phase 06 can start with local contract
+tests. Live serving requires measured observation availability.
+[M5 report](../05-taxi-in-prediction/reports/seasonal-evaluation.md)
 
 ## Phase 6: 06 Model Serving
 

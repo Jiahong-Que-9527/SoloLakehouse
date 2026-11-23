@@ -46,9 +46,17 @@ the cloud. Silver, Gold and the cloud track remain engineering scope here.
 
 The [04 November 2024 feature replay](04-aviation-lakehouse/README.md#first-delivery)
 produced 8,570 predictions and 7,607 usable labels under a documented
-availability simulation. Project 05 used that pinned artifact for a
-[chronological median baseline](05-taxi-in-prediction/README.md#november-2024-baseline)
-with 140.3 seconds MAE on 2,527 labeled holdout predictions.
+availability simulation. Project 05's boosted candidate reduced November
+holdout MAE from 140.3 to 129.3 seconds. The frozen model also reduced
+[December MAE](05-taxi-in-prediction/README.md#december-2024-independent-evaluation)
+from 148.6 to 137.5 seconds on 7,182 usable labels. An offline Docker replay
+reproduced the model and both reports byte for byte. The
+[local candidate release](05-taxi-in-prediction/README.md#local-candidate-release)
+records MLflow version 1 and the checksums. The
+[cross-season evaluation](05-taxi-in-prediction/reports/seasonal-evaluation.md)
+reduced pooled MAE from 180.2 to 171.3 seconds across 51,319 usable labels in
+four held-out months. The report includes results by season, local hour and
+traffic level, using the same simulated observation delay.
 
 ## Documents
 
