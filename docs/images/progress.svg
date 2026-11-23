@@ -22,74 +22,74 @@
 <text x="770" y="60" fill="#475569" font-size="12">Planned</text>
 <rect x="40" y="120" width="6" height="34" rx="3" fill="url(#g2)"/>
 <text x="60" y="135" fill="#0f172a" font-size="15" font-weight="650">Fraport ADS-B Intelligence</text>
-<text x="60" y="154" fill="#64748b" font-size="12">03 accepted · 01, 02, 04 in progress</text>
+<text x="60" y="154" fill="#64748b" font-size="12">03 accepted · 01, 02, 04, 05 underway</text>
 <rect x="330.0" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
 <rect x="387.7" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
 <rect x="445.4" y="126" width="53.7" height="20" rx="6" fill="url(#g2)"/>
 <rect x="503.1" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
-<rect x="560.9" y="126" width="53.7" height="20" rx="6" fill="#e8edf3"/>
+<rect x="560.9" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
 <rect x="618.6" y="126" width="53.7" height="20" rx="6" fill="#e8edf3"/>
 <rect x="676.3" y="126" width="53.7" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="145" fill="#047857" font-size="24" font-weight="700" letter-spacing="-0.5">42<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="754" y="145" fill="#047857" font-size="24" font-weight="700" letter-spacing="-0.5">54<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="164" fill="#94a3b8" font-size="11">7 stages</text>
 <line x1="40" x2="840" y1="176" y2="176" stroke="#eef2f7"/>
-<rect x="40" y="194" width="6" height="34" rx="3" fill="url(#g1)"/>
-<text x="60" y="209" fill="#0f172a" font-size="15" font-weight="650">Google Cloud</text>
-<text x="60" y="228" fill="#64748b" font-size="12">G01–G04 live · G05 in progress</text>
-<rect x="330.0" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
-<rect x="397.3" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
-<rect x="464.7" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
-<rect x="532.0" y="200" width="63.3" height="20" rx="6" fill="url(#g1)"/>
-<rect x="599.3" y="200" width="63.3" height="20" rx="6" fill="#0ea5e9" fill-opacity="0.35"/>
-<rect x="666.7" y="200" width="63.3" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="219" fill="#2563eb" font-size="24" font-weight="700" letter-spacing="-0.5">70<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
-<text x="330" y="238" fill="#94a3b8" font-size="11">6 stages</text>
+<rect x="40" y="194" width="6" height="34" rx="3" fill="url(#g5)"/>
+<text x="60" y="209" fill="#0f172a" font-size="15" font-weight="650">Data Engineering</text>
+<text x="60" y="228" fill="#64748b" font-size="12">E01–E08 planned · designs ready</text>
+<rect x="330.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<rect x="380.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<rect x="430.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<rect x="480.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<rect x="530.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<rect x="580.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<rect x="630.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<rect x="680.0" y="200" width="46.5" height="20" rx="6" fill="#e8edf3"/>
+<text x="754" y="219" fill="#0f766e" font-size="24" font-weight="700" letter-spacing="-0.5">0<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="330" y="238" fill="#94a3b8" font-size="11">8 stages</text>
 <line x1="40" x2="840" y1="250" y2="250" stroke="#eef2f7"/>
-<rect x="40" y="268" width="6" height="34" rx="3" fill="url(#g5)"/>
-<text x="60" y="283" fill="#0f172a" font-size="15" font-weight="650">Data Engineering</text>
-<text x="60" y="302" fill="#64748b" font-size="12">E01–E08 planned · scaffold landed</text>
-<rect x="330.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<rect x="380.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<rect x="430.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<rect x="480.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<rect x="530.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<rect x="580.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<rect x="630.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<rect x="680.0" y="274" width="46.5" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="293" fill="#0f766e" font-size="24" font-weight="700" letter-spacing="-0.5">0<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
-<text x="330" y="312" fill="#94a3b8" font-size="11">8 stages</text>
+<rect x="40" y="268" width="6" height="34" rx="3" fill="url(#g3)"/>
+<text x="60" y="283" fill="#0f172a" font-size="15" font-weight="650">ML Engineering</text>
+<text x="60" y="302" fill="#64748b" font-size="12">M01–M08 verified · M09 started</text>
+<rect x="330.0" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="374.9" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="419.8" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="464.7" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="509.6" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="554.4" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="599.3" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="644.2" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<rect x="689.1" y="274" width="40.9" height="20" rx="6" fill="#f59e0b" fill-opacity="0.35"/>
+<text x="754" y="293" fill="#d97706" font-size="24" font-weight="700" letter-spacing="-0.5">89<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="330" y="312" fill="#94a3b8" font-size="11">9 stages</text>
 <line x1="40" x2="840" y1="324" y2="324" stroke="#eef2f7"/>
-<rect x="40" y="342" width="6" height="34" rx="3" fill="url(#g3)"/>
-<text x="60" y="357" fill="#0f172a" font-size="15" font-weight="650">ML Engineering</text>
-<text x="60" y="376" fill="#64748b" font-size="12">M01–M07 accepted · M08 in progress</text>
-<rect x="330.0" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="374.9" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="419.8" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="464.7" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="509.6" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="554.4" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="599.3" y="348" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="644.2" y="348" width="40.9" height="20" rx="6" fill="#f59e0b" fill-opacity="0.35"/>
-<rect x="689.1" y="348" width="40.9" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="367" fill="#d97706" font-size="24" font-weight="700" letter-spacing="-0.5">86<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
-<text x="330" y="386" fill="#94a3b8" font-size="11">9 stages</text>
+<rect x="40" y="342" width="6" height="34" rx="3" fill="url(#g0)"/>
+<text x="60" y="357" fill="#0f172a" font-size="15" font-weight="650">DevOps Engineering</text>
+<text x="60" y="376" fill="#64748b" font-size="12">D01–D07 · delivery path complete</text>
+<rect x="330.0" y="348" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="387.7" y="348" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="445.4" y="348" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="503.1" y="348" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="560.9" y="348" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="618.6" y="348" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="676.3" y="348" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<text x="754" y="367" fill="#4f46e5" font-size="24" font-weight="700" letter-spacing="-0.5">100<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="330" y="386" fill="#94a3b8" font-size="11">7 stages</text>
 <line x1="40" x2="840" y1="398" y2="398" stroke="#eef2f7"/>
-<rect x="40" y="416" width="6" height="34" rx="3" fill="url(#g0)"/>
-<text x="60" y="431" fill="#0f172a" font-size="15" font-weight="650">DevOps Engineering</text>
-<text x="60" y="450" fill="#64748b" font-size="12">D01–D07 · delivery path complete</text>
-<rect x="330.0" y="422" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="387.7" y="422" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="445.4" y="422" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="503.1" y="422" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="560.9" y="422" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="618.6" y="422" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="676.3" y="422" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<text x="754" y="441" fill="#4f46e5" font-size="24" font-weight="700" letter-spacing="-0.5">100<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
-<text x="330" y="460" fill="#94a3b8" font-size="11">7 stages</text>
+<rect x="40" y="416" width="6" height="34" rx="3" fill="url(#g1)"/>
+<text x="60" y="431" fill="#0f172a" font-size="15" font-weight="650">Google Cloud</text>
+<text x="60" y="450" fill="#64748b" font-size="12">G01–G04 live · G05 in progress</text>
+<rect x="330.0" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
+<rect x="397.3" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
+<rect x="464.7" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
+<rect x="532.0" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
+<rect x="599.3" y="422" width="63.3" height="20" rx="6" fill="#0ea5e9" fill-opacity="0.35"/>
+<rect x="666.7" y="422" width="63.3" height="20" rx="6" fill="#e8edf3"/>
+<text x="754" y="441" fill="#2563eb" font-size="24" font-weight="700" letter-spacing="-0.5">70<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="330" y="460" fill="#94a3b8" font-size="11">6 stages</text>
 <line x1="40" x2="840" y1="472" y2="472" stroke="#eef2f7"/>
 <rect x="40" y="490" width="6" height="34" rx="3" fill="url(#g4)"/>
 <text x="60" y="505" fill="#0f172a" font-size="15" font-weight="650">Databricks</text>
-<text x="60" y="524" fill="#64748b" font-size="12">D01 in progress · D02–D06 planned</text>
+<text x="60" y="524" fill="#64748b" font-size="12">D01 in progress · D06 deferred</text>
 <rect x="330.0" y="496" width="63.3" height="20" rx="6" fill="#f43f5e" fill-opacity="0.35"/>
 <rect x="397.3" y="496" width="63.3" height="20" rx="6" fill="#e8edf3"/>
 <rect x="464.7" y="496" width="63.3" height="20" rx="6" fill="#e8edf3"/>
