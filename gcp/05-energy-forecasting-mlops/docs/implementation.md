@@ -4,7 +4,7 @@
 
 <!-- [GLM·2026-11-20] Replace the Vertex AI training step with the cloud-neutral path; see ADR-005. -->
 
-**Status:** in progress — step 1 (pinned fixture, average-MW target, dataset validation) landed 2026-11-22; steps 2–5 open. [Project brief](../README.md) and [technical design](design.md).
+**Status:** in progress — step 1 (pinned fixture, average-MW target, dataset validation) landed 2026-11-22; step 2 (window freeze, issue-time cutoff, leakage test) landed 2026-11-23; steps 3–5 open. [Project brief](../README.md) and [technical design](design.md).
 
 ## First delivery
 
@@ -53,5 +53,28 @@ Landed in [PR #253](https://github.com/Jiahong-Que-9527/SoloLakehouse/pull/253):
 - 27 tests green, ruff clean, test-only CI workflow on the project paths.
   All local, no cloud resources touched.
 
-Steps 2–5 (window freezing + leakage test, baseline vs candidate,
-MLflow registry + promotion gate, batch scoring + rollback) remain open.
+### Step 2 — window freeze, issue-time cutoff, leakage test (2026-11-23)
+
+- `splits.freeze_windows` freezes the chronological split for the pinned
+  fixture: train = the window through the week before last, validation =
+  the third week, holdout = the last contiguous week (untouched by any
+  selection, recorded as such in the spec). The spec carries the design's
+  forecast issue rule verbatim: features for an interval may only use
+  observations whose `interval_end` is at or before that interval's
+  start. The validator refuses unordered, non-contiguous or
+  out-of-window specs and a validation window that starts before the
+  seven-day seasonal lag is readable from the train window.
+- `features.build_features` builds one row per interval whose lag is
+  readable at the issue time; the 672 rows of the first week are
+  excluded and counted, never back-filled (4-week fixture → 2,016
+  feature rows over train/validation/holdout).
+- `features.validate_features` re-derives the contract from the rows
+  and refuses: a feature sourced from an observation ending after the
+  row's issue time (the acceptance boundary — a supplied future feature
+  is caught by `no_lookahead`), a lag value differing from the dataset
+  at the seven-day interval, labels differing from the training rows,
+  and calendar fields not derived from `interval_start`.
+- 40 tests green (18 new), ruff clean. All local, no cloud resources.
+
+Steps 3–5 (baseline vs candidate, MLflow registry + promotion gate,
+batch scoring + rollback) remain open.
