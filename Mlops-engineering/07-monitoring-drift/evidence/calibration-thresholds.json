@@ -1,0 +1,327 @@
+{
+  "calibration_end": "2026-12-30",
+  "calibration_start": "2026-01-01",
+  "data_manifest_sha256": "e0c8096c8233bfa2be8fbb90e9f07bd179f0d1cdaa14d333b4a0d6b741e6bfa0",
+  "data_release_id": "dataset-v001",
+  "feature_manifest_sha256": "0d12d224c59928b85660d797c7a8a3af89702642f3cc7b288148321bd7f4f946",
+  "feature_release_id": "feat-v1-dataset-v001",
+  "kind": "monitor-calibration",
+  "m03_folds": 23,
+  "m03_report_sha256": "8ded0d774a9bf5b3559b1db5da371d025de92af1b813ea9481a40ac1ba0daa9c",
+  "model_manifest_sha256": "c31adfd530a70d2e0e1edcb41b5183064be0b9c1e83f237900a970aaec569f86",
+  "model_pooled_backtest_mae_kwh": 6.352612,
+  "model_release_id": "model-v001",
+  "reference_end": "2025-12-31",
+  "reference_rows": 296592,
+  "reference_start": "2025-02-01",
+  "schema_version": "charging-monitor-v1",
+  "threshold_method": "max across 24-hour calibration windows; residual floor is model backtest MAE",
+  "thresholds": {
+    "calendar.day_of_week.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "calendar.day_of_week.psi": {
+      "issue_date": "2026-01-01",
+      "limit": 7.9250425745819575,
+      "observed_max": 7.9250425745819575,
+      "windows": 364
+    },
+    "calendar.hour_of_day.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "calendar.hour_of_day.psi": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "calendar.is_public_holiday.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "calendar.is_public_holiday.psi": {
+      "issue_date": "2026-04-02",
+      "limit": 12.451194923637138,
+      "observed_max": 12.451194923637138,
+      "windows": 364
+    },
+    "calendar.is_school_break.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "calendar.is_school_break.psi": {
+      "issue_date": "2026-01-01",
+      "limit": 8.102299615567627,
+      "observed_max": 8.102299615567627,
+      "windows": 364
+    },
+    "demand.demand_lag_168h.ks": {
+      "issue_date": "2026-02-03",
+      "limit": 0.37975744298986486,
+      "observed_max": 0.37975744298986486,
+      "windows": 364
+    },
+    "demand.demand_lag_168h.missing": {
+      "issue_date": "2026-10-01",
+      "limit": 0.075,
+      "observed_max": 0.075,
+      "windows": 364
+    },
+    "demand.demand_lag_168h.psi": {
+      "issue_date": "2026-01-30",
+      "limit": 2.571622933555684,
+      "observed_max": 2.571622933555684,
+      "windows": 364
+    },
+    "demand.demand_lag_24h.ks": {
+      "issue_date": "2026-01-28",
+      "limit": 0.38024572423986486,
+      "observed_max": 0.38024572423986486,
+      "windows": 364
+    },
+    "demand.demand_lag_24h.missing": {
+      "issue_date": "2026-10-01",
+      "limit": 0.075,
+      "observed_max": 0.075,
+      "windows": 364
+    },
+    "demand.demand_lag_24h.psi": {
+      "issue_date": "2026-12-27",
+      "limit": 3.1547522253257116,
+      "observed_max": 3.1547522253257116,
+      "windows": 364
+    },
+    "demand.demand_latest.ks": {
+      "issue_date": "2026-12-26",
+      "limit": 0.318505859375,
+      "observed_max": 0.318505859375,
+      "windows": 364
+    },
+    "demand.demand_latest.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "demand.demand_latest.psi": {
+      "issue_date": "2026-10-18",
+      "limit": 2.584918942008553,
+      "observed_max": 2.584918942008553,
+      "windows": 364
+    },
+    "demand.demand_rolling_7d_mean.ks": {
+      "issue_date": "2026-04-11",
+      "limit": 0.18951910895270274,
+      "observed_max": 0.18951910895270274,
+      "windows": 364
+    },
+    "demand.demand_rolling_7d_mean.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "demand.demand_rolling_7d_mean.psi": {
+      "issue_date": "2026-01-07",
+      "limit": 0.9631366597879297,
+      "observed_max": 0.9631366597879297,
+      "windows": 364
+    },
+    "event.event_boost.ks": {
+      "issue_date": "2026-01-26",
+      "limit": 0.5236552470439189,
+      "observed_max": 0.5236552470439189,
+      "windows": 364
+    },
+    "event.event_boost.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "event.event_boost.psi": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "event.is_event_active.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "event.is_event_active.psi": {
+      "issue_date": "2026-01-26",
+      "limit": 2.124851912956367,
+      "observed_max": 2.124851912956367,
+      "windows": 364
+    },
+    "prediction.predicted_kwh.ks": {
+      "issue_date": "2026-12-25",
+      "limit": 0.16404622395833335,
+      "observed_max": 0.16404622395833335,
+      "windows": 364
+    },
+    "prediction.predicted_kwh.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "prediction.predicted_kwh.psi": {
+      "issue_date": "2026-12-25",
+      "limit": 0.21174060319657262,
+      "observed_max": 0.21174060319657262,
+      "windows": 364
+    },
+    "residual.mae_kwh": {
+      "issue_date": "2026-01-01",
+      "limit": 6.706822,
+      "observed_max": 6.706822,
+      "windows": 364
+    },
+    "station.capacity_kw.ks": {
+      "issue_date": "2026-10-01",
+      "limit": 0.03237304687499998,
+      "observed_max": 0.03237304687499998,
+      "windows": 364
+    },
+    "station.capacity_kw.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "station.capacity_kw.psi": {
+      "issue_date": "2026-10-01",
+      "limit": 0.014654584351456067,
+      "observed_max": 0.014654584351456067,
+      "windows": 364
+    },
+    "station.days_active.ks": {
+      "issue_date": "2026-01-01",
+      "limit": 1.0,
+      "observed_max": 1.0,
+      "windows": 364
+    },
+    "station.days_active.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "station.days_active.psi": {
+      "issue_date": "2026-01-01",
+      "limit": 8.248848455437145,
+      "observed_max": 8.248848455437145,
+      "windows": 364
+    },
+    "station.district.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "station.district.psi": {
+      "issue_date": "2026-10-01",
+      "limit": 0.04777095433588812,
+      "observed_max": 0.04777095433588812,
+      "windows": 364
+    },
+    "station.poi_category.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "station.poi_category.psi": {
+      "issue_date": "2026-10-01",
+      "limit": 0.004669818236495998,
+      "observed_max": 0.004669818236495998,
+      "windows": 364
+    },
+    "tariff.price_at_target.ks": {
+      "issue_date": "2026-10-01",
+      "limit": 0.36870117187499996,
+      "observed_max": 0.36870117187499996,
+      "windows": 364
+    },
+    "tariff.price_at_target.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "tariff.price_at_target.psi": {
+      "issue_date": "2026-10-01",
+      "limit": 2.695412587963799,
+      "observed_max": 2.695412587963799,
+      "windows": 364
+    },
+    "tariff.price_current.ks": {
+      "issue_date": "2026-10-01",
+      "limit": 0.36870117187499996,
+      "observed_max": 0.36870117187499996,
+      "windows": 364
+    },
+    "tariff.price_current.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "tariff.price_current.psi": {
+      "issue_date": "2026-10-01",
+      "limit": 2.695412587963799,
+      "observed_max": 2.695412587963799,
+      "windows": 364
+    },
+    "weather.fcst_precipitation_mm.ks": {
+      "issue_date": "2026-11-26",
+      "limit": 0.1527994791666667,
+      "observed_max": 0.1527994791666667,
+      "windows": 364
+    },
+    "weather.fcst_precipitation_mm.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "weather.fcst_precipitation_mm.psi": {
+      "issue_date": "2026-10-09",
+      "limit": 0.12130892612472999,
+      "observed_max": 0.12130892612472999,
+      "windows": 364
+    },
+    "weather.fcst_temperature_c.ks": {
+      "issue_date": "2026-07-13",
+      "limit": 0.9613553983671171,
+      "observed_max": 0.9613553983671171,
+      "windows": 364
+    },
+    "weather.fcst_temperature_c.missing": {
+      "issue_date": "2026-01-01",
+      "limit": 0.0,
+      "observed_max": 0.0,
+      "windows": 364
+    },
+    "weather.fcst_temperature_c.psi": {
+      "issue_date": "2026-07-13",
+      "limit": 8.280254773443513,
+      "observed_max": 8.280254773443513,
+      "windows": 364
+    }
+  }
+}

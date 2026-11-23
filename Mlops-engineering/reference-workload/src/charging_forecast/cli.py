@@ -51,6 +51,9 @@ Subcommands:
   serve --config <yaml> --release <dir> --features <dir> [--host --port]
       serve the pinned release over HTTP: /health, /v1/model, /v1/predict
       (M06).
+  monitor-calibrate / monitor-window / monitor-drill
+      calibrate against M03 folds, evaluate M06 score windows and exercise
+      the local alert and retraining chain (M07).
 """
 
 from __future__ import annotations
@@ -66,10 +69,11 @@ import yaml
 
 from . import __version__
 from . import eval as eval_mod
+from . import monitoring as monitoring_mod
 from . import pipeline as pipeline_mod
 from . import serving as serving_mod
 from . import training as training_mod
-from .contract import build_manifest, git_commit, load_config, render_contract
+from .contract import build_manifest, git_commit, load_config, render_contract, sha256_file
 from .features import (
     FeatureBuilder,
     check_fold_leakage,
@@ -458,6 +462,58 @@ def _cmd_serve(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_monitor(args: argparse.Namespace) -> int:
+    pinned = serving_mod.load_pinned_release(
+        releases_dir=args.releases_dir, models_dir=args.models_dir
+    )
+    inputs = (pinned, args.release, load_config(args.config), args.features)
+    if args.command == "monitor-calibrate":
+        calibration = monitoring_mod.calibrate(*inputs, args.baseline_report)
+        monitoring_mod.write_json(args.out, calibration)
+        print(f"calibrated {len(calibration['thresholds'])} signals -> {args.out}")
+        return 0
+    score_key = Path(pinned.model_release_id) / args.issue_date.isoformat()
+    report = monitoring_mod.evaluate(
+        *inputs,
+        args.issue_date,
+        monitoring_mod.read_json(args.calibration),
+        args.scores_dir / score_key / serving_mod.PREDICTIONS_NAME,
+        args.score_releases_dir / score_key / "manifest.json",
+        as_of=args.as_of or datetime.now(UTC),
+    )
+    report["calibration_sha256"] = sha256_file(args.calibration)
+    report["decision"] = monitoring_mod.retraining_decision(
+        report, last_training=args.last_training, manual_reason=args.manual_reason
+    )
+    monitoring_mod.write_json(args.out, report)
+    if args.pushgateway:
+        monitoring_mod.push_metrics(report, args.pushgateway)
+    print(f"monitor {report['issue_date']}: {report['decision']['action']} -> {args.out}")
+    return 0
+
+
+def _cmd_monitor_drill(args: argparse.Namespace) -> int:
+    from .monitoring_drill import run_drill
+
+    report = run_drill(
+        out=args.out,
+        alert_config=args.alert_config,
+        release=args.release,
+        cfg=load_config(args.config),
+        features=args.features,
+        baseline=args.baseline_report,
+        models_dir=args.models_dir,
+        releases_dir=args.releases_dir,
+    )
+    candidate = report["candidate"]
+    print(
+        f"drill {candidate['model_release_id']}: "
+        f"holdout MAE {candidate['pinned_metrics']['mae']} -> "
+        f"{candidate['candidate_metrics']['mae']} kWh"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="charging-forecast")
     parser.add_argument("--version", action="version", version=__version__)
@@ -625,6 +681,41 @@ def main(argv: list[str] | None = None) -> int:
     sv.add_argument("--models-dir", default=pipeline_mod.DEFAULT_MODELS_DIR)
     sv.add_argument("--releases-dir", default=pipeline_mod.DEFAULT_RELEASES_DIR)
     sv.set_defaults(func=_cmd_serve)
+
+    monitor_inputs = argparse.ArgumentParser(add_help=False)
+    monitor_inputs.add_argument("--config", type=Path, required=True)
+    monitor_inputs.add_argument("--release", type=Path, required=True)
+    monitor_inputs.add_argument("--features", type=Path, required=True)
+    monitor_inputs.add_argument("--out", type=Path, required=True)
+    monitor_inputs.add_argument("--models-dir", type=Path, default=pipeline_mod.DEFAULT_MODELS_DIR)
+    monitor_inputs.add_argument(
+        "--releases-dir", type=Path, default=pipeline_mod.DEFAULT_RELEASES_DIR
+    )
+    mc = sub.add_parser(
+        "monitor-calibrate", parents=[monitor_inputs], help="calibrate thresholds over M03 folds"
+    )
+    mc.add_argument("--baseline-report", type=Path, required=True)
+    mc.set_defaults(func=_cmd_monitor)
+    mw = sub.add_parser(
+        "monitor-window", parents=[monitor_inputs], help="evaluate an M06 score window (M07)"
+    )
+    mw.add_argument("--issue-date", type=date.fromisoformat, required=True)
+    mw.add_argument("--calibration", type=Path, required=True)
+    mw.add_argument("--as-of", type=datetime.fromisoformat)
+    mw.add_argument("--last-training", type=date.fromisoformat)
+    mw.add_argument("--manual-reason")
+    mw.add_argument("--pushgateway", help="optional local HTTP Pushgateway origin")
+    mw.add_argument("--scores-dir", type=Path, default=serving_mod.DEFAULT_SCORES_DIR)
+    mw.add_argument(
+        "--score-releases-dir", type=Path, default=serving_mod.DEFAULT_SCORE_RELEASES_DIR
+    )
+    mw.set_defaults(func=_cmd_monitor)
+    md = sub.add_parser(
+        "monitor-drill", parents=[monitor_inputs], help="replay a tariff shock locally (M07)"
+    )
+    md.add_argument("--baseline-report", type=Path, required=True)
+    md.add_argument("--alert-config", type=Path, required=True)
+    md.set_defaults(func=_cmd_monitor_drill)
 
     args = parser.parse_args(argv)
     return args.func(args)

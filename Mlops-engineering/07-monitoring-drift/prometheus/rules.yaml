@@ -1,0 +1,17 @@
+groups:
+  - name: charging_forecast_monitor
+    rules:
+      - alert: ChargingForecastDrift
+        expr: charging_monitor_breach{job="charging_forecast_monitor",signal!~".*[.]missing"} == 1
+        for: 4s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Charging forecast signal {{ $labels.signal }} exceeded its calibrated limit"
+      - alert: ChargingForecastInputQuality
+        expr: charging_monitor_breach{job="charging_forecast_monitor",signal=~".*[.]missing"} == 1
+        for: 4s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Charging forecast input {{ $labels.signal }} exceeded its calibrated missing rate"

@@ -1,0 +1,10 @@
+workdir: ../reference-workload
+dataset_config: configs/dataset-v001.yaml
+dataset_release: data/releases/dataset/v001
+features: data/features/feat-v1-dataset-v001
+models: data/models
+model_releases: releases/models
+state: data/m08
+calibration: data/m07/calibration.json
+# Set when the local M07 metrics stack is running.
+# pushgateway: http://127.0.0.1:19091

@@ -534,8 +534,9 @@ def run_model_training(
 
     manifest = json.loads((release_dir / "manifest.json").read_text(encoding="utf-8"))
     fmanifest = json.loads((features_dir / "manifest.json").read_text(encoding="utf-8"))
-    out_dir.mkdir(parents=True, exist_ok=True)  # git_commit resolves the repo from out_dir
-    commit = git_commit(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    # M05 keys report reuse from the release checkout even when outputs live elsewhere.
+    commit = git_commit(release_dir)
     lineage_tags = {
         "stage": "m04",
         "data_release_id": manifest["release_id"],

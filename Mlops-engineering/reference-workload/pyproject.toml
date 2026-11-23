@@ -20,7 +20,12 @@ dependencies = [
 charging-forecast = "charging_forecast.cli:main"
 
 [dependency-groups]
+orchestration = [
+    "dagster>=1.13.31,<1.14",
+    "dagster-webserver>=1.13.31,<1.14",
+]
 dev = [
+    {include-group = "orchestration"},
     "httpx>=0.27",
     "pytest>=8",
     "ruff>=0.6",
