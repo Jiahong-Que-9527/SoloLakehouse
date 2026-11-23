@@ -19,16 +19,17 @@ from conftest import DBT_PROJECT, _dbt
 
 
 def _baseline_state(tmp_path) -> Path:
-    """Baseline manifest = the artifact `main` would have uploaded. CI restores
-    it from the prod-state artifact (PROD_STATE_DIR); locally it is the fixture's
-    own build manifest."""
+    """Baseline manifest for the exact-set assertions.
+
+    The assertions require a baseline that corresponds to the *unmodified*
+    current tree, so this is always the fixture's own build manifest. The real
+    `main` artifact (restored by CI into PROD_STATE_DIR) is validated separately
+    by `test_restored_prod_state_manifest_is_valid` — a PR that touches many
+    models legitimately selects more nodes than a narrow PR would.
+    """
     state = tmp_path / "prod_state"
     state.mkdir()
-    env_state = os.environ.get("PROD_STATE_DIR")
-    source = (
-        Path(env_state) / "manifest.json" if env_state else DBT_PROJECT / "target" / "manifest.json"
-    )
-    shutil.copy(source, state / "manifest.json")
+    shutil.copy(DBT_PROJECT / "target" / "manifest.json", state / "manifest.json")
     return state
 
 
@@ -177,7 +178,6 @@ def test_restored_prod_state_manifest_is_valid(warehouse):
     """CI plumbing check: when the workflow restores a main artifact, it must be
     a parseable manifest covering the full model set. Skipped locally (no
     artifact) — exercised on every PR run after the first main build."""
-    import os
 
     env_state = os.environ.get("PROD_STATE_DIR")
     if not env_state or not (Path(env_state) / "manifest.json").is_file():
