@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
 
-**Status:** planned. [Project brief](../README.md) and [technical design](design.md).
+**Status:** complete — all five steps landed 2026-11-23. See the [acceptance record](../evidence/g06-acceptance.md) and [BOOTSTRAP](../infra/BOOTSTRAP.md).
 
 ## First delivery
 
@@ -22,4 +22,11 @@ Use the batch template and a one-row reference workload to provision two disposa
 
 ## Acceptance record
 
-Two environment inventories, a no-change plan, cross-access tests and a teardown reconciliation. Record time to first verified job as a developer-experience measure. Use the results to decide which inputs merit reusable defaults. Link the run record from the project brief after execution and identify any checks still pending.
+Delivered 2026-11-23 — see the [acceptance record](../evidence/g06-acceptance.md):
+two isolated stacks applied through WIF, each smoke row written by its own
+runtime principal, a repeat apply with no changes, the cross-stack read
+refused (403) with a positive same-stack control, and both stacks destroyed
+through the same workflow with zero residual resources. Time to first
+verified job: ~52 min including two real defects found and fixed. The `api`
+and `governed` templates stay module boundaries until G02/G04 each have a
+successful apply of their own (design §8).
