@@ -14,6 +14,15 @@ From a fresh checkout and a deterministic seed + locked German open-data fixture
 - **Checkpoint 2 · Incremental state, Slim CI and BigQuery (`E04–E06`).** Add 48h-lookback incremental merge, parameterized backfill, and SCD Type 2 snapshots (`E04`), cross-database macros, exposures, and `state:modified+ --defer` Slim CI (`E05`), and prove the exact same dbt project on live GCP BigQuery with partitioning, clustering, authorized view, and `bytes_billed` FinOps records (`E06`).
 - **Checkpoint 3 · Orchestration, observability and reuse (`E07–E08`).** Wire the end-to-end workflow into local Apache Airflow with failure injection and backfill (`E07`), then add dbt artifact observability (`run_results.json` / `sources.json`), SLO drills, and a reusable template proven on a second source (`E08`).
 
+## Current position
+
+*Updated 2026-11-23 (E02 session).*
+
+- **E01 · accepted** (PR #277): fixtures locked (BNetzA Rhein-Main 3,233 stations from the 2026-11-12 register; SMARD DE-LU 21,313 15-min slots 2025-10..2026-05; ECB 507 daily rates), seeded generator + resumable CLI + `raw_quarantine` implemented, 13 offline tests green, raw-side revenue conservation Δ 0.00 per currency. Evidence: `01-ingestion-raw-layer/evidence/e01-acceptance.md`.
+- **Data contract at v1.3** (PR #281): two-layer dedup (`stg` 1:1 + `int_sessions_latest` reduction, which is the sole merge source), whole-row replacement merge semantics, deterministic wholesale boundary fallback without a labeling column.
+- **E02 · in progress**: dbt-core 1.12.7 / dbt-duckdb 1.11.1 / dbt-bigquery 1.12.4 / sqlfluff 4.5.0 locked in `uv.lock`; dbt project scaffolded with 6 `stg_*` + 3 `int_*` + 5 mart models per contract v1.3 (cross-db macros for Berlin dates, ISO weekday, date spine); path-scoped GitHub Actions workflow drafted; pytest harness with fixture-exact FX / SMARD wholesale / DST attribution assertions written. Remaining: sqlfluff + pytest green, negative freshness drill verified, acceptance evidence, PR.
+- **Next:** land E02 with evidence, then E03 (contract-enforced marts, native `unit_tests`, `fct_daily_revenue` v1 → v2).
+
 ## Stage-to-file ownership map
 
 | Stage | Primary code & config paths under `Data-engineering/reference-warehouse/` and `.github/` | Acceptance evidence file |
