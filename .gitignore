@@ -100,3 +100,4 @@ Thumbs.db
 
 # dbt local artifacts
 Data-engineering/reference-warehouse/dbt_project/.user.yml
+Data-engineering/reference-warehouse/dbt_project/logs/

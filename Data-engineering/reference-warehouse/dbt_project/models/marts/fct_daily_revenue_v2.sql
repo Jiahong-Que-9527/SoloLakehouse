@@ -15,6 +15,6 @@ select
     cast(sum(f.wholesale_cost_eur) as decimal(18, 2)) as wholesale_cost_eur,
     cast(sum(f.gross_margin_eur) as decimal(18, 2)) as gross_margin_eur
 from {{ ref('fct_charging_sessions') }} as f
-inner join {{ ref('dim_stations') }} as d
-    on d.station_sk = f.station_sk
+inner join {{ ref('dim_stations_scd2') }} as d
+    on d.dbt_scd_id = f.station_sk
 group by f.revenue_date, f.country_code, d.operator_name

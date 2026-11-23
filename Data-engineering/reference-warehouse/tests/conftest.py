@@ -96,13 +96,25 @@ def _build_raw_warehouse(tmp: Path) -> Path:
 
 @pytest.fixture(scope="session")
 def warehouse(tmp_path_factory) -> Path:
-    """Fresh raw warehouse + full dbt build; shared by all dbt-facing tests."""
+    """Fresh raw warehouse + snapshot history + full dbt build; shared by all dbt-facing tests."""
     tmp = tmp_path_factory.mktemp("dbt")
     db_path = _build_raw_warehouse(tmp)
 
     env = {"CHARGING_COMMERCE_DUCKDB": str(db_path)}
     freshness = _dbt("source", "freshness", env=env)
     assert freshness.returncode == 0, freshness.stdout[-2000:] + freshness.stderr[-2000:]
+
+    # SCD2 simulated time: build the staging views the snapshots read, then
+    # replay the raw snapshot dates in order (t0 → t1 → t2). Models build
+    # before the test-bearing `dbt build` so the incremental fct relation
+    # exists for the golden unit test's `this` mock.
+    stg = _dbt("run", "--select", "stg_bnetza_stations stg_tariff_plans", env=env)
+    assert stg.returncode == 0, stg.stdout[-2000:] + stg.stderr[-2000:]
+    for asof in ("2025-09-15", "2026-01-15", "2026-05-15"):
+        snap = _dbt("snapshot", "--vars", f'{{"snapshot_asof": "{asof}"}}', env=env)
+        assert snap.returncode == 0, snap.stdout[-2000:] + snap.stderr[-2000:]
+    run_models = _dbt("run", env=env)
+    assert run_models.returncode == 0, run_models.stdout[-2000:] + run_models.stderr[-2000:]
 
     build = _dbt("build", env=env)
     assert build.returncode == 0, build.stdout[-4000:] + build.stderr[-4000:]

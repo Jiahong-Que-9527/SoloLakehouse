@@ -1,0 +1,26 @@
+version: 2
+
+snapshots:
+    - name: dim_stations_scd2
+      description: "SCD Type 2 station history; validity intervals are raw snapshot dates (simulated time, ADR-0002)."
+      columns:
+          - name: dbt_scd_id
+            data_tests: [not_null, unique]
+          - name: station_id
+            data_tests: [not_null]
+          - name: dbt_valid_from
+            data_tests: [not_null]
+          - name: operator_name
+            data_tests: [not_null]
+
+    - name: dim_tariffs_scd2
+      description: "SCD Type 2 tariff history; validity intervals are raw snapshot dates (simulated time, ADR-0002)."
+      columns:
+          - name: dbt_scd_id
+            data_tests: [not_null, unique]
+          - name: tariff_id
+            data_tests: [not_null]
+          - name: dbt_valid_from
+            data_tests: [not_null]
+          - name: plan_tier
+            data_tests: [not_null]
