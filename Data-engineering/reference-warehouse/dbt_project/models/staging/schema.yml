@@ -57,7 +57,9 @@ models:
                     arguments:
                         values: ['charge', 'late_adjustment', 'refund']
           - name: energy_kwh
-            data_tests: [not_null]
+            data_tests:
+                - not_null
+                - non_negative
           - name: gross_amount_local
             data_tests: [not_null]
 

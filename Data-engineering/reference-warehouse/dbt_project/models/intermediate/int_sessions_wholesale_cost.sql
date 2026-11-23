@@ -41,8 +41,13 @@ boundary as (
 select
     s.*,
     coalesce(p.slot_price, b.earliest_price) as wholesale_eur_mwh,
+    -- Contract §2: wholesale cost carries the sign of the event — negative for
+    -- refunds (the revenue reversal mirrors the energy cost), positive otherwise.
+    -- Physical energy stays >= 0 even on refunds, so the sign comes from event_type.
     cast(
-        round(s.energy_kwh * coalesce(p.slot_price, b.earliest_price) / 1000, 2) as decimal(18, 2)
+        round(s.energy_kwh * coalesce(p.slot_price, b.earliest_price) / 1000, 2)
+        * case when s.event_type = 'refund' then -1 else 1 end
+        as decimal(18, 2)
     ) as wholesale_cost_eur
 from {{ ref('int_sessions_enriched_fx') }} as s
 inner join priced as p

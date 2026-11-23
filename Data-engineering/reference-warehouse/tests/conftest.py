@@ -1,0 +1,109 @@
+"""Shared E02+/E03 test fixtures and helpers.
+
+The session-scoped ``warehouse`` fixture runs the full offline loop on a
+disposable DuckDB file: generate → ingest (all six sources, roaming through the
+in-process mock API) → `dbt source freshness` → `dbt build --target duckdb`.
+"""
+
+from __future__ import annotations
+
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+import duckdb
+import pytest
+
+from charging_commerce import ingestion
+from charging_commerce.generator import MockRoamingServer, generate
+
+REPO = Path(__file__).resolve().parents[1]
+FIXTURES_DIR = REPO / "fixtures"
+DBT_PROJECT = REPO / "dbt_project"
+
+GENERATED_SOURCES = {"bnetza", "tariffs", "sessions"}
+
+
+def _dbt(
+    *args: str,
+    env: dict[str, str] | None = None,
+    project_dir: Path | None = None,
+) -> subprocess.CompletedProcess[str]:
+    executable = shutil.which("dbt")
+    assert executable, "dbt executable not found in test environment"
+    merged_env = os.environ.copy()
+    if env:
+        merged_env.update(env)
+    return subprocess.run(  # noqa: S603 - fixed argv, test-local
+        [
+            executable,
+            *args,
+            "--project-dir",
+            str(project_dir or DBT_PROJECT),
+            "--profiles-dir",
+            str(DBT_PROJECT),
+            "--target",
+            "duckdb",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=REPO,
+        env=merged_env,
+        timeout=600,
+    )
+
+
+def _query(db_path: Path, sql: str):
+    conn = duckdb.connect(str(db_path))
+    try:
+        return conn.execute(sql).fetchall()
+    finally:
+        conn.close()
+
+
+def _scalar(db_path: Path, sql: str):
+    conn = duckdb.connect(str(db_path))
+    try:
+        return conn.execute(sql).fetchone()[0]
+    finally:
+        conn.close()
+
+
+def _build_raw_warehouse(tmp: Path) -> Path:
+    """Generate + ingest all six sources into a fresh DuckDB file."""
+    gen_dir, db_path, state_dir = tmp / "generated", tmp / "warehouse.duckdb", tmp / "state"
+    generate(gen_dir, FIXTURES_DIR)
+    for source, batch in (
+        ("bnetza", "bnetza-snapshots-0001"),
+        ("tariffs", "tariffs-t0t1t2-0001"),
+        ("sessions", "charging-sim-window-0001"),
+        ("smard", "smard-2025-10-2026-05-0001"),
+        ("ecb", "ecb-2025-09-2026-05-0001"),
+    ):
+        name = ingestion.SOURCE_PAYLOADS[source]
+        payload = gen_dir / name if source in GENERATED_SOURCES else FIXTURES_DIR / name
+        ingestion.ingest_file(source, payload, batch, db_path, state_dir)
+    # Roaming flows through the in-process mock API so all six raw sources are fresh.
+    server = MockRoamingServer(gen_dir / "settlements.jsonl", gen_dir / "roaming_faults.json")
+    server.start()
+    try:
+        ingestion.ingest_roaming(server.base_url, "roaming-window-0001", db_path, state_dir)
+    finally:
+        server.stop()
+    return db_path
+
+
+@pytest.fixture(scope="session")
+def warehouse(tmp_path_factory) -> Path:
+    """Fresh raw warehouse + full dbt build; shared by all dbt-facing tests."""
+    tmp = tmp_path_factory.mktemp("dbt")
+    db_path = _build_raw_warehouse(tmp)
+
+    env = {"CHARGING_COMMERCE_DUCKDB": str(db_path)}
+    freshness = _dbt("source", "freshness", env=env)
+    assert freshness.returncode == 0, freshness.stdout[-2000:] + freshness.stderr[-2000:]
+
+    build = _dbt("build", env=env)
+    assert build.returncode == 0, build.stdout[-4000:] + build.stderr[-4000:]
+    return db_path

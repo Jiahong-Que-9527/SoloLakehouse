@@ -28,9 +28,258 @@ models:
             data_tests: [not_null]
 
     - name: int_sessions_wholesale_cost
-      description: "Adds the DE-LU SMARD slot price containing session_started_at and wholesale_cost_eur."
+      description: "Adds the DE-LU SMARD slot price containing session_started_at and wholesale_cost_eur (negative for refunds, contract §2)."
       columns:
           - name: wholesale_eur_mwh
             data_tests: [not_null]
           - name: wholesale_cost_eur
             data_tests: [not_null]
+
+unit_tests:
+    - name: int_sessions_latest_reduces_to_highest_event_seq
+      model: int_sessions_latest
+      description: "Contract §3.2: one row per session, highest event_seq wins."
+      given:
+          - input: ref('stg_charging_sessions')
+            rows:
+                - session_id: 'S1'
+                  event_seq: 1
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-DE-STD-01'
+                  country_code: 'DE'
+                  currency_code: 'EUR'
+                  session_started_at: '2026-03-02 18:30:00'
+                  session_ended_at: '2026-03-02 19:15:00'
+                  settled_at: '2026-03-02 20:00:00'
+                  energy_kwh: 45.2
+                  gross_amount_local: 25.09
+                  event_type: 'charge'
+                  _source_name: 'charging_sim'
+                  _source_hash: 'hash-a'
+                - session_id: 'S1'
+                  event_seq: 2
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-DE-STD-01'
+                  country_code: 'DE'
+                  currency_code: 'EUR'
+                  session_started_at: '2026-03-02 18:30:00'
+                  session_ended_at: '2026-03-02 19:15:00'
+                  settled_at: '2026-03-04 12:00:00'
+                  energy_kwh: 44.8
+                  gross_amount_local: 24.87
+                  event_type: 'late_adjustment'
+                  _source_name: 'charging_sim'
+                  _source_hash: 'hash-b'
+      expect:
+          rows:
+              - session_id: 'S1'
+                event_seq: 2
+                station_id: 'BNA-F-0001'
+                tariff_id: 'T-DE-STD-01'
+                country_code: 'DE'
+                currency_code: 'EUR'
+                session_started_at: '2026-03-02 18:30:00'
+                session_ended_at: '2026-03-02 19:15:00'
+                settled_at: '2026-03-04 12:00:00'
+                energy_kwh: 44.8
+                gross_amount_local: 24.87
+                event_type: 'late_adjustment'
+                _source_name: 'charging_sim'
+                _source_hash: 'hash-b'
+
+    - name: int_sessions_latest_tie_break_by_ingested_at
+      model: int_sessions_latest
+      description: "Contract §3.2 tie-break: same session and event_seq resolves by highest _ingested_at."
+      given:
+          - input: ref('stg_charging_sessions')
+            rows:
+                - session_id: 'S2'
+                  event_seq: 1
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-DE-STD-01'
+                  country_code: 'DE'
+                  currency_code: 'EUR'
+                  session_started_at: '2026-03-02 18:30:00'
+                  session_ended_at: '2026-03-02 19:15:00'
+                  settled_at: '2026-03-02 20:00:00'
+                  energy_kwh: 45.2
+                  gross_amount_local: 25.09
+                  event_type: 'charge'
+                  _source_name: 'charging_sim'
+                  _ingested_at: '2026-03-05 10:00:00'
+                  _source_hash: 'hash-old'
+                - session_id: 'S2'
+                  event_seq: 1
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-DE-STD-01'
+                  country_code: 'DE'
+                  currency_code: 'EUR'
+                  session_started_at: '2026-03-02 18:30:00'
+                  session_ended_at: '2026-03-02 19:15:00'
+                  settled_at: '2026-03-02 20:00:00'
+                  energy_kwh: 45.2
+                  gross_amount_local: 25.09
+                  event_type: 'charge'
+                  _source_name: 'charging_sim'
+                  _ingested_at: '2026-03-05 11:00:00'
+                  _source_hash: 'hash-new'
+      expect:
+          rows:
+              - session_id: 'S2'
+                event_seq: 1
+                station_id: 'BNA-F-0001'
+                tariff_id: 'T-DE-STD-01'
+                country_code: 'DE'
+                currency_code: 'EUR'
+                session_started_at: '2026-03-02 18:30:00'
+                session_ended_at: '2026-03-02 19:15:00'
+                settled_at: '2026-03-02 20:00:00'
+                energy_kwh: 45.2
+                gross_amount_local: 25.09
+                event_type: 'charge'
+                _source_name: 'charging_sim'
+                _ingested_at: '2026-03-05 11:00:00'
+                _source_hash: 'hash-new'
+
+    - name: int_sessions_enriched_fx_dst_revenue_date
+      model: int_sessions_enriched_fx
+      description: "Contract §3.4: 2025-10-25 23:30 UTC is 2025-10-26 in Europe/Berlin across the CET->CEST night."
+      given:
+          - input: ref('int_sessions_latest')
+            rows:
+                - session_id: 'S-DST-1'
+                  event_seq: 1
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-DE-STD-01'
+                  country_code: 'DE'
+                  currency_code: 'EUR'
+                  session_started_at: '2025-10-25 23:30:00'
+                  session_ended_at: '2025-10-26 00:30:00'
+                  settled_at: '2025-10-26 01:30:00'
+                  energy_kwh: 20.0
+                  gross_amount_local: 11.8
+                  event_type: 'charge'
+          - input: ref('stg_ecb_fx')
+            rows: []
+          - input: ref('stg_roaming_settlements')
+            rows: []
+      expect:
+          rows:
+              - session_id: 'S-DST-1'
+                event_seq: 1
+                station_id: 'BNA-F-0001'
+                tariff_id: 'T-DE-STD-01'
+                country_code: 'DE'
+                currency_code: 'EUR'
+                revenue_date: '2025-10-26'
+                fx_rate_to_eur: 1.0
+                fx_rate_status: 'observed'
+                session_started_at: '2025-10-25 23:30:00'
+                session_ended_at: '2025-10-26 00:30:00'
+                settled_at: '2025-10-26 01:30:00'
+                energy_kwh: 20.0
+                gross_amount_local: 11.8
+                roaming_fee_local: 0.0
+                event_type: 'charge'
+
+    - name: int_sessions_enriched_fx_carries_forward_over_weekend
+      model: int_sessions_enriched_fx
+      description: "Contract §3.7: Sunday revenue_date carries Friday's ECB rate forward (never the Monday rate)."
+      given:
+          - input: ref('int_sessions_latest')
+            rows:
+                - session_id: 'S-CH-FX'
+                  event_seq: 1
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-ROAM-CH-01'
+                  country_code: 'CH'
+                  currency_code: 'CHF'
+                  session_started_at: '2026-01-03 23:30:00'
+                  session_ended_at: '2026-01-04 00:30:00'
+                  settled_at: '2026-01-04 01:30:00'
+                  energy_kwh: 20.0
+                  gross_amount_local: 11.8
+                  event_type: 'charge'
+          - input: ref('stg_ecb_fx')
+            rows:
+                - currency_pair: 'EUR/CHF'
+                  observation_date: '2026-01-02'
+                  rate: 0.941
+                - currency_pair: 'EUR/CHF'
+                  observation_date: '2026-01-05'
+                  rate: 0.938
+          - input: ref('stg_roaming_settlements')
+            rows:
+                - settlement_id: 'RS-FX'
+                  session_id: 'S-CH-FX'
+                  roaming_partner: 'HUB-ELVIT-01'
+                  roaming_fee_local: 1.41
+                  currency_code: 'CHF'
+                  settled_at: '2026-01-04 02:00:00'
+      expect:
+          rows:
+              - session_id: 'S-CH-FX'
+                event_seq: 1
+                station_id: 'BNA-F-0001'
+                tariff_id: 'T-ROAM-CH-01'
+                country_code: 'CH'
+                currency_code: 'CHF'
+                revenue_date: '2026-01-04'
+                fx_rate_to_eur: 0.941
+                fx_rate_status: 'carried_forward'
+                session_started_at: '2026-01-03 23:30:00'
+                session_ended_at: '2026-01-04 00:30:00'
+                settled_at: '2026-01-04 01:30:00'
+                energy_kwh: 20.0
+                gross_amount_local: 11.8
+                roaming_fee_local: 1.41
+                event_type: 'charge'
+
+    - name: int_sessions_wholesale_cost_golden_charge
+      model: int_sessions_wholesale_cost
+      description: "Contract §4 golden example Event 1: the DE-LU 18:00 UTC slot prices the 18:30 session; 45.2 kWh x 95 EUR/MWh = 4.29 EUR."
+      given:
+          - input: ref('int_sessions_enriched_fx')
+            rows:
+                - session_id: 'S-CH-0001'
+                  event_seq: 1
+                  station_id: 'BNA-F-0001'
+                  tariff_id: 'T-ROAM-CH-01'
+                  country_code: 'CH'
+                  currency_code: 'CHF'
+                  revenue_date: '2026-03-02'
+                  fx_rate_to_eur: 0.941
+                  fx_rate_status: 'observed'
+                  session_started_at: '2026-03-02 18:30:00'
+                  session_ended_at: '2026-03-02 19:15:00'
+                  settled_at: '2026-03-03 20:00:00'
+                  energy_kwh: 45.2
+                  gross_amount_local: 25.09
+                  roaming_fee_local: 1.41
+                  event_type: 'charge'
+          - input: ref('stg_smard_prices')
+            rows:
+                - timestamp_utc: '2026-03-02 18:00:00'
+                  market_zone: 'DE-LU'
+                  wholesale_eur_mwh: 95.0
+                  grid_load_mwh: null
+      expect:
+          rows:
+              - session_id: 'S-CH-0001'
+                event_seq: 1
+                station_id: 'BNA-F-0001'
+                tariff_id: 'T-ROAM-CH-01'
+                country_code: 'CH'
+                currency_code: 'CHF'
+                revenue_date: '2026-03-02'
+                fx_rate_to_eur: 0.941
+                fx_rate_status: 'observed'
+                session_started_at: '2026-03-02 18:30:00'
+                session_ended_at: '2026-03-02 19:15:00'
+                settled_at: '2026-03-03 20:00:00'
+                energy_kwh: 45.2
+                gross_amount_local: 25.09
+                roaming_fee_local: 1.41
+                event_type: 'charge'
+                wholesale_eur_mwh: 95.0
+                wholesale_cost_eur: 4.29
