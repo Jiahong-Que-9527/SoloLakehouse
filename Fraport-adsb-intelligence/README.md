@@ -11,12 +11,12 @@ The raw research data stays on the local machine. Bronze and Silver are built
 locally, and only the Gold data product crosses to Google Cloud, as a versioned
 release. Each subproject chooses the runtime that fits its workload.
 
-**Status (2026-11-22):** acquisition gate G0 has passed. Batches b01 (2026-10)
-through b41 (2023-06) are validated, accepted and backed up to `E:`. b01
+**Status (2026-11-23):** acquisition gate G0 has passed. Batches b01 (2026-10)
+through b42 (2023-05) are validated, accepted and backed up to `E:`. b01
 through b12 completed the twelve-month cut line. b24 finishes the two-year
 window. b25 through b36 finish the first-year cut of the five-year
-extension. The next work is batch b42 (2023-05). Details are in the
-[acquisition status](01-opensky-acquisition/README.md#status-2026-11-22).
+extension. The next work is batch b43 (2023-04). Details are in the
+[acquisition status](01-opensky-acquisition/README.md#status-2026-11-23).
 
 **Geometry v2 backfill (2026-11-22):** the original two-year window is
 being processed locally. The November 2024 BigQuery pilot waits for all
