@@ -46,9 +46,10 @@ the cloud. Silver, Gold and the cloud track remain engineering scope here.
 
 The [04 November 2024 feature replay](04-aviation-lakehouse/README.md#first-delivery)
 produced 8,570 predictions and 7,607 usable labels under a documented
-availability simulation. Project 05 used that pinned artifact to evaluate a
-[boosted candidate](05-taxi-in-prediction/README.md#november-2024-boosted-candidate),
-reducing MAE from 140.3 to 129.3 seconds on 2,527 labeled holdout predictions.
+availability simulation. Project 05's boosted candidate reduced November
+holdout MAE from 140.3 to 129.3 seconds. The frozen model also reduced
+[December MAE](05-taxi-in-prediction/README.md#december-2024-independent-evaluation)
+from 148.6 to 137.5 seconds on 7,182 usable labels.
 
 ## Documents
 

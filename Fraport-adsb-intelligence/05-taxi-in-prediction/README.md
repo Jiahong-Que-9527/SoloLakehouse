@@ -32,7 +32,8 @@ airport ground truth. Report label coverage and definition with every result.
 - **M2.** Historical global-median baseline on a time-ordered split. The
   November 2024 run was evaluated and logged locally in MLflow.
 - **M3.** Histogram gradient-boosted candidate selected on the inner time
-  split and evaluated against the pinned November holdout in local MLflow.
+  split and evaluated against the pinned November holdout and an independent
+  December replay in local MLflow.
 - **M4.** Repeat the training as a containerized job, register the model version in MLflow and publish its release manifest (ADR-005).
 - **M5.** Evaluation report with error by hour, season and traffic level.
 
@@ -103,10 +104,8 @@ to seven leaves, runs 60 iterations and uses L2 regularization of 1.0.
 | RMSE | 180.5 s | 170.2 s |
 | Median absolute error | 118.0 s | 105.0 s |
 
-The MAE improvement is 11.0 seconds (7.8%). This was measured on one
-month using proxy labels and a five-second simulated observation delay.
-Evaluate additional months and validate observation availability before
-promoting a serving candidate.
+The MAE improvement is 11.0 seconds (7.8%). See the subsequent December
+evaluation below for the frozen model.
 
 ```bash
 cd Fraport-adsb-intelligence/05-taxi-in-prediction
@@ -123,3 +122,36 @@ OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 uv run --locked python boosted_candidat
 
 The local output includes `model.pkl`, the model's feature order and SHA-256,
 the full search, the baseline comparison and the MLflow run ID.
+
+## December 2024 independent evaluation
+
+The November candidate and the 299-second baseline were frozen before
+scoring the December replay. The feature dataset uses the November rules,
+feature order and five-second simulated availability. All 8,249 predictions
+were scored, and 7,182 had usable labels (87.1% coverage). The report pins
+the model, baseline report and both feature manifests by hash.
+
+| December metric | Frozen global median | Frozen boosted candidate |
+|---|---:|---:|
+| MAE | 148.6 s | 137.5 s |
+| RMSE | 201.2 s | 190.0 s |
+| Median absolute error | 118.0 s | 105.9 s |
+
+MAE improved by 11.2 seconds (7.5%). The candidate had lower MAE on all
+31 scored UTC days. December feature replays matched byte-for-byte, as did
+the two evaluation reports. Both evaluation runs are recorded in the local
+MLflow experiment. The evaluation uses proxy labels and simulated
+observation availability. Validate measured availability before serving.
+
+```bash
+cd Fraport-adsb-intelligence/05-taxi-in-prediction
+run_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+baseline="$run_root/baselines/geometry-v2-2024-11-median"
+out=$(mktemp -d /tmp/fraport-december-evaluation.XXXXXX)
+OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 uv run --locked python frozen_evaluation.py \
+  --training-features "$run_root/features/features-2024-11-947edc9a58661dcd" \
+  --evaluation-features "$run_root/features/features-2024-12-cc0d68f941eb2b79" \
+  --candidate "$run_root/candidates/geometry-v2-2024-11-boosted/first" \
+  --baseline-report "$baseline/first/baseline-report.json" \
+  --tracking-dir "$baseline/mlflow" --output "$out/first"
+```
