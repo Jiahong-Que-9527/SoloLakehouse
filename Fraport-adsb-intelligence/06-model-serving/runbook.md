@@ -66,3 +66,45 @@ non-finite model output. All drill containers were removed after verification.
 
 - Service code `11b5d8505d103ae83de5ef632d27f313425b5b29`
 - Local image ID `sha256:5cd04b191417ee1e7a22d707ea5207295be5b7d6bb1d7ffb1eedfe0b8f9d4ad8`
+
+## Cloud Run deployment and recovery
+
+Start the live pilot after reviewing a measured phase 04 availability audit.
+Use an approved project, region and runtime service account. Keep the
+approved model artifact and manifest in the versioned release store per
+ADR-005. Publish the prepared image to a private repository and use its
+remote `@sha256:...` reference as `IMAGE_URI`. The local image ID identifies
+the rehearsal. The registry digest identifies the artifact Cloud Run pulls.
+
+The initial service is private. A later revision can be prepared with
+`--no-traffic --tag candidate`, then tested through its tagged URL. Capture
+the existing serving revision before changing traffic. Use the settings
+below for the small verification workload.
+
+```bash
+gcloud run deploy "$SERVICE" --project "$PROJECT" --region "$REGION" \
+  --image "$IMAGE_URI" --service-account "$RUNTIME_SERVICE_ACCOUNT" \
+  --no-allow-unauthenticated --port 8080 --cpu 1 --memory 1Gi \
+  --concurrency 4 --min-instances 0 --max-instances 1 \
+  --startup-probe='httpGet.path=/health,httpGet.port=8080,periodSeconds=5,timeoutSeconds=3,failureThreshold=12'
+```
+
+From an identity with invocation permission, probe `/health`, `/v1/model`
+and `/v1/predict` with an ID token and the fixed synthetic request in the
+[local instructions](README.md#run-locally). Verify the manifest and model
+hashes, normalized timestamp, and exact prediction before shifting traffic.
+Check Cloud Run request status and latency for the revision. Use the
+application's release ID and request IDs to correlate logs and predictions.
+Record the image digest, revision, model pin and observed cloud usage.
+
+For a subsequent release, move traffic to the verified revision by name.
+If the live check fails, restore the recorded previous revision and repeat
+the authenticated probe to confirm the previous lineage and score.
+
+```bash
+gcloud run services update-traffic "$SERVICE" --project "$PROJECT" --region "$REGION" \
+  --to-revisions "$PREVIOUS_REVISION=100"
+```
+
+Cloud references: [container deployment](https://docs.cloud.google.com/run/docs/deploying)
+and [traffic migration and rollback](https://docs.cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration).
