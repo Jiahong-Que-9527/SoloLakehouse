@@ -1,0 +1,121 @@
+# G06 Cloud Platform Factory: plan on pull requests, opt-in apply and
+# destroy on workflow dispatch. Deployment runs through Workload Identity
+# Federation as g06-deployer — the repository stores no service-account
+# key (design §1). Stacks: infra/stacks/<stack>.
+
+name: G06 cloud platform factory
+
+on:
+  pull_request:
+    paths:
+      - 'gcp/06-cloud-platform-factory/**'
+      - '.github/workflows/g06-factory.yml'
+  workflow_dispatch:
+    inputs:
+      stack:
+        description: 'Stack to operate on'
+        type: choice
+        options: [alpha, bravo]
+        required: true
+      action:
+        description: 'Terraform action for the selected stack'
+        type: choice
+        options: [plan, apply, destroy]
+        default: plan
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  TF_VERSION: '1.17.2'
+  STACK_DIR: gcp/06-cloud-platform-factory/infra/stacks
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - name: Format and validate both stacks (design §5)
+        run: |
+          terraform fmt -check -recursive gcp/06-cloud-platform-factory/infra
+          for stack in alpha bravo; do
+            cd "$STACK_DIR/$stack"
+            terraform init -input=false -backend=false >/dev/null
+            terraform validate
+            cd -
+          done
+
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: static-checks
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: slh-gcp-test
+          workload_identity_provider: projects/236720670014/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: g06-deployer@slh-gcp-test.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - name: Reviewable plan for both stacks
+        run: |
+          for stack in alpha bravo; do
+            cd "$STACK_DIR/$stack"
+            terraform init -input=false
+            terraform plan -input=false -no-color -lock=false
+            cd -
+          done
+
+  dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: slh-gcp-test
+          workload_identity_provider: projects/236720670014/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: g06-deployer@slh-gcp-test.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+      - name: Terraform ${{ inputs.action }} on ${{ inputs.stack }}
+        working-directory: ${{ env.STACK_DIR }}/${{ inputs.stack }}
+        run: |
+          terraform init -input=false
+          terraform ${{ inputs.action }} -input=false -no-color -auto-approve
+      - name: Smoke test and inventory (apply only)
+        if: inputs.action == 'apply'
+        working-directory: ${{ env.STACK_DIR }}/${{ inputs.stack }}
+        run: |
+          JOB=$(terraform output -raw job_name)
+          DATASET=$(terraform output -raw dataset_id)
+          RUNTIME=$(terraform output -raw runtime_service_account)
+          gcloud run jobs execute "$JOB" --region europe-west3 --wait --quiet
+          sleep 5
+          echo "## Stack ${{ inputs.stack }} smoke" >> "$GITHUB_STEP_SUMMARY"
+          bq query --use_legacy_sql=false --format=csv \
+            "SELECT stack_name, runtime_principal, COUNT(*) AS n \
+             FROM \`slh-gcp-test.$DATASET.smoke_results\` GROUP BY 1, 2"
+          echo "runtime identity: $RUNTIME"
+      - name: Inventory (destroy only)
+        if: inputs.action == 'destroy'
+        run: |
+          echo "## Residual inventory after destroying ${{ inputs.stack }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "buckets:" >> "$GITHUB_STEP_SUMMARY"
+          gsutil ls | grep "slh-batch-.*${{ inputs.stack }}" || echo "  none" >> "$GITHUB_STEP_SUMMARY"
+          echo "datasets:" >> "$GITHUB_STEP_SUMMARY"
+          bq ls --format=csv | grep "slh_batch_.*${{ inputs.stack }}" || echo "  none" >> "$GITHUB_STEP_SUMMARY"
+          echo "service accounts:" >> "$GITHUB_STEP_SUMMARY"
+          gcloud iam service-accounts list --format="value(email)" | grep "slh-batch-.*${{ inputs.stack }}" || echo "  none" >> "$GITHUB_STEP_SUMMARY"
+          echo "jobs:" >> "$GITHUB_STEP_SUMMARY"
+          gcloud run jobs list --format="value(name)" --filter="metadata.name:slh-batch AND metadata.name:${{ inputs.stack }}" || echo "  none" >> "$GITHUB_STEP_SUMMARY"
