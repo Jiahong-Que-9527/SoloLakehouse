@@ -1,0 +1,35 @@
+{
+  "manifest_version": 1,
+  "locked_at": "2026-11-23T00:00:00Z",
+  "fixtures": {
+    "bnetza_hesse_slice.csv": {
+      "source": "Bundesnetzagentur Ladesäulenregister",
+      "source_url": "https://data.bundesnetzagentur.de/Bundesnetzagentur/DE/Fachthemen/ElektrizitaetundGas/E-Mobilitaet/Ladesaeulenregister_BNetzA_2026-11-12.xlsx",
+      "register_date": "2026-11-12",
+      "license": "CC BY 4.0",
+      "retrieval_date": "2026-11-23",
+      "extraction": "Rows with Bundesland='Hessen' and Kreis in {Kreisfreie Stadt Frankfurt am Main, Kreisfreie Stadt Wiesbaden, Landkreis Groß-Gerau, Landkreis Main-Kinzig-Kreis}; Excel serial dates converted to ISO; comma decimals normalized. This real slice is the t2 station attributes; t0/t1 states are seeded synthetic history (generator.py).",
+      "row_count": 3233,
+      "sha256": "2c1d6eaf1aff319e05edd7a66fc9f59b035075f1d860fe18a590b8349d8ca028"
+    },
+    "smard_prices_slice.csv": {
+      "source": "Bundesnetzagentur SMARD market data (via Fraunhofer ISE energy-charts API)",
+      "source_url": "https://api.energy-charts.info/price?bzn=DE-LU&start=1759276800&end=1778457600",
+      "license": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+      "retrieval_date": "2026-11-23",
+      "extraction": "DE-LU day-ahead prices, 15-minute resolution, UTC window 2025-10-01T00:00Z..2026-05-11T00:00Z; null-price slots dropped (recorded in extraction note); grid_load_mwh carried as an empty column (endpoint does not provide load series; contract allows NULL).",
+      "row_count": 21313,
+      "sha256": "2be4657c8e8bbd6eaf9152b29dbd868d0e2b64c2c1b2610019f427a95d39cbcd",
+      "dropped_null_prices": 0
+    },
+    "ecb_fx_slice.csv": {
+      "source": "ECB Data Portal reference exchange rates",
+      "source_url": "https://data-api.ecb.europa.eu/service/data/EXR/D.{CHF,PLN,USD}.EUR.SP00.A?startPeriod=2025-09-01&endPeriod=2026-05-03",
+      "license": "ECB Data Portal terms of use (ECB reference rates, public)",
+      "retrieval_date": "2026-11-23",
+      "extraction": "Daily reference rates in ECB base notation: rate = foreign currency units per 1 EUR; business days only (weekends/TARGET2 holidays absent).",
+      "row_count": 507,
+      "sha256": "9e5f9969e6c4d24d84f73d5fa670f2ed17e31826a262b9654127e9f9493d3865"
+    }
+  }
+}
