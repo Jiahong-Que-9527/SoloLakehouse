@@ -178,8 +178,8 @@ Docker reproduced the model and both reports byte for byte. Local MLflow
 has candidate version 1 and the release manifest pins its evidence. M5
 evaluated four held-out months across seasons, local hours and traffic levels.
 The candidate lowered pooled MAE from 180.2 to 171.3 seconds across 51,319
-usable labels (77.8% of predictions). Phase 06 can start with local contract
-tests. Live serving requires measured observation availability.
+usable labels (77.8% of predictions). This release supplies the local model
+pin for phase 06.
 [M5 report](../05-taxi-in-prediction/reports/seasonal-evaluation.md)
 
 ## Phase 6: 06 Model Serving
@@ -190,6 +190,12 @@ tests. Live serving requires measured observation availability.
 4. Monitoring and a tested rollback.
 
 **Exit:** deployed endpoint traceable to a model version and commit.
+
+**Status:** M1 and M2 are verified. The local container scored 14 fixed
+features from the four M5 months and matched the offline model exactly.
+An incorrect release pin prevented startup. M3 depends on measured
+observation availability, and M4 remains open for monitoring and rollback.
+[Local serving evidence](../06-model-serving/README.md#m1m2-verification)
 
 ## Phase 7: 07 Platform Orchestration
 
