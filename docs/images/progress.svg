@@ -49,7 +49,7 @@
 <line x1="40" x2="840" y1="250" y2="250" stroke="#eef2f7"/>
 <rect x="40" y="268" width="6" height="34" rx="3" fill="url(#g3)"/>
 <text x="60" y="283" fill="#0f172a" font-size="15" font-weight="650">ML Engineering</text>
-<text x="60" y="302" fill="#64748b" font-size="12">M01–M08 accepted · M09 in progress</text>
+<text x="60" y="302" fill="#64748b" font-size="12">M01–M09 accepted · delivery complete</text>
 <rect x="330.0" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
 <rect x="374.9" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
 <rect x="419.8" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
@@ -58,8 +58,8 @@
 <rect x="554.4" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
 <rect x="599.3" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
 <rect x="644.2" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
-<rect x="689.1" y="274" width="40.9" height="20" rx="6" fill="#f59e0b" fill-opacity="0.35"/>
-<text x="754" y="293" fill="#d97706" font-size="24" font-weight="700" letter-spacing="-0.5">93<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<rect x="689.1" y="274" width="40.9" height="20" rx="6" fill="url(#g3)"/>
+<text x="754" y="293" fill="#d97706" font-size="24" font-weight="700" letter-spacing="-0.5">100<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="312" fill="#94a3b8" font-size="11">9 stages</text>
 <line x1="40" x2="840" y1="324" y2="324" stroke="#eef2f7"/>
 <rect x="40" y="342" width="6" height="34" rx="3" fill="url(#g0)"/>
