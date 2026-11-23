@@ -1,0 +1,3 @@
+series_key,observation_date,value,unit,title
+EXR.D.USD.EUR.SP00.A,2025-02-05,1.0425,USD_PER_EUR,US dollar/Euro
+EXR.D.USD.EUR.SP00.A,2025-02-06,1.0380,USD_PER_EUR,US dollar/Euro

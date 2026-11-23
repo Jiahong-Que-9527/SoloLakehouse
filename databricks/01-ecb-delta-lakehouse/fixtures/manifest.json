@@ -1,0 +1,46 @@
+{
+  "quarter": "2025-Q1",
+  "source_window": {
+    "start_date": "2025-01-01",
+    "end_date": "2025-03-31"
+  },
+  "retrieval_date": "2026-11-23",
+  "publication_calendar": {
+    "fx_series": "ECB business days (TARGET2 calendar); weekends and holidays such as 2025-01-01 have no observation and stay absent in Silver",
+    "policy_rate_series": "Effective change dates of the ECB Deposit Facility Rate (irregular calendar); carried forward into Gold with explicit policy_rate_status and policy_rate_source_date"
+  },
+  "series": [
+    {
+      "series_key": "EXR.D.USD.EUR.SP00.A",
+      "description": "ECB daily reference exchange rate USD per EUR",
+      "unit": "USD_PER_EUR",
+      "frequency": "daily"
+    },
+    {
+      "series_key": "FM.B.U2.EUR.4F.KR.DFR.LEV",
+      "description": "ECB Deposit facility rate - date of changes",
+      "unit": "PERCENT_PER_ANNUM",
+      "frequency": "irregular"
+    }
+  ],
+  "files": [
+    {
+      "filename": "ecb_fx_2025q1.csv",
+      "batch_id": "batch-2025q1-init",
+      "row_count": 16,
+      "sha256": "c5da7596b001af7e3b8d8b792022c059c8bd5d5ad82f70e57151b3ce9297f7d7"
+    },
+    {
+      "filename": "ecb_policy_rates_2025q1.csv",
+      "batch_id": "batch-2025q1-init",
+      "row_count": 4,
+      "sha256": "155a0be81ba0622310fa0e717de37df6b643980471d7d267a3cb5d489fdf6e00"
+    },
+    {
+      "filename": "ecb_fx_2025q1_revision.csv",
+      "batch_id": "batch-2025q1-rev1",
+      "row_count": 2,
+      "sha256": "faa7ce9ebe4ac4c18bdfa03b60f922f240d71638f74a241fe99202e82d53a908"
+    }
+  ]
+}

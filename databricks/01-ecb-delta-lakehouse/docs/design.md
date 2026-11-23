@@ -1,6 +1,6 @@
 # Design: ECB Delta Lakehouse
 
-**D01 · Design only.** No application code in this directory yet.
+**D01 · Implemented locally; Databricks Free Edition verification pending.**
 
 Land ECB public series in Delta, clean them to one grain, and publish a versioned Gold table that a later job can rerun without duplicating observations. The project proves Bronze, Silver, Gold, MERGE, and time travel on a small fixed extract.
 

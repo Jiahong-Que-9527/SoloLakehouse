@@ -1,0 +1,42 @@
+bundle:
+  name: ecb-delta-lakehouse-d01
+
+sync:
+  exclude:
+    - .venv/**
+    - .pytest_cache/**
+    - .ruff_cache/**
+    - "**/__pycache__/**"
+
+variables:
+  catalog:
+    description: Unity Catalog name available in the Databricks Free Edition workspace
+    default: workspace
+  schema:
+    description: Target schema for D01 Bronze, Silver, and Gold tables
+    default: ecb_d01_dev
+  git_sha:
+    description: Git commit SHA recorded in Gold release provenance
+    default: dev
+  reset_tables:
+    description: Set true for a clean before/after Time Travel run
+    default: "true"
+
+resources:
+  jobs:
+    d01_ecb_lakehouse:
+      name: d01-ecb-delta-lakehouse-${bundle.target}
+      tasks:
+        - task_key: run_ecb_lakehouse
+          notebook_task:
+            notebook_path: ./notebooks/run_d01_free_edition.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              git_sha: ${var.git_sha}
+              reset_tables: ${var.reset_tables}
+
+targets:
+  dev:
+    mode: development
+    default: true

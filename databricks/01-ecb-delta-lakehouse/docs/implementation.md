@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** planned. [Brief](../README.md) · [Design](design.md)
+**Status:** in progress — local fixtures, contracts, transforms, unit tests, Serverless notebook and `databricks.yml` bundle are implemented; live Databricks Free Edition MERGE & Time Travel run pending. [Brief](../README.md) · [Design](design.md)
 
 ## First delivery
 

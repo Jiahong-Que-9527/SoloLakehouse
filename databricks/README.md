@@ -4,11 +4,24 @@
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
 Start with Spark and Delta Lake, then progress through job deployment, incremental state, Unity Catalog, MLflow and reusable lakehouse environments. Financial
-data and versioned releases connect the projects. Each numbered directory is a standalone planned project. `docs/design.md` is the design. The README is the short brief. These directories do not contain application code yet.
+data and versioned releases connect the projects. Each numbered directory is a standalone project. `docs/design.md` is the design and the README is the short brief. **D01** is implemented locally and ready for Databricks Free Edition verification; **D02–D06** remain planned designs.
+
+## Execution environment: Databricks Free Edition (2026-11-23)
+
+Owner decision: run the Databricks track on **Databricks Free Edition** (€0, Serverless compute; no GCP billing upgrade; local CI runs pure-Python contract and transformation tests with `uv`/`pytest` and requires no local Java or PySpark). See the [Free Edition & CLI Playbook](docs/free-edition-cli-playbook.md) for PAT authentication (`databricks configure` — not OAuth `databricks auth login`), Fair Usage quotas, and the D01–D06 CLI plan.
+
+| Project | Status | Free Edition support | CLI delivery path | Deferred items |
+|---|---|---|---|---|
+| **D01** · ECB Delta | **In progress** | Full | `databricks bundle deploy/run` + `jobs get-run-output` | — |
+| **D02** · ETL Automation | Planned | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
+| **D03** · CDC Lakehouse | Planned | Full (managed UC Volume) | `databricks fs cp` + `bundle run` (`availableNow` or batch fallback) | External cloud bucket |
+| **D04** · UC Governance | Planned | Partial subset | CLI + `sql/statements` API on 2X-Small warehouse | 5-role denials, masking, audit tables |
+| **D05** · Forecasting MLOps | Planned | Full (CPU Serverless + MLflow) | Parameterized `bundle run` for scoring & rollback | Enterprise multi-env registry |
+| **D06** · Platform Factory | **Deferred** | Not supported | — | Terraform account API + 2 Service Principals |
 
 ## Projects in learning order
 
-1. **D01** · [ECB Delta Lakehouse](01-ecb-delta-lakehouse/README.md)
+1. **D01** · [ECB Delta Lakehouse](01-ecb-delta-lakehouse/README.md) — **In progress** (local package, fixtures and unit tests complete; Databricks Free Edition workspace run next)
    Model ECB rates with Delta and verify versioned Bronze, Silver and Gold outputs.
    [Design](01-ecb-delta-lakehouse/docs/design.md) · [Implementation plan](01-ecb-delta-lakehouse/docs/implementation.md)
 2. **D02** · [Financial ETL Automation](02-financial-etl-automation/README.md)
@@ -23,7 +36,7 @@ data and versioned releases connect the projects. Each numbered directory is a s
 5. **D05** · [Financial Forecasting MLOps](05-financial-forecasting-mlops/README.md)
    Track time-series training, register a model and validate batch predictions.
    [Design](05-financial-forecasting-mlops/docs/design.md) · [Implementation plan](05-financial-forecasting-mlops/docs/implementation.md)
-6. **D06** · [Lakehouse Platform Factory](06-lakehouse-platform-factory/README.md)
+6. **D06** · [Lakehouse Platform Factory](06-lakehouse-platform-factory/README.md) — **Deferred on Free Edition** (multi-principal workspace required)
    Provision a repeatable catalog, permissions and job environment for another team.
    [Design](06-lakehouse-platform-factory/docs/design.md) · [Implementation plan](06-lakehouse-platform-factory/docs/implementation.md)
 
@@ -42,16 +55,16 @@ or deployment. Record which capabilities were actually validated in the
 workspace, including job execution, streaming, lineage and audit access.
 
 The [local ECB project](../local/ecb-silver-pipeline/README.md) provides a
-policy-rate quality reference. The [aviation Lakehouse integration](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
-can apply the deployment and governance practices to a separate aviation
-release.
+policy-rate quality reference. The Databricks track uses the finance
+workloads described above.
 
 ## Delivery priorities
 
 Start with D01, then demonstrate scheduled delivery and failure recovery
-in D02. D03 and D04 are the priority demonstrations for a data platform
-role. D05 adds model delivery after the data path is proven. D06 follows
-verified deployment and governance. Use a workspace with the permissions
-needed for each milestone and record the scope of actual cloud evidence.
+in D02. D03 and D04's Free Edition governance subset are the next data platform
+demonstrations, followed by D05 model delivery. D06 (and D04's multi-principal
+enterprise checks) remain deferred until a multi-principal workspace with
+Account Console / Terraform permissions is approved. Always record the scope of
+actual workspace evidence and any `not_available` checks.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
