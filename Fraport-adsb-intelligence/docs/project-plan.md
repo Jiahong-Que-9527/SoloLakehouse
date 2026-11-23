@@ -221,10 +221,16 @@ workflow continues to handle first-time cloud ingestion.
 M3 reproduced the November and December feature manifests and all three
 M4 model artifacts in Dagster. The training rerun recovered independently
 after a Docker startup failure, and a repeat reused the verified outputs.
+M4 verifies local failure alerts and targeted recovery from four injected
+faults. Each recovery ran the failed stage alone and reused upstream evidence.
+A real daemon tick submitted one local ingestion and the next tick skipped
+the duplicate. The runbook documents the commands and the cloud ledger boundary.
+M1–M4 are verified.
 [M1 run evidence](../07-platform-orchestration/README.md#m1-verification) ·
 [M2 local evidence](../07-platform-orchestration/README.md#m2-release-detection-and-local-analytics) ·
 [M2 BigQuery evidence](../07-platform-orchestration/README.md#m2-read-only-bigquery-reconciliation) ·
-[M3 run evidence](../07-platform-orchestration/README.md#m3-verification)
+[M3 run evidence](../07-platform-orchestration/README.md#m3-verification) ·
+[M4 recovery evidence](../07-platform-orchestration/README.md#m4-recovery-verification)
 
 ## Programme acceptance
 

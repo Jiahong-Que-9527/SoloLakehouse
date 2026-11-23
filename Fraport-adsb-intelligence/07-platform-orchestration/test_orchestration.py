@@ -11,7 +11,7 @@ import pyarrow.parquet as pq
 import duckdb
 from dagster import AssetKey, DagsterInstance, SkipReason
 
-from orchestration import defs, geometry_release_ready, release_inputs
+from orchestration import defs, geometry_release_ready, inspect_run, release_inputs, run_tags
 
 
 class LocalOrchestrationTests(unittest.TestCase):
@@ -55,7 +55,7 @@ class LocalOrchestrationTests(unittest.TestCase):
 
     def execute(self, instance, job_name):
         return defs.resolve_job_def(job_name).execute_in_process(
-            instance=instance, partition_key="2024-11", raise_on_error=False,
+            instance=instance, partition_key="2024-11", tags=run_tags("2024-11"), raise_on_error=False,
         )
 
     def test_failed_handoff_resumes_from_verified_gold_and_is_idempotent(self):
@@ -65,6 +65,17 @@ class LocalOrchestrationTests(unittest.TestCase):
             self.assertFalse(failed.success)
             self.assertTrue(failed.is_node_success("approved_gold"))
             self.assertTrue(any(event.event_type_value == "STEP_UP_FOR_RETRY" for event in failed.all_events))
+            alert_path = self.state / "alerts" / failed.run_id / "local_handoff.json"
+            self.assertEqual(list(alert_path.parent.iterdir()), [alert_path])
+            alert = json.loads(alert_path.read_bytes())
+            self.assertEqual(alert["recovery_job"], "resume_local_handoff")
+            self.assertEqual(alert["partition"], "2024-11")
+            self.assertEqual(alert["source_commit"], "a" * 40)
+            history = inspect_run(instance, failed.run_id)
+            self.assertEqual(history["status"], "FAILURE")
+            self.assertEqual(history["release_id"], self.release.name)
+            gold = next(event for event in history["events"] if event["event"] == "ASSET_MATERIALIZATION")
+            self.assertEqual(gold["metadata"]["usable_labels"], 1)
             self.checkpoint.rmdir()
 
         with DagsterInstance.local_temp(str(self.instance_dir)) as instance:
@@ -100,6 +111,8 @@ class LocalOrchestrationTests(unittest.TestCase):
         self.assertEqual(first.partition_key, "2024-11")
         self.assertEqual(first.run_key, repeat.run_key)
         self.assertTrue(first.run_key.startswith("geometry-v2-2024-11:"))
+        self.assertEqual(first.tags["fraport/source_commit"], "a" * 40)
+        self.assertTrue(first.run_key.endswith(first.tags["fraport/manifest_sha256"]))
 
     def test_local_ingestion_and_reconciliation_are_idempotent(self):
         database = self.state / "analytics.duckdb"

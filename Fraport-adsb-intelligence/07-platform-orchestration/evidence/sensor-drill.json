@@ -1,0 +1,26 @@
+{
+  "analytics": {
+    "duplicate_keys": 0,
+    "handoff_sha256": "d0d26c7ac104bb738a9e5a6eac01adde6e11debaf5a13fb75f2720c2bed2137b",
+    "labeled_rows": 13089,
+    "manifest_sha256": "7ab4964714766d93b7e4c23bda946cbbe818e7374192037b73d9dce0beb2ab2d",
+    "release_id": "geometry-v2-2025-01",
+    "rows": 15033,
+    "rows_added": 15033,
+    "status": "ingested"
+  },
+  "partition": "2025-01",
+  "run_id": "be01147a-9d55-4515-bac2-2f03a7087f36",
+  "runs_submitted": 1,
+  "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349",
+  "ticks": [
+    {
+      "run_count": 1,
+      "status": "SUCCESS"
+    },
+    {
+      "run_count": 0,
+      "status": "SKIPPED"
+    }
+  ]
+}

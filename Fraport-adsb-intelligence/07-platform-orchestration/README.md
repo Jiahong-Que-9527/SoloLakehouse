@@ -2,6 +2,9 @@
 
 **Runtime:** local Dagster with a pinned dependency lock.
 
+**Status:** M1–M4 verified. The automation runs locally, with an explicit
+read-only check for releases already ingested by phase 03.
+
 Connect the earlier subprojects into one operable pipeline with scheduling,
 dependencies, retries, lineage and recovery. Build this last, after the
 individual stages are stable.
@@ -26,7 +29,8 @@ individual stages are stable.
   The live BigQuery handoff reconciles previously ingested releases read-only.
 - **M3.** Orchestrate phase 04 feature builds and the pinned phase 05
   container replay, with checksum-verified reuse.
-- **M4.** Failure injection, recovery exercise and runbook.
+- **M4.** Verified local failure alerts and stage-only recovery. See the
+  [recovery runbook](recovery-runbook.md) and the drill below.
 
 ## Acceptance
 
@@ -241,3 +245,28 @@ for byte. A final replay succeeded with the failing Docker executable still
 configured, demonstrating checksum-verified reuse without container startup.
 All replay containers were removed. The phase 07 suite passed 12 tests.
 [Recorded run IDs and hashes](evidence/orchestrated-model-replay-2024-11.json)
+
+## M4 recovery verification
+
+The November 2024 drill used the real approved Gold release, Silver
+partitions and pinned Docker image. Four injected failures each produced
+one local JSON alert tied to the failed run and its recovery job. A separate
+process then recovered only the affected stage, as shown by the Dagster
+step history:
+
+| Stage | Injected failure | Recovery check |
+|---|---|---|
+| Gold handoff | A directory occupied the checkpoint path | One retry before alerting. The recovery used the existing approved Gold asset. |
+| Features | Silver input path lacked the required day | The resumed job wrote the same pinned November feature manifest. |
+| Local analytics | A directory occupied the DuckDB file path | The resumed load reconciled 17,051 rows and 13,413 labels with zero duplicate keys. |
+| Container training | The Docker command failed at startup | The recovered model and both reports matched their published hashes. A repeat used the cache. |
+
+The two distinct months each materialized approved Gold once. The November
+handoff hash remained unchanged through the downstream drills. The phase 07
+suite passed 12 tests. [Failure alerts, run IDs and hashes](evidence/recovery-drill.json)
+
+The local daemon also exercised the release sensor against the January 2025
+Gold package. The first tick submitted one run and reconciled 15,033 rows,
+13,089 labels and no duplicate keys in DuckDB. The next tick skipped the
+same run key and submitted zero runs. The temporary sensor was stopped and
+the daemon exited afterward. [Sensor run evidence](evidence/sensor-drill.json)
