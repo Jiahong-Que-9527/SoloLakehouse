@@ -14,12 +14,12 @@ provider "google" {
 }
 
 module "batch" {
-  source             = "../../modules/batch"
-  project            = var.project
-  stack_name         = var.stack_name
-  environment        = var.environment
-  region             = var.region
-  owner              = var.owner
-  image              = var.image
+  source              = "../../modules/batch"
+  project             = var.project
+  stack_name          = var.stack_name
+  environment         = var.environment
+  region              = var.region
+  owner               = var.owner
+  image               = var.image
   budget_display_name = var.budget_display_name
 }

@@ -43,16 +43,16 @@ resource "google_storage_bucket_object" "fixture" {
 # -- warehouse: one dataset, one smoke table ---------------------------------
 
 resource "google_bigquery_dataset" "stack" {
-  dataset_id                  = local.dataset_id
-  friendly_name               = local.prefix
-  location                    = var.region
-  delete_contents_on_destroy  = true
-  labels                      = local.labels
+  dataset_id                 = local.dataset_id
+  friendly_name              = local.prefix
+  location                   = var.region
+  delete_contents_on_destroy = true
+  labels                     = local.labels
 }
 
 resource "google_bigquery_table" "smoke_results" {
-  dataset_id = google_bigquery_dataset.stack.dataset_id
-  table_id   = "smoke_results"
+  dataset_id          = google_bigquery_dataset.stack.dataset_id
+  table_id            = "smoke_results"
   deletion_protection = false
   schema = jsonencode([
     { name = "stack_name", type = "STRING", mode = "REQUIRED" },
@@ -126,9 +126,9 @@ resource "google_cloud_run_v2_job" "smoke" {
 # -- logging: the stack's sink into its own bucket ---------------------------
 
 resource "google_logging_project_sink" "stack" {
-  name        = "${local.prefix}-logs"
-  destination = "storage.googleapis.com/${google_storage_bucket.stack.name}"
-  filter      = "resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${local.prefix}-smoke\""
+  name                   = "${local.prefix}-logs"
+  destination            = "storage.googleapis.com/${google_storage_bucket.stack.name}"
+  filter                 = "resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${local.prefix}-smoke\""
   unique_writer_identity = true
 }
 
