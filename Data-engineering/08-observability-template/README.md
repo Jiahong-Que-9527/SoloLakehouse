@@ -1,6 +1,6 @@
 # E08 · Observability and DE platform template
 
-**Status:** planned · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
+**Status:** planned · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md)
 
 Close the DataOps loop by turning dbt run artifacts into operational observability metrics and extracting a reusable Data Engineering project template validated against a second data source.
 

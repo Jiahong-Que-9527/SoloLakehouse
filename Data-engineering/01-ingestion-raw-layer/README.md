@@ -1,6 +1,6 @@
 # E01 · Ingestion and raw layer
 
-**Status:** planned · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md) · [Data contract](../docs/data-contract.md)
+**Status:** planned · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [Data contract](../docs/data-contract.md)
 
 Build the deterministic hybrid data foundation (locked German open-data slices + seeded charging/roaming commerce generator) and the resumable Python ingestion CLI that writes append-only Raw batches with lineage metadata and schema-drift quarantine.
 

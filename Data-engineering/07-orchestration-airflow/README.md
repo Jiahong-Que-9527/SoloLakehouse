@@ -1,6 +1,6 @@
 # E07 · Orchestration with Apache Airflow
 
-**Status:** planned · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
+**Status:** planned · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md)
 
 Orchestrate the end-to-end warehouse pipeline (`ingest -> source freshness -> dbt snapshot -> dbt build -> revenue audit`) with **Apache Airflow** running locally in an isolated `uv` environment (plus an optional Docker Compose definition), and document failure recovery and orchestrator trade-offs.
 

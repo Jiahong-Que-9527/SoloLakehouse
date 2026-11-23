@@ -1,6 +1,6 @@
 # E06 · BigQuery warehouse and FinOps
 
-**Status:** planned · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md) · [GCP cost gate](../../AGENTS.md)
+**Status:** planned · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [GCP cost gate](../../AGENTS.md)
 
 Run the exact same `dbt` project against live **GCP BigQuery** (`slh-gcp-test`, `europe-west3`) using `--target bq`, apply BigQuery partitioning and clustering, publish an authorized consumer view, and measure query scan cost.
 

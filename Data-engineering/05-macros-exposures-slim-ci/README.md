@@ -1,6 +1,6 @@
 # E05 · Macros, exposures and Slim CI
 
-**Status:** planned · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
+**Status:** planned · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md)
 
 Productionize dbt engineering workflows with reusable cross-database macros, downstream consumer lineage via exposures, and state-aware Slim CI in GitHub Actions.
 
