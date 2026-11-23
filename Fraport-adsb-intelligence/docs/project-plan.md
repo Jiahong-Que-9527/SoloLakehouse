@@ -171,11 +171,12 @@ availability remains open for serving. [Phase 04 evidence](../04-aviation-lakeho
 **Exit:** versioned model, traceable to a release ID, and an honest comparison
 against the baseline.
 
-**Status:** the November 2024 baseline and boosted candidate are recorded
-in local MLflow. The candidate reduced MAE from 140.3 to 129.3 seconds on
-the same 2,527 labeled holdout predictions. Wider time-window evaluation and
-model packaging remain open.
-[Candidate evaluation](../05-taxi-in-prediction/README.md#november-2024-boosted-candidate)
+**Status:** the boosted candidate reduced MAE from 140.3 to 129.3 seconds
+on 2,527 November holdout labels. The frozen model reduced MAE from 148.6
+to 137.5 seconds on 7,182 independently replayed December labels. The
+reports and runs are recorded in local MLflow. Container reproducibility,
+model registration and wider seasonal evaluation remain open.
+[Frozen evaluation](../05-taxi-in-prediction/README.md#december-2024-independent-evaluation)
 
 ## Phase 6: 06 Model Serving
 
