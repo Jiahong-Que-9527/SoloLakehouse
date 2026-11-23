@@ -19,17 +19,17 @@
 <text x="670" y="60" fill="#475569" font-size="12">In progress</text>
 <rect x="750" y="52" width="14" height="8" rx="4" fill="#e2e8f0" fill-opacity="1"/>
 <text x="770" y="60" fill="#475569" font-size="12">Planned</text>
-<rect x="40" y="120" width="6" height="34" rx="3" fill="url(#g0)"/>
-<text x="60" y="135" fill="#0f172a" font-size="15" font-weight="650">DevOps Engineering</text>
-<text x="60" y="154" fill="#64748b" font-size="12">D01–D07 · delivery path complete</text>
-<rect x="330.0" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="387.7" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="445.4" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="503.1" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="560.9" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="618.6" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<rect x="676.3" y="126" width="53.7" height="20" rx="6" fill="url(#g0)"/>
-<text x="754" y="145" fill="#4f46e5" font-size="24" font-weight="700" letter-spacing="-0.5">100<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<rect x="40" y="120" width="6" height="34" rx="3" fill="url(#g2)"/>
+<text x="60" y="135" fill="#0f172a" font-size="15" font-weight="650">Fraport ADS-B Intelligence</text>
+<text x="60" y="154" fill="#64748b" font-size="12">03 accepted · 01, 02, 04 in progress</text>
+<rect x="330.0" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
+<rect x="387.7" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
+<rect x="445.4" y="126" width="53.7" height="20" rx="6" fill="url(#g2)"/>
+<rect x="503.1" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
+<rect x="560.9" y="126" width="53.7" height="20" rx="6" fill="#e8edf3"/>
+<rect x="618.6" y="126" width="53.7" height="20" rx="6" fill="#e8edf3"/>
+<rect x="676.3" y="126" width="53.7" height="20" rx="6" fill="#e8edf3"/>
+<text x="754" y="145" fill="#047857" font-size="24" font-weight="700" letter-spacing="-0.5">42<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="164" fill="#94a3b8" font-size="11">7 stages</text>
 <line x1="40" x2="840" y1="176" y2="176" stroke="#eef2f7"/>
 <rect x="40" y="194" width="6" height="34" rx="3" fill="url(#g1)"/>
@@ -44,17 +44,17 @@
 <text x="754" y="219" fill="#2563eb" font-size="24" font-weight="700" letter-spacing="-0.5">70<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="238" fill="#94a3b8" font-size="11">6 stages</text>
 <line x1="40" x2="840" y1="250" y2="250" stroke="#eef2f7"/>
-<rect x="40" y="268" width="6" height="34" rx="3" fill="url(#g2)"/>
-<text x="60" y="283" fill="#0f172a" font-size="15" font-weight="650">Fraport ADS-B Intelligence</text>
-<text x="60" y="302" fill="#64748b" font-size="12">03 accepted · 01, 02, 04 in progress</text>
-<rect x="330.0" y="274" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
-<rect x="387.7" y="274" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
-<rect x="445.4" y="274" width="53.7" height="20" rx="6" fill="url(#g2)"/>
-<rect x="503.1" y="274" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
-<rect x="560.9" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
-<rect x="618.6" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
-<rect x="676.3" y="274" width="53.7" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="293" fill="#047857" font-size="24" font-weight="700" letter-spacing="-0.5">42<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<rect x="40" y="268" width="6" height="34" rx="3" fill="url(#g0)"/>
+<text x="60" y="283" fill="#0f172a" font-size="15" font-weight="650">DevOps Engineering</text>
+<text x="60" y="302" fill="#64748b" font-size="12">D01–D07 · delivery path complete</text>
+<rect x="330.0" y="274" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="387.7" y="274" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="445.4" y="274" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="503.1" y="274" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="560.9" y="274" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="618.6" y="274" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<rect x="676.3" y="274" width="53.7" height="20" rx="6" fill="url(#g0)"/>
+<text x="754" y="293" fill="#4f46e5" font-size="24" font-weight="700" letter-spacing="-0.5">100<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="312" fill="#94a3b8" font-size="11">7 stages</text>
 <line x1="40" x2="840" y1="324" y2="324" stroke="#eef2f7"/>
 <rect x="40" y="342" width="6" height="34" rx="3" fill="url(#g3)"/>
@@ -74,13 +74,13 @@
 <line x1="40" x2="840" y1="398" y2="398" stroke="#eef2f7"/>
 <rect x="40" y="416" width="6" height="34" rx="3" fill="url(#g4)"/>
 <text x="60" y="431" fill="#0f172a" font-size="15" font-weight="650">Databricks</text>
-<text x="60" y="450" fill="#64748b" font-size="12">Six design briefs</text>
-<rect x="330.0" y="422" width="63.3" height="20" rx="6" fill="#e8edf3"/>
+<text x="60" y="450" fill="#64748b" font-size="12">D01 in progress · D02–D06 planned</text>
+<rect x="330.0" y="422" width="63.3" height="20" rx="6" fill="#f43f5e" fill-opacity="0.35"/>
 <rect x="397.3" y="422" width="63.3" height="20" rx="6" fill="#e8edf3"/>
 <rect x="464.7" y="422" width="63.3" height="20" rx="6" fill="#e8edf3"/>
 <rect x="532.0" y="422" width="63.3" height="20" rx="6" fill="#e8edf3"/>
 <rect x="599.3" y="422" width="63.3" height="20" rx="6" fill="#e8edf3"/>
 <rect x="666.7" y="422" width="63.3" height="20" rx="6" fill="#e8edf3"/>
-<text x="754" y="441" fill="#be123c" font-size="24" font-weight="700" letter-spacing="-0.5">0<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<text x="754" y="441" fill="#be123c" font-size="24" font-weight="700" letter-spacing="-0.5">11<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="460" fill="#94a3b8" font-size="11">6 stages</text>
 </svg>
