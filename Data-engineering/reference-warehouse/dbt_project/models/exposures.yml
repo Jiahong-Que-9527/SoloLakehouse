@@ -1,0 +1,25 @@
+version: 2
+
+exposures:
+    - name: charging_revenue_dashboard
+      label: EV Charging & Roaming Revenue Dashboard
+      type: dashboard
+      maturity: high
+      url: https://bi.example.com/ev-commerce/revenue
+      description: "Daily revenue, energy and margin by billing market and operator — the executive view over the EV charging & roaming commerce warehouse (contract §2)."
+      depends_on:
+          - ref('fct_daily_revenue', v=2)
+      owner:
+          name: Data Engineering track
+          email: data-eng@example.com
+
+    - name: ev_demand_ml_features
+      label: EV Demand ML Features
+      type: ml
+      maturity: low
+      description: "Session-level features (energy, revenue, margin, station attributes) feeding demand and pricing models."
+      depends_on:
+          - ref('fct_charging_sessions')
+      owner:
+          name: Data Engineering track
+          email: data-eng@example.com

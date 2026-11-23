@@ -3,6 +3,7 @@
     incremental_strategy='merge',
     unique_key='session_id',
     on_schema_change='fail',
+    **target_partition_config('revenue_date', 'date', ['country_code', 'station_sk']),
 ) }}
 
 -- Session fact at grain (session_id), incremental merge per contract §3.5:
@@ -15,22 +16,11 @@
 with sessions as (
     select
         w.*,
-        cast(
-            round(w.gross_amount_local / w.fx_rate_to_eur, 2) as decimal(18, 2)
-        ) as gross_amount_eur,
-        cast(
-            round(w.roaming_fee_local / w.fx_rate_to_eur, 2) as decimal(18, 2)
-        ) as roaming_fee_eur
+        {{ eur_currency_convert('w.gross_amount_local', 'w.fx_rate_to_eur') }} as gross_amount_eur,
+        {{ eur_currency_convert('w.roaming_fee_local', 'w.fx_rate_to_eur') }} as roaming_fee_eur
     from {{ ref('int_sessions_wholesale_cost') }} as w
     {% if is_incremental() %}
-        {% if var('backfill_start', none) and var('backfill_end', none) %}
-    -- bounded backfill: reprocess the requested settled_at range
-    where w.settled_at >= cast('{{ var("backfill_start") }}' as timestamp)
-      and w.settled_at < cast('{{ var("backfill_end") }}' as timestamp)
-        {% else %}
-    -- 48-hour late-arrival lookback against the stored fact watermark
-    where w.settled_at >= (select {{ dbt.dateadd('day', -2, 'max(settled_at)') }} from {{ this }})
-        {% endif %}
+        {{ incremental_lookback_filter('w.settled_at', 2) }}
     {% endif %}
 )
 

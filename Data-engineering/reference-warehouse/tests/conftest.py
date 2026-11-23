@@ -35,12 +35,13 @@ def _dbt(
     merged_env = os.environ.copy()
     if env:
         merged_env.update(env)
+    final_args = list(args)
+    if "--project-dir" not in final_args:
+        final_args += ["--project-dir", str(project_dir or DBT_PROJECT)]
     return subprocess.run(  # noqa: S603 - fixed argv, test-local
         [
             executable,
-            *args,
-            "--project-dir",
-            str(project_dir or DBT_PROJECT),
+            *final_args,
             "--profiles-dir",
             str(DBT_PROJECT),
             "--target",
@@ -101,6 +102,8 @@ def warehouse(tmp_path_factory) -> Path:
     db_path = _build_raw_warehouse(tmp)
 
     env = {"CHARGING_COMMERCE_DUCKDB": str(db_path)}
+    deps = _dbt("deps", env=env)
+    assert deps.returncode == 0, deps.stdout[-2000:] + deps.stderr[-2000:]
     freshness = _dbt("source", "freshness", env=env)
     assert freshness.returncode == 0, freshness.stdout[-2000:] + freshness.stderr[-2000:]
 

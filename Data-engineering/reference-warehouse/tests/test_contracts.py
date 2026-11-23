@@ -86,7 +86,7 @@ def test_contract_breach_fails_build_and_preserves_table(warehouse, tmp_path):
     shutil.copytree(
         DBT_PROJECT,
         project_copy,
-        ignore=shutil.ignore_patterns("target", "dbt_packages", ".user.yml"),
+        ignore=shutil.ignore_patterns("target", "logs", ".user.yml"),
     )
     fct_sql = project_copy / "models" / "marts" / "fct_charging_sessions.sql"
     # Valid SQL, wrong type: gross_amount_eur becomes DECIMAL(18,3) instead of the

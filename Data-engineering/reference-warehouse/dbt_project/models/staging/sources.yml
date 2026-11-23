@@ -2,13 +2,14 @@ version: 2
 
 sources:
     - name: raw
-      description: "E01 append-only raw layer (contract v1.3, §1); written by the charging-commerce ingestion CLI."
+      description: "E01 append-only raw layer (contract v1.5, §1); written by the charging-commerce ingestion CLI."
       schema: raw
       loader: charging_commerce_ingest
-      loaded_at_field: _ingested_at
-      freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+      config:
+          loaded_at_field: _ingested_at
+          freshness:
+              warn_after: {count: 24, period: hour}
+              error_after: {count: 48, period: hour}
       tables:
           - name: raw_stations_bnetza
             description: "BNetzA Ladesäulenregister slice, snapshot grain (station_id, snapshot_date)."
@@ -24,4 +25,5 @@ sources:
             description: "Tariff schedule snapshots; grain (tariff_id, snapshot_date)."
           - name: raw_quarantine
             description: "Contract-rejected payloads with reject_reason; never read by models."
-            freshness: null  # no _ingested_at lineage column (uses quarantined_at)
+            config:
+                freshness: null  # no _ingested_at lineage column (uses quarantined_at)
