@@ -91,3 +91,51 @@ the 2026-12-28 decision to check the final candidate identity and the
 isolated artifact directory. The Dagster test deployment was shut down
 at 00:30:51 UTC, interrupting that run during training. The final replay
 and a direct training reuse comparison remain to be verified.
+
+## A4 · Final replay with an explicit clock (2026-11-23)
+
+The interrupted final replay was completed on a fresh disposable
+instance (new `DAGSTER_HOME`, loopback-only webserver, telemetry
+disabled) against the unchanged M07 drill inputs —
+`dataset-m07-tariff-drill` (manifest `2fdd716a…89ad`, `_SUCCESS`
+marker restored after the drill had left the release without it),
+`feat-v1-dataset-m07-tariff-drill` (`3af2e305…8d40`) and pin
+`model-v001` (`c31adfd5…9f86`).
+
+The sensor gained an explicit clock for exactly this case: live ticks
+defer future-dated decisions until wall time passes their `as_of`, and
+a disposable replay pins a `replay_clock` in settings. The replay
+settings pointed at the drill dataset and pinned
+`replay_clock: 2027-01-01T03:30:00+00:00`, because the drill dataset's
+labels extend to 2026-12-30 and the readiness guard must refuse a
+wall-clock tick of 2026-11-23 — the same no-lookahead rule A1 ran
+under. Live deferral and replay pickup are unit-tested
+(`test_sensor_defers_future_decisions_until_the_clock_passes`).
+
+The daemon picked up the M07 retrain decision `600ac4f9…211a`
+(12 drift breaches, issue 2026-11-15) and launched `train_candidate`
+run `9b4f83f9-9f34-4f93-bfa1-4b369d946b66`. It ran 12:37:09–12:47:33
+UTC and succeeded. Candidate `model-m08-2f806d894e44e365` reproduced
+the A1 metrics bit for bit (MAE 7.246101 vs seasonal-naive 9.099315
+and station-median 11.800357, 23 folds) with the final code at commit
+`cbd89178…7d63`, its own isolated `candidate-models`,
+`candidate-releases`, `candidate-reports` and `mlflow.db` under the
+state directory, and the serving pin untouched at `model-v001`. The
+run key reused the M07 decision ID, so later sensor ticks skipped the
+same decision.
+
+## A5 · Direct reuse against the orchestrated artifacts
+
+`run-pipeline` was then executed directly with the same arguments the
+asset used (same config, release, features, candidate ID, output,
+models, releases and tracking directories). It reported
+`features reused, train reused (MAE 7.246101), register reused v1,
+publish confirmed` without launching a new MLflow run (10 runs in the
+tracking database before and after). The manifest, report and artifact
+bytes were identical before and after:
+
+- manifest `3b44d72d…60c`, report JSON `b07751ef…fa2`,
+  report Markdown `5b53c6df…14d8`, artifact `9dabfc78…87f6` — the
+  artifact checksum matches the manifest's recorded `artifact.sha256`.
+
+With A1–A3 above, all M08 acceptance checks are complete.

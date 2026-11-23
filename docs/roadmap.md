@@ -65,14 +65,19 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
   Engineering](../Mlops-engineering/README.md) closes one ML system end to
   end on a synthetic EV-charging workload: point-in-time features, rolling
   backtests, MLflow lineage, a release gate, serving, drift monitoring and
-  Dagster orchestration. M01 (data foundation), M02 (feature pipeline with
-  the leakage suite), M03 (baselines and the evaluation harness), M04
-  (the model beats both baselines under full MLflow lineage) and M05
-  (one idempotent training pipeline, the model release pinned through the
-  promotion gate, tested rollback and a training image), M06 (idempotent
-  batch scoring with committed manifests and the pinned model served over
-  HTTP) are accepted;
-  drift monitoring and retraining triggers are next.
+  Dagster orchestration. All nine stages are accepted: M01 (data
+  foundation), M02 (feature pipeline with the leakage suite), M03
+  (baselines and the evaluation harness), M04 (the model beats both
+  baselines under full MLflow lineage), M05 (one idempotent training
+  pipeline, the model release pinned through the promotion gate, tested
+  rollback and a training image), M06 (idempotent batch scoring with
+  committed manifests and the pinned model served over HTTP), M07
+  (calibrated monitors, local alerting and a holdout-verified retraining
+  drill), M08 (the Dagster daemon closes the loop with schedule replay,
+  drift-triggered training under an explicit replay clock, failure
+  recovery and byte-identical CLI reuse) and M09 (the delivery template
+  extracted from what runs and the district-forecast second workload
+  onboarded through it without touching the first).
 - **Platform engineering.** The [Local Self-hosted
   Lakehouse](../local/self-hosted-lakehouse/README.md) starts with a fixture
   query in Compose. K3s, Flux and recovery remain later project milestones.

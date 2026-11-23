@@ -2,9 +2,9 @@
 
 <!-- [魏征·2026-11-21] Initialize stage planning. -->
 
-**Status:** planned · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
+**Status:** accepted 2026-11-23 · [Roadmap](../README.md) · [Delivery plan](../docs/delivery-plan.md)
 
-Prove the system is a platform: extract the template from what actually runs, onboard a second model with it, and measure the onboarding.
+Prove the system is a platform: extract the template from what actually runs, onboard a second model with it, and measure the onboarding. Delivered: the [template](template/ONBOARDING.md) (delivery assets only, per the D07 rule), the [district-forecast](../../district-forecast/README.md) second workload onboarded through it, and the measured onboarding in the [acceptance record](evidence/m09-acceptance.md).
 
 ## Deliverables
 

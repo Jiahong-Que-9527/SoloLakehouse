@@ -1,0 +1,12 @@
+# district-forecast workload contract (M09).
+# Derived from the pinned dataset-v001 release; never regenerates source data.
+release_id: dataset-district-v001
+schema_version: district-dataset-v1
+source_release_id: dataset-v001
+# Consumed input, referenced by manifest SHA-256 in the release lineage.
+source_release: ../reference-workload/data/releases/dataset/v001
+window:
+  start: "2025-01-01T00:00:00+00:00"
+  end: "2026-12-30T23:00:00+00:00"
+ingestion_delay_hours: 1
+districts: [D1, D2, D3, D4, D5, D6]

@@ -1,0 +1,193 @@
+"""The evaluation harness (delivery assets).
+
+Extracted from the reference workload's M03 protocol: rolling-origin
+monthly folds with a one-day embargo, the MAE/RMSE/sMAPE metric suite
+with segments, a seeded paired bootstrap for comparing two models on
+identical folds, and a deterministic report renderer.
+
+The harness is entity-generic: an `HourlySeries` keys realized demand by
+any entity label (station, district, ...). Baseline definitions and the
+entity semantics stay with each workload.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import date, timedelta
+
+import numpy as np
+
+from .releases import US_DAY, US_HOUR, issue_time_us, target_hours_us
+
+EMBARGO_DAYS = 1
+MIN_TRAIN_ISSUES = 14
+MEDIAN_WINDOW_DAYS = 90
+BOOTSTRAP_RESAMPLES = 2_000
+BOOTSTRAP_SEED = 20261122
+REPORT_SCHEMA_VERSION = "eval-report-v1"
+WEEKDAYS = 7  # Monday=0 convention, matching the epoch offset
+
+
+# -- entity-keyed hourly series -------------------------------------------------
+
+
+@dataclass
+class HourlySeries:
+    """Realized demand per district, sorted by hour, with availability stamps."""
+
+    entities: list[str]
+    hours: dict[str, np.ndarray]
+    values: dict[str, np.ndarray]
+    avail: dict[str, np.ndarray]
+
+    def value_at(self, entity: str, hour_us: int, t_us: int) -> float:
+        """The realized value for `hour_us`, readable only if stamped <= t_us."""
+        hours, values, avail = self.hours[entity], self.values[entity], self.avail[entity]
+        idx = int(np.searchsorted(hours, hour_us))
+        if idx < len(hours) and hours[idx] == hour_us and avail[idx] <= t_us:
+            return float(values[idx])
+        return float("nan")
+
+    def labels(self, issue_day: date) -> np.ndarray:
+        targets = target_hours_us(issue_day)
+        out = np.full((len(self.entities), 24), np.nan)
+        for e, entity in enumerate(self.entities):
+            hours, values = self.hours[entity], self.values[entity]
+            idx = np.searchsorted(hours, targets)
+            idx_clipped = np.minimum(idx, len(hours) - 1)
+            hit = hours[idx_clipped] == targets
+            out[e] = np.where(hit, values[idx_clipped], np.nan)
+        return out
+
+    def seasonal_naive(self, issue_day: date) -> np.ndarray:
+        """Prediction = the realized value at target hour − 168 h, readable at T."""
+        t_us = issue_time_us(issue_day)
+        targets = target_hours_us(issue_day)
+        out = np.full((len(self.entities), 24), np.nan)
+        for e, entity in enumerate(self.entities):
+            hours, values, avail = self.hours[entity], self.values[entity], self.avail[entity]
+            src = targets - 168 * US_HOUR
+            idx = np.searchsorted(hours, src)
+            idx_clipped = np.minimum(idx, len(hours) - 1)
+            hit = (hours[idx_clipped] == src) & (avail[idx_clipped] <= t_us)
+            out[e] = np.where(hit, values[idx_clipped], np.nan)
+        return out
+
+
+# -- fold plan -------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Fold:
+    """One rolling-origin fold: train on issues up to train_last_issue,
+    validate on the issue range [issue_start, issue_end]."""
+
+    issue_start: date
+    issue_end: date
+    train_last_issue: date
+
+
+def valid_issue_range(window: dict) -> tuple[date, date]:
+    """Issue days D whose target day D+1 stays inside the release window."""
+    start = date.fromisoformat(window["start"][:10])
+    end = date.fromisoformat(window["end"][:10]) - timedelta(days=1)
+    return start, end
+
+
+def validate_fold(fold: Fold, first_issue: date, embargo_days: int = EMBARGO_DAYS) -> None:
+    if fold.train_last_issue + timedelta(days=1 + embargo_days) > fold.issue_start:
+        raise ValueError(
+            f"embargo violation: train_last_issue {fold.train_last_issue} targets "
+            f"overlap validation starting {fold.issue_start} under embargo {embargo_days}d"
+        )
+    if fold.issue_end < fold.issue_start or fold.train_last_issue < first_issue:
+        raise ValueError(f"degenerate fold: {fold}")
+
+
+def build_folds(
+    window: dict, embargo_days: int = EMBARGO_DAYS, min_train_issues: int = MIN_TRAIN_ISSUES
+) -> tuple[list[Fold], list[str]]:
+    """One fold per calendar month; months with too little training history
+    are skipped (returned as the skipped list) so no fold trains on nothing."""
+    v_start, v_end = valid_issue_range(window)
+    folds: list[Fold] = []
+    skipped: list[str] = []
+    month = date(v_start.year, v_start.month, 1)
+    while month <= v_end:
+        next_month = date(month.year + (month.month == 12), month.month % 12 + 1, 1)
+        issue_start = max(month, v_start)
+        issue_end = min(next_month - timedelta(days=1), v_end)
+        train_last = issue_start - timedelta(days=1 + embargo_days)
+        n_train = (train_last - v_start).days + 1
+        if n_train < min_train_issues:
+            skipped.append(f"{month:%Y-%m}")
+        else:
+            fold = Fold(issue_start, issue_end, train_last)
+            validate_fold(fold, v_start, embargo_days)
+            folds.append(fold)
+        month = next_month
+    return folds, skipped
+
+
+# -- metrics ----------------------------------------------------------------
+
+
+def _round(x: float) -> float:
+    return round(float(x), 6)
+
+
+def error_metrics(pred: np.ndarray, label: np.ndarray) -> dict:
+    finite = np.isfinite(pred) & np.isfinite(label)
+    n = int(finite.sum())
+    if n == 0:
+        return {"n": 0, "excluded": int(pred.size), "mae": None, "rmse": None, "smape": None}
+    p, y = pred[finite], label[finite]
+    err = p - y
+    denom = np.abs(p) + np.abs(y)
+    smape_terms = np.where(denom > 0, 2.0 * np.abs(err) / np.where(denom > 0, denom, 1.0), 0.0)
+    return {
+        "n": n,
+        "excluded": int(pred.size - n),
+        "mae": _round(np.mean(np.abs(err))),
+        "rmse": _round(np.sqrt(np.mean(err**2))),
+        "smape": _round(100.0 * np.mean(smape_terms)),
+    }
+
+
+def segment_metrics(pred: np.ndarray, label: np.ndarray, segment: np.ndarray, names: list) -> dict:
+    out = {}
+    for name in names:
+        mask = segment == name
+        out[str(name)] = error_metrics(pred[mask], label[mask])
+    return out
+
+
+def paired_bootstrap(err_a: np.ndarray, err_b: np.ndarray, seed: int = BOOTSTRAP_SEED) -> dict:
+    """Paired comparison of absolute errors: bootstrap the mean of
+    |err_a| − |err_b| over identical rows (a worse than b when positive)."""
+    finite = np.isfinite(err_a) & np.isfinite(err_b)
+    a, b = np.abs(err_a[finite]), np.abs(err_b[finite])
+    diff = a - b
+    rng = np.random.default_rng(seed)
+    n = diff.size
+    means = np.empty(BOOTSTRAP_RESAMPLES)
+    for i in range(BOOTSTRAP_RESAMPLES):
+        idx = rng.integers(0, n, n)
+        means[i] = diff[idx].mean()
+    lo, hi = np.percentile(means, [2.5, 97.5])
+    return {
+        "n": n,
+        "mean_abs_error_diff": _round(diff.mean()),
+        "ci95": [_round(lo), _round(hi)],
+        "resamples": BOOTSTRAP_RESAMPLES,
+        "seed": seed,
+        "positive_means_model_a_worse": bool(diff.mean() > 0),
+    }
+
+
+def hour_of_day_us(hour_us: np.ndarray) -> np.ndarray:
+    return ((hour_us // US_HOUR) % 24).astype(int)
+
+
+def weekday_of_us(hour_us: np.ndarray) -> np.ndarray:
+    return (((hour_us // US_DAY) + 3) % WEEKDAYS).astype(int)

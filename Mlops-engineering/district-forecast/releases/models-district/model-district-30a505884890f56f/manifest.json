@@ -1,0 +1,43 @@
+{
+  "artifact": {
+    "path": "model.joblib",
+    "sha256": "1d19447877efe9646c4ba493094c7dfa2471dba2bcd29ff80a76720e707778bc",
+    "size_bytes": 958619
+  },
+  "data_manifest_sha256": "445ea7c315f4b4a643b614bffe7056c3d1b51793f7a380fb8c93c4481190cf64",
+  "data_release_id": "dataset-district-v001",
+  "feature_manifest_sha256": "834efed0369629a50b7e67a6c79ea49c22c99767f140d2ec37119fe739d83576",
+  "feature_release_id": "feat-d1-dataset-district-v001",
+  "fold_plan": {
+    "embargo_days": 1,
+    "min_train_issues": 14,
+    "n_folds": 23,
+    "skipped_months": [
+      "2025-01"
+    ]
+  },
+  "gate": {
+    "baselines": {
+      "district_median": 33.629423,
+      "district_seasonal_naive": 30.980462
+    },
+    "decision": "promoted"
+  },
+  "kind": "model",
+  "metrics": {
+    "excluded": 4464,
+    "mae": 22.338447,
+    "n": 100368,
+    "rmse": 36.157209,
+    "smape": 4.590805
+  },
+  "model_config": {
+    "learning_rate": 0.1,
+    "max_iter": 300,
+    "max_leaf_nodes": 63,
+    "min_samples_leaf": 40,
+    "seed": 20261122
+  },
+  "release_id": "model-district-30a505884890f56f",
+  "source_commit": "unknown"
+}

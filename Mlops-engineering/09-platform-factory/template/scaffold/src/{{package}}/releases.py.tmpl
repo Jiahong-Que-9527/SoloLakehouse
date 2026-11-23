@@ -1,0 +1,136 @@
+"""Release, manifest and point-in-time helpers (delivery assets).
+
+Extracted from the reference workload's delivery code (M01/M03 pattern,
+ADR-003): deterministic release manifests, checksummed files and the
+issue-time clock. Domain schemas, availability rules and quality gates
+stay with each workload.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+ISSUE_TIMEZONE = ZoneInfo("Europe/Berlin")
+
+US_HOUR = 3_600_000_000
+US_DAY = 86_400_000_000
+TARGET_HOURS = 24
+
+
+def issue_time_utc(day: date) -> datetime:
+    """06:00 Europe/Berlin on `day`, converted to UTC (the issue time T)."""
+    local = datetime(day.year, day.month, day.day, 6, 0, tzinfo=ISSUE_TIMEZONE)
+    return local.astimezone(UTC)
+
+
+def issue_time_us(issue_day: date) -> int:
+    return int(issue_time_utc(issue_day).timestamp() * 1_000_000)
+
+
+def target_hours_us(issue_day: date) -> "np.ndarray":
+    """The 24 target hour stamps (UTC) for the day after the issue day."""
+    import numpy as np
+
+    start = datetime.combine(issue_day + timedelta(days=1), datetime.min.time(), tzinfo=UTC)
+    start_us = int(start.timestamp() * 1_000_000)
+    return start_us + np.arange(TARGET_HOURS, dtype=np.int64) * US_HOUR
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def git_commit(repo_hint: Path | None = None) -> str:
+    """Best-effort HEAD commit; 'unknown' outside a repository."""
+    cmd = ["git", "rev-parse", "HEAD"]
+    try:
+        out = subprocess.run(
+            cmd, cwd=repo_hint, capture_output=True, text=True, check=True, timeout=10
+        )
+        return out.stdout.strip()
+    except Exception:
+        return "unknown"
+
+
+def read_json(path: Path) -> dict:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def build_file_manifest(
+    release_dir: Path,
+    *,
+    release_id: str,
+    schema_version: str,
+    kind: str,
+    extra: dict | None = None,
+) -> dict:
+    """Describe every file under release_dir/data (sorted, stable).
+
+    Deliberately excludes wall-clock timestamps: two materializations from
+    the same inputs must produce identical manifests.
+    """
+    release_dir = Path(release_dir)
+    files = []
+    for path in sorted((release_dir / "data").rglob("*")):
+        if not path.is_file():
+            continue
+        entry: dict = {
+            "path": path.relative_to(release_dir).as_posix(),
+            "size_bytes": path.stat().st_size,
+            "sha256": sha256_file(path),
+        }
+        suffix = path.suffix
+        if suffix == ".parquet":
+            import pyarrow.parquet as pq
+
+            entry["rows"] = pq.read_metadata(path).num_rows
+        files.append(entry)
+    manifest = {
+        "release_id": release_id,
+        "schema_version": schema_version,
+        "kind": kind,
+        "files": files,
+    }
+    if extra:
+        manifest.update(extra)
+    return manifest
+
+
+def publish_release(release_dir: Path, manifest: dict) -> Path:
+    """Write manifest.json then the _SUCCESS marker, last, as the gate."""
+    release_dir = Path(release_dir)
+    release_dir.mkdir(parents=True, exist_ok=True)
+    write_json(release_dir / "manifest.json", manifest)
+    (release_dir / "_SUCCESS").write_text(
+        json.dumps({"release_id": manifest["release_id"]}, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return release_dir / "manifest.json"
+
+
+def verify_release(release_dir: Path) -> dict:
+    """Re-check every file against the release manifest; refuse on drift."""
+    release_dir = Path(release_dir)
+    if not (release_dir / "_SUCCESS").exists():
+        raise ValueError(f"release not published (no _SUCCESS marker): {release_dir}")
+    manifest = read_json(release_dir / "manifest.json")
+    for entry in manifest["files"]:
+        path = release_dir / entry["path"]
+        if not path.exists() or sha256_file(path) != entry["sha256"]:
+            raise ValueError(f"release file missing or changed: {entry['path']}")
+    return manifest

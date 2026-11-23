@@ -52,14 +52,20 @@ class Settings:
     state: Path = Path("data/m08")
     calibration: Path = Path("data/m07/calibration.json")
     pushgateway: str | None = None
+    # Pin an explicit clock for a disposable replay; live ticks use wall time.
+    replay_clock: str | None = None
 
     @classmethod
     def from_file(cls, path: Path) -> "Settings":
         values = yaml.safe_load(path.read_text(encoding="utf-8"))
         root = (path.parent / values.pop("workdir")).resolve()
         pushgateway = values.pop("pushgateway", None)
+        replay_clock = values.pop("replay_clock", None)
         return cls(
-            root, pushgateway=pushgateway, **{key: Path(value) for key, value in values.items()}
+            root,
+            pushgateway=pushgateway,
+            replay_clock=replay_clock,
+            **{key: Path(value) for key, value in values.items()},
         )
 
     def path(self, path: Path) -> Path:
@@ -121,6 +127,16 @@ def _training_ready(settings: Settings, as_of: datetime) -> bool:
     final_hour = datetime.fromisoformat(cfg["window"]["end"])
     available = final_hour + timedelta(hours=1 + int(cfg.get("ingestion_delay_hours", 1)))
     return available <= as_of
+
+
+def _clock(settings: Settings) -> datetime:
+    """Wall time, or the explicit clock a disposable replay pins in settings."""
+    if settings.replay_clock is None:
+        return datetime.now(UTC)
+    moment = datetime.fromisoformat(settings.replay_clock)
+    if moment.utcoffset() is None:
+        raise ValueError("replay clock requires a timezone")
+    return moment
 
 
 def _issue_request(
@@ -416,8 +432,9 @@ def build_definitions(settings: Settings) -> Definitions:
         if not paths:
             return SkipReason("no M07 reports in the decision inbox")
         identity = _identity(settings)
-        now = datetime.now(UTC)
+        now = _clock(settings)
         requests = {}
+        deferred = []
         for path in paths:
             try:
                 decision = _decision(read_json(path))
@@ -429,15 +446,21 @@ def build_definitions(settings: Settings) -> Definitions:
                 as_of = datetime.fromisoformat(decision["as_of"])
                 if as_of.utcoffset() is None:
                     raise ValueError("monitor decision as_of requires a timezone")
-                as_of = max(as_of, now)
-                if decision["action"] == "retrain" and _training_ready(settings, as_of):
+                if as_of > now:
+                    # Live mode waits for wall time; a replay passes it via replay_clock.
+                    deferred.append(path.name)
+                    continue
+                if decision["action"] == "retrain" and _training_ready(settings, now):
                     token = decision["decision_id"]
-                    requests[token] = _training_request(identity, "monitor", token, as_of)
+                    requests[token] = _training_request(identity, "monitor", token, now)
             except (OSError, ValueError, KeyError, TypeError) as exc:
                 context.log.warning(f"Rejected report {path.name}: {exc}")
-        return list(requests.values()) or SkipReason(
-            "no eligible retraining decision for this dataset and pin"
-        )
+        if requests:
+            return list(requests.values())
+        reason = "no eligible retraining decision for this dataset and pin"
+        if deferred:
+            reason += f"; {len(deferred)} deferred until the clock passes their as_of"
+        return SkipReason(reason)
 
     @run_failure_sensor(monitored_jobs=[score_job, monitor_job, train_job])
     def orchestration_failure_sensor(context: RunFailureSensorContext):
