@@ -18,6 +18,7 @@ from dagster import (
     EnvVar,
     Failure,
     FilesystemIOManager,
+    HookContext,
     MonthlyPartitionsDefinition,
     RetryPolicy,
     RunRequest,
@@ -25,6 +26,7 @@ from dagster import (
     TimeWindowPartitionMapping,
     asset,
     define_asset_job,
+    failure_hook,
     in_process_executor,
     sensor,
 )
@@ -41,6 +43,22 @@ spec.loader.exec_module(release_inputs)
 
 MONTHS = MonthlyPartitionsDefinition(start_date="2024-11", timezone="UTC", fmt="%Y-%m")
 CONTROLS = ("manifest.json", "validation.json", "approval.json", "_SUCCESS")
+RECOVERY_JOBS = {
+    "approved_gold": "verify_month",
+    "local_handoff": "resume_local_handoff",
+    "local_analytics": "resume_local_analytics",
+    "bigquery_reconciliation": "reconcile_month_bigquery",
+    "monthly_features": "resume_month_features",
+    "container_training": "replay_model_month",
+}
+RESULT_ASSETS = {
+    "ingest_month_local": ("analytics", "local_analytics"),
+    "resume_local_analytics": ("analytics", "local_analytics"),
+    "reconcile_month_bigquery": ("analytics", "bigquery_reconciliation"),
+    "build_month_features": ("features", "monthly_features"),
+    "resume_month_features": ("features", "monthly_features"),
+    "replay_model_month": ("training", "container_training"),
+}
 
 
 def source_commit() -> str:
@@ -96,6 +114,26 @@ def write_handoff(output: Path, evidence: dict) -> bool:
     return True
 
 
+def run_tags(month: str) -> dict:
+    return {"fraport/source_commit": source_commit(), "fraport/release_id": f"geometry-v2-{month}"}
+
+
+@failure_hook
+def alert_failed_stage(context: HookContext) -> None:
+    run = context.instance.get_run_by_id(context.run_id)
+    month = run.tags.get("dagster/partition")
+    alert = {"schema_version": "fraport-stage-alert-v1", "status": "failed", "run_id": context.run_id,
+             "job": context.job_name, "partition": month,
+             "stage": context.step_key, "recovery_job": RECOVERY_JOBS[context.step_key],
+             "source_commit": run.tags.get("fraport/source_commit") or source_commit(),
+             "release_id": run.tags.get("fraport/release_id") or f"geometry-v2-{month}",
+             "error_type": type(context.op_exception).__name__}
+    output = Path(os.environ["FRAPORT_STATE_DIR"]) / "alerts" / context.run_id / f"{context.step_key}.json"
+    context.log.warning("Fraport stage failed: %s. Recovery job: %s. Alert: %s",
+                        context.step_key, alert["recovery_job"], output)
+    write_handoff(output, alert)
+
+
 @asset(partitions_def=MONTHS, retry_policy=RetryPolicy(max_retries=1, delay=1),
        description="Local checkpoint for the verified monthly release.")
 def local_handoff(context: AssetExecutionContext, approved_gold: dict) -> None:
@@ -108,7 +146,8 @@ def local_handoff(context: AssetExecutionContext, approved_gold: dict) -> None:
                 "status": "verified_local", **approved_gold}
     created = write_handoff(output, evidence)
     context.add_output_metadata({"release_id": directory.name, "handoff": str(output),
-                                 "created": created, "source_commit": approved_gold["source_commit"]})
+                                 "created": created, "source_commit": approved_gold["source_commit"],
+                                 "manifest_sha256": approved_gold["manifest_sha256"]})
 
 
 def verified_handoff(month: str) -> tuple[Path, dict, str]:
@@ -131,7 +170,8 @@ def local_analytics(context: AssetExecutionContext) -> dict:
     result["analytics_code_sha256"] = {path.name: release_inputs.file_digest(path)
                                        for path in (HERE / "local_analytics.py", PHASE_03)}
     context.add_output_metadata({"release_id": result["release_id"], "status": result["status"],
-                                 "rows_added": result["rows_added"], **result["geometry_counts"]})
+                                 "rows_added": result["rows_added"], "handoff_sha256": handoff_sha,
+                                 "manifest_sha256": handoff["manifest_sha256"], **result["geometry_counts"]})
     return result
 
 
@@ -146,6 +186,7 @@ def bigquery_reconciliation(context: AssetExecutionContext) -> dict:
     result["cloud_analytics_sha256"] = release_inputs.file_digest(HERE / "cloud_analytics.py")
     context.add_output_metadata({"release_id": result["release_id"], "status": result["status"],
                                  "rows_added": result["rows_added"], "job_id": result["job_id"],
+                                 "handoff_sha256": handoff_sha, "manifest_sha256": handoff["manifest_sha256"],
                                  "bytes_billed": result["bytes_billed"], **result["geometry_counts"]})
     return result
 
@@ -177,12 +218,18 @@ def container_training(context: AssetExecutionContext) -> dict:
                           Path(os.environ["FRAPORT_BASELINE_REPORT"]), os.environ.get("FRAPORT_DOCKER", "docker"))
     context.add_output_metadata({"model_release_id": result["model_release_id"], "image_id": result["image_id"],
                                  "directory": result["directory"], "reused": result["reused"],
+                                 "training_manifest_sha256": result["training_manifest_sha256"],
+                                 "evaluation_manifest_sha256": result["evaluation_manifest_sha256"],
+                                 "model_sha256": result["artifacts"]["candidate/model.pkl"],
                                  "source_commit": source_commit()})
     return result
 
 
-analytics_job = define_asset_job("ingest_month_local", selection=[approved_gold, local_handoff, local_analytics],
-                                 executor_def=in_process_executor)
+def local_job(name: str, *assets):
+    return define_asset_job(name, selection=list(assets), executor_def=in_process_executor, hooks={alert_failed_stage})
+
+
+analytics_job = local_job("ingest_month_local", approved_gold, local_handoff, local_analytics)
 
 
 @sensor(job=analytics_job)
@@ -190,6 +237,7 @@ def geometry_release_ready():
     root = Path(os.environ["FRAPORT_RELEASES_DIR"])
     if not root.is_dir():
         return SkipReason("Geometry v2 release directory is unavailable")
+    commit = source_commit()
     runs = []
     for directory in sorted(root.glob("geometry-v2-*")):
         month = directory.name.removeprefix("geometry-v2-")
@@ -201,34 +249,66 @@ def geometry_release_ready():
             manifest_hash = release_inputs.file_digest(directory / "manifest.json")
         except FileNotFoundError:
             continue
-        runs.append(RunRequest(run_key=f"{directory.name}:{manifest_hash}", partition_key=month))
+        runs.append(RunRequest(run_key=f"{directory.name}:{manifest_hash}", partition_key=month,
+                               tags={"fraport/source_commit": commit, "fraport/release_id": directory.name,
+                                     "fraport/manifest_sha256": manifest_hash}))
     return runs or SkipReason("No completed monthly release with all gate files")
 
 
 defs = Definitions(
     assets=[approved_gold, local_handoff, local_analytics, bigquery_reconciliation, monthly_features, container_training],
     jobs=[
-        define_asset_job("verify_month", selection=[approved_gold, local_handoff], executor_def=in_process_executor),
-        define_asset_job("resume_local_handoff", selection=[local_handoff], executor_def=in_process_executor),
+        local_job("verify_month", approved_gold, local_handoff),
+        local_job("resume_local_handoff", local_handoff),
         analytics_job,
-        define_asset_job("resume_local_analytics", selection=[local_analytics], executor_def=in_process_executor),
-        define_asset_job("reconcile_month_bigquery", selection=[bigquery_reconciliation], executor_def=in_process_executor),
-        define_asset_job("build_month_features", selection=[approved_gold, local_handoff, monthly_features], executor_def=in_process_executor),
-        define_asset_job("resume_month_features", selection=[monthly_features], executor_def=in_process_executor),
-        define_asset_job("replay_model_month", selection=[container_training], executor_def=in_process_executor),
+        local_job("resume_local_analytics", local_analytics),
+        local_job("reconcile_month_bigquery", bigquery_reconciliation),
+        local_job("build_month_features", approved_gold, local_handoff, monthly_features),
+        local_job("resume_month_features", monthly_features),
+        local_job("replay_model_month", container_training),
     ],
     sensors=[geometry_release_ready],
     resources={"io_manager": FilesystemIOManager(base_dir=EnvVar("FRAPORT_STATE_DIR"))},
 )
 
 
+def inspect_run(instance: DagsterInstance, run_id: str) -> dict:
+    run = instance.get_run_by_id(run_id)
+    if run is None:
+        raise ValueError(f"unknown run ID in this Dagster instance: {run_id}")
+    events = []
+    for record in instance.all_logs(run_id):
+        event = record.dagster_event
+        if event is None or event.event_type_value not in (
+            "STEP_START", "STEP_UP_FOR_RETRY", "STEP_FAILURE", "STEP_SUCCESS",
+            "STEP_SKIPPED", "ASSET_MATERIALIZATION", "HOOK_ERRORED",
+        ):
+            continue
+        item = {"event": event.event_type_value, "stage": event.step_key}
+        if event.event_type_value == "ASSET_MATERIALIZATION":
+            item["metadata"] = {key: value.value for key, value in event.event_specific_data.materialization.metadata.items()}
+        events.append(item)
+    return {"run_id": run_id, "job": run.job_name, "status": run.status.value,
+            "partition": run.tags.get("dagster/partition"), "source_commit": run.tags.get("fraport/source_commit"),
+            "release_id": run.tags.get("fraport/release_id"), "events": events}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("job", choices=("verify_month", "resume_local_handoff", "ingest_month_local",
                                         "resume_local_analytics", "reconcile_month_bigquery", "build_month_features",
-                                        "resume_month_features", "replay_model_month"))
-    parser.add_argument("month", help="UTC partition, YYYY-MM")
+                                        "resume_month_features", "replay_model_month", "inspect_run"))
+    parser.add_argument("month", help="UTC partition, YYYY-MM, or a run ID for inspect_run")
     args = parser.parse_args()
+    if args.job == "inspect_run":
+        if not os.environ.get("DAGSTER_HOME"):
+            parser.error("set DAGSTER_HOME before inspecting a run")
+        with DagsterInstance.get() as instance:
+            try:
+                print(json.dumps(inspect_run(instance, args.month), indent=2))
+            except ValueError as exc:
+                parser.error(str(exc))
+        return
     for setting in ("DAGSTER_HOME", "FRAPORT_RELEASES_DIR", "FRAPORT_STATE_DIR"):
         if not os.environ.get(setting):
             parser.error(f"set {setting} before running the local job")
@@ -242,17 +322,13 @@ def main() -> None:
         parser.error(f"unknown completed UTC month partition: {args.month}")
     with DagsterInstance.get() as instance:
         result = defs.resolve_job_def(args.job).execute_in_process(
-            instance=instance, partition_key=args.month, raise_on_error=False,
+            instance=instance, partition_key=args.month, tags=run_tags(args.month), raise_on_error=False,
         )
-    report = {"run_id": result.run_id, "job": args.job, "partition": args.month, "success": result.success}
-    if result.success and args.job in ("ingest_month_local", "resume_local_analytics"):
-        report["analytics"] = result.output_for_node("local_analytics")
-    if result.success and args.job == "reconcile_month_bigquery":
-        report["analytics"] = result.output_for_node("bigquery_reconciliation")
-    if result.success and args.job in ("build_month_features", "resume_month_features"):
-        report["features"] = result.output_for_node("monthly_features")
-    if result.success and args.job == "replay_model_month":
-        report["training"] = result.output_for_node("container_training")
+    report = {"run_id": result.run_id, "job": args.job, "partition": args.month,
+              "success": result.success, "source_commit": source_commit()}
+    if result.success and args.job in RESULT_ASSETS:
+        key, asset_name = RESULT_ASSETS[args.job]
+        report[key] = result.output_for_node(asset_name)
     print(json.dumps(report))
     if not result.success:
         raise SystemExit(1)
