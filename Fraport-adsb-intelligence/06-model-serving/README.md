@@ -25,7 +25,8 @@ Frankfurt model contract, version pinning and rollback.
   artifact checksums in the prediction lineage.
 - **M3.** Deploy to Cloud Run through CI/CD and verify predictions against
   a fixed test set.
-- **M4.** Monitoring, a rollback exercise and a short runbook.
+- **M4.** Local Prometheus metrics and a pinned-release rollback drill.
+  [Monitoring and rollback runbook](runbook.md)
 
 ## Acceptance
 
@@ -62,6 +63,8 @@ A success response includes `airport_icao`, the UTC `prediction_at`,
 Invalid bodies return HTTP 400 with `code`, `message` and `request_id`.
 The service returns `X-Request-Id` for correlation and logs the route, status,
 latency and release ID without logging request features.
+`GET /metrics` exposes prediction request counts by status class, a latency
+histogram and the pinned model identity in Prometheus format.
 
 ## Run locally
 

@@ -17,7 +17,8 @@ from uuid import uuid4
 import numpy as np
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
+from prometheus_client import CONTENT_TYPE_LATEST, CollectorRegistry, Counter, Gauge, Histogram, generate_latest
 from pydantic import AwareDatetime, BaseModel, ConfigDict, StrictFloat, field_validator
 
 LOGGER = logging.getLogger("uvicorn.error")
@@ -122,16 +123,34 @@ def load_model(release_dir: Path, expected_digest: str) -> PinnedModel:
 
 def create_app(model: PinnedModel) -> FastAPI:
     app = FastAPI(title="EDDF Taxi-in Prediction")
+    registry = CollectorRegistry()
+    requests = Counter("eddf_prediction_requests", "Prediction requests by HTTP status class.",
+                       ["status_class"], registry=registry)
+    duration = Histogram("eddf_prediction_request_duration_seconds", "Prediction handler duration in seconds.",
+                         registry=registry)
+    Gauge("eddf_serving_model_info", "The model pinned by this process.",
+          ["model_release_id", "model_version"], registry=registry).labels(
+              model.lineage.model_release_id, str(model.lineage.model_version)).set(1)
+    for status_class in ("2xx", "4xx", "5xx"):
+        requests.labels(status_class)
 
     @app.middleware("http")
     async def record_request(request: Request, call_next):
         request.state.request_id = uuid4().hex
         start = time.perf_counter()
-        response = await call_next(request)
+        status = 500
+        try:
+            response = await call_next(request)
+            status = response.status_code
+        finally:
+            elapsed = time.perf_counter() - start
+            if request.method == "POST" and request.url.path == "/v1/predict":
+                requests.labels(f"{status // 100}xx").inc()
+                duration.observe(elapsed)
         response.headers["X-Request-Id"] = request.state.request_id
         LOGGER.info("%s", json.dumps({
             "request_id": request.state.request_id, "route": getattr(request.scope.get("route"), "path", None),
-            "status": response.status_code, "latency_ms": round((time.perf_counter() - start) * 1000, 2),
+            "status": status, "latency_ms": round(elapsed * 1000, 2),
             "model_release_id": model.lineage.model_release_id,
         }))
         return response
@@ -146,6 +165,10 @@ def create_app(model: PinnedModel) -> FastAPI:
     @app.get("/health")
     async def health():
         return {"status": "ok"}
+
+    @app.get("/metrics", include_in_schema=False)
+    async def metrics():
+        return Response(generate_latest(registry), media_type=CONTENT_TYPE_LATEST)
 
     @app.get("/v1/model", response_model=ModelLineage)
     async def model_lineage():
