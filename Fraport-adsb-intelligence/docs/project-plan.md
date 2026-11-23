@@ -194,7 +194,8 @@ pin for phase 06.
 **Status:** M1 and M2 are verified. The local container scored 14 fixed
 features from the four M5 months and matched the offline model exactly.
 The full archive HTTP replay subsequently matched all 65,981 predictions
-and reproduced MAE on 51,319 usable proxy labels.
+and reproduced MAE on 51,319 usable proxy labels. The prepared Cloud Run
+candidate image also passed a local startup and pinned-model rehearsal.
 An incorrect release pin prevented startup. The availability audit found no
 receipt-time column in 731 archive partitions. M3 awaits a measured sample
 at the feature input. M4 metrics and version rollback are verified locally.

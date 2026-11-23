@@ -159,3 +159,32 @@ The service recorded 65,981 successful requests and zero 4xx or 5xx responses.
 The **51,319** usable proxy labels reproduced the offline MAE of **171.2871 s**.
 The replay container was removed after verification.
 [Full archive evidence](evidence/archive-http-replay.json)
+
+## Prepare a Cloud Run release image
+
+`prepare_cloud_image.py` verifies the local model and manifest against a
+trusted Git manifest, then builds a Docker context containing the serving
+code and only the pinned release files. The resulting image supplies the
+manifest checksum at startup. It uses the same service and locked runtime
+as the archive replay and can start without a model volume.
+
+```bash
+release_dir=/home/bill/slh-data/full-20241101-20261031-geometry-v2/model-releases/geometry-v2-2024-11-m4/release
+out=$(mktemp -d /tmp/fraport-cloudrun.XXXXXX)
+python3 prepare_cloud_image.py --release-dir "$release_dir" \
+  --trusted-manifest ../05-taxi-in-prediction/releases/fraport-taxi-in-f3b6b1ebf360fce8.json \
+  --output "$out/context"
+docker build --platform linux/amd64 --build-arg "SOURCE_COMMIT=$(git rev-parse HEAD)" \
+  -t eddf-taxi-in-serving:cloud-candidate "$out/context"
+docker run --rm --read-only -e PORT=9090 -p 127.0.0.1:9090:9090 eddf-taxi-in-serving:cloud-candidate
+```
+
+The build context contains the model. Keep it outside Git and use a private
+registry for any eventual publish. The Cloud Run procedure is in the
+[deployment and rollback runbook](runbook.md#cloud-run-deployment-and-recovery).
+
+The Linux amd64 candidate started as UID 10001 on port 9090 in Docker with
+a read-only root, no mounts, and networking disabled. The fixed synthetic
+probe matched the version 1 prediction and lineage exactly. Overriding the
+manifest pin with a wrong digest prevented startup. The seven service and
+packaging tests also passed. [Local image evidence](evidence/cloud-run-image-rehearsal.json)
