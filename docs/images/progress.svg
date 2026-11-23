@@ -77,14 +77,14 @@
 <line x1="40" x2="840" y1="398" y2="398" stroke="#eef2f7"/>
 <rect x="40" y="416" width="6" height="34" rx="3" fill="url(#g1)"/>
 <text x="60" y="431" fill="#0f172a" font-size="15" font-weight="650">Google Cloud</text>
-<text x="60" y="450" fill="#64748b" font-size="12">G01–G05 live · G06 Alpha verified</text>
+<text x="60" y="450" fill="#64748b" font-size="12">G01–G06 live · delivery complete</text>
 <rect x="330.0" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
 <rect x="397.3" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
 <rect x="464.7" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
 <rect x="532.0" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
 <rect x="599.3" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
-<rect x="666.7" y="422" width="63.3" height="20" rx="6" fill="#0ea5e9" fill-opacity="0.35"/>
-<text x="754" y="441" fill="#2563eb" font-size="24" font-weight="700" letter-spacing="-0.5">93<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
+<rect x="666.7" y="422" width="63.3" height="20" rx="6" fill="url(#g1)"/>
+<text x="754" y="441" fill="#2563eb" font-size="24" font-weight="700" letter-spacing="-0.5">100<tspan font-size="14" font-weight="600" dx="1">%</tspan></text>
 <text x="330" y="460" fill="#94a3b8" font-size="11">6 stages</text>
 <line x1="40" x2="840" y1="472" y2="472" stroke="#eef2f7"/>
 <rect x="40" y="490" width="6" height="34" rx="3" fill="url(#g4)"/>
