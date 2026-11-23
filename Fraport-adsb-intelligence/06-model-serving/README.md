@@ -32,7 +32,9 @@ Frankfurt model contract, version pinning and rollback.
 
 ## Depends on
 
-Project 05 model artifact. Contract tests use synthetic requests.
+Project 05 model artifact and the project 04 feature contract. Validate that
+serving inputs can be produced at the same observable cutoff used for
+training. Contract tests use synthetic requests.
 
 ## Outputs
 

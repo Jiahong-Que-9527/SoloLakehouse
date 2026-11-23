@@ -60,18 +60,18 @@ Release  versioned Gold folder with manifest, contract and checks
 - **M1'.** Silver v2 for one day with tests, on the pilot-week data. The
   2026-11-19 arrival-anchored M1 outputs remain local research drafts
   (ADR-006).
-- **M2.** `gold/ground_ops`: taxi-in features and labels for the pilot
-  week, with a coverage report.
+- **M2.** `gold/ground_ops`: taxi-in proxy labels and descriptive fields for
+  the pilot week, with a coverage report. Project 04 builds predictive
+  features from local observations at the prediction cutoff.
 - **M3.** Data contract and Release Gate. Release `v001`, and a rejected
   release shown from a failing fixture. Done (2026-11-21). `v001` came from
   the 2026-07-01 gold output and `v002` from the pilot week, which closes
   the vertical slice V0 of the project plan.
-- **M4.** Full dataset. Record run ID, source window, quality results and the
-  outcome of a repeat run. The two-year Geometry v2 backfill is running
-  locally. See [the backfill status and handoff](#backfill-status-and-handoff).
-- **M5.** Container image and CI. Optional engine comparison (DuckDB, Polars,
-  Spark) on the same input. Done (2026-11-21, image builds and runs the
-  synthetic suite in CI; the optional engine comparison is not planned).
+- **M4.** Full dataset. The two-year Geometry v2 backfill verified 730
+  Silver dates and 24 monthly releases. See [the backfill handoff](#backfill-status-and-handoff)
+  and [BigQuery reconciliation](../03-airport-analytics/README.md#geometry-v2-handoff-m5).
+- **M5.** Container image and CI. Done (2026-11-21). The image builds and
+  runs the synthetic suite in CI.
 
 ## Acceptance
 

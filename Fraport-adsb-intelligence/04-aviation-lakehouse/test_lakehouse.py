@@ -4,13 +4,15 @@ import json
 import tempfile
 import unittest
 from datetime import date
+from importlib.util import find_spec
 from pathlib import Path
 from unittest.mock import Mock
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from lakehouse import GOLD_FIELDS, INPUT_SCHEMA, LocalDelta, file_digest, load_release, publish
+from lakehouse import GOLD_FIELDS, LocalDelta, publish
+from release_inputs import INPUT_SCHEMA, file_digest, load_release
 
 
 def build_release(root: Path, month: str = "2024-11") -> Path:
@@ -35,6 +37,7 @@ def build_release(root: Path, month: str = "2024-11") -> Path:
     return folder
 
 
+@unittest.skipUnless(find_spec("deltalake"), "historical Delta tests require the legacy dependency group")
 class LakehouseTests(unittest.TestCase):
     def test_replay_keeps_versions_and_gold_contains_only_labels(self):
         with tempfile.TemporaryDirectory() as directory:

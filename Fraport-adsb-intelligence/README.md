@@ -7,9 +7,10 @@ OpenSky Network state vectors. The programme starts with a reliable historical
 acquisition tool and grows through transformation, a governed data release, a
 cloud Gold layer, analytics, a taxi-in time model, serving and orchestration.
 
-The raw research data stays on the local machine. Bronze and Silver are built
-locally, and only the Gold data product crosses to Google Cloud, as a versioned
-release. Each subproject chooses the runtime that fits its workload.
+Bronze and Silver stay on the local machine. The checked Gold Parquet release
+feeds two paths. DuckDB builds point-in-time features locally for Python and
+MLflow. Approved Gold releases also go to GCS and BigQuery managed Iceberg
+for cloud analytics.
 
 **Status (2026-11-23):** acquisition gate G0 has passed. Batches b01 (2026-10)
 through b42 (2023-05) are validated, accepted and backed up to `E:`. b01
@@ -18,10 +19,12 @@ window. b25 through b36 finish the first-year cut of the five-year
 extension. The next work is batch b43 (2023-04). Details are in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-23).
 
-**Geometry v2 backfill (2026-11-22):** the original two-year window is
-being processed locally. The November 2024 BigQuery pilot waits for all
-24 monthly packages to pass verification. See the [local handoff](02-aviation-transformation/README.md#backfill-status-and-handoff)
-and the [cloud acceptance checks](03-airport-analytics/README.md#geometry-v2-handoff-m5).
+**Geometry v2 delivery (2026-11-23):** all 24 monthly packages in the
+original two-year window reconciled in BigQuery. M5 is accepted with
+433,694 candidates, 400,942 labeled rows and recorded query costs. The
+November and December 2024 ingestion replays added zero rows.
+See the [local handoff](02-aviation-transformation/README.md#backfill-status-and-handoff)
+and the [cloud acceptance record](03-airport-analytics/README.md#geometry-v2-handoff-m5).
 
 **Status (2026-11-20):** the academic research track is now separate from
 this repository. Paper-1 experiments, the exploration notebooks and the
@@ -35,16 +38,16 @@ the cloud. Silver, Gold and the cloud track remain engineering scope here.
 |---|------------|---------|-------|
 | 01 | [OpenSky Acquisition](01-opensky-acquisition/README.md) | Local | Ingestion, reliability, data manifest |
 | 02 | [Aviation Transformation](02-aviation-transformation/README.md) | Local (Python, DuckDB) | Silver, Gold, Release Gate |
-| 03 | [Airport Analytics](03-airport-analytics/README.md) | GCP (Terraform, GCS, BigQuery) | Cloud Gold, SQL, infrastructure as code |
-| 04 | [Aviation Lakehouse Integration](04-aviation-lakehouse/README.md) | **Databricks Free Edition**, Serverless and a managed volume | Spark, managed Delta tables, Unity Catalog, CLI pilot |
-| 05 | [Taxi-in Prediction](05-taxi-in-prediction/README.md) | Local + MLflow | Features, training, evaluation |
+| 03 | [Airport Analytics](03-airport-analytics/README.md) | BigQuery + GCS + Iceberg | Cloud Gold, SQL, infrastructure as code |
+| 04 | [Point-in-Time Feature Dataset](04-aviation-lakehouse/README.md) | Local DuckDB + Parquet | Feature replay, leakage checks, training manifest |
+| 05 | [Taxi-in Prediction](05-taxi-in-prediction/README.md) | Local Python + MLflow | Baseline, training, evaluation, model release |
 | 06 | [Model Serving Integration](06-model-serving/README.md) | Cloud Run | API, versioning, monitoring |
-| 07 | [Platform Orchestration](07-platform-orchestration/README.md) | GCP Workflows or Dagster | Scheduling, lineage, recovery |
+| 07 | [Platform Orchestration](07-platform-orchestration/README.md) | Local Dagster | Scheduling, lineage, recovery |
 
-Subprojects 04 and 06 are the aviation workloads on the
-[Databricks](../databricks/README.md) and [Google Cloud](../gcp/README.md)
-roadmaps. They reuse those platforms' delivery and governance practices. They
-do not duplicate a separate lakehouse or serving project.
+The [04 November 2024 feature replay](04-aviation-lakehouse/README.md#first-delivery)
+produced 8,570 predictions and 7,607 usable labels under a documented
+availability simulation. Project 05 takes the pinned training artifact for
+the chronological baseline.
 
 ## Documents
 

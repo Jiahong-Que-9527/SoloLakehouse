@@ -12,10 +12,9 @@ for testing source verification and time semantics. Finance is currently a
 set of project briefs. The self-hosted implementation is available in a
 pinned historical snapshot; a new fixture flow is a future milestone.
 
-The current branch contains implemented local OpenSky acquisition and German
-energy pipeline code, tests, recorded run evidence and a project-scoped energy
-CI workflow. Aviation transformation, GCP and Databricks integrations, and
-the other project briefs remain delivery milestones. The historical
+The aviation work includes local OpenSky acquisition, DuckDB transformation
+and validated Gold releases reconciled in BigQuery managed Iceberg. The next
+aviation delivery is the local DuckDB feature dataset. The historical
 self-hosted implementation and its evidence are available in a pinned snapshot.
 [Legacy reference snapshot](https://github.com/Jiahong-Que-9527/SoloLakehouse/tree/741e6da82cdc2cad207aa6ee707b8fb157b0174a)
 
@@ -38,13 +37,11 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
 ## Project portfolio
 
 - **Aviation.** [Fraport ADS-B Intelligence](../Fraport-adsb-intelligence/README.md)
-  collects the Frankfurt historical ADS-B record locally. Local Silver/Gold
-  transformation and a versioned Gold release are the next stages; the
-  two-year geometry-v2 Silver backfill (2024-11 → 2026-10) and its Gold
-  monthly packs are in flight as of 2026-11-22. Lakehouse
-  and serving work stay in that programme as
-  [Aviation Lakehouse Integration](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
-  and [Model Serving Integration](../Fraport-adsb-intelligence/06-model-serving/README.md).
+  collects the Frankfurt historical ADS-B record locally. The two-year
+  Geometry v2 series (2024-11 → 2026-10) reconciled all 24 Gold releases
+  in BigQuery managed Iceberg on 2026-11-23. The same local Gold releases supply
+  labels for the [DuckDB feature dataset](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
+  and local taxi-in training.
 - **European energy.** The [GCP European Energy
   Pipeline](../gcp/01-european-energy-pipeline/README.md) starts with one German
   electricity-market metric in a fixed date window. The
@@ -95,12 +92,11 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
    repeat run. Document deployment and runtime identities, failure handling
    and observed cost when a cloud environment is used.
    [Cloud Run Jobs](https://docs.cloud.google.com/run/docs/execute/jobs)
-3. **Databricks Aviation Lakehouse.** Reproduce a synthetic batch through
-   Bronze, Silver and Gold in Databricks Free Edition using a managed volume
-   and Serverless compute. Verify event identity, proxy coverage and replay.
-   Document the feature cutoff requirements for project 05 and verify the
-   CLI workflow in the Free Edition workspace.
-   [Fraport 04 plan](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md#databricks-cli-plan)
+3. **Aviation feature dataset.** Use DuckDB to replay local Parquet
+   observations at a fixed prediction cutoff, join the Geometry v2 labels,
+   and pin the training artifact by manifest hash. Verify late arrival,
+   label-match coverage and reproducibility before training the baseline.
+   [Fraport 04 plan](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md#first-delivery)
 4. **Aviation model serving.** Version the API contract and model artifact.
    Validate the synthetic request first. A later deployment milestone
    records the served model version, predictions, logs and recovery steps.

@@ -1,6 +1,6 @@
 # 07 · Platform Orchestration
 
-**Runtime:** GCP Workflows or Dagster. Decide in the first milestone.
+**Planned runtime:** local Dagster.
 
 Connect the earlier subprojects into one operable pipeline with scheduling,
 dependencies, retries, lineage and recovery. Build this last, after the
@@ -8,20 +8,19 @@ individual stages are stable.
 
 ## Scope
 
-- Compare GCP Workflows and Dagster on the real pipeline. Record the decision
-  in an ADR.
-- Model the pipeline. Local stages (acquisition, Silver, Gold, release and
-  containerized training) stay scripts and are observed and triggered. Cloud
-  stages (release detection, validation, ingestion, analytics and serving
-  release) are orchestrated. Training is not a managed cloud stage (ADR-005).
-- Detect a new release by its `_SUCCESS` file and trigger ingestion.
-- Add scheduling, retry policy, failure alerts and run history.
+- Model local release and feature builds as partitioned work. Reuse the
+  validated scripts for DuckDB features and containerized MLflow training.
+- Detect an approved Gold release by its `_SUCCESS` file and verified
+  manifest. Use its release ID to track the BigQuery Iceberg ingestion and
+  reconciliation with the existing cloud ledger.
+- Add bounded retries, failure alerts and run history. Rerun a failed month
+  from its own checkpoint.
 - Link every run to its source commit, input data version and output.
 - Write and test a recovery runbook for a failed stage.
 
 ## Milestones
 
-- **M1.** Orchestrator ADR and a dependency graph of existing stages.
+- **M1.** Dependency graph, local runtime configuration and a synthetic run.
 - **M2.** Orchestrate release detection, ingestion and analytics load end to
   end.
 - **M3.** Add feature build and training.
@@ -35,8 +34,8 @@ individual stages are stable.
 
 ## Depends on
 
-Projects 03 to 06. Projects 01 and 02 stay local tools unless continuous
-unattended ingestion becomes a requirement.
+Projects 03 to 06. The release, feature and model manifests connect the
+stages. Projects 01 and 02 supply local inputs.
 
 ## Outputs
 
