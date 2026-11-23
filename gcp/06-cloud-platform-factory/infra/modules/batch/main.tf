@@ -95,6 +95,9 @@ resource "google_cloud_run_v2_job" "smoke" {
   name     = "${local.prefix}-smoke"
   location = var.region
   labels   = local.labels
+  # The stacks are disposable (design §1 destroy rule); the job must
+  # never block a stack teardown.
+  deletion_protection = false
 
   template {
     task_count = 1
