@@ -76,6 +76,24 @@ ADR-005. Publish the prepared image to a private repository and use its
 remote `@sha256:...` reference as `IMAGE_URI`. The local image ID identifies
 the rehearsal. The registry digest identifies the artifact Cloud Run pulls.
 
+For the manual GitHub workflow, commit the reviewed aggregate audit to
+`04-aviation-lakehouse/evidence/availability-measured.json`. Configure
+`GCP_PROJECT_ID`, `GCP_WIF_PROVIDER`, `FRAPORT_ARTIFACT_REPOSITORY`,
+`FRAPORT_RUN_DEPLOY_SA`, `FRAPORT_RUN_RUNTIME_SA` and `FRAPORT_RUN_INVOKER_SA`.
+The deploy identity needs permission to deploy and act as the runtime
+identity and to mint an ID token for the invoker. Give the invoker permission
+on the service. The verification identity also needs Cloud Logging read
+access. The workflow uses WIF credentials and GitHub's `gcp-test` environment.
+The packaged runtime loads its model from the image filesystem.
+
+Supply the private Artifact Registry URI ending in
+`/eddf-taxi-in@sha256:<digest>` to the workflow. Use `initial` for the first
+private service or `candidate` for an existing service. The workflow confirms
+the mode against the current service list and uploads the verified revision,
+model lineage and request IDs as an artifact. A failed run leaves an
+unverified revision for inspection. For candidate mode, normal traffic stays
+on the existing revision while the probe runs.
+
 The initial service is private. A later revision can be prepared with
 `--no-traffic --tag candidate`, then tested through its tagged URL. Capture
 the existing serving revision before changing traffic. Use the settings
@@ -97,6 +115,22 @@ Check Cloud Run request status and latency for the revision. Use the
 application's release ID and request IDs to correlate logs and predictions.
 Record the image digest, revision, model pin and observed cloud usage.
 
+To record the authenticated check from a local operator session, run:
+
+```bash
+python3 cloud_acceptance.py --project "$PROJECT" --region "$REGION" \
+  --service "$SERVICE" --revision "$REVISION" --image "$IMAGE_URI" \
+  --invoker "$INVOKER_SERVICE_ACCOUNT" --output "$out/cloud-acceptance.json"
+```
+
+Pass `--tag candidate` to inspect a zero-traffic revision. The probe uses the
+base service URL as its token audience and sends the request to the tagged
+URL. It checks anonymous denial, exact release lineage and score, Prometheus
+identity and latency series, and both request IDs in the revision's Cloud
+Logging records. For the active endpoint it checks that the expected revision
+has 100% of the traffic. Inspect Cloud Monitoring request counts, errors and
+latency for that revision during the pilot and record those observations.
+
 For a subsequent release, move traffic to the verified revision by name.
 If the live check fails, restore the recorded previous revision and repeat
 the authenticated probe to confirm the previous lineage and score.
@@ -106,5 +140,12 @@ gcloud run services update-traffic "$SERVICE" --project "$PROJECT" --region "$RE
   --to-revisions "$PREVIOUS_REVISION=100"
 ```
 
+Run `cloud_acceptance.py` for the restored revision and its image digest,
+without `--tag`. Provide `--evidence` with the previous release's verified
+probe results if its model changed. Preserve the rollout and restoration
+records together.
+
 Cloud references: [container deployment](https://docs.cloud.google.com/run/docs/deploying)
-and [traffic migration and rollback](https://docs.cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration).
+· [token audience](https://docs.cloud.google.com/run/docs/authenticating/service-to-service)
+· [traffic migration and rollback](https://docs.cloud.google.com/run/docs/rollouts-rollbacks-traffic-migration)
+· [Cloud Run monitoring](https://docs.cloud.google.com/run/docs/monitoring).

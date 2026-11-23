@@ -188,3 +188,13 @@ a read-only root, no mounts, and networking disabled. The fixed synthetic
 probe matched the version 1 prediction and lineage exactly. Overriding the
 manifest pin with a wrong digest prevented startup. The seven service and
 packaging tests also passed. [Local image evidence](evidence/cloud-run-image-rehearsal.json)
+
+## Cloud deployment workflow
+
+The manual [Fraport Cloud Run deployment workflow](../../.github/workflows/fraport-cloud-run.yml)
+accepts an immutable Artifact Registry digest. It checks for measured
+observation availability before cloud authentication, deploys either an
+initial private service or a tagged candidate with zero service traffic,
+and captures the authenticated probe and correlated Cloud Logging records.
+See the [deployment runbook](runbook.md#cloud-run-deployment-and-recovery)
+for release identity, traffic verification and rollback.
