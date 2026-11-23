@@ -1,10 +1,14 @@
 [project]
 name = "energy-forecasting-mlops"
 version = "0.1.0"
-description = "G05: traceable model delivery for the 15-minute load forecast — pinned fixture, MW target and dataset validation"
+description = "G05: traceable model delivery for the 15-minute load forecast — fixture, target, windows, evaluation, registry and batch scoring"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "lightgbm>=4.6",
+    "mlflow>=3.0",
+    "numpy>=2.0",
+]
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6"]

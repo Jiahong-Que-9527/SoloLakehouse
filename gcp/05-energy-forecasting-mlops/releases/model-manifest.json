@@ -1,0 +1,58 @@
+{
+  "candidate": {
+    "config": {
+      "deterministic": true,
+      "force_row_wise": true,
+      "learning_rate": 0.05,
+      "min_data_in_leaf": 40,
+      "num_boost_round": 300,
+      "num_leaves": 31,
+      "num_threads": 1,
+      "objective": "regression",
+      "seed": 20261123
+    },
+    "features": [
+      "lag_1d_mw",
+      "lag_2d_mw",
+      "lag_3d_mw",
+      "lag_4d_mw",
+      "lag_5d_mw",
+      "lag_6d_mw",
+      "lag_7d_mw",
+      "hour",
+      "weekday"
+    ],
+    "library": "lightgbm",
+    "library_version": null
+  },
+  "evaluation_report_sha256": "22b53c421fe5f3ac5bf4e394a9b7350f0c283155e85cb46437d718eb9696952e",
+  "gate": {
+    "decision": "promoted",
+    "holdout_mae_mw": {
+      "baseline": 4.896972,
+      "candidate": 0.211887
+    },
+    "rule": "holdout candidate MAE <= baseline MAE"
+  },
+  "git_sha": "43c29b6ff9361daf0bb2e1c5907310d3533f3498",
+  "holdout_metrics": {
+    "baseline": {
+      "mae_mw": 4.896972,
+      "n": 672,
+      "rmse_mw": 5.656743
+    },
+    "candidate": {
+      "mae_mw": 0.211887,
+      "n": 672,
+      "rmse_mw": 0.285377
+    }
+  },
+  "input_sha256": "4d0e12e0998c288a6bda6b76bf5e077e78aec296580fbdc2581a29fc570f6271",
+  "manifest_schema_version": "g05-model-manifest-v1",
+  "mlflow_run_id": "79292c4a340147be8b3289afa64aadda",
+  "model_name": "g05_load_forecast",
+  "model_version": 2,
+  "registered_at": "2026-11-23T19:04:23.812713+00:00",
+  "release_id": "g05-fixture-v2",
+  "seed": 20261123
+}

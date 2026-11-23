@@ -20,12 +20,14 @@ AREA = "DE"
 METRIC = "actual_load_mwh"
 UNIT = "MWh"
 
-FIXTURE_RELEASE_ID = "g05-fixture-v1"
+FIXTURE_RELEASE_ID = "g05-fixture-v2"
 FIXTURE_RELEASE_STATUS = "passed"
 
 # Four aligned weeks from the G01/G04 anchor Monday: weeks 1-3 carry
 # train/validation rows, week 4 is held out, and the seven-day seasonal
-# lag exists for every interval from day 8 onward.
+# lag exists for every interval from day 8 onward. v2 re-pin: a daily
+# persistence anomaly gives the candidate a learnable signal the
+# seven-day seasonal lag cannot track (see the step-3 record).
 WEEK_START = datetime(2026, 6, 8, 0, 0, tzinfo=UTC)
 WEEKS = 4
 
@@ -34,6 +36,7 @@ MIDDAY_PEAK_MWH = 3.2
 EVENING_PEAK_MWH = 1.0
 WEEKEND_DIP_MWH = 0.9
 WIGGLE_MWH = 0.15
+DAILY_ANOMALY_MWH = 1.2
 
 
 @dataclass(frozen=True)
@@ -82,8 +85,11 @@ def interval_energy_mwh(index: int) -> float:
     evening = _triangle(phase - 76, INTERVALS_PER_DAY // 2)  # peaks 19:00 and 07:00 UTC
     weekend = WEEKEND_DIP_MWH if weekday >= 5 else 0.0
     wiggle = WIGGLE_MWH * (((index * 73) % 19) / 19 - 0.5)
+    phase = day % 14  # two-week cycle: the holdout weeks repeat train values
+    daily = DAILY_ANOMALY_MWH * (1 - 2 * abs(phase - 7) / 7)
     return round(
-        BASE_MWH + MIDDAY_PEAK_MWH * midday + EVENING_PEAK_MWH * evening - weekend + wiggle, 6
+        BASE_MWH + MIDDAY_PEAK_MWH * midday + EVENING_PEAK_MWH * evening - weekend + wiggle + daily,
+        6,
     )
 
 
@@ -101,4 +107,53 @@ def fixture_checksum(rows: list[dict] | None = None) -> str:
 
 # Recorded pin: the checksum must stay stable unless the fixture is
 # deliberately re-pinned under a new release id (design §5 replay rule).
-PINNED_SHA256 = "f4d1f4d86f74721f3147c25d6879ad73dc00ad352025f3a2ffb4fd7013dae4f8"
+# v1 → v2 re-pin (step 3): the v1 waveform's only noise was a 19-interval
+# wiggle no feature set may learn, which made the seasonal-naive baseline
+# unbeatable; v2 adds a two-week persistence anomaly the daily lags track.
+PINNED_SHA256 = "4d0e12e0998c288a6bda6b76bf5e077e78aec296580fbdc2581a29fc570f6271"
+
+LOSING_RELEASE_ID = "g05-fixture-losing-v1"
+
+
+def losing_fixture_rows() -> list[dict]:
+    """A separate fixture for the step-4 gate refusal drill.
+
+    The original v1 waveform (seven-day periodic, wiggle-only noise): the
+    seasonal-naive baseline is near-perfect here, so any underfit
+    candidate loses by a wide margin and the gate has something decisive
+    to refuse. Integer arithmetic only, byte-identical replays.
+    """
+    step = timedelta(minutes=INTERVAL_MINUTES)
+    interval_count = WEEKS * 7 * INTERVALS_PER_DAY
+    rows = []
+    for index in range(interval_count):
+        interval_start = WEEK_START + step * index
+        # the v1 waveform: periodic base + wiggle, no daily anomaly
+        phase = index % INTERVALS_PER_DAY
+        day = index // INTERVALS_PER_DAY
+        midday = _triangle(phase - 44, INTERVALS_PER_DAY)
+        evening = _triangle(phase - 76, INTERVALS_PER_DAY // 2)
+        weekend = WEEKEND_DIP_MWH if day % 7 >= 5 else 0.0
+        wiggle = WIGGLE_MWH * (((index * 73) % 19) / 19 - 0.5)
+        value = round(
+            BASE_MWH + MIDDAY_PEAK_MWH * midday + EVENING_PEAK_MWH * evening - weekend + wiggle, 6
+        )
+        rows.append(
+            {
+                "interval_start": interval_start,
+                "interval_end": interval_start + step,
+                "area": AREA,
+                "metric": METRIC,
+                "value": value,
+                "unit": UNIT,
+                "release_id": LOSING_RELEASE_ID,
+            }
+        )
+    return rows
+
+
+def losing_release() -> tuple[list[dict], Release]:
+    """The losing fixture with its release descriptor (status passed)."""
+    return losing_fixture_rows(), Release(
+        release_id=LOSING_RELEASE_ID, status=FIXTURE_RELEASE_STATUS, source="fixture"
+    )
