@@ -31,7 +31,8 @@ airport ground truth. Report label coverage and definition with every result.
   artifact provides 7,607 usable proxy labels.
 - **M2.** Historical global-median baseline on a time-ordered split. The
   November 2024 run was evaluated and logged locally in MLflow.
-- **M3.** Gradient-boosted model with experiment tracking.
+- **M3.** Histogram gradient-boosted candidate selected on the inner time
+  split and evaluated against the pinned November holdout in local MLflow.
 - **M4.** Repeat the training as a containerized job, register the model version in MLflow and publish its release manifest (ADR-005).
 - **M5.** Evaluation report with error by hour, season and traffic level.
 
@@ -85,3 +86,40 @@ The experiment uses the feature replay's five-second simulated availability
 and retrospective proxy labels. The metrics apply to the evaluated matched
 predictions. The report records input and code hashes, the split and
 metrics. Each execution records its own local MLflow run ID in `run.json`.
+
+## November 2024 boosted candidate
+
+The candidate uses the seven approved project 04 predictors. An eight-point
+grid chooses the tree size, iteration count and regularization on labeled
+predictions from November 16 through 20. The tuning fit uses earlier labels.
+Both cutoffs use the baseline's label-maturity rule. After selection the
+candidate refits on the same 5,080 labels used by the baseline, then scores
+the same 2,527 holdout labels. The selected configuration limits each tree
+to seven leaves, runs 60 iterations and uses L2 regularization of 1.0.
+
+| Holdout metric | Global median | Boosted candidate |
+|---|---:|---:|
+| MAE | 140.3 s | 129.3 s |
+| RMSE | 180.5 s | 170.2 s |
+| Median absolute error | 118.0 s | 105.0 s |
+
+The MAE improvement is 11.0 seconds (7.8%). This was measured on one
+month using proxy labels and a five-second simulated observation delay.
+Evaluate additional months and validate observation availability before
+promoting a serving candidate.
+
+```bash
+cd Fraport-adsb-intelligence/05-taxi-in-prediction
+uv sync --locked
+OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 uv run --locked python -m unittest -v
+run_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+features="$run_root/features/features-2024-11-947edc9a58661dcd"
+baseline="$run_root/baselines/geometry-v2-2024-11-median"
+out=$(mktemp -d /tmp/fraport-candidate.XXXXXX)
+OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 uv run --locked python boosted_candidate.py \
+  --features "$features" --baseline-report "$baseline/first/baseline-report.json" \
+  --validation-from 2024-11-16 --output "$out/first"
+```
+
+The local output includes `model.pkl`, the model's feature order and SHA-256,
+the full search, the baseline comparison and the MLflow run ID.
