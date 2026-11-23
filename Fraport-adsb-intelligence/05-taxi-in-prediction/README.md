@@ -37,7 +37,8 @@ airport ground truth. Report label coverage and definition with every result.
 - **M4.** Offline Docker replay verified the model and both reports byte for
   byte. The candidate is registered in local MLflow and recorded in the
   [release manifest](releases/fraport-taxi-in-f3b6b1ebf360fce8.json).
-- **M5.** Evaluation report with error by hour, season and traffic level.
+- **M5.** Completed the frozen evaluation across four held-out months and
+  recorded [error and label coverage by season, local hour and traffic level](reports/seasonal-evaluation.md).
 
 ## Acceptance
 
@@ -212,3 +213,42 @@ values and that the candidate improves MAE on both scored windows. It then
 checks that the version can be loaded from MLflow and emits `manifest.json`
 alongside the pinned model. Repeating registration with the same evidence in
 the same local registry reuses the version.
+
+## Cross-season evaluation
+
+MLflow candidate version 1 and the frozen 299-second median both scored
+65,981 replayed predictions, of which 51,319 had usable proxy labels (77.8%).
+Pooled MAE fell from 180.2 to 171.3 seconds (4.9%). The candidate improved in
+all four sampled months. It lost by 0.6 seconds during the 11:00 local hour
+(3,398 usable labels) and lost at 01:00 (one usable label). At 30 or more arrival
+triggers in the prior hour, it improved MAE by 5.0 seconds with 75.5% label coverage.
+April had the lowest monthly coverage (67.9%). The simulation and proxy labels
+remain limitations when deciding what to serve.
+
+The [report](reports/seasonal-evaluation.md) contains all slices. The
+[JSON evidence](reports/seasonal-evaluation.json) pins the release, baseline,
+each input manifest and Parquet checksum, and the scoring code and dependency lock.
+
+From this directory, rebuild the three later feature datasets with the phase 04
+replayer and score them together with the pinned December dataset.
+
+```bash
+set -euo pipefail
+run_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+out=$(mktemp -d /tmp/fraport-seasonal.XXXXXX)
+for month in 2025-04 2025-07 2025-10; do
+  (
+    cd ../04-aviation-lakehouse
+    uv run --locked python feature_replay.py --silver-root "$run_root/silver" \
+      --label-release "$run_root/releases-geometry-v2/geometry-v2-$month" \
+      --output "$out/$month" --simulated-delay-seconds 5
+  )
+done
+OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 uv run --locked python seasonal_evaluation.py \
+  --release-manifest releases/fraport-taxi-in-f3b6b1ebf360fce8.json \
+  --model "$run_root/model-releases/geometry-v2-2024-11-m4/release/model.pkl" \
+  --training-features "$run_root/features/features-2024-11-947edc9a58661dcd" \
+  --baseline-report "$run_root/baselines/geometry-v2-2024-11-median/first/baseline-report.json" \
+  --evaluation-features "$run_root/features/features-2024-12-cc0d68f941eb2b79" \
+    "$out/2025-04" "$out/2025-07" "$out/2025-10" --output "$out/evaluation"
+```
