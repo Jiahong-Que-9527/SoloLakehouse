@@ -218,9 +218,13 @@ receipts with zero duplicate keys and zero new rows on replay. Dagster then
 verified the existing 2024-12 release against the live BigQuery ledger and
 table twice. Both checks returned zero additions. The phase 03 operator
 workflow continues to handle first-time cloud ingestion.
+M3 reproduced the November and December feature manifests and all three
+M4 model artifacts in Dagster. The training rerun recovered independently
+after a Docker startup failure, and a repeat reused the verified outputs.
 [M1 run evidence](../07-platform-orchestration/README.md#m1-verification) ·
 [M2 local evidence](../07-platform-orchestration/README.md#m2-release-detection-and-local-analytics) ·
-[M2 BigQuery evidence](../07-platform-orchestration/README.md#m2-read-only-bigquery-reconciliation)
+[M2 BigQuery evidence](../07-platform-orchestration/README.md#m2-read-only-bigquery-reconciliation) ·
+[M3 run evidence](../07-platform-orchestration/README.md#m3-verification)
 
 ## Programme acceptance
 

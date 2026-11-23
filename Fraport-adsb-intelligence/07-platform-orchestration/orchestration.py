@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 
 from dagster import (
+    AssetDep,
     AssetExecutionContext,
     DagsterInstance,
     Definitions,
@@ -21,6 +22,7 @@ from dagster import (
     RetryPolicy,
     RunRequest,
     SkipReason,
+    TimeWindowPartitionMapping,
     asset,
     define_asset_job,
     in_process_executor,
@@ -29,6 +31,7 @@ from dagster import (
 
 from cloud_analytics import reconcile_existing_release
 from local_analytics import PHASE_03, ingest_local, phase03
+from model_pipeline import features_for, replay_model
 
 HERE = Path(__file__).resolve().parent
 VERIFIER_PATH = HERE.parent / "04-aviation-lakehouse" / "release_inputs.py"
@@ -147,6 +150,37 @@ def bigquery_reconciliation(context: AssetExecutionContext) -> dict:
     return result
 
 
+def monthly_feature_artifact(month: str, *, build: bool) -> dict:
+    directory, handoff, _ = verified_handoff(month)
+    verdict = phase03.verify_release(directory)
+    if not verdict.ok:
+        raise Failure(f"cannot build features from an unverified release: {verdict.reason}", allow_retries=False)
+    return features_for(Path(os.environ["FRAPORT_SILVER_ROOT"]), Path(os.environ["FRAPORT_STATE_DIR"]),
+                        directory, handoff, build=build)
+
+
+@asset(partitions_def=MONTHS, deps=[local_handoff], description="Build or reuse phase 04 point-in-time features.")
+def monthly_features(context: AssetExecutionContext) -> dict:
+    result = monthly_feature_artifact(context.partition_key, build=True)
+    context.add_output_metadata(result)
+    return result
+
+
+@asset(partitions_def=MONTHS, deps=[AssetDep(monthly_features, partition_mapping=TimeWindowPartitionMapping(end_offset=1))],
+       description="Replay the pinned November candidate and December holdout in the M4 image.")
+def container_training(context: AssetExecutionContext) -> dict:
+    if context.partition_key != "2024-11":
+        raise Failure("the pinned M4 replay uses the 2024-11 training partition", allow_retries=False)
+    training = monthly_feature_artifact("2024-11", build=False)
+    evaluation = monthly_feature_artifact("2024-12", build=False)
+    result = replay_model(Path(os.environ["FRAPORT_STATE_DIR"]), training, evaluation,
+                          Path(os.environ["FRAPORT_BASELINE_REPORT"]), os.environ.get("FRAPORT_DOCKER", "docker"))
+    context.add_output_metadata({"model_release_id": result["model_release_id"], "image_id": result["image_id"],
+                                 "directory": result["directory"], "reused": result["reused"],
+                                 "source_commit": source_commit()})
+    return result
+
+
 analytics_job = define_asset_job("ingest_month_local", selection=[approved_gold, local_handoff, local_analytics],
                                  executor_def=in_process_executor)
 
@@ -172,13 +206,16 @@ def geometry_release_ready():
 
 
 defs = Definitions(
-    assets=[approved_gold, local_handoff, local_analytics, bigquery_reconciliation],
+    assets=[approved_gold, local_handoff, local_analytics, bigquery_reconciliation, monthly_features, container_training],
     jobs=[
         define_asset_job("verify_month", selection=[approved_gold, local_handoff], executor_def=in_process_executor),
         define_asset_job("resume_local_handoff", selection=[local_handoff], executor_def=in_process_executor),
         analytics_job,
         define_asset_job("resume_local_analytics", selection=[local_analytics], executor_def=in_process_executor),
         define_asset_job("reconcile_month_bigquery", selection=[bigquery_reconciliation], executor_def=in_process_executor),
+        define_asset_job("build_month_features", selection=[approved_gold, local_handoff, monthly_features], executor_def=in_process_executor),
+        define_asset_job("resume_month_features", selection=[monthly_features], executor_def=in_process_executor),
+        define_asset_job("replay_model_month", selection=[container_training], executor_def=in_process_executor),
     ],
     sensors=[geometry_release_ready],
     resources={"io_manager": FilesystemIOManager(base_dir=EnvVar("FRAPORT_STATE_DIR"))},
@@ -188,7 +225,8 @@ defs = Definitions(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("job", choices=("verify_month", "resume_local_handoff", "ingest_month_local",
-                                        "resume_local_analytics", "reconcile_month_bigquery"))
+                                        "resume_local_analytics", "reconcile_month_bigquery", "build_month_features",
+                                        "resume_month_features", "replay_model_month"))
     parser.add_argument("month", help="UTC partition, YYYY-MM")
     args = parser.parse_args()
     for setting in ("DAGSTER_HOME", "FRAPORT_RELEASES_DIR", "FRAPORT_STATE_DIR"):
@@ -196,6 +234,10 @@ def main() -> None:
             parser.error(f"set {setting} before running the local job")
     if args.job == "reconcile_month_bigquery" and not os.environ.get("FRAPORT_BQ_PROJECT"):
         parser.error("set FRAPORT_BQ_PROJECT before reconciling BigQuery")
+    if args.job in ("build_month_features", "resume_month_features", "replay_model_month") and not os.environ.get("FRAPORT_SILVER_ROOT"):
+        parser.error("set FRAPORT_SILVER_ROOT before building features or replaying training")
+    if args.job == "replay_model_month" and not os.environ.get("FRAPORT_BASELINE_REPORT"):
+        parser.error("set FRAPORT_BASELINE_REPORT before replaying training")
     if not MONTHS.has_partition_key(args.month):
         parser.error(f"unknown completed UTC month partition: {args.month}")
     with DagsterInstance.get() as instance:
@@ -207,6 +249,10 @@ def main() -> None:
         report["analytics"] = result.output_for_node("local_analytics")
     if result.success and args.job == "reconcile_month_bigquery":
         report["analytics"] = result.output_for_node("bigquery_reconciliation")
+    if result.success and args.job in ("build_month_features", "resume_month_features"):
+        report["features"] = result.output_for_node("monthly_features")
+    if result.success and args.job == "replay_model_month":
+        report["training"] = result.output_for_node("container_training")
     print(json.dumps(report))
     if not result.success:
         raise SystemExit(1)
