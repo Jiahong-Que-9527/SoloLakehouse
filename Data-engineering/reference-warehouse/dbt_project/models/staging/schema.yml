@@ -16,9 +16,11 @@ models:
     - name: stg_charging_sessions
       description: "Session events, 1:1 with raw minus byte-identical duplicates (contract §3.2)."
       data_tests:
-          - unique:
+          - dbt_utils.unique_combination_of_columns:
               arguments:
-                  column_name: "session_id || '|' || cast(event_seq as varchar)"
+                combination_of_columns:
+                    - session_id
+                    - event_seq
       columns:
           - name: session_id
             data_tests: [not_null]
@@ -80,9 +82,11 @@ models:
     - name: stg_ecb_fx
       description: "ECB daily reference rates; grain (currency_pair, observation_date)."
       data_tests:
-          - unique:
+          - dbt_utils.unique_combination_of_columns:
               arguments:
-                  column_name: "currency_pair || '|' || cast(observation_date as varchar)"
+                combination_of_columns:
+                    - currency_pair
+                    - observation_date
       columns:
           - name: currency_pair
             data_tests:
@@ -108,9 +112,11 @@ models:
     - name: stg_tariff_plans
       description: "Tariff snapshots; grain (tariff_id, snapshot_date)."
       data_tests:
-          - unique:
+          - dbt_utils.unique_combination_of_columns:
               arguments:
-                  column_name: "tariff_id || '|' || cast(snapshot_date as varchar)"
+                combination_of_columns:
+                    - tariff_id
+                    - snapshot_date
       columns:
           - name: tariff_id
             data_tests: [not_null]

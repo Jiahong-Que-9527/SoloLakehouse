@@ -8,24 +8,30 @@ models:
               enforced: true
       columns:
           - name: date_day
+            description: "Civil date of the Europe/Berlin market calendar."
             data_type: date
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, unique]
           - name: year_num
+            description: "Calendar year of date_day."
             data_type: bigint
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: month_num
+            description: "Calendar month of date_day (1-12)."
             data_type: bigint
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: day_of_week
+            description: "ISO weekday, 1 = Monday .. 7 = Sunday."
             data_type: bigint
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: is_weekend
+            description: "True for Saturday/Sunday."
             data_type: boolean
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: is_de_holiday
+            description: "True for German nationwide + Hessen public holidays (frozen list, see acceptance evidence)."
             data_type: boolean
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
 
     - name: dim_stations
       description: "Current-state stations: view over dim_stations_scd2 filtered to dbt_valid_to is null (contract §2). station_sk = dbt_scd_id."
@@ -34,33 +40,43 @@ models:
               enforced: true
       columns:
           - name: station_sk
+            description: "Snapshot surrogate key (dbt_scd_id) identifying the SCD2 version."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, unique]
           - name: station_id
+            description: "Natural BNetzA station key."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, unique]
           - name: operator_name
+            description: "Charge point operator valid in this SCD2 version."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: city
+            description: "Municipality (Ort)."
             data_type: varchar
           - name: federal_state
+            description: "German federal state (Bundesland)."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: postal_code
+            description: "German 5-digit postal code (PLZ)."
             data_type: varchar
           - name: nominal_power_kw
+            description: "Total installed power in kW for this SCD2 version."
             data_type: decimal(10, 2)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: connector_count
+            description: "Number of charge points."
             data_type: integer
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: dbt_valid_from
+            description: "SCD2 validity start (raw snapshot date)."
             data_type: date
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: dbt_valid_to
+            description: "SCD2 validity end (null = current version)."
             data_type: date
 
     - name: dim_tariffs
@@ -70,26 +86,33 @@ models:
               enforced: true
       columns:
           - name: tariff_sk
+            description: "Snapshot surrogate key (dbt_scd_id) identifying the SCD2 version."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, unique]
           - name: tariff_id
+            description: "Natural tariff key."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, unique]
           - name: plan_tier
+            description: "Tariff tier: standard, fast_dc or fleet."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: price_per_kwh_eur
+            description: "Retail energy price in EUR/kWh for this SCD2 version."
             data_type: decimal(10, 4)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: roaming_surcharge_eur
+            description: "Fixed roaming surcharge in EUR (list price, see contract §1.5)."
             data_type: decimal(10, 2)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: dbt_valid_from
+            description: "SCD2 validity start (raw snapshot date)."
             data_type: date
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: dbt_valid_to
+            description: "SCD2 validity end (null = current version)."
             data_type: date
 
     - name: fct_charging_sessions
@@ -99,12 +122,14 @@ models:
               enforced: true
       columns:
           - name: session_id
+            description: "Natural session key."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, unique]
           - name: station_sk
+            description: "SCD2 station version valid at session_started_at (point-in-time, §3.6)."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests:
                 - not_null
                 - relationships:
@@ -112,8 +137,9 @@ models:
                         to: ref('dim_stations_scd2')
                         field: dbt_scd_id
           - name: tariff_sk
+            description: "SCD2 tariff version valid at session_started_at (point-in-time, §3.6)."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests:
                 - not_null
                 - relationships:
@@ -121,59 +147,72 @@ models:
                         to: ref('dim_tariffs_scd2')
                         field: dbt_scd_id
           - name: revenue_date
+            description: "Civil date of session_started_at in Europe/Berlin (§3.4)."
             data_type: date
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: country_code
+            description: "Billing market: DE, CH or PL."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: currency_code
+            description: "Billing currency: EUR, CHF or PLN."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: fx_rate_to_eur
+            description: "ECB rate in force at revenue_date (foreign units per 1 EUR)."
             data_type: decimal(12, 6)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
           - name: fx_rate_status
+            description: "observed (rate on revenue_date) or carried_forward (latest earlier)."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests:
                 - accepted_values:
                     arguments:
                         values: ['observed', 'carried_forward']
           - name: energy_kwh
+            description: "Delivered energy; a physical measurement, never negative (§1.4)."
             data_type: decimal(12, 4)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, non_negative]
           - name: gross_amount_eur
+            description: "Session energy/time charge in EUR (signed; refunds negative)."
             data_type: decimal(18, 2)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, non_negative_unless_refund]
           - name: roaming_fee_eur
+            description: "Billed roaming fee in EUR (0.00 for sessions without a settlement row)."
             data_type: decimal(18, 2)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, non_negative_unless_refund]
           - name: net_amount_eur
+            description: "gross_amount_eur + roaming_fee_eur (both components signed)."
             data_type: decimal(18, 2)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null, non_negative_unless_refund]
           - name: wholesale_cost_eur
+            description: "SMARD slot cost with the event's sign (§2/§3.8); negative for refunds and negative-price hours."
             data_type: decimal(18, 2)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null]
           - name: gross_margin_eur
+            description: "net_amount_eur - wholesale_cost_eur."
             data_type: decimal(18, 2)
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests: [not_null]
           - name: event_type
+            description: "charge, late_adjustment or refund."
             data_type: varchar
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
             data_tests:
                 - not_null
                 - accepted_values:
                     arguments:
                         values: ['charge', 'late_adjustment', 'refund']
           - name: settled_at
+            description: "UTC settlement availability time of the latest event."
             data_type: timestamp
-            constraints: [{type: not_null}]
+            constraints: [{type: not_null, warn_unsupported: false}]
 
     - name: fct_daily_revenue
       description: "Daily revenue, grain (revenue_date, country_code, operator_name). v2 (latest) adds wholesale_cost_eur and gross_margin_eur as a non-breaking additive change (contract §2)."
@@ -185,79 +224,111 @@ models:
           - v: 1
             defined_in: fct_daily_revenue_v1
             deprecation_date: 2027-02-28
+            data_tests:
+                - dbt_utils.unique_combination_of_columns:
+                    arguments:
+                        combination_of_columns:
+                            - revenue_date
+                            - country_code
+                            - operator_name
             columns:
                 - name: revenue_date
+                  description: "Berlin civil date of the sessions in this bucket."
                   data_type: date
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests: [not_null]
                 - name: country_code
+                  description: "Billing market of the sessions."
                   data_type: varchar
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests:
                       - not_null
                       - accepted_values:
                           arguments:
                               values: ['DE', 'CH', 'PL']
                 - name: operator_name
+                  description: "Operator resolved point-in-time via dim_stations_scd2 (§2)."
                   data_type: varchar
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests: [not_null]
                 - name: session_count
+                  description: "Number of sessions in the bucket."
                   data_type: bigint
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests: [not_null]
                 - name: total_energy_kwh
+                  description: "Summed delivered energy (kWh)."
                   data_type: decimal(18, 4)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: gross_amount_eur
+                  description: "Summed gross revenue (EUR)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: roaming_fee_eur
+                  description: "Summed roaming fees (EUR)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: net_amount_eur
+                  description: "Summed net revenue (EUR)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
           - v: 2
+            data_tests:
+                - dbt_utils.unique_combination_of_columns:
+                    arguments:
+                        combination_of_columns:
+                            - revenue_date
+                            - country_code
+                            - operator_name
             columns:
                 - name: revenue_date
+                  description: "Berlin civil date of the sessions in this bucket."
                   data_type: date
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests: [not_null]
                 - name: country_code
+                  description: "Billing market of the sessions."
                   data_type: varchar
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests:
                       - not_null
                       - accepted_values:
                           arguments:
                               values: ['DE', 'CH', 'PL']
                 - name: operator_name
+                  description: "Operator resolved point-in-time via dim_stations_scd2 (§2)."
                   data_type: varchar
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests: [not_null]
                 - name: session_count
+                  description: "Number of sessions in the bucket."
                   data_type: bigint
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                   data_tests: [not_null]
                 - name: total_energy_kwh
+                  description: "Summed delivered energy (kWh)."
                   data_type: decimal(18, 4)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: gross_amount_eur
+                  description: "Summed gross revenue (EUR)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: roaming_fee_eur
+                  description: "Summed roaming fees (EUR)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: net_amount_eur
+                  description: "Summed net revenue (EUR)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: wholesale_cost_eur
+                  description: "Summed wholesale cost (EUR, event-signed)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
                 - name: gross_margin_eur
+                  description: "Summed gross margin (EUR)."
                   data_type: decimal(18, 2)
-                  constraints: [{type: not_null}]
+                  constraints: [{type: not_null, warn_unsupported: false}]
 
 unit_tests:
     - name: fct_charging_sessions_golden_refund_signs
