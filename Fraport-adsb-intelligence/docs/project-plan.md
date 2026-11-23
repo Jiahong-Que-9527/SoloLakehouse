@@ -195,8 +195,10 @@ pin for phase 06.
 features from the four M5 months and matched the offline model exactly.
 An incorrect release pin prevented startup. The availability audit found no
 receipt-time column in 731 archive partitions. M3 awaits a measured sample
-at the feature input, and M4 remains open for monitoring and rollback.
-[Local serving evidence](../06-model-serving/README.md#m1m2-verification)
+at the feature input. M4 metrics and version rollback are verified locally.
+Cloud monitoring and revision rollback remain to be exercised after M3.
+[Local serving evidence](../06-model-serving/README.md#m1m2-verification) ·
+[M4 runbook and local drill](../06-model-serving/runbook.md#local-verification)
 
 ## Phase 7: 07 Platform Orchestration
 
