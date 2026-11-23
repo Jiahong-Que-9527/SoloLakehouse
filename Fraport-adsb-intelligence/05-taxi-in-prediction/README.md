@@ -27,8 +27,10 @@ airport ground truth. Report label coverage and definition with every result.
 
 ## Milestones
 
-- **M1.** Label definition and coverage report.
-- **M2.** Baselines on a time-ordered split, run locally.
+- **M1.** Label definition and coverage report. The November 2024 feature
+  artifact provides 7,607 usable proxy labels.
+- **M2.** Historical global-median baseline on a time-ordered split. The
+  November 2024 run was evaluated and logged locally in MLflow.
 - **M3.** Gradient-boosted model with experiment tracking.
 - **M4.** Repeat the training as a containerized job, register the model version in MLflow and publish its release manifest (ADR-005).
 - **M5.** Evaluation report with error by hour, season and traffic level.
@@ -36,7 +38,7 @@ airport ground truth. Report label coverage and definition with every result.
 ## Acceptance
 
 - Training is reproducible from the label release ID, label and training
-  manifest hashes, source commit and recorded split dates.
+  manifest hashes, source and dependency lock hashes, and recorded split dates.
 - The feature manifest gives the prediction cutoff, timestamp provenance and
   passed leakage checks for the rows used in training.
 - The model beats the baseline on the held-out period, or the report says it
@@ -52,3 +54,34 @@ baseline results in MLflow.
 ## Outputs
 
 A versioned model artifact and an evaluation report, used by project 06.
+
+## November 2024 baseline
+
+Use `prediction_at` in UTC. Fit one constant median on predictions before
+2024-11-21, and score the predictions from that cutoff onward. Training
+uses only `matched_labeled` targets and excludes a training label if the
+latest possible taxi end could fall at or after the holdout start. That
+bound uses the 90-second matching window and the 2,700-second label limit.
+The holdout coverage denominator includes every prediction in the holdout.
+
+```bash
+cd Fraport-adsb-intelligence/05-taxi-in-prediction
+uv sync --locked
+uv run --locked python -m unittest -v
+run_root=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+features="$run_root/features/features-2024-11-947edc9a58661dcd"
+out=$(mktemp -d /tmp/fraport-baseline.XXXXXX)
+uv run --locked python median_baseline.py --features "$features" \
+  --holdout-from 2024-11-21 --output "$out/first"
+uv run --locked python median_baseline.py --features "$features" \
+  --holdout-from 2024-11-21 --output "$out/replay"
+cmp "$out/first/baseline-report.json" "$out/replay/baseline-report.json"
+```
+
+The median was **299 seconds**, fitted on **5,080** labels. The holdout had
+**2,527** usable labels out of **2,870** predictions (88.0%). MAE was **140.3
+seconds**, RMSE **180.5 seconds** and median absolute error **118 seconds**.
+The experiment uses the feature replay's five-second simulated availability
+and retrospective proxy labels. The metrics apply to the evaluated matched
+predictions. The report records input and code hashes, the split and
+metrics. Each execution records its own local MLflow run ID in `run.json`.
