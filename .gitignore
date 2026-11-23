@@ -97,3 +97,6 @@ Thumbs.db
 
 # Local agent CLI state
 .zcode/
+
+# dbt local artifacts
+Data-engineering/reference-warehouse/dbt_project/.user.yml
