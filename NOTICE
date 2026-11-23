@@ -1,0 +1,46 @@
+SoloLakehouse
+Copyright 2026 Jiahong Que
+
+The code and documentation in this repository are licensed under the
+Apache License, Version 2.0 (see LICENSE).
+
+Third-party data
+----------------
+Some projects include small slices of public datasets as test fixtures or
+samples. These files are NOT covered by the Apache License; they remain under
+their providers' terms. Changes such as filtering, slicing, unit or time-zone
+conversion are documented next to each file (manifest.json or README).
+
+- Bundesnetzagentur, Ladesäulenregister (public EV charging station register)
+  Data-engineering/reference-warehouse/fixtures/bnetza_hesse_slice.csv
+  Licence: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+  Source: Bundesnetzagentur
+
+- Bundesnetzagentur | SMARD.de market data (wholesale prices, actual total load)
+  Data-engineering/reference-warehouse/fixtures/smard_prices_slice.csv
+    (retrieved via the Fraunhofer ISE energy-charts API)
+  gcp/01-european-energy-pipeline/src/energy_pipeline/data/*.csv
+  Licence: CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+  Source: Bundesnetzagentur | SMARD.de
+
+- European Central Bank, ECB Data Portal (euro reference exchange rates,
+  key interest rates)
+  Data-engineering/reference-warehouse/fixtures/ecb_fx_slice.csv
+  databricks/01-ecb-delta-lakehouse/fixtures/ecb_*.csv
+  Terms: ECB Data Portal terms of use; source: European Central Bank
+
+- OpenSky Network (ADS-B state vectors)
+  Raw OpenSky data is not stored in this repository. Summary statistics and
+  evidence files in Fraport-adsb-intelligence/ are derived from OpenSky data
+  and remain subject to the OpenSky Network terms of use; they are not
+  relicensed under the Apache License.
+
+Other fixtures (for example in Devops-engineering/ and Mlops-engineering/)
+are synthetic.
+
+Trademarks
+----------
+SoloLakehouse is an independent personal project. It is not affiliated with,
+endorsed by or sponsored by Fraport AG, DFS Deutsche Flugsicherung, the
+OpenSky Network, Bundesnetzagentur or the European Central Bank. Names are
+used only to describe the data sources and locations involved.

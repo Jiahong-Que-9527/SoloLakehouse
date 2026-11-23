@@ -48,3 +48,7 @@ uv sync --locked && uv run --locked pytest
 Raw datasets, credentials and runtime state stay outside Git; the repository holds code, contracts, designs and evidence summaries.
 
 [Engineering roadmap](docs/roadmap.md) · [Aviation plan](Fraport-adsb-intelligence/docs/project-plan.md) · [Project template](project-template/README.md)
+
+## License
+
+Code and documentation are licensed under the [Apache License 2.0](LICENSE). Public data slices used as fixtures (Bundesnetzagentur, SMARD, ECB) stay under their providers' terms, and OpenSky-derived summaries remain subject to the OpenSky Network terms; see [NOTICE](NOTICE). SoloLakehouse is an independent project, not affiliated with Fraport AG or DFS.
