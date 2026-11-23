@@ -1,0 +1,35 @@
+name: data-engineering
+
+on:
+    pull_request:
+        paths:
+            - "Data-engineering/reference-warehouse/**"
+            - ".github/workflows/data-engineering.yml"
+    push:
+        branches: [main]
+        paths:
+            - "Data-engineering/reference-warehouse/**"
+            - ".github/workflows/data-engineering.yml"
+
+jobs:
+    duckdb-ci:
+        name: dbt build (duckdb, offline fixtures)
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: Data-engineering/reference-warehouse
+        steps:
+            - uses: actions/checkout@v4
+            - uses: astral-sh/setup-uv@v6
+              with:
+                  python-version: "3.12"
+            - name: Sync locked dependencies
+              run: uv sync --locked --python 3.12
+            - name: Ruff lint + format
+              run: |
+                  uv run --locked ruff check .
+                  uv run --locked ruff format --check .
+            - name: SQLFluff lint (dbt templater, duckdb dialect)
+              run: uv run --locked sqlfluff lint dbt_project/models
+            - name: Ingest fixtures + dbt source freshness + dbt build + pytest
+              run: uv run --locked pytest -q

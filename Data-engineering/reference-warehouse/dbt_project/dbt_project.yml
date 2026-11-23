@@ -1,0 +1,26 @@
+name: charging_commerce
+version: 0.1.0
+config-version: 2
+profile: charging_commerce
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+target-path: target
+clean-targets:
+    - target
+    - dbt_packages
+
+models:
+    charging_commerce:
+        +persist_docs:
+            relation: true
+            columns: true
+        staging:
+            +materialized: view
+            +schema: stg
+        intermediate:
+            +materialized: view
+            +schema: int
+        marts:
+            +materialized: table
+            +schema: mart

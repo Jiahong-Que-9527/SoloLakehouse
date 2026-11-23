@@ -1,0 +1,109 @@
+version: 2
+
+models:
+    - name: stg_bnetza_stations
+      description: "BNetzA station snapshots, light-typed; grain (station_id, snapshot_date)."
+      columns:
+          - name: station_id
+            tests: [not_null]
+          - name: snapshot_date
+            tests: [not_null]
+          - name: operator_name
+            tests: [not_null]
+          - name: nominal_power_kw
+            tests: [not_null]
+
+    - name: stg_charging_sessions
+      description: "Session events, 1:1 with raw minus byte-identical duplicates (contract §3.2)."
+      tests:
+          - unique:
+              column_name: "session_id || '|' || cast(event_seq as varchar)"
+      columns:
+          - name: session_id
+            tests: [not_null]
+          - name: event_seq
+            tests: [not_null]
+          - name: station_id
+            tests:
+                - not_null
+                - relationships:
+                    to: ref('stg_bnetza_stations')
+                    field: station_id
+          - name: tariff_id
+            tests:
+                - not_null
+                - relationships:
+                    to: ref('stg_tariff_plans')
+                    field: tariff_id
+          - name: country_code
+            tests:
+                - not_null
+                - accepted_values: {values: ['DE', 'CH', 'PL']}
+          - name: currency_code
+            tests:
+                - not_null
+                - accepted_values: {values: ['EUR', 'CHF', 'PLN']}
+          - name: event_type
+            tests:
+                - not_null
+                - accepted_values: {values: ['charge', 'late_adjustment', 'refund']}
+          - name: energy_kwh
+            tests: [not_null]
+          - name: gross_amount_local
+            tests: [not_null]
+
+    - name: stg_smard_prices
+      description: "SMARD DE-LU day-ahead prices; grain (timestamp_utc, market_zone)."
+      columns:
+          - name: timestamp_utc
+            tests: [not_null]
+          - name: market_zone
+            tests:
+                - not_null
+                - accepted_values: {values: ['DE-LU']}
+          - name: wholesale_eur_mwh
+            tests: [not_null]
+
+    - name: stg_ecb_fx
+      description: "ECB daily reference rates; grain (currency_pair, observation_date)."
+      tests:
+          - unique:
+              column_name: "currency_pair || '|' || cast(observation_date as varchar)"
+      columns:
+          - name: currency_pair
+            tests:
+                - not_null
+                - accepted_values: {values: ['EUR/CHF', 'EUR/PLN', 'EUR/USD']}
+          - name: observation_date
+            tests: [not_null]
+          - name: rate
+            tests: [not_null]
+
+    - name: stg_roaming_settlements
+      description: "Roaming clearing records; grain (settlement_id)."
+      columns:
+          - name: settlement_id
+            tests: [not_null, unique]
+          - name: session_id
+            tests:
+                - not_null
+                - relationships:
+                    to: ref('stg_charging_sessions')
+                    field: session_id
+          - name: roaming_fee_local
+            tests: [not_null]
+
+    - name: stg_tariff_plans
+      description: "Tariff snapshots; grain (tariff_id, snapshot_date)."
+      tests:
+          - unique:
+              column_name: "tariff_id || '|' || cast(snapshot_date as varchar)"
+      columns:
+          - name: tariff_id
+            tests: [not_null]
+          - name: snapshot_date
+            tests: [not_null]
+          - name: plan_tier
+            tests:
+                - not_null
+                - accepted_values: {values: ['standard', 'fast_dc', 'fleet']}

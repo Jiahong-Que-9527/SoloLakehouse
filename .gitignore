@@ -82,8 +82,13 @@ chatgpt-consulting*.md
 /Fraport-adsb-intelligence/**/trajectory_overlays_*.png
 
 # Data-engineering local runtime state (raw DuckDB, generated payloads, checkpoints,
-# live-refresh downloads). Locked fixtures under reference-warehouse/fixtures/ stay in Git.
-Data-engineering/reference-warehouse/data/
+# live-refresh downloads). Locked fixtures under reference-warehouse/fixtures/ stay in Git;
+# data/ itself stays in Git only for the .gitkeep that gives sqlfluff's dbt-templater
+# connection a parent directory in fresh checkouts.
+Data-engineering/reference-warehouse/data/*
+!Data-engineering/reference-warehouse/data/.gitkeep
+Data-engineering/reference-warehouse/dbt_project/target/
+Data-engineering/reference-warehouse/dbt_project/dbt_packages/
 !Data-engineering/reference-warehouse/fixtures/*.csv
 
 # OS
