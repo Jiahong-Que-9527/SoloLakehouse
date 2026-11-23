@@ -49,7 +49,10 @@ produced 8,570 predictions and 7,607 usable labels under a documented
 availability simulation. Project 05's boosted candidate reduced November
 holdout MAE from 140.3 to 129.3 seconds. The frozen model also reduced
 [December MAE](05-taxi-in-prediction/README.md#december-2024-independent-evaluation)
-from 148.6 to 137.5 seconds on 7,182 usable labels.
+from 148.6 to 137.5 seconds on 7,182 usable labels. An offline Docker replay
+reproduced the model and both reports byte for byte. The
+[local candidate release](05-taxi-in-prediction/README.md#local-candidate-release)
+records MLflow version 1 and the checksums.
 
 ## Documents
 
