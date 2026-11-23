@@ -10,7 +10,7 @@ Harden the E02 star schema with a four-layer dbt quality gate: built-in & custom
 |---|---|
 | Test pyramid | Generic (`unique`/`not_null`/`relationships`/`accepted_values`) + custom generic + singular conservation + native `unit_tests` |
 | Revenue conservation | Singular test `assert_revenue_conservation.sql` (`ABS(raw_net - mart_net) == 0.00` EUR) |
-| Native unit tests | `dbt` YAML `unit_tests` testing DST clock shifts, ECB holiday carry-forward, and refund signs without full ingestion |
+| Native unit tests | `dbt` YAML `unit_tests` testing the `int_sessions_latest` latest-event reduction (incl. tie-breaks), DST clock shifts, ECB holiday carry-forward, and refund signs without full ingestion |
 | Data contracts | `config: {contract: {enforced: true}}` with explicit `data_type` + `constraints` on all `marts` models |
 | Model versioning | `fct_daily_revenue` `v1` (core revenue) + `v2` (adds `wholesale_cost_eur`, `gross_margin_eur`), `latest_version: 2`, `deprecation_date` on `v1` |
 
@@ -33,7 +33,7 @@ Out of scope: incremental `merge` & `dbt snapshot` (`E04`), `Slim CI` (`E05`), a
 
 - Exact contracted columns and types for `fct_charging_sessions`, `fct_daily_revenue_v1`, and `fct_daily_revenue_v2` match [data-contract.md](../../docs/data-contract.md).
 - Custom generic test `test_non_negative_unless_refund` lives in `dbt_project/tests/generic/`.
-- Singular test `assert_revenue_conservation.sql` lives in `dbt_project/tests/singular/`.
+- Singular tests live in `dbt_project/tests/singular/`: `assert_revenue_conservation.sql` and `assert_no_session_outside_price_window.sql` (every `session_started_at` falls inside the locked SMARD price window — contract §3.8's boundary fallback must never be silently exercised).
 
 ## 5. Behaviour and edge cases
 

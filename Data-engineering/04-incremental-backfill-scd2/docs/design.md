@@ -8,11 +8,11 @@ Convert `fct_charging_sessions` to an idempotent incremental `merge` model with 
 
 | Topic | Decision |
 |---|---|
-| Incremental strategy | `materialized='incremental'`, `incremental_strategy='merge'`, `unique_key='session_id'` |
+| Incremental strategy | `materialized='incremental'`, `incremental_strategy='merge'`, `unique_key='session_id'`; merge source is `int_sessions_latest` (one recomputed row per session — contract §3.5). The stored row is replaced **wholesale**; per-event upserts of `event_seq` rows are forbidden (raw grain is `(session_id, event_seq)`, mart grain is `(session_id)`, so a late `event_seq=2` must trigger re-aggregation of that session, never a second fact row) |
 | Late-arrival lookback | Default 48-hour lookback window (`settled_at >= max(settled_at) - 2 days`) |
 | Bounded backfill | `--vars '{"backfill_start": "YYYY-MM-DD", "backfill_end": "YYYY-MM-DD"}'` overrides watermark filter |
-| SCD Type 2 engine | `dbt snapshot` (`strategy='check'`) on `raw_stations_bnetza` and `raw_tariff_plans` |
-| Tracked SCD2 columns | Stations: `nominal_power_kw`, `connector_count`, `operator_name`; Tariffs: `price_per_kwh_eur`, `roaming_surcharge_eur`, `plan_tier` |
+| SCD Type 2 engine | `dbt snapshot` (`strategy='check'`) on `raw_stations_bnetza` and `raw_tariff_plans` per [ADR-0002](../../docs/adr/ADR-0002-scd2-via-dbt-snapshot.md) |
+| Tracked SCD2 columns | Stations: `nominal_power_kw`, `connector_count`, `operator_name`; Tariffs: `price_per_kwh_eur`, `roaming_surcharge_eur`, `plan_tier` (see ADR-0002) |
 | Point-in-time join | `session_started_at >= dbt_valid_from AND (session_started_at < dbt_valid_to OR dbt_valid_to IS NULL)` |
 
 ## 2. Scope boundary
@@ -28,8 +28,8 @@ raw_stations_bnetza (t0, t1, t2) --[dbt snapshot]--> dim_stations_scd2 (dbt_vali
 raw_tariff_plans    (t0, t1, t2) --[dbt snapshot]--> dim_tariffs_scd2  (dbt_valid_from/to)
                                                             |
 raw_charging_sessions (late 48h batch)                      | point-in-time interval join
-        |                                                   v
-        '---------------------[incremental MERGE on session_id]---> fct_charging_sessions
+        |  reduce to one row per session                    v
+        '---[int_sessions_latest]--[incremental MERGE on session_id]---> fct_charging_sessions
 ```
 
 ## 4. Contracts and configuration
@@ -39,7 +39,7 @@ raw_charging_sessions (late 48h batch)                      | point-in-time inte
 
 ## 5. Behaviour and edge cases
 
-1. Ingesting a late settlement arriving 36 hours after `session_started_at` updates its existing `session_id` cleanly without creating a second row.
+1. Ingesting a late settlement arriving 36 hours after `session_started_at` updates its existing `session_id` cleanly without creating a second row: the merge recomputes the session's single row from all its raw events (golden example §4 Event 2 — the `event_seq=1` row is replaced by the corrected aggregate), matching [data-contract.md §3.5](../../docs/data-contract.md).
 2. Re-running the exact same incremental window leaves row counts and totals identical.
 3. Upgrading a station from 50 kW to 150 kW at `t1` closes the `50 kW` SCD2 record (`dbt_valid_to = t1`) and opens the `150 kW` record; sessions before `t1` stay joined to `50 kW`.
 4. Running a bounded backfill (`backfill_start`..`backfill_end`) updates only dates in range and leaves surrounding dates untouched.

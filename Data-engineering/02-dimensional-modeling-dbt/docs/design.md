@@ -3,6 +3,7 @@
 **E02 · Design specification (planned).** [Brief](../README.md) · [Implementation plan](implementation.md)
 
 <!-- [ZCode·2026-11-23] Align mart naming with data-contract v1.1 (current-state dims as views; SCD2 in E04), bind dedup and revenue_date rules to the contract, and note freshness SLAs are injection-verified locally. -->
+<!-- [ZCode·2026-11-23] v1.3 alignment: staging stays 1:1 with raw; latest-event reduction moves to int_sessions_latest (contract §3.2). -->
 
 Establish the `dbt-core` + `dbt-duckdb` project over E01 Raw tables: source definitions with freshness SLAs, `staging` (`stg_*`), `intermediate` (`int_*`), and Kimball star-schema `marts` (`fct_charging_sessions`, `fct_daily_revenue`, `dim_stations`, `dim_tariffs`, `dim_date`), enforced by SQLFluff and path-scoped GitHub Actions CI.
 
@@ -30,7 +31,7 @@ raw.* (E01 DuckDB)
    |
    +--> staging (views): stg_bnetza_stations, stg_smard_prices, stg_ecb_fx,
    |                     stg_charging_sessions, stg_roaming_settlements, stg_tariff_plans
-   +--> intermediate (views): int_sessions_enriched_fx, int_sessions_wholesale_cost
+   +--> intermediate (views): int_sessions_latest, int_sessions_enriched_fx, int_sessions_wholesale_cost
    +--> marts (tables): dim_date, fct_charging_sessions, fct_daily_revenue
    +--> marts (E04, after snapshots land): dim_stations_scd2 / dim_tariffs_scd2 (snapshots)
                                            dim_stations / dim_tariffs (current-state views, contract §2)
@@ -42,12 +43,12 @@ Until `E04`, `dim_stations` / `dim_tariffs` build directly from the latest `raw`
 
 - `sources.yml` declares `loaded_at_field: _ingested_at` and `freshness: {warn_after: {count: 24, period: hour}, error_after: {count: 48, period: hour}}`.
 - `fct_charging_sessions` grain is strictly 1 row per `session_id`; `fct_daily_revenue` grain is `(revenue_date, country_code, operator_name)`.
-- Staging dedup follows the contract rule (§3.2): one row per `session_id` by `max(event_seq)`, ties by `_ingested_at` then `_source_hash`.
+- Staging is 1:1 with raw (byte-identical duplicates dropped) and carries `unique(session_id, event_seq)`; the latest-event reduction lives in `int_sessions_latest` — one row per `session_id` by `max(event_seq)`, ties by `_ingested_at` then `_source_hash` — with `unique(session_id)` (contract §3.2, two-layer rule).
 - `dbt_project.yml` enables `persist_docs: {relation: true, columns: true}` and clean schema naming.
 
 ## 5. Behaviour and edge cases
 
-1. Duplicate `session_id` events in `raw_charging_sessions` reduce deterministically to the latest `event_seq` in `stg_charging_sessions` before joining dimensions (preventing fan-out); the binding rule lives in [data-contract.md §3.2](../../docs/data-contract.md).
+1. Duplicate `session_id` events in `raw_charging_sessions` reduce deterministically in `int_sessions_latest` (latest `event_seq`, ties by `_ingested_at` then `_source_hash`) before joining dimensions (preventing fan-out); the binding rule lives in [data-contract.md §3.2](../../docs/data-contract.md).
 2. Sessions on weekends or TARGET2 holidays find the most recent ECB rate on or before `revenue_date` without lookahead.
 3. Missing upstream source data triggers `dbt source freshness` failure visibly. On the local/offline track the 24h/48h SLAs are exercised by injected timestamps (E01 generator and the E08 drill), not by wall-clock waiting.
 
