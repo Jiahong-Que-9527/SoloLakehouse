@@ -81,6 +81,11 @@ chatgpt-consulting*.md
 /Fraport-adsb-intelligence/**/review_plate_*.png
 /Fraport-adsb-intelligence/**/trajectory_overlays_*.png
 
+# Data-engineering local runtime state (raw DuckDB, generated payloads, checkpoints,
+# live-refresh downloads). Locked fixtures under reference-warehouse/fixtures/ stay in Git.
+Data-engineering/reference-warehouse/data/
+!Data-engineering/reference-warehouse/fixtures/*.csv
+
 # OS
 .DS_Store
 Thumbs.db

@@ -3,8 +3,9 @@
 <!-- [Antigravity·2026-11-23] Initialize source contracts, star-schema grains, and invariants. -->
 <!-- [Antigravity·2026-11-23] Expand column-level schemas, quarantine reasons, and SQL portability rules. -->
 <!-- [ZCode·2026-11-23] v1.1: unify conservation semantics (latest-event-per-session), fix FX direction to ECB base notation, define refund/energy rules, revenue_date timezone, dedup rule, wholesale-cost formula and rounding policy; add current-state dimensions, ERD, golden example, and contract changelog. -->
+<!-- [ZCode·2026-11-23] v1.2: correct golden example EUR conversions to divide the stored local amount per §3.3 (Event 1 gross 26.66 / net 28.16 / margin 23.87; Event 3 mirror; conservation total -0.23) and document the expected 1-cent round-trip loss. -->
 
-**Contract version:** 1.1 (2026-11-23) — changelog in [§5](#5-contract-changelog). All dbt contracts, tests, and unit-test fixtures must reference this document; a semantic change to any grain, type, or invariant below requires a version bump here first.
+**Contract version:** 1.2 (2026-11-23) — changelog in [§5](#5-contract-changelog). All dbt contracts, tests, and unit-test fixtures must reference this document; a semantic change to any grain, type, or invariant below requires a version bump here first.
 
 ## 1. Raw source tables
 
@@ -193,7 +194,9 @@ One CH roaming session, from raw rows to mart row. These exact numbers must be r
 | Raw row | `energy_kwh = 45.2000`, `gross_amount_local = 25.09` CHF (`45.2 × 0.59 × 0.941 = 25.0946 → 25.09`), settlement fee `roaming_fee_local = 1.41` CHF (`1.50 × 0.941 = 1.4115 → 1.41`) |
 |---|---|
 | `revenue_date` | `2026-03-02` (18:30 UTC → 19:30 Europe/Berlin, same civil date) |
-| Mart row | `fx_rate_to_eur = 0.941000`, `fx_rate_status = observed`, `gross_amount_eur = 26.67` (`25.09 / 0.941 = 26.6674`), `roaming_fee_eur = 1.50` (`1.41 / 0.941 = 1.4984`), `net_amount_eur = 28.17`, `wholesale_cost_eur = 4.29` (`45.2 × 95 / 1000 = 4.294`), `gross_margin_eur = 23.88` |
+| Mart row | `fx_rate_to_eur = 0.941000`, `fx_rate_status = observed`, `gross_amount_eur = 26.66` (`25.09 / 0.941 = 26.6631`), `roaming_fee_eur = 1.50` (`1.41 / 0.941 = 1.4984`), `net_amount_eur = 28.16`, `wholesale_cost_eur = 4.29` (`45.2 × 95 / 1000 = 4.294`), `gross_margin_eur = 23.87` |
+
+**Expected 1-cent round-trip loss:** the EUR list price for the energy is `45.2 × 0.59 = 26.67`, but the stored local amount rounds to `25.09` CHF and `25.09 / 0.941 = 26.6631 → 26.66`. This double-rounding loss (EUR list → rounded local → EUR) is expected behavior per §3.3 — mart columns are computed from the *stored* raw amounts, and the cent difference is asserted as-is, not "fixed".
 
 **Event 2 — `late_adjustment` (`event_seq = 2`, settled `2026-03-04 12:00 UTC`, inside the 48h lookback)**
 
@@ -205,9 +208,9 @@ One CH roaming session, from raw rows to mart row. These exact numbers must be r
 
 | Raw row | `energy_kwh = 45.2000` (physical energy stays positive), `gross_amount_local = -25.09`, `roaming_fee_local = -1.41` |
 |---|---|
-| Mart row | `gross_amount_eur = -26.67`, `roaming_fee_eur = -1.50`, `net_amount_eur = -28.17`, `wholesale_cost_eur = -4.29`, `gross_margin_eur = -23.88` |
+| Mart row | `gross_amount_eur = -26.66`, `roaming_fee_eur = -1.50`, `net_amount_eur = -28.16`, `wholesale_cost_eur = -4.29`, `gross_margin_eur = -23.87` |
 
-**Conservation check for this batch window:** left side recomputes `27.93 (S-CH-0001, latest event) + (-28.17) (S-CH-0002) = -0.24`; right side must equal `-0.24` exactly. The quarantined dirty rows of the same batch are reported by count and amount, never inside this sum.
+**Conservation check for this batch window:** left side recomputes `27.93 (S-CH-0001, latest event) + (-28.16) (S-CH-0002) = -0.23`; right side must equal `-0.23` exactly. The quarantined dirty rows of the same batch are reported by count and amount, never inside this sum.
 
 ## 5. Contract changelog
 
@@ -215,3 +218,4 @@ One CH roaming session, from raw rows to mart row. These exact numbers must be r
 |---|---|---|
 | 1.0 | 2026-11-23 | Initial scaffold (Antigravity): raw schemas, star-schema grains, invariants, SQL portability rules. |
 | 1.1 | 2026-11-23 | Pre-implementation clarifications (ZCode): unified revenue-conservation formula with latest-event-per-session semantics; refund = negative amounts, `energy_kwh` never negative; FX moved to ECB base notation (`EUR/CHF`) with single-direction conversion; `revenue_date` pinned to `Europe/Berlin`; staging dedup rule promoted from E02 design to contract; `wholesale_cost_eur`/`gross_margin_eur` defined; rounding policy fixed; current-state `dim_stations`/`dim_tariffs` defined as views over SCD2; point-in-time `operator_name`; fee provenance (tariff list price vs billed settlement); golden example and ERD added. |
+| 1.2 | 2026-11-23 | Golden-example correction (review): Event 1 / Event 3 EUR conversions now divide the *stored* local amount per §3.3 (`25.09 / 0.941 = 26.6631 → 26.66`, not the unrounded `25.0946`); `net_amount_eur`, `gross_margin_eur`, refund mirror, and the conservation total (`-0.23`) updated; documented the expected 1-cent EUR→local→EUR round-trip loss as assert-expected behavior. No grain, type, or invariant changed. |
