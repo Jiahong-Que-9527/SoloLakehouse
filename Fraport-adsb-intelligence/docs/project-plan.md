@@ -209,6 +209,12 @@ Cloud monitoring and revision rollback remain to be exercised after M3.
 
 **Exit:** a failed stage reruns without redoing earlier stages.
 
+**Status:** M1 is verified. The local Dagster graph validated the November
+2024 Geometry v2 release and recovered its handoff after a bounded retry.
+The recovery reused the upstream asset, and a repeat produced the same
+checkpoint. M2 opens with release detection and analytics ingestion.
+[M1 run evidence](../07-platform-orchestration/README.md#m1-verification)
+
 ## Programme acceptance
 
 | Capability | Criterion |
