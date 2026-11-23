@@ -2,6 +2,8 @@
 
 **Status:** planned. [Brief](../README.md) · [Design](design.md) · [Delivery plan](../../docs/delivery-plan.md)
 
+<!-- [ZCode·2026-11-23] Bind conservation test to data-contract v1.1 §3.1 canonical form; add wholesale-cost lookup to the unit-test set. -->
+
 ## First delivery
 
 Add custom generic tests, raw-to-mart revenue conservation singular tests, native dbt `unit_tests`, enforced `contract` definitions on all marts, and `fct_daily_revenue` `v1`/`v2` model versioning, verified by automated negative tests.
@@ -18,8 +20,8 @@ Add custom generic tests, raw-to-mart revenue conservation singular tests, nativ
 
 ## Implementation sequence
 
-1. **Custom generic & conservation tests:** Implement `test_non_negative_unless_refund.sql` and `assert_revenue_conservation.sql` verifying `SUM(valid_raw_eur) == SUM(fct_charging_sessions.net_amount_eur)` (`0.00` tolerance).
-2. **Native dbt `unit_tests`:** Add inline mock-row `unit_tests` in `schema.yml` covering (a) CET/CEST DST date attribution, (b) weekend/holiday ECB FX carry-forward, and (c) refund net-margin computation.
+1. **Custom generic & conservation tests:** Implement `test_non_negative_unless_refund.sql` and `assert_revenue_conservation.sql` in the canonical form of [data-contract.md §3.1](../../docs/data-contract.md): `SUM(net_amount_eur recomputed from valid raw events, latest event per session) == SUM(fct_charging_sessions.net_amount_eur)` (`0.00` tolerance), with quarantined rows reported separately by count and amount.
+2. **Native dbt `unit_tests`:** Add inline mock-row `unit_tests` in `schema.yml` covering (a) CET/CEST DST date attribution for `revenue_date` (Europe/Berlin), (b) weekend/holiday ECB FX carry-forward, (c) refund net-margin computation, and (d) `DE-LU` wholesale-cost hour lookup — asserting the exact numbers of the contract golden example ([data-contract.md §4](../../docs/data-contract.md)).
 3. **Enforced contracts:** Add `config: {contract: {enforced: true}}` plus explicit column `data_type` and `not_null` constraints on `dim_date`, `dim_stations`, `dim_tariffs`, `fct_charging_sessions`, and `fct_daily_revenue`.
 4. **Model versioning (`v1 -> v2`):** Split `fct_daily_revenue` into `_v1.sql` and `_v2.sql` (adding wholesale cost & gross margin in `v2`), configure `versions:` and `deprecation_date` on `v1`, and verify both relations build.
 5. **Contract-breach negative test (`test_contracts.py`):** Automate a temporary copy/override drill proving that dropping or retyping a contracted column fails `dbt build` without replacing the previous table.

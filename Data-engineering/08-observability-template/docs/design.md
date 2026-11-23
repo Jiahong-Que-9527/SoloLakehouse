@@ -44,6 +44,7 @@ reference-warehouse/template/ ---> onboard 2nd workload (ecb_fx_mart) ---> isola
 1. Re-running `charging-commerce audit-dbt` on the same `run_results.json` produces zero duplicate rows.
 2. Injecting a 50-hour-old `_ingested_at` source timestamp writes a `BREACH` row in `ops_freshness_slo` and exits non-zero / emits alert payload.
 3. Both `charging_commerce` and the second template-onboarded workload pass their tests independently in the same repository without schema or macro collisions.
+4. Freshness SLOs on the offline track are verified by injected timestamps (this drill), since locked fixtures never age naturally; `--live` refreshes are the only path to organic lag.
 
 ## 6. Delivery and cost
 
@@ -58,3 +59,11 @@ reference-warehouse/template/ ---> onboard 2nd workload (ecb_fx_mart) ---> isola
 ## 8. Handoff
 
 Completing `E08` closes the entire `Data-engineering/` portfolio track (`E01–E08`).
+
+## 9. Operational runbook (alert response)
+
+The alert payload from §1 is only useful with a defined human/agent response; E08 acceptance includes walking each of these once:
+
+- **Freshness `WARN`/`BREACH`:** inspect `ops_freshness_slo` for the offending source → check `sources.json` `max_loaded_at` → if a `--live` refresh was interrupted, re-run the affected `ingest` batch (`--batch-id` guard makes it a no-op if already complete) → re-run `dbt source freshness` and confirm the SLO row returns to `PASS`.
+- **Quarantine backlog:** reconcile `raw_quarantine` counts and `gross_amount_local` sums against the batch expectation (contract §3.1) → fix the upstream cause (schema drift vs dirty rows) → replay corrected records under a new `--batch-id`; never mutate an already-accepted batch.
+- **BigQuery over-cap / failed job:** a `maximum_bytes_billed` rejection means a query lacks a partition filter — fix the model or query, never raise the cap → verify no spend via `INFORMATION_SCHEMA.JOBS` `total_bytes_billed` and attach the receipt to the drill record.

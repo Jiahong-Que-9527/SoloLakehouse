@@ -1,10 +1,28 @@
 # Data Engineering
 
 <!-- [Antigravity·2026-11-23] Initialize Data Engineering (dbt + DuckDB CI + GCP BigQuery + Apache Airflow) project planning. -->
+<!-- [ZCode·2026-11-23] Add human/reviewer entrypoint (quick start + stage status table) and glossary/ADR links. -->
 
 Deliver an end-to-end modern **Data Engineering** platform on **Python, SQL, dbt, DuckDB, Google BigQuery, and Apache Airflow** over a hybrid German EV charging and roaming commerce workload (`European EV Charging & Roaming Commerce`). Each stage builds verifiable capabilities expected of a mid-to-senior Data Engineer: resumable raw ingestion, Kimball dimensional modeling, dbt testing pyramids and data contracts, incremental merge with late-arriving settlements and SCD Type 2 snapshots, Slim CI, BigQuery partitioning and cost governance, Airflow orchestration with failure recovery, and run observability.
 
 **Status:** E01–E08 planned (architecture, contracts, stage designs, and implementation plans ready; **E01** next).
+
+## Human quick start
+
+For reviewers and recruiters: the track is in its documentation phase; executable code lands stage by stage starting with **E01**. Two minutes of orientation:
+
+- Skim the [stage list](#stages) below, then the [ADR index](docs/adr/README.md) for the decision story (why BigQuery only, why `dbt snapshot` for history).
+- Unfamiliar with the domain? The [glossary](docs/glossary.md) explains BNetzA, SMARD, CPO/eMSP, roaming, and SCD2 in one line each.
+- From `E01` onward, every stage runs offline from a fresh checkout with no cloud account:
+
+  ```bash
+  cd Data-engineering/reference-warehouse
+  uv sync --locked --python 3.12
+  uv run --locked pytest                       # stage tests (E01+)
+  uv run --locked dbt build --target duckdb    # warehouse build (E02+)
+  ```
+
+- [Stage status and evidence](#stage-status-and-evidence) tracks what is accepted, each with a recorded acceptance file.
 
 ## Agent quick start
 
@@ -14,6 +32,8 @@ Read these four documents before implementing or modifying any stage:
 2. [Delivery plan](docs/delivery-plan.md) — stage checkpoints, stage-to-file ownership map, working loop, and session handoff checklist.
 3. [Data contract](docs/data-contract.md) — column-level schemas for all Raw, Quarantine, Snapshot, and Star-Schema Mart tables plus invariants.
 4. [Evidence guide](docs/evidence-guide.md) — exact checks, FinOps receipts, and negative drills required to mark a stage `accepted`.
+
+Reference (read on demand): [Glossary](docs/glossary.md) · [ADR index](docs/adr/README.md) · [Data volumes & retention](docs/architecture.md)
 
 ## Cloud target and cost boundary
 
@@ -52,6 +72,21 @@ To combine real-world dirty data with deterministic end-to-end financial reconci
    [Design](07-orchestration-airflow/docs/design.md) · [Implementation plan](07-orchestration-airflow/docs/implementation.md)
 8. **E08** · [Observability and DE platform template](08-observability-template/README.md) — `run_results.json` / `sources.json` operational telemetry, freshness SLO drill, and onboarding a second source from the extracted template.
    [Design](08-observability-template/docs/design.md) · [Implementation plan](08-observability-template/docs/implementation.md)
+
+## Stage status and evidence
+
+| Stage | Status | Acceptance record |
+|---|---|---|
+| E01 · Ingestion and raw layer | planned | — |
+| E02 · Dimensional modeling with dbt | planned | — |
+| E03 · Testing, contracts and versioning | planned | — |
+| E04 · Incremental, backfill and SCD2 | planned | — |
+| E05 · Macros, exposures and Slim CI | planned | — |
+| E06 · BigQuery warehouse and FinOps | planned | — |
+| E07 · Orchestration with Airflow | planned | — |
+| E08 · Observability and template | planned | — |
+
+Status moves `planned → accepted` only when the stage's checks in the [evidence guide](docs/evidence-guide.md) have run after the final edit and the acceptance record is committed under `<stage>/evidence/`; the table row then links to it.
 
 ## Layout
 
