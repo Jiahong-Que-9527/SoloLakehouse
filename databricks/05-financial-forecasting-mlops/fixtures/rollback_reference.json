@@ -1,0 +1,11 @@
+{
+  "input_release_id": "d05-rollback-a-v1",
+  "absolute_tolerance": 1e-10,
+  "as_of_date": "2025-03-25",
+  "later_actual_date": "2025-03-26",
+  "expected_next_actual": 1.2,
+  "expected_score_by_training_release": {
+    "d05-rollback-a-v1": 1.1988470784953932,
+    "d05-rollback-b-v1": 1.3976941569907863
+  }
+}
