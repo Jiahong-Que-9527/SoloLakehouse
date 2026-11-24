@@ -1,0 +1,37 @@
+name: Databricks D03 Financial CDC
+
+on:
+  pull_request:
+    paths:
+      - 'databricks/03-financial-cdc-lakehouse/**'
+      - '.github/workflows/databricks-financial-cdc.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'databricks/03-financial-cdc-lakehouse/**'
+      - '.github/workflows/databricks-financial-cdc.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: databricks/01-ecb-delta-lakehouse
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: '3.12'
+      - name: Check D03 fixture and CDC semantics locally
+        env:
+          PYTHONPATH: ../03-financial-cdc-lakehouse/src
+        run: |
+          uv sync --locked
+          uv run --locked ruff check --config pyproject.toml ../03-financial-cdc-lakehouse
+          uv run --locked ruff format --config pyproject.toml --check ../03-financial-cdc-lakehouse
+          uv run --locked pytest ../03-financial-cdc-lakehouse/tests

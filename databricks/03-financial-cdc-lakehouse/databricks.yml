@@ -1,0 +1,41 @@
+bundle:
+  name: financial-cdc-d03
+
+workspace:
+  root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}/${var.schema}
+
+sync:
+  paths:
+    - src
+    - notebooks
+
+variables:
+  catalog:
+    default: workspace
+  schema:
+    description: Fresh, dedicated ecb_d03_* schema for the acceptance run
+  git_sha:
+    description: Full commit of the deployed D03 code
+
+resources:
+  jobs:
+    d03_financial_cdc:
+      name: d03-financial-cdc-${var.schema}
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: acceptance
+          max_retries: 0
+          disable_auto_optimization: true
+          timeout_seconds: 1200
+          notebook_task:
+            notebook_path: ./notebooks/run_acceptance.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              git_sha: ${var.git_sha}
+              mode: stream
+
+targets:
+  dev:
+    default: true
+    mode: development
