@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D06 · Deferred on Databricks Free Edition** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**D06 · Template and CI available · Live acceptance deferred** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Runbook](docs/runbook.md)
 
 Turn recurring Databricks environment and delivery work into a reusable setup for a second data team.
 
@@ -23,6 +23,13 @@ Terraform, Unity Catalog, Declarative Automation Bundles and CI/CD.
 
 ## Free Edition status
 
-This project is **deferred** under the Databricks Free Edition track: provisioning two isolated stacks with Terraform and proving cross-identity permission denials (`A` denied on `B`'s Gold) require Databricks Account Console access, account/workspace Terraform APIs, and multiple Service Principals — none of which exist in single-user Free Edition. It stays skipped until a multi-principal workspace is approved; see [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md).
+The template and CI validate two stack definitions using mocked Terraform plans and strict Databricks Bundle resolution against a local authentication stub.
+
+| Example | State path suffix | Bundle target | Reference job |
+|---|---|---|---|
+| Alpha | `slh-alpha-dev/terraform.tfstate` | `dev` | `slh-alpha-dev-batch` |
+| Bravo | `slh-bravo-prod/terraform.tfstate` | `prod` | `slh-bravo-prod-batch` |
+
+Live acceptance requires an approved multi-principal workspace for two successful deployments, access checks as distinct identities and the retirement drill. The [runbook](docs/runbook.md) records how to perform those checks. See the [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md) for platform constraints.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->

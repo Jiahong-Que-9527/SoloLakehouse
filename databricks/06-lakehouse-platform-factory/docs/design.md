@@ -1,6 +1,6 @@
 # Design: Lakehouse Platform Factory
 
-**D06 · Design only.** No application code in this directory yet.
+**D06 · Platform factory design.** See the [runbook](runbook.md) for the implemented template and validation.
 
 Give another data team a catalog, a schema, a job, and a grant set from a template, and show that the team can run its job without reading the first team's tables. The project proves reuse of the deploy path. It does not prove a platform organisation.
 
@@ -16,7 +16,7 @@ The project [brief](../README.md) fixes the ownership split.
 | One owner | A resource is named in one tool. The bundle does not also create the schema. Terraform does not also define the job. |
 | Targets | `dev` and `prod` differ by schema name and by whether a schedule exists. `dev` has no schedule. |
 | Isolation | Two stacks, two schemas, two runtime identities. Identity A runs A's job and is denied `SELECT` on B's Gold. |
-| CI | Tests and `bundle validate` on pull requests. Deploy is a manual dispatch. |
+| CI | Tests, mocked Terraform plans and strict Bundle validation run on pull requests. Live deployment remains an operator action until the workspace and shared state backend are approved. |
 | Destroy | A disposable stack can be destroyed. The evidence lists remaining tables and jobs. |
 | Guide | The operations section below is the runbook until a separate operator needs one. |
 
@@ -34,7 +34,7 @@ New team name and template id
           v
 GitHub Actions
           |
-          +--> Terraform: catalog or schema, grants, storage prefix
+          +--> Terraform: stack schemas and schema grants
           |
           +--> Bundle: Lakeflow Job, quality task, target schema
           |
@@ -48,7 +48,7 @@ Stack id is `slh-<team>-<env>`. Schema names include that id. The report records
 
 Inputs: `team`, `environment`, `template`, `owner`. Outputs: schema names, job name, runtime identity, and the smoke command.
 
-The batch job has three tasks: land the fixture, merge Silver on a declared key, and publish Gold only if the key is unique. That is the same stop-on-failed-quality rule as D02, reduced to one fixture.
+The batch job lands the fixture, merges Silver on a declared key, verifies that the key is unique, and then publishes Gold. That is the same stop-on-failed-quality rule as D02, reduced to one fixture.
 
 The reader grant is `SELECT` on that team's Gold schema. The team's runtime identity can write its own Bronze, Silver, and Gold. It has no grant on any other team's schema.
 
@@ -66,15 +66,7 @@ Terraform state and the bundle target are both keyed by stack id so a second app
 
 ## 6. Operations
 
-Create: dispatch the workflow with `team`, `environment`, and `template=batch-lakehouse`.
-
-Verify: read the deployment report and the smoke run id.
-
-Update: change the bundle or the Terraform module, review the plan, dispatch again.
-
-Destroy: dispatch with `action=destroy` for a stack marked disposable. Do not destroy a stack whose report is still the isolation evidence until that evidence is copied into the project record.
-
-Failure: if the bundle deploys and the smoke task fails, the schema remains and the report status is `deployed_unverified`. That is not a successful acceptance.
+The [operator runbook](runbook.md) covers stack creation, verification, updates, recovery and retirement.
 
 ## 7. Delivery and cost
 
