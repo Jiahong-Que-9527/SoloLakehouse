@@ -1,0 +1,17 @@
+version: 2
+
+models:
+    - name: stg_example_events
+      description: "Typed 1:1 staging view over the raw example drop."
+      columns:
+          - name: event_date
+            description: "Civil date of the event."
+            data_tests: [not_null]
+          - name: region
+            description: "Free-form region label from the source system."
+            data_tests: [not_null]
+          - name: amount_eur
+            description: "Event amount in EUR."
+            data_tests:
+                - not_null
+                - non_negative

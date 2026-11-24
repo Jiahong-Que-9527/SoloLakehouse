@@ -1,0 +1,26 @@
+version: 2
+
+models:
+    - name: fct_example_summary
+      description: "Daily event summary at grain (event_date, region); the domain contract anchor."
+      config:
+          contract:
+              enforced: true
+      columns:
+          - name: event_date
+            description: "Civil date of the events summarized in the row."
+            data_type: date
+            constraints: [{type: not_null, warn_unsupported: false}]
+          - name: region
+            description: "Region label; part of the natural grain."
+            data_type: varchar
+            constraints: [{type: not_null, warn_unsupported: false}]
+          - name: event_count
+            description: "Number of staged events on the grain."
+            data_type: bigint
+            constraints: [{type: not_null, warn_unsupported: false}]
+          - name: total_amount_eur
+            description: "Summed event amount in EUR on the grain."
+            data_type: decimal(18, 2)
+            constraints: [{type: not_null, warn_unsupported: false}]
+            data_tests: [non_negative]

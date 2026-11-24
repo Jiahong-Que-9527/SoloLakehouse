@@ -1,0 +1,17 @@
+version: 2
+
+models:
+    - name: stg_ecb_fx_rates
+      description: "Typed 1:1 staging view over the ECB reference-rate seed."
+      columns:
+          - name: rate_date
+            description: "ECB observation date (civil date)."
+            data_tests: [not_null]
+          - name: currency_pair
+            description: "Pair label, EUR-quoted (EUR/CHF, EUR/PLN, EUR/USD)."
+            data_tests: [not_null]
+          - name: rate
+            description: "ECB reference rate, 6 decimals."
+            data_tests:
+                - not_null
+                - non_negative

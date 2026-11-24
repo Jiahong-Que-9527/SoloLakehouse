@@ -1,0 +1,17 @@
+[sqlfluff]
+templater = dbt
+dialect = duckdb
+max_line_length = 100
+# Same taste decisions as the primary warehouse (.sqlfluff at the repo root):
+# LT12 function parentheses, ST06/ST09 ordering taste, AM04 wildcard staging.
+exclude_rules = LT12, ST06, ST09, AM04
+
+[sqlfluff:templater:dbt]
+project_dir = dbt_project
+profiles_dir = dbt_project
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = consistent

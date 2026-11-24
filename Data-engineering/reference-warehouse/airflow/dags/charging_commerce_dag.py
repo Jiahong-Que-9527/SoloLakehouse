@@ -1,7 +1,9 @@
 """E07 · `charging_commerce_daily` — the end-to-end warehouse pipeline DAG.
 
 Pipeline (design §3): ingest_raw -> dbt_source_freshness -> dbt_snapshot
--> dbt_build_marts -> verify_revenue_conservation.
+-> dbt_build_marts -> verify_revenue_conservation -> audit_dbt_artifacts
+(the E08 observability task runs with trigger_rule='all_done' so failed
+runs are recorded in the ops_* audit tables too).
 
 Design rules honoured here (07-orchestration-airflow/docs/design.md):
 
@@ -67,7 +69,7 @@ with DAG(
     dag_id="charging_commerce_daily",
     description=(
         "EV charging & roaming commerce warehouse: ingest -> freshness -> "
-        "snapshot -> build -> verify."
+        "snapshot -> build -> verify -> artifact audit."
     ),
     start_date=datetime(2026, 11, 20, tz="UTC"),
     schedule="0 5 * * *",
@@ -177,10 +179,32 @@ with DAG(
         retries=0,
     )
 
+    # 6) E08 observability: parse the run's dbt artifacts (run_results.json
+    #    from the build, sources.json from the freshness gate) into the
+    #    warehouse's ops_* audit tables and emit freshness-SLO alerts.
+    #    trigger_rule='all_done' is the point: a failed build or a halted
+    #    freshness gate is exactly when telemetry matters most, so this task
+    #    records the failure rows + breach alerts even when upstream failed.
+    audit_dbt_artifacts = BashOperator(
+        task_id="audit_dbt_artifacts",
+        bash_command=(
+            f'cd "{REPO}" && '
+            "uv run --locked charging-commerce audit-dbt "
+            f'--run-results "{DBT_DIR}/target/run_results.json" '
+            f'--sources "{DBT_DIR}/target/sources.json" '
+            f'--db "{WAREHOUSE}"'
+        ),
+        cwd=str(REPO),
+        env=TASK_ENV,
+        retries=0,
+        trigger_rule="all_done",
+    )
+
     (
         ingest_raw
         >> dbt_source_freshness
         >> dbt_snapshot
         >> dbt_build_marts
         >> verify_revenue_conservation
+        >> audit_dbt_artifacts
     )

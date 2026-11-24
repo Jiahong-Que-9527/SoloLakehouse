@@ -1,0 +1,8 @@
+ecb_fx_mart:
+    target: duckdb
+    outputs:
+        duckdb:
+            type: duckdb
+            # Per-domain warehouse file (gitignored); override for CI.
+            path: "{{ env_var('ECB_FX_DUCKDB', 'data/ecb_fx.duckdb') }}"
+            threads: 4

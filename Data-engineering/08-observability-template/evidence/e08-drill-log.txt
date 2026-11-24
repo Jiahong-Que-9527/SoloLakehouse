@@ -1,0 +1,51 @@
+=== versions
+Core:
+  - installed: 1.12.7
+=== build a fresh offline warehouse (generate -> ingest x5)
+batch e08-drill-bnetza: rows_added=9699 quarantined=0 pages=0 [ok]
+batch e08-drill-tariffs: rows_added=18 quarantined=0 pages=0 [ok]
+batch e08-drill-sessions: rows_added=12728 quarantined=40 pages=0 [ok]
+batch e08-drill-smard: rows_added=21313 quarantined=0 pages=0 [ok]
+batch e08-drill-ecb: rows_added=507 quarantined=0 pages=0 [ok]
+=== RUN A: dbt deps + source freshness + dbt build
+=== RUN A: audit-dbt (expect exit 0, no alerts)
+audit-dbt: exit=0 alerts=0 (slo warn>24h error>48h)
+RUN A exit code: 0
+=== ops tables after RUN A
+ops_dbt_run_audit rows: 126 | ops_freshness_slo rows: 5 (BREACH=0 WARN=0)
+slowest nodes: [('model.charging_commerce.fct_charging_sessions', 0.6), ('test.charging_commerce.not_null_int_sessions_wholesale_cost_wholesale_eur_mwh.6df380751c', 0.6), ('test.charging_commerce.not_null_int_sessions_wholesale_cost_wholesale_cost_eur.1df42f4b4b', 0.5)]
+=== DRILL: inject +71h staleness into raw_ecb_fx_rates._ingested_at
+[0m22:00:03  Running with dbt=1.12.7
+[0m22:00:03  Registered adapter: duckdb=1.11.1
+[0m22:00:03  Found 15 models, 2 snapshots, 101 data tests, 7 sources, 2 exposures, 645 macros, 6 unit tests
+[0m22:00:03  
+[0m22:00:03  Concurrency: 4 threads (target='duckdb')
+[0m22:00:03  
+[0m22:00:03  1 of 5 START freshness of raw.raw_charging_sessions ............................ [RUN]
+[0m22:00:03  2 of 5 START freshness of raw.raw_ecb_fx_rates ................................. [RUN]
+[0m22:00:03  3 of 5 START freshness of raw.raw_smard_prices ................................. [RUN]
+[0m22:00:03  4 of 5 START freshness of raw.raw_stations_bnetza .............................. [RUN]
+[0m22:00:03  2 of 5 ERROR STALE freshness of raw.raw_ecb_fx_rates ........................... [[31mERROR STALE[0m in 0.03s]
+[0m22:00:03  1 of 5 PASS freshness of raw.raw_charging_sessions ............................. [[32mPASS[0m in 0.03s]
+[0m22:00:03  3 of 5 PASS freshness of raw.raw_smard_prices .................................. [[32mPASS[0m in 0.03s]
+[0m22:00:03  4 of 5 PASS freshness of raw.raw_stations_bnetza ............................... [[32mPASS[0m in 0.03s]
+[0m22:00:03  5 of 5 START freshness of raw.raw_tariff_plans ................................. [RUN]
+[0m22:00:03  5 of 5 PASS freshness of raw.raw_tariff_plans .................................. [[32mPASS[0m in 0.01s]
+[0m22:00:04  
+[0m22:00:04  Finished running 5 sources in 0 hours 0 minutes and 0.12 seconds (0.12s).
+[0m22:00:04  
+[0m22:00:04  [[31mERROR[0m]: in source raw_ecb_fx_rates (models/staging/sources.yml)
+[0m22:00:04    Status: error
+[0m22:00:04  Done.
+=== DRILL: audit-dbt (expect BREACH alert + exit 2)
+{"alert": "freshness_slo", "freshness_status": "error", "lag_hours": 71.01, "level": "BREACH", "source": "source.charging_commerce.raw.raw_ecb_fx_rates", "threshold_hours": 48.0}
+audit-dbt: exit=2 alerts=1 (slo warn>24h error>48h)
+DRILL exit code: 2
+=== ops tables after DRILL (BREACH row recorded)
+ops_dbt_run_audit rows: 126 | ops_freshness_slo rows: 10 (BREACH=1 WARN=0)
+slowest nodes: [('model.charging_commerce.fct_charging_sessions', 0.6), ('test.charging_commerce.not_null_int_sessions_wholesale_cost_wholesale_eur_mwh.6df380751c', 0.6), ('test.charging_commerce.not_null_int_sessions_wholesale_cost_wholesale_cost_eur.1df42f4b4b', 0.5)]
+=== IDEMPOTENCY: re-run audit-dbt on the same artifacts
+re-audit exit code: 2
+ops_dbt_run_audit rows: 126 | ops_freshness_slo rows: 10 (BREACH=1 WARN=0)
+slowest nodes: [('model.charging_commerce.fct_charging_sessions', 0.6), ('test.charging_commerce.not_null_int_sessions_wholesale_cost_wholesale_eur_mwh.6df380751c', 0.6), ('test.charging_commerce.not_null_int_sessions_wholesale_cost_wholesale_cost_eur.1df42f4b4b', 0.5)]
+=== DONE

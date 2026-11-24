@@ -1,0 +1,29 @@
+name: ecb_fx_mart
+version: 0.1.0
+config-version: 2
+profile: ecb_fx_mart
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: target
+clean-targets:
+    - target
+    - dbt_packages
+
+models:
+    ecb_fx_mart:
+        +persist_docs:
+            relation: true
+            columns: true
+        staging:
+            +materialized: view
+            +schema: stg
+        marts:
+            +materialized: table
+            +schema: mart
+
+seeds:
+    ecb_fx_mart:
+        +schema: raw

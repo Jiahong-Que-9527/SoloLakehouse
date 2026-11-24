@@ -1,0 +1,9 @@
+de_starter:
+    target: duckdb
+    outputs:
+        duckdb:
+            type: duckdb
+            # The warehouse file lives with the domain (gitignored); point
+            # STARTER_DUCKDB elsewhere for CI or a shared location.
+            path: "{{ env_var('STARTER_DUCKDB', 'data/starter.duckdb') }}"
+            threads: 4

@@ -103,3 +103,13 @@ Thumbs.db
 Data-engineering/reference-warehouse/dbt_project/.user.yml
 Data-engineering/reference-warehouse/dbt_project/logs/
 Data-engineering/reference-warehouse/airflow/.airflow-local/
+
+# template/example domains (E08): local warehouses and dbt build artifacts
+Data-engineering/reference-warehouse/examples/**/*.duckdb
+Data-engineering/reference-warehouse/examples/**/target/
+Data-engineering/reference-warehouse/examples/**/logs/
+Data-engineering/reference-warehouse/examples/**/.user.yml
+Data-engineering/reference-warehouse/template/**/target/
+# the example/template seeds are deliberate starter data — must be tracked
+!Data-engineering/reference-warehouse/examples/**/*.csv
+!Data-engineering/reference-warehouse/template/**/*.csv
