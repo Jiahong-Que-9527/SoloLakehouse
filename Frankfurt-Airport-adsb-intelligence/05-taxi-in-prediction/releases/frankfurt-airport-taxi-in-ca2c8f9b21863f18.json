@@ -1,0 +1,59 @@
+{
+  "artifact": {
+    "path": "model.pkl",
+    "sha256": "2138c1e388931c14ed7dbe1b3e1a87e189f6e2abb383d9151ce50b6d33e6c388"
+  },
+  "availability": {
+    "delay_seconds": 5,
+    "mode": "simulated_fixed_delay"
+  },
+  "baseline_id": "median-c15fce5019d0b360",
+  "baseline_report_sha256": "5dce30972b5e032ec2cdfd15f7a68e19e85bf5aa1c04540bc6b90e626dae4319",
+  "candidate_id": "boosted-57a6c2886a8f69f2",
+  "candidate_report_sha256": "f30aece8743aa265288e1e82079683996bddbe9c2a6768cd0cbbf25876ef48be",
+  "container_image_id": "sha256:9c5ae0ab186e5a070dea58aa73b49c08974cbb29f02daf8eb6d59218791e91b9",
+  "december_frozen_baseline_metrics_seconds": {
+    "bias_prediction_minus_actual": -12.455861876914508,
+    "mae": 148.62879420774158,
+    "median_absolute_error": 118.0,
+    "rmse": 201.15099393604598
+  },
+  "december_frozen_metrics_seconds": {
+    "bias_prediction_minus_actual": -6.28820823030075,
+    "mae": 137.46222509206424,
+    "median_absolute_error": 105.85299835746875,
+    "rmse": 189.95452386127565
+  },
+  "evaluation_dataset_id": "features-2024-12-cc0d68f941eb2b79",
+  "evaluation_manifest_sha256": "1510b900adf4f24ab8e6ff379834768434975bbbe27de767880c1f3aa5c1ad1a",
+  "evaluation_release_id": "geometry-v2-2024-12",
+  "evaluation_report_sha256": "458addcb9d12be3f1c4df9c7565995a25f8a5c762ada6794d734434d1e4bfb17",
+  "feature_columns": [
+    "approach_speed_mps",
+    "approach_altitude_m",
+    "approach_vertical_rate_mps",
+    "approach_distance_m",
+    "ground_speed_mps",
+    "approach_age_s",
+    "prediction_hour_utc"
+  ],
+  "model_release_id": "frankfurt-airport-taxi-in-ca2c8f9b21863f18",
+  "november_holdout_metrics_seconds": {
+    "bias_prediction_minus_actual": 15.006363602286589,
+    "mae": 129.3355650199273,
+    "median_absolute_error": 105.03764132714673,
+    "rmse": 170.22731627086503
+  },
+  "registry": {
+    "model_name": "frankfurt-airport-taxi-in",
+    "model_uri": "models:/frankfurt-airport-taxi-in/1",
+    "source_run_id": "5a91f9942ce34acbb516e09513cd6e3c",
+    "version": 1
+  },
+  "schema_version": "frankfurt-airport-model-release-v1",
+  "source_commit": "69146e4ce4e3168947c3094ed2050023a997ee50",
+  "stage": "candidate",
+  "training_dataset_id": "features-2024-11-947edc9a58661dcd",
+  "training_manifest_sha256": "aa17f00aae7bc699787ea55610b4b0d77f0084691801cd2a361c403411f4ca13",
+  "training_release_id": "geometry-v2-2024-11"
+}

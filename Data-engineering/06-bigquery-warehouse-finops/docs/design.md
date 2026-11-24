@@ -10,7 +10,7 @@ Run the identical E02–E05 `dbt` project against live **Google BigQuery** in `s
 
 | Topic | Decision |
 |---|---|
-| GCP project & region | `slh-gcp-test`, `europe-west3` (Frankfurt), matching existing `gcp/` and `Fraport` infrastructure |
+| GCP project & region | `slh-gcp-test`, `europe-west3` (Frankfurt), matching existing `gcp/` and `Frankfurt Airport` infrastructure |
 | Authentication | Application Default Credentials (ADC) locally; Workload Identity Federation (WIF) if triggered via CI |
 | Safety budget | `maximum_bytes_billed: 104857600` (100 MiB per query) in `profiles.yml` `bq` target |
 | Partitioning & clustering | Daily partition on `revenue_date` with `require_partition_filter: true`; `cluster_by: ['country_code', 'station_sk']` |

@@ -31,7 +31,7 @@ conversion are documented next to each file (manifest.json or README).
 
 - OpenSky Network (ADS-B state vectors)
   Raw OpenSky data is not stored in this repository. Summary statistics and
-  evidence files in Fraport-adsb-intelligence/ are derived from OpenSky data
+  evidence files in Frankfurt-Airport-adsb-intelligence/ are derived from OpenSky data
   and remain subject to the OpenSky Network terms of use; they are not
   relicensed under the Apache License.
 
@@ -41,6 +41,6 @@ are synthetic.
 Trademarks
 ----------
 SoloLakehouse is an independent personal project. It is not affiliated with,
-endorsed by or sponsored by Fraport AG, DFS Deutsche Flugsicherung, the
+endorsed by or sponsored by Frankfurt Airport's operator, DFS Deutsche Flugsicherung, the
 OpenSky Network, Bundesnetzagentur or the European Central Bank. Names are
 used only to describe the data sources and locations involved.

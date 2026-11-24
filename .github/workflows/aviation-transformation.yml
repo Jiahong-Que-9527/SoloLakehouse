@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Fraport-adsb-intelligence/02-aviation-transformation/**'
+      - 'Frankfurt-Airport-adsb-intelligence/02-aviation-transformation/**'
       - '.github/workflows/aviation-transformation.yml'
   pull_request:
     paths:
-      - 'Fraport-adsb-intelligence/02-aviation-transformation/**'
+      - 'Frankfurt-Airport-adsb-intelligence/02-aviation-transformation/**'
       - '.github/workflows/aviation-transformation.yml'
   workflow_dispatch:
 
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Fraport-adsb-intelligence/02-aviation-transformation
+        working-directory: Frankfurt-Airport-adsb-intelligence/02-aviation-transformation
     steps:
       - uses: actions/checkout@v5
         with:
@@ -43,6 +43,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Build the project 02 image
-        run: docker build -t eddf-transformation:ci Fraport-adsb-intelligence/02-aviation-transformation
+        run: docker build -t eddf-transformation:ci Frankfurt-Airport-adsb-intelligence/02-aviation-transformation
       - name: Run the synthetic suite inside the image
         run: docker run --rm eddf-transformation:ci

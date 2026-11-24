@@ -62,24 +62,24 @@ chatgpt-consulting*.md
 
 # Local-only aviation research. Keep publishable engineering docs and tests tracked.
 **/.research-local/
-/Fraport-adsb-intelligence/**/[Rr]esearch/
-/Fraport-adsb-intelligence/**/[Ee]xperiments/
-/Fraport-adsb-intelligence/**/[Pp]aper[0-9]/
-/Fraport-adsb-intelligence/**/[Pp]aper[-_][0-9]/
-/Fraport-adsb-intelligence/**/[Tt]hesis/
-/Fraport-adsb-intelligence/**/[Ee]xpos[eé]/
-/Fraport-adsb-intelligence/**/[Pp]h[Dd]/
-/Fraport-adsb-intelligence/**/pilot_outputs/
-/Fraport-adsb-intelligence/**/reference_traces/
-/Fraport-adsb-intelligence/**/trace_full_*.json*
-/Fraport-adsb-intelligence/**/hires-traces-*.json*
-/Fraport-adsb-intelligence/**/geometry-[0-9][0-9].osm
-/Fraport-adsb-intelligence/**/paper[0-9]_*.md
-/Fraport-adsb-intelligence/**/feasibility_report.md
-/Fraport-adsb-intelligence/**/stratified_feasibility_report.md
-/Fraport-adsb-intelligence/**/full_silver_report.md
-/Fraport-adsb-intelligence/**/review_plate_*.png
-/Fraport-adsb-intelligence/**/trajectory_overlays_*.png
+/Frankfurt-Airport-adsb-intelligence/**/[Rr]esearch/
+/Frankfurt-Airport-adsb-intelligence/**/[Ee]xperiments/
+/Frankfurt-Airport-adsb-intelligence/**/[Pp]aper[0-9]/
+/Frankfurt-Airport-adsb-intelligence/**/[Pp]aper[-_][0-9]/
+/Frankfurt-Airport-adsb-intelligence/**/[Tt]hesis/
+/Frankfurt-Airport-adsb-intelligence/**/[Ee]xpos[eé]/
+/Frankfurt-Airport-adsb-intelligence/**/[Pp]h[Dd]/
+/Frankfurt-Airport-adsb-intelligence/**/pilot_outputs/
+/Frankfurt-Airport-adsb-intelligence/**/reference_traces/
+/Frankfurt-Airport-adsb-intelligence/**/trace_full_*.json*
+/Frankfurt-Airport-adsb-intelligence/**/hires-traces-*.json*
+/Frankfurt-Airport-adsb-intelligence/**/geometry-[0-9][0-9].osm
+/Frankfurt-Airport-adsb-intelligence/**/paper[0-9]_*.md
+/Frankfurt-Airport-adsb-intelligence/**/feasibility_report.md
+/Frankfurt-Airport-adsb-intelligence/**/stratified_feasibility_report.md
+/Frankfurt-Airport-adsb-intelligence/**/full_silver_report.md
+/Frankfurt-Airport-adsb-intelligence/**/review_plate_*.png
+/Frankfurt-Airport-adsb-intelligence/**/trajectory_overlays_*.png
 
 # Data-engineering local runtime state (raw DuckDB, generated payloads, checkpoints,
 # live-refresh downloads). Locked fixtures under reference-warehouse/fixtures/ stay in Git;

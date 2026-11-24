@@ -1,17 +1,17 @@
 name: Aviation analytics cloud
 
-# [GLM·2026-11-21] Fraport 03 M2. plan = PRs only (WIF); apply = main only,
+# [GLM·2026-11-21] Frankfurt Airport 03 M2. plan = PRs only (WIF); apply = main only,
 # gated by the `gcp-test` environment (required reviewer). No image build:
 # M2 is infrastructure only, the ingest job arrives with M3.
 on:
   push:
     branches: [main]
     paths:
-      - 'Fraport-adsb-intelligence/03-airport-analytics/**'
+      - 'Frankfurt-Airport-adsb-intelligence/03-airport-analytics/**'
       - '.github/workflows/aviation-analytics-cloud.yml'
   pull_request:
     paths:
-      - 'Fraport-adsb-intelligence/03-airport-analytics/**'
+      - 'Frankfurt-Airport-adsb-intelligence/03-airport-analytics/**'
       - '.github/workflows/aviation-analytics-cloud.yml'
   workflow_dispatch:
 
@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Fraport-adsb-intelligence/03-airport-analytics
+        working-directory: Frankfurt-Airport-adsb-intelligence/03-airport-analytics
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
@@ -45,7 +45,7 @@ jobs:
       id-token: write
     defaults:
       run:
-        working-directory: Fraport-adsb-intelligence/03-airport-analytics/infra
+        working-directory: Frankfurt-Airport-adsb-intelligence/03-airport-analytics/infra
     steps:
       - uses: actions/checkout@v5
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
@@ -59,6 +59,13 @@ jobs:
           terraform_version: '1.17.2'
       - run: terraform fmt -check -diff
       - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - name: Check that the state migration is complete
+        run: |
+          resources=$(terraform state list)
+          if [[ -z "$resources" ]]; then
+            echo "::error::Airport Analytics state is empty. Follow infra/BOOTSTRAP.md before planning or applying."
+            exit 1
+          fi
       - run: terraform plan -input=false -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}"
 
   apply:
@@ -70,7 +77,7 @@ jobs:
       id-token: write
     defaults:
       run:
-        working-directory: Fraport-adsb-intelligence/03-airport-analytics/infra
+        working-directory: Frankfurt-Airport-adsb-intelligence/03-airport-analytics/infra
     steps:
       - uses: actions/checkout@v5
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
@@ -83,4 +90,11 @@ jobs:
         with:
           terraform_version: '1.17.2'
       - run: terraform init -input=false -backend-config="bucket=${{ vars.GCP_STATE_BUCKET }}"
+      - name: Check that the state migration is complete
+        run: |
+          resources=$(terraform state list)
+          if [[ -z "$resources" ]]; then
+            echo "::error::Airport Analytics state is empty. Follow infra/BOOTSTRAP.md before planning or applying."
+            exit 1
+          fi
       - run: terraform apply -input=false -auto-approve -no-color -var "project_id=${{ vars.GCP_PROJECT_ID }}"

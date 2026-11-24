@@ -12,7 +12,7 @@
 1. **总思路**：为什么选择 **Serverless GitOps Data Pipeline**（而非自建 VPS 或开关机 GCE VM）作为开发与运行模式；
 2. **全仓应用模型**：如何让 Monorepo 下的多个项目、子项目与子步骤各自独立 CI/CD 到最合适的 GCP 组件；
 3. **仓库成熟度体检与平台收敛路线**：基于 `a83c4b6` 的实测清单与最小改造 PR 路线；
-4. **`Fraport-adsb-intelligence` `02` & `03` 云端接入详细设计**：落地 2026-11-22 已拍板的四项核心裁定，明确架构边界、代码改造面、Terraform/Workflow 接线、成本护栏与后续演进路径。
+4. **`Frankfurt-Airport-adsb-intelligence` `02` & `03` 云端接入详细设计**：落地 2026-11-22 已拍板的四项核心裁定，明确架构边界、代码改造面、Terraform/Workflow 接线、成本护栏与后续演进路径。
 
 ---
 
@@ -58,7 +58,7 @@
 | 层级 | 仓库载体 | GCP 对应实体 | 设计原则 |
 |---|---|---|---|
 | **1. 全仓公共底座** | 公共引导底座（拟从 G01 剥离至独立底座/`gcp/06`） | GCP Project、GitHub OIDC/WIF Pool、Terraform State Bucket、共享预算基线 | 建一次、全仓复用；不绑定任何业务表或业务桶 |
-| **2. 独立项目边界** | 如 `gcp/01-*`、`Fraport-adsb-intelligence/02-*`、`03-*` | 专属 Service Account、专属 GCS 桶/前缀、BigQuery Dataset、独立 Terraform State Prefix | 权限、数据、账单和 `terraform destroy` 影响面严格隔离 |
+| **2. 独立项目边界** | 如 `gcp/01-*`、`Frankfurt-Airport-adsb-intelligence/02-*`、`03-*` | 专属 Service Account、专属 GCS 桶/前缀、BigQuery Dataset、独立 Terraform State Prefix | 权限、数据、账单和 `terraform destroy` 影响面严格隔离 |
 | **3. 子步骤运行单元** | 子项目内各处理阶段（如 `silver` / `gold` / `release` / `ingest` / `views`） | 独立的 **Cloud Run Job**（批处理）或 **Cloud Run Service**（HTTP API） | 每一步可独立设 CPU/RAM、独立挂载最小权限 SA、独立重跑 |
 | **4. 编排与触发层** | `07-platform-orchestration` 或项目调度配置 | **Cloud Scheduler**（定时） / **Eventarc**（事件） / **Cloud Workflows**（多步编排） | 在子步骤稳固后再引入，不用重型编排器绑死单体步骤 |
 
@@ -75,7 +75,7 @@
    - 将所有 GCP 交付共享的 `test → PR plan → build-push → apply (environment: gcp-test)` 逻辑抽入 `.github/workflows/_reusable-gcp-delivery.yml`。
    - 各项目入口文件瘦身为 **20–30 行声明式配置**（传入 `working-directory`、`python-version`、`test-command`、`image-name`、`build-image: true/false` 等）。
 2. **严格路径过滤 + 手动按批触发**：
-   - 每个项目入口仅通过 `on.push.paths` 与 `on.pull_request.paths` 监听自身目录与自身 workflow 文件（如改 `local/` 绝不触发 `gcp/` 或 `Fraport`）。
+   - 每个项目入口仅通过 `on.push.paths` 与 `on.pull_request.paths` 监听自身目录与自身 workflow 文件（如改 `local/` 绝不触发 `gcp/` 或 `Frankfurt Airport`）。
    - 对于多子步骤同仓演进的场景，可进一步结合 `dorny/paths-filter` + `matrix` 做到“改哪步只测、只发哪步”。
    - 统一保留 `workflow_dispatch`，支持直接从 GitHub 网页传入 `batch` / `month` / `release_id` 手动触发云端重跑，无需依赖本机终端。
 
@@ -90,8 +90,8 @@ gs://<state-bucket>/
 ├── gcp/02-energy-analytics-api/            # G02 专属 State
 ├── gcp/03-aviation-event-processing/       # G03 专属 State
 ├── gcp/04-governed-energy-data-product/    # G04 专属 State
-├── fraport/02-aviation-transformation/     # Fraport 02 专属 State（新增）
-└── fraport/03-airport-analytics/           # Fraport 03 专属 State（已有）
+├── frankfurt-airport/02-aviation-transformation/     # Frankfurt Airport 02 专属 State（新增）
+└── frankfurt-airport/03-airport-analytics/           # Frankfurt Airport 03 专属 State（已有）
 ```
 
 任意项目都可以单独执行 `terraform plan` / `apply` / `destroy`，绝不锁死或误删其他项目的云资源。
@@ -113,7 +113,7 @@ gs://<state-bucket>/
 ### 3.1 仓库现状总体评价：**7.5–8 / 10**
 
 截至 `2026-11-22`（`main` / `a83c4b6`，PR #256），仓库的底座纪律与真实云交付能力已经相当扎实：
-- **`G01–G04` 与 `Fraport-03` M2 已在 GCP 实测上线**，全线走 **WIF 免密钥认证**、GitHub Actions 引用锁定 **Full Commit SHA**、`apply` 挂有 **`environment: gcp-test` 人工审批门**；
+- **`G01–G04` 与 `Frankfurt Airport phase 03` M2 已在 GCP 实测上线**，全线走 **WIF 免密钥认证**、GitHub Actions 引用锁定 **Full Commit SHA**、`apply` 挂有 **`environment: gcp-test` 人工审批门**；
 - 全仓坚持 `uv sync --locked` 离线可复现测试，并将 `AGENTS.md` GCP 成本闸门写为强制规则。
 
 ### 3.2 六项待收敛短板（附代码实证）
@@ -122,10 +122,10 @@ gs://<state-bucket>/
 |---|---|---|---|
 | **P0** | **云交付流水线缺少 `needs: test` 强门禁** | `energy-cloud.yml`、`energy-api.yml`、`governed-energy-product-cloud.yml`、`aviation-event-cloud.yml` 中 `build-push` 与 `test` 并行，且 `apply` 只 `needs: build-push`；`aviation-analytics-cloud.yml` 的 `apply` 亦无 `needs: test` | 直接推送 `main` 且单测失败时，坏镜像仍会被推入 Artifact Registry 并进入审批队列 |
 | **P0** | **同一项目存在重复触发的 Workflow** | `energy-pipeline.yml`（33 行）与 `energy-cloud.yml` 监听完全相同的 `gcp/01-european-energy-pipeline/**`；`aviation-event-processing.yml`（33 行）与 `aviation-event-cloud.yml` 监听完全相同的 `gcp/03-aviation-event-processing/**` | 每次改动跑两遍单测，Actions 面板冗余杂乱（对比 `energy-api.yml` 已正确合并） |
-| **P1** | **5 份云交付 Workflow 复制粘贴严重且含硬编码业务参数** | 5 份云交付 workflow 合计约 545 行高度重复；`governed-energy-product-cloud.yml` 的 `apply` 硬编码了 `input_release_id=0f249cdb2d1c44ab8155fb810b178302` 和 `candidate_id=cand-2026-11-21-third` | 后续接 `Fraport 02/03`、`G05` 时维护成本倍增；无关 infra 改动会触发重复发布旧 `candidate_id` |
-| **P1** | **公共云底座「寄宿」在 `G01` 内** | `gcp/04-governed-energy-data-product/infra/versions.tf` 与 `Fraport-adsb-intelligence/03-airport-analytics/infra/versions.tf` 均注明 Terraform state bucket（`slh-gcp-test-tfstate`）与 WIF pool 继承自 `G01` 的 `BOOTSTRAP.md` | 与“所有项目平级独立”矛盾，也与计划中的 `gcp/06-cloud-platform-factory` 职责重叠 |
+| **P1** | **5 份云交付 Workflow 复制粘贴严重且含硬编码业务参数** | 5 份云交付 workflow 合计约 545 行高度重复；`governed-energy-product-cloud.yml` 的 `apply` 硬编码了 `input_release_id=0f249cdb2d1c44ab8155fb810b178302` 和 `candidate_id=cand-2026-11-21-third` | 后续接 `Frankfurt Airport 02/03`、`G05` 时维护成本倍增；无关 infra 改动会触发重复发布旧 `candidate_id` |
+| **P1** | **公共云底座「寄宿」在 `G01` 内** | `gcp/04-governed-energy-data-product/infra/versions.tf` 与 `Frankfurt-Airport-adsb-intelligence/03-airport-analytics/infra/versions.tf` 均注明 Terraform state bucket（`slh-gcp-test-tfstate`）与 WIF pool 继承自 `G01` 的 `BOOTSTRAP.md` | 与“所有项目平级独立”矛盾，也与计划中的 `gcp/06-cloud-platform-factory` 职责重叠 |
 | **P1** | **根 `README.md` 滞后，低报已完成成果** | `README.md` 仍将 `ML Engineering` 写成 `M01–M04 accepted` 并在能力表里标注 `ML Engineering (planned)`；但 `git log` 显示 **M05（PR #249）与 M06（PR #252）均已合并** | 面试官仅看首页会漏掉完整的训练注册与在线/批量推理成果 |
-| **P2** | **模板、历史目录、单测规范与未跟踪目录有待对齐** | ① `project-template/` 停留在 2026-11-13（仍用 `requirements.txt` + `infra/terraform/`，与实战 `uv.lock` + `infra/` 脱节）；② `local/`（含 `local/project3/`）游离于首页五大项目外；③ `Fraport 02/03` 用 Python 3.13 + `unittest`（无 ruff），`gcp/01–05` 用 Python 3.12 + `pytest` + `ruff`；④ 根目录存在未跟踪空目录 `origin/`、`.aws/` | 模板与实战不一致会削弱 Platform Owner 叙事一致性 |
+| **P2** | **模板、历史目录、单测规范与未跟踪目录有待对齐** | ① `project-template/` 停留在 2026-11-13（仍用 `requirements.txt` + `infra/terraform/`，与实战 `uv.lock` + `infra/` 脱节）；② `local/`（含 `local/project3/`）游离于首页五大项目外；③ `Frankfurt Airport 02/03` 用 Python 3.13 + `unittest`（无 ruff），`gcp/01–05` 用 Python 3.12 + `pytest` + `ruff`；④ 根目录存在未跟踪空目录 `origin/`、`.aws/` | 模板与实战不一致会削弱 Platform Owner 叙事一致性 |
 
 ### 3.3 平台侧最小收敛节奏
 
@@ -135,7 +135,7 @@ gs://<state-bucket>/
 
 ---
 
-## 四、重点详细设计：`Fraport-adsb-intelligence` `02` & `03` 云端接入方案
+## 四、重点详细设计：`Frankfurt-Airport-adsb-intelligence` `02` & `03` 云端接入方案
 
 ### 4.1 已拍板的 4 项核心裁定（2026-11-22）
 
@@ -143,20 +143,20 @@ gs://<state-bucket>/
 |---|---|---|
 | **裁定 1** | **Bronze 上云与 `ADR-003` 演进** | **一步到位全面上云**。起草新 **`ADR-007` 取代 `ADR-003`**（原 Proposed 状态），将约 55 GB 两年历史 Bronze 一次性迁入私有 `<project>-aviation-bronze` 桶（锁定 `europe-west3`、`uniform_bucket_level_access = true`、`public_access_prevention = "enforced"`），后续转换与分析全部在 GCP 运行。<br>**前置守则**：执行大规模上传与全量 Cloud Run backfill 前，须核实 OpenSky 科研数据私存欧盟区私有云桶的使用条款，并严格按 `AGENTS.md` 成本闸门逐次报价审批；公开仓库与 CI 永远只保留合成数据。 |
 | **裁定 2** | **子项目交付顺序** | **严格按编号顺序推进**：先完成 **`02-aviation-transformation`** 上云并验证，再完成 **`03-airport-analytics`** 上云（`02 → 03`）。 |
-| **裁定 3** | **触发与编排演进路线（重要留档）** | **两阶段演进**：<br>• **Phase 1（本期落地）**：`02` 与 `03` 均采用 **手动 / GitHub Actions `workflow_dispatch` 触发**（显式传入日期范围、月份或 `release_id`），确保逐批核验、稳控 Free Trial 成本。<br>• **Phase 2（后续改造，明确挂起待办）**：待 `02` 与 `03` 云端稳定运行后，在 `07-platform-orchestration` 或下一里程碑升级为事件驱动与端到端编排——用 **Eventarc** 监听 `landing` 桶内对象名以 `/_SUCCESS` 结尾的 `object.finalized` 事件自动触发 `fraport-03-ingest-release`，并用 **Cloud Workflows** 串联 `02-silver → 02-gold → 02-release → 03-ingest → 03-views`。 |
+| **裁定 3** | **触发与编排演进路线（重要留档）** | **两阶段演进**：<br>• **Phase 1（本期落地）**：`02` 与 `03` 均采用 **手动 / GitHub Actions `workflow_dispatch` 触发**（显式传入日期范围、月份或 `release_id`），确保逐批核验、稳控 Free Trial 成本。<br>• **Phase 2（后续改造，明确挂起待办）**：待 `02` 与 `03` 云端稳定运行后，在 `07-platform-orchestration` 或下一里程碑升级为事件驱动与端到端编排——用 **Eventarc** 监听 `landing` 桶内对象名以 `/_SUCCESS` 结尾的 `object.finalized` 事件自动触发 `frankfurt-airport-03-ingest-release`，并用 **Cloud Workflows** 串联 `02-silver → 02-gold → 02-release → 03-ingest → 03-views`。 |
 | **裁定 4** | **`03` 视图与 `geometry-v2` 对齐** | **同步支持 `geometry-v2`**。升级 `03-airport-analytics/analytics_views.py`，保留 `ground_ops_arrivals`（Radius v1）既有三张视图的同时，补齐针对 `ground_ops_arrivals_geometry_v2` 的分析视图与预期核对逻辑。 |
 
 ### 4.2 总体解耦架构与最小权限 IAM 矩阵
 
 ```mermaid
 flowchart LR
-  subgraph P02["02 · Aviation Transformation (TF State: fraport/02-aviation-transformation)"]
+  subgraph P02["02 · Aviation Transformation (TF State: frankfurt-airport/02-aviation-transformation)"]
     direction TB
     CI02["02 CI/CD: aviation-transformation-cloud.yml"]
     IN02["GCS Bronze 55 GB & OSM Ref (Read-Only)"]
-    J_SILVER["Cloud Run Job: fraport-02-silver (Parallel by Day)"]
-    J_GOLD["Cloud Run Job: fraport-02-gold (Monthly Merge + Gold)"]
-    J_REL["Cloud Run Job: fraport-02-release (Release Gate)"]
+    J_SILVER["Cloud Run Job: frankfurt-airport-02-silver (Parallel by Day)"]
+    J_GOLD["Cloud Run Job: frankfurt-airport-02-gold (Monthly Merge + Gold)"]
+    J_REL["Cloud Run Job: frankfurt-airport-02-release (Release Gate)"]
     WORK02["GCS Work (Silver / Gold / Blocked)"]
 
     CI02 -->|"WIF Apply"| J_SILVER
@@ -168,11 +168,11 @@ flowchart LR
 
   LANDING["GCS Landing Bucket (Immutable Release + Trailing _SUCCESS)"]
 
-  subgraph P03["03 · Airport Analytics (TF State: fraport/03-airport-analytics)"]
+  subgraph P03["03 · Airport Analytics (TF State: frankfurt-airport/03-airport-analytics)"]
     direction TB
     CI03["03 CI/CD: aviation-analytics-cloud.yml"]
-    J_ING["Cloud Run Job: fraport-03-ingest-release"]
-    J_VIEW["Cloud Run Job: fraport-03-analytics-views"]
+    J_ING["Cloud Run Job: frankfurt-airport-03-ingest-release"]
+    J_VIEW["Cloud Run Job: frankfurt-airport-03-analytics-views"]
     BQ["BigQuery Managed Iceberg (ground_ops_arrivals & _geometry_v2 + Views)"]
 
     CI03 -->|"WIF Apply"| J_ING
@@ -186,7 +186,7 @@ flowchart LR
   J_ING --> J_VIEW
 ```
 
-> **触发演进说明**：Phase 1 下 `02` 与 `03` 各 Job 均通过 `gcloud run jobs execute` 或 GitHub Actions `workflow_dispatch` 手动按批次触发；Phase 2 待稳定后，由 `landing` 桶的 `_SUCCESS` 落盘事件经 **Eventarc** 自动拉起 `fraport-03-ingest-release`，并由 `07-platform-orchestration` 的 **Cloud Workflows** 串联全链。
+> **触发演进说明**：Phase 1 下 `02` 与 `03` 各 Job 均通过 `gcloud run jobs execute` 或 GitHub Actions `workflow_dispatch` 手动按批次触发；Phase 2 待稳定后，由 `landing` 桶的 `_SUCCESS` 落盘事件经 **Eventarc** 自动拉起 `frankfurt-airport-03-ingest-release`，并由 `07-platform-orchestration` 的 **Cloud Workflows** 串联全链。
 
 #### 最小权限 IAM 矩阵
 
@@ -219,9 +219,9 @@ flowchart LR
 
 | Job 名称 | 入口命令 / 子模式 | 挂载 SA | 建议规格（CPU / RAM） | 切片与并发机制 |
 |---|---|---|---|---|
-| `fraport-02-silver` | `cloud_runner.py silver` | `aviation-transform` | `2 vCPU / 4 GiB`（繁忙月可覆盖升至 `8 GiB`） | **原生 Task 并发**：执行时传 `START_DATE` 与 `--tasks=N`（如 30）；容器按 `CLOUD_RUN_TASK_INDEX` 计算自己负责的 UTC 日期，单日 Bronze 约 80–150 MB，开 5–10 路并行数分钟完成全月 |
-| `fraport-02-gold` | `cloud_runner.py gold` | `aviation-transform` | **`4 vCPU / 16 GiB`**（按月实测，繁忙月必要时升至 `32 GiB`） | 按单月执行（`MONTH=YYYY-MM`、`GEOMETRY_VERSION=v2`）：先调 `merge_silver_month.py` 合并全月 Silver，**立即删去 `/tmp/work/in/daily` 释放内存盘空间**，再调用 `gold_ground_ops.py` |
-| `fraport-02-release` | `cloud_runner.py release` | **`aviation-upload`**（叠加 `work` 只读权限） | `1 vCPU / 2 GiB` | 按单月执行（`MONTH`、`RELEASE_ID`、`APPROVER`）：在 `/tmp` 暂存校验，通过后直接写入 `landing/releases/<release_id>/` 并最后上传 `_SUCCESS` |
+| `frankfurt-airport-02-silver` | `cloud_runner.py silver` | `aviation-transform` | `2 vCPU / 4 GiB`（繁忙月可覆盖升至 `8 GiB`） | **原生 Task 并发**：执行时传 `START_DATE` 与 `--tasks=N`（如 30）；容器按 `CLOUD_RUN_TASK_INDEX` 计算自己负责的 UTC 日期，单日 Bronze 约 80–150 MB，开 5–10 路并行数分钟完成全月 |
+| `frankfurt-airport-02-gold` | `cloud_runner.py gold` | `aviation-transform` | **`4 vCPU / 16 GiB`**（按月实测，繁忙月必要时升至 `32 GiB`） | 按单月执行（`MONTH=YYYY-MM`、`GEOMETRY_VERSION=v2`）：先调 `merge_silver_month.py` 合并全月 Silver，**立即删去 `/tmp/work/in/daily` 释放内存盘空间**，再调用 `gold_ground_ops.py` |
+| `frankfurt-airport-02-release` | `cloud_runner.py release` | **`aviation-upload`**（叠加 `work` 只读权限） | `1 vCPU / 2 GiB` | 按单月执行（`MONTH`、`RELEASE_ID`、`APPROVER`）：在 `/tmp` 暂存校验，通过后直接写入 `landing/releases/<release_id>/` 并最后上传 `_SUCCESS` |
 
 > **⚠️ 关键工程风险提醒——Cloud Run 的 `/tmp` 是内存盘（in-memory tmpfs）**：
 > - `02` 在 2026-10 等繁忙月份数据量可达上亿行级（根 README 记录 2026-10 达 109.6M rows），`/tmp` 中的输入切片、输出文件与 DuckDB 运行内存共享同一个容器内存配额。
@@ -231,8 +231,8 @@ flowchart LR
 
 #### C. `02` 的 Terraform 与 CI/CD 接线
 
-- **Terraform 目录**：`Fraport-adsb-intelligence/02-aviation-transformation/infra/`
-  - `versions.tf`：GCS backend prefix = `fraport/02-aviation-transformation`。
+- **Terraform 目录**：`Frankfurt-Airport-adsb-intelligence/02-aviation-transformation/infra/`
+  - `versions.tf`：GCS backend prefix = `frankfurt-airport/02-aviation-transformation`。
   - `main.tf`：按需启用 `run.googleapis.com`、`artifactregistry.googleapis.com`、`storage.googleapis.com`；创建 `bronze` / `ref` / `work` 三个私有桶（开启 `uniform_bucket_level_access`、`public_access_prevention = "enforced"`，给 `work/tmp` 或超期中间调试件配 Lifecycle 策略）；创建 `aviation-transform` SA 与授权；创建 `02` Artifact Registry 仓库（或复用统一 `aviation` 仓库，配 cleanup policy 仅留最近 5 个镜像）；定义上述三个 Cloud Run Job。
 - **CI/CD Workflow**：`.github/workflows/aviation-transformation-cloud.yml`（合并取代/升级现有仅跑本地测试的 `aviation-transformation.yml`）
   - `test`：运行 `uv sync --locked` + `unittest` 合成测试；
@@ -256,13 +256,13 @@ flowchart LR
 3. **扩展 `03-airport-analytics/infra/main.tf`**：
    - 启用 `run.googleapis.com` 与 `artifactregistry.googleapis.com`；
    - 定义 Artifact Registry 仓库（配置清理策略只保留最近 5 个镜像）；
-   - 定义 Cloud Run Job **`fraport-03-ingest-release`**：挂载已有 `aviation-ingest` SA（`landing` 只读 + BQ `jobUser`/`dataEditor` + `connectionUser` 均已就绪），默认 `1 vCPU / 2 GiB`，运行入口调用 `ingest_release.py`；
-   - 定义 Cloud Run Job **`fraport-03-analytics-views`**：挂载同一 SA 与镜像，入口调用 `analytics_views.py`，负责在每次新 Release 入库后刷新视图并核对行计数/覆盖率。
+   - 定义 Cloud Run Job **`frankfurt-airport-03-ingest-release`**：挂载已有 `aviation-ingest` SA（`landing` 只读 + BQ `jobUser`/`dataEditor` + `connectionUser` 均已就绪），默认 `1 vCPU / 2 GiB`，运行入口调用 `ingest_release.py`；
+   - 定义 Cloud Run Job **`frankfurt-airport-03-analytics-views`**：挂载同一 SA 与镜像，入口调用 `analytics_views.py`，负责在每次新 Release 入库后刷新视图并核对行计数/覆盖率。
 4. **升级 `.github/workflows/aviation-analytics-cloud.yml`**：
    - 为现有的 `apply` 补齐 **`needs: [test, build-push]`**，新增 `build-push` job 构建并推送 `03` 镜像，将镜像 tag 传给 `terraform apply`；
-   - 新增 `workflow_dispatch` 手动执行入口：输入 `release_id`（例如 `geometry-v2-2024-11`），直接触发 `gcloud run jobs execute fraport-03-ingest-release` 并在成功后再触发 `fraport-03-analytics-views`。
+   - 新增 `workflow_dispatch` 手动执行入口：输入 `release_id`（例如 `geometry-v2-2024-11`），直接触发 `gcloud run jobs execute frankfurt-airport-03-ingest-release` 并在成功后再触发 `frankfurt-airport-03-analytics-views`。
 5. **Phase 2 预留接口（暂不启用，记入待改项）**：
-   - 本期保留手动触发；后续进入 Phase 2 时，在 `03`（或 `07-platform-orchestration`）增加一条 **Eventarc 触发器**，监听 `<proj>-aviation-landing` 桶 `google.cloud.storage.object.v1.finalized` 事件且过滤对象后缀为 `/_SUCCESS`，自动提取 `release_id` 触发 `fraport-03-ingest-release` 并串联刷新视图。
+   - 本期保留手动触发；后续进入 Phase 2 时，在 `03`（或 `07-platform-orchestration`）增加一条 **Eventarc 触发器**，监听 `<proj>-aviation-landing` 桶 `google.cloud.storage.object.v1.finalized` 事件且过滤对象后缀为 `/_SUCCESS`，自动提取 `release_id` 触发 `frankfurt-airport-03-ingest-release` 并串联刷新视图。
 
 ---
 
@@ -295,14 +295,14 @@ flowchart LR
 
 ### Stage 1 · `ADR-007` 与 `02-aviation-transformation` 上云（顺序第一项）
 
-- [ ] **PR 1.1（架构决策与合规核实）**：起草并评审 `Fraport-adsb-intelligence/docs/adr/ADR-007-cloud-bronze-silver-processing.md`（正式取代 `ADR-003`）；核实 OpenSky 科研数据私存 `europe-west3` 私有 GCS 桶条款。
+- [ ] **PR 1.1（架构决策与合规核实）**：起草并评审 `Frankfurt-Airport-adsb-intelligence/docs/adr/ADR-007-cloud-bronze-silver-processing.md`（正式取代 `ADR-003`）；核实 OpenSky 科研数据私存 `europe-west3` 私有 GCS 桶条款。
 - [ ] **PR 1.2（`02` 基础设施与适配器）**：新增 `02/infra/`（`bronze`/`ref`/`work` 桶、`aviation-transform` SA、AR 仓库、3 个 Cloud Run Job）；实现 `cloud_runner.py` 与更新 `02/Dockerfile`；升级 `aviation-transformation-cloud.yml`（含 `workflow_dispatch`）。
-- [ ] **Gate 1.3（先小批实跑，再经成本闸门全量迁移）**：先上传 1 周 pilot Bronze 验证 `fraport-02-silver` / `gold` / `release` 在 Cloud Run `/tmp` 的内存水位与真实耗时；确认无误后，依 `AGENTS.md` 成本闸门申请批准并一次性上传 55 GB 历史 Bronze 与执行全量云端跑批。
+- [ ] **Gate 1.3（先小批实跑，再经成本闸门全量迁移）**：先上传 1 周 pilot Bronze 验证 `frankfurt-airport-02-silver` / `gold` / `release` 在 Cloud Run `/tmp` 的内存水位与真实耗时；确认无误后，依 `AGENTS.md` 成本闸门申请批准并一次性上传 55 GB 历史 Bronze 与执行全量云端跑批。
 
 ### Stage 2 · `03-airport-analytics` 上云与 `geometry-v2` 对齐（顺序第二项）
 
 - [ ] **PR 2.1（`03` 容器化与 `geometry-v2` 视图）**：新增 `03/Dockerfile`；扩展 `analytics_views.py` 同时支持 `ground_ops_arrivals`（Radius v1）与 `ground_ops_arrivals_geometry_v2` 视图及校验。
-- [ ] **PR 2.2（`03` Cloud Run Jobs 与 CI/CD 闭环）**：扩展 `03/infra/main.tf` 增加 Artifact Registry、`fraport-03-ingest-release` 与 `fraport-03-analytics-views`；升级 `aviation-analytics-cloud.yml` 补全 `build-push`、`apply` 与 `workflow_dispatch`。
+- [ ] **PR 2.2（`03` Cloud Run Jobs 与 CI/CD 闭环）**：扩展 `03/infra/main.tf` 增加 Artifact Registry、`frankfurt-airport-03-ingest-release` 与 `frankfurt-airport-03-analytics-views`；升级 `aviation-analytics-cloud.yml` 补全 `build-push`、`apply` 与 `workflow_dispatch`。
 - [ ] **Gate 2.3（手动端到端闭环验收）**：从 GitHub Actions 手动触发 `02` 产出发布至 `landing` → 手动触发 `03` 入库 Iceberg 表与校验视图 → 记录完整运行日志、Job ID、BigQuery 扫描字节数与实测成本。
 
 ### Stage 3 · 平台化与自动化演进（Phase 2 待办，不堵首期）

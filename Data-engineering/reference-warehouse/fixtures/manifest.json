@@ -8,9 +8,9 @@
       "register_date": "2026-11-12",
       "license": "CC BY 4.0",
       "retrieval_date": "2026-11-23",
-      "extraction": "Rows with Bundesland='Hessen' and Kreis in {Kreisfreie Stadt Frankfurt am Main, Kreisfreie Stadt Wiesbaden, Landkreis Groß-Gerau, Landkreis Main-Kinzig-Kreis}; Excel serial dates converted to ISO; comma decimals normalized. This real slice is the t2 station attributes; t0/t1 states are seeded synthetic history (generator.py).",
+      "extraction": "Rows with Bundesland='Hessen' and Kreis in {Kreisfreie Stadt Frankfurt am Main, Kreisfreie Stadt Wiesbaden, Landkreis Groß-Gerau, Landkreis Main-Kinzig-Kreis}; Excel serial dates converted to ISO; comma decimals normalized. The airport operator label was replaced with the display name Frankfurt Airport. This real slice is the t2 station attributes; t0/t1 states are seeded synthetic history (generator.py).",
       "row_count": 3233,
-      "sha256": "2c1d6eaf1aff319e05edd7a66fc9f59b035075f1d860fe18a590b8349d8ca028"
+      "sha256": "42ecae167f6fbfcb5b870e4d214c983d6d47704405a605d8beec78f715077ae4"
     },
     "smard_prices_slice.csv": {
       "source": "Bundesnetzagentur SMARD market data (via Fraunhofer ISE energy-charts API)",

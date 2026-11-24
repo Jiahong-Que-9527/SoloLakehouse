@@ -1,0 +1,27 @@
+{
+  "image_id": "sha256:a8915252d4a0ff92d08b427ff35c43b03d2918c647ceef0a4f793c49b1459cfd",
+  "invalid_pin_exit_code": 1,
+  "network": "none",
+  "package": {
+    "model_artifact_sha256": "2138c1e388931c14ed7dbe1b3e1a87e189f6e2abb383d9151ce50b6d33e6c388",
+    "model_manifest_sha256": "e2d04bb637306d231702971d95a35567c8f70282715baf04254d8f7aabcee3a6",
+    "model_release_id": "frankfurt-airport-taxi-in-ca2c8f9b21863f18"
+  },
+  "port": 9090,
+  "probe": {
+    "airport_icao": "EDDF",
+    "model": {
+      "artifact_sha256": "2138c1e388931c14ed7dbe1b3e1a87e189f6e2abb383d9151ce50b6d33e6c388",
+      "manifest_sha256": "e2d04bb637306d231702971d95a35567c8f70282715baf04254d8f7aabcee3a6",
+      "model_release_id": "frankfurt-airport-taxi-in-ca2c8f9b21863f18",
+      "model_version": 1,
+      "source_commit": "69146e4ce4e3168947c3094ed2050023a997ee50"
+    },
+    "predicted_taxi_in_seconds": 260.68698363615175,
+    "prediction_at": "2025-04-15T13:30:05Z"
+  },
+  "read_only_root": true,
+  "same_input_replay_matches": true,
+  "serving_source_commit": "e2981f7977cf68d746b468e7aad58dbeb70fc2f6",
+  "volumes": 0
+}

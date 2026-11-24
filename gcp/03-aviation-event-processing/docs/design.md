@@ -100,7 +100,7 @@ Record the subscription id, dead-letter message ids, and the final state query.
 
 ## 8. Handoff
 
-G04 does not govern this topic. A later aviation workflow may reuse the envelope. It must bring its own fixture. This project does not read the Fraport Bronze store.
+G04 does not govern this topic. A later aviation workflow may reuse the envelope. It must bring its own fixture. This project does not read the Frankfurt Airport Bronze store.
 
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
 

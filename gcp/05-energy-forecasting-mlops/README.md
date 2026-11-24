@@ -11,12 +11,12 @@ version.
 
 MLflow tracking and model registry, containerized training jobs, Cloud Run
 and Cloud Monitoring. Vertex AI is a documented migration path, not a
-dependency ([ADR-005](../../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md)).
+dependency ([ADR-005](../../Frankfurt-Airport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md)).
 
 ## Input and output
 
 - **Input.** A fixed release compatible with [G04](../04-governed-energy-data-product/README.md), or an equivalent local fixture. Record the prediction target and time cutoff.
-- **Output.** An evaluation report, a registered model version, a deployment record and model-serving metrics. The flagship's separate [Model Serving Integration](../../Fraport-adsb-intelligence/06-model-serving/README.md) can apply the same practices to the approved aviation model.
+- **Output.** An evaluation report, a registered model version, a deployment record and model-serving metrics. The flagship's separate [Model Serving Integration](../../Frankfurt-Airport-adsb-intelligence/06-model-serving/README.md) can apply the same practices to the approved aviation model.
 
 ## Acceptance
 

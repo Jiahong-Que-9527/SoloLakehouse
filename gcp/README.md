@@ -57,7 +57,7 @@ learning order; each project exercises its own bounded fixture.
 - **Event processing (G03).** Seeded energy revisions and synthetic airport events exercise duplicate delivery, retries and replay against independently expected results. G03 owns its output table and can run alongside the batch projects.
 - **Environment provisioning (G06).** The factory will reuse verified deployment patterns and exercise its batch template with a one-row reference workload. Its acceptance evidence covers two isolated environments, scoped identities and retirement.
 
-The separate [aviation serving integration](../Fraport-adsb-intelligence/06-model-serving/README.md)
+The separate [aviation serving integration](../Frankfurt-Airport-adsb-intelligence/06-model-serving/README.md)
 can apply G05 delivery practices to the flagship model.
 
 <!-- [李淳风·2026-11-20] Replace the G01-era priorities with the post-G02 sequence and the delivery playbook. -->
