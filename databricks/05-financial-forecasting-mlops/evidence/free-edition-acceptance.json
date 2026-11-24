@@ -1,0 +1,613 @@
+{
+  "monitor-old": {
+    "execution": {
+      "compute": "Databricks Free Edition CPU Serverless",
+      "ended_at": "2026-11-24T22:29:11.699000+00:00",
+      "job_id": 735923085980789,
+      "result_state": "SUCCESS",
+      "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/735923085980789/run/1004940814297471",
+      "started_at": "2026-11-24T22:28:47.058000+00:00",
+      "task_run_id": 895648131288861
+    },
+    "job_run_id": "1004940814297471",
+    "residuals": [
+      {
+        "actual": 1.2,
+        "actual_date": "2025-03-26",
+        "as_of_date": "2025-03-25",
+        "model_version": "1",
+        "prediction": 1.198847078495393,
+        "residual": 0.0011529215046068853,
+        "series_key": "EXR.D.USD.EUR.SP00.A"
+      }
+    ]
+  },
+  "registry_readback": {
+    "registered_model": "workspace.ecb_d05_20261124_222511.rollback_model",
+    "versions": [
+      {
+        "run_id": "16a37a02622c4503a29490516e301a75",
+        "status": "READY",
+        "version": 1
+      },
+      {
+        "run_id": "8975782789764284a56ef94fae100aad",
+        "status": "READY",
+        "version": 2
+      }
+    ]
+  },
+  "replay-new": {
+    "actuals_before_monitoring": 0,
+    "execution": {
+      "compute": "Databricks Free Edition CPU Serverless",
+      "ended_at": "2026-11-24T22:28:14.044000+00:00",
+      "job_id": 735923085980789,
+      "result_state": "SUCCESS",
+      "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/735923085980789/run/508141651322132",
+      "started_at": "2026-11-24T22:27:48.719000+00:00",
+      "task_run_id": 313472706912904
+    },
+    "job_run_id": "508141651322132",
+    "model_version": "2",
+    "predictions": [
+      {
+        "as_of_date": "2025-03-25",
+        "feature_version": "observed-lags-1-and-5-v1",
+        "git_sha": "a79ef0a4f00f561630839379e60ed1bf95e90b9e",
+        "input_table": "workspace.ecb_d05_20261124_222511.rollback_a",
+        "model_run_id": "8975782789764284a56ef94fae100aad",
+        "model_version": "2",
+        "prediction": 1.3976941569907861,
+        "release_id": "d05-rollback-a-v1",
+        "series_key": "EXR.D.USD.EUR.SP00.A",
+        "table_version": 0
+      }
+    ],
+    "reference": 1.3976941569907864
+  },
+  "rollback-old": {
+    "actuals_before_monitoring": 0,
+    "execution": {
+      "compute": "Databricks Free Edition CPU Serverless",
+      "ended_at": "2026-11-24T22:28:43.132000+00:00",
+      "job_id": 735923085980789,
+      "result_state": "SUCCESS",
+      "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/735923085980789/run/787659323983750",
+      "started_at": "2026-11-24T22:28:17.878000+00:00",
+      "task_run_id": 519142276409899
+    },
+    "job_run_id": "787659323983750",
+    "model_version": "1",
+    "predictions": [
+      {
+        "as_of_date": "2025-03-25",
+        "feature_version": "observed-lags-1-and-5-v1",
+        "git_sha": "a79ef0a4f00f561630839379e60ed1bf95e90b9e",
+        "input_table": "workspace.ecb_d05_20261124_222511.rollback_a",
+        "model_run_id": "16a37a02622c4503a29490516e301a75",
+        "model_version": "1",
+        "prediction": 1.198847078495393,
+        "release_id": "d05-rollback-a-v1",
+        "series_key": "EXR.D.USD.EUR.SP00.A",
+        "table_version": 0
+      },
+      {
+        "as_of_date": "2025-03-25",
+        "feature_version": "observed-lags-1-and-5-v1",
+        "git_sha": "a79ef0a4f00f561630839379e60ed1bf95e90b9e",
+        "input_table": "workspace.ecb_d05_20261124_222511.rollback_a",
+        "model_run_id": "8975782789764284a56ef94fae100aad",
+        "model_version": "2",
+        "prediction": 1.3976941569907861,
+        "release_id": "d05-rollback-a-v1",
+        "series_key": "EXR.D.USD.EUR.SP00.A",
+        "table_version": 0
+      }
+    ],
+    "reference": 1.1988470784953933
+  },
+  "score-new": {
+    "actuals_before_monitoring": 0,
+    "execution": {
+      "compute": "Databricks Free Edition CPU Serverless",
+      "ended_at": "2026-11-24T22:27:38.143000+00:00",
+      "job_id": 735923085980789,
+      "result_state": "SUCCESS",
+      "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/735923085980789/run/278995061794514",
+      "started_at": "2026-11-24T22:27:10.712000+00:00",
+      "task_run_id": 510212384504169
+    },
+    "job_run_id": "278995061794514",
+    "model_version": "2",
+    "predictions": [
+      {
+        "as_of_date": "2025-03-25",
+        "feature_version": "observed-lags-1-and-5-v1",
+        "git_sha": "a79ef0a4f00f561630839379e60ed1bf95e90b9e",
+        "input_table": "workspace.ecb_d05_20261124_222511.rollback_a",
+        "model_run_id": "8975782789764284a56ef94fae100aad",
+        "model_version": "2",
+        "prediction": 1.3976941569907861,
+        "release_id": "d05-rollback-a-v1",
+        "series_key": "EXR.D.USD.EUR.SP00.A",
+        "table_version": 0
+      }
+    ],
+    "reference": 1.3976941569907864
+  },
+  "train": {
+    "ecb_normalized_fixture_sha256": "ac8a50b57696b7506b4cefabb141f014024b9b2738fff6de3ff4cbedf40e2c62",
+    "execution": {
+      "compute": "Databricks Free Edition CPU Serverless",
+      "ended_at": "2026-11-24T22:27:07.991000+00:00",
+      "job_id": 735923085980789,
+      "result_state": "SUCCESS",
+      "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/735923085980789/run/932865148348584",
+      "started_at": "2026-11-24T22:25:22.826000+00:00",
+      "task_run_id": 614871940207559
+    },
+    "experiment_id": "882819485695427",
+    "git_sha": "a79ef0a4f00f561630839379e60ed1bf95e90b9e",
+    "job_run_id": "932865148348584",
+    "library_versions": {
+      "mlflow": "3.12.0",
+      "pandas": "2.3.3",
+      "sklearn": "1.7.2"
+    },
+    "registry": "databricks-uc",
+    "registry_fallback_reason": null,
+    "reports": {
+      "ecb": {
+        "gradient_boosted": {
+          "eligible": false,
+          "folds": [
+            {
+              "cutoff": "2025-05-14",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-05-15",
+              "last_evaluation_label": "2025-05-26",
+              "latest_training_label": "2025-05-14",
+              "mae": 0.0072393054248649225,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-05-26",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-05-27",
+              "last_evaluation_label": "2025-06-09",
+              "latest_training_label": "2025-05-26",
+              "mae": 0.004644641212587142,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-06-09",
+              "evaluation_count": 15,
+              "first_evaluation_label": "2025-06-10",
+              "last_evaluation_label": "2025-06-30",
+              "latest_training_label": "2025-06-09",
+              "mae": 0.01594602487087826,
+              "training_count": 42
+            }
+          ],
+          "model_uri": "models:/m-7539f248aa1e47f78ee171be3ad684f5",
+          "run_id": "d215d0bd87ae4da389f5f2f5449cbc84"
+        },
+        "last_value": {
+          "folds": [
+            {
+              "cutoff": "2025-05-14",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-05-15",
+              "last_evaluation_label": "2025-05-26",
+              "latest_training_label": "2025-05-14",
+              "mae": 0.003837499999999966,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-05-26",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-05-27",
+              "last_evaluation_label": "2025-06-09",
+              "latest_training_label": "2025-05-26",
+              "mae": 0.003249999999999953,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-06-09",
+              "evaluation_count": 15,
+              "first_evaluation_label": "2025-06-10",
+              "last_evaluation_label": "2025-06-30",
+              "latest_training_label": "2025-06-09",
+              "mae": 0.005133333333333346,
+              "training_count": 42
+            }
+          ],
+          "run_id": "76c1ef712f23455fa1ec3b6e1a697a49"
+        },
+        "linear": {
+          "folds": [
+            {
+              "cutoff": "2025-05-14",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-05-15",
+              "last_evaluation_label": "2025-05-26",
+              "latest_training_label": "2025-05-14",
+              "mae": 0.003874299470681769,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-05-26",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-05-27",
+              "last_evaluation_label": "2025-06-09",
+              "latest_training_label": "2025-05-26",
+              "mae": 0.003205112813412159,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-06-09",
+              "evaluation_count": 15,
+              "first_evaluation_label": "2025-06-10",
+              "last_evaluation_label": "2025-06-30",
+              "latest_training_label": "2025-06-09",
+              "mae": 0.007001122418257788,
+              "training_count": 42
+            }
+          ],
+          "run_id": "082c166ed9be46a49f3d95760816d697"
+        }
+      },
+      "gate_reject": {
+        "gradient_boosted": {
+          "eligible": false,
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 0.0011529215046068853,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 0.0011529215046068853,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.18254671388079444,
+              "training_count": 42
+            }
+          ],
+          "model_uri": "models:/m-6c77672fadc24bf9ace8e2692cfca139",
+          "run_id": "697358d7505d4434a505dedb27c125cc"
+        },
+        "last_value": {
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 0.19999999999999996,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 0.19999999999999996,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.0,
+              "training_count": 42
+            }
+          ],
+          "run_id": "91db248a13dc47bd8ac416dcd56f6686"
+        },
+        "linear": {
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 1.1102230246251565e-16,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 1.1102230246251565e-16,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.18000000000000044,
+              "training_count": 42
+            }
+          ],
+          "run_id": "d70ef199ee5947f88e1e53506d88e694"
+        }
+      },
+      "rollback_a": {
+        "gradient_boosted": {
+          "eligible": true,
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 0.0011529215046068853,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 0.0011529215046068853,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.0011529215046068853,
+              "training_count": 42
+            }
+          ],
+          "model_uri": "models:/m-7c2910a595f346bc8b20d7b240a38eae",
+          "run_id": "16a37a02622c4503a29490516e301a75"
+        },
+        "last_value": {
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 0.19999999999999996,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 0.19999999999999996,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.19999999999999996,
+              "training_count": 42
+            }
+          ],
+          "run_id": "fdac483160eb4c53ae36b286be10294f"
+        },
+        "linear": {
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 1.1102230246251565e-16,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 1.1102230246251565e-16,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 4.440892098500626e-16,
+              "training_count": 42
+            }
+          ],
+          "run_id": "061173665b5b40f1ac419ca0f166d846"
+        }
+      },
+      "rollback_b": {
+        "gradient_boosted": {
+          "eligible": true,
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 0.0023058430092137705,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 0.0023058430092137705,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.0023058430092137705,
+              "training_count": 42
+            }
+          ],
+          "model_uri": "models:/m-cc1249f8102f454d8bd08f45fc489020",
+          "run_id": "8975782789764284a56ef94fae100aad"
+        },
+        "last_value": {
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 0.3999999999999999,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 0.3999999999999999,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.3999999999999999,
+              "training_count": 42
+            }
+          ],
+          "run_id": "e7a833f48dbc497db3f4f8b8150b3ef9"
+        },
+        "linear": {
+          "folds": [
+            {
+              "cutoff": "2025-02-13",
+              "evaluation_count": 8,
+              "first_evaluation_label": "2025-02-14",
+              "last_evaluation_label": "2025-02-25",
+              "latest_training_label": "2025-02-13",
+              "mae": 0.0,
+              "training_count": 24
+            },
+            {
+              "cutoff": "2025-02-25",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-02-26",
+              "last_evaluation_label": "2025-03-11",
+              "latest_training_label": "2025-02-25",
+              "mae": 0.0,
+              "training_count": 32
+            },
+            {
+              "cutoff": "2025-03-11",
+              "evaluation_count": 10,
+              "first_evaluation_label": "2025-03-12",
+              "last_evaluation_label": "2025-03-25",
+              "latest_training_label": "2025-03-11",
+              "mae": 0.0,
+              "training_count": 42
+            }
+          ],
+          "run_id": "3f78fe7af1844ad38ea0373765c0f40f"
+        }
+      }
+    },
+    "rollback_versions": [
+      {
+        "feature_version": "observed-lags-1-and-5-v1",
+        "git_sha": "a79ef0a4f00f561630839379e60ed1bf95e90b9e",
+        "model_name": "workspace.ecb_d05_20261124_222511.rollback_model",
+        "model_version": "1",
+        "registry": "databricks-uc",
+        "run_id": "16a37a02622c4503a29490516e301a75",
+        "training_release": "d05-rollback-a-v1",
+        "training_table": "workspace.ecb_d05_20261124_222511.rollback_a",
+        "training_version": 0
+      },
+      {
+        "feature_version": "observed-lags-1-and-5-v1",
+        "git_sha": "a79ef0a4f00f561630839379e60ed1bf95e90b9e",
+        "model_name": "workspace.ecb_d05_20261124_222511.rollback_model",
+        "model_version": "2",
+        "registry": "databricks-uc",
+        "run_id": "8975782789764284a56ef94fae100aad",
+        "training_release": "d05-rollback-b-v1",
+        "training_table": "workspace.ecb_d05_20261124_222511.rollback_b",
+        "training_version": 0
+      }
+    ],
+    "snapshots": {
+      "ecb": {
+        "release_id": "ecb-usd-eur-2025q2-v1",
+        "source_sha256": "f5526bd4980f174ca58d0f33cf36cc8fcbcc728202815a8b2b71222a30a2facf",
+        "table": "workspace.ecb_d05_20261124_222511.ecb_gold",
+        "table_version": 0
+      },
+      "gate_reject": {
+        "release_id": "d05-gate-reject-v1",
+        "source_sha256": "",
+        "table": "workspace.ecb_d05_20261124_222511.gate_reject",
+        "table_version": 0
+      },
+      "rollback_a": {
+        "release_id": "d05-rollback-a-v1",
+        "source_sha256": "",
+        "table": "workspace.ecb_d05_20261124_222511.rollback_a",
+        "table_version": 0
+      },
+      "rollback_b": {
+        "release_id": "d05-rollback-b-v1",
+        "source_sha256": "",
+        "table": "workspace.ecb_d05_20261124_222511.rollback_b",
+        "table_version": 0
+      }
+    }
+  }
+}
