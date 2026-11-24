@@ -23,10 +23,14 @@ API server, and the models build cleanly against an empty
 
 from __future__ import annotations
 
+import dataclasses
+import io
 import tempfile
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+
+import pyarrow.parquet  # noqa: F401 - registered serialization codecs for the sink
 
 from charging_commerce import generator, ingestion
 
@@ -35,6 +39,11 @@ DEFAULT_BATCH_PREFIX = "e06-raw-load"
 
 # The five locked file sources (roaming excluded, see module docstring).
 FILE_SOURCES = ("bnetza", "tariffs", "sessions", "smard", "ecb")
+
+# Tables the dbt models expect but the file loader never fills (roaming needs
+# the mock API server; quarantine fills only on validation failures). Created
+# empty — mirroring ingestion.ensure_schema's DuckDB behavior (E05 boundary).
+SCHEMA_ONLY_TABLES: tuple[str, ...] = ("raw_roaming_settlements", "raw_quarantine")
 
 # ingestion Column.kind -> BigQuery type (fixed schema keeps NUMERIC exact).
 _KIND_TO_BQ_TYPE: dict[str, str] = {
@@ -51,6 +60,16 @@ LINEAGE_BQ_COLUMNS: tuple[tuple[str, str], ...] = (
     ("_source_hash", "STRING"),
 )
 
+# raw_quarantine shape (ingestion.QUARANTINE_COLUMNS, mapped to BigQuery types).
+_QUARANTINE_BQ_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("quarantine_id", "STRING"),
+    ("_batch_id", "STRING"),
+    ("_source_name", "STRING"),
+    ("raw_payload_json", "STRING"),
+    ("reject_reason", "STRING"),
+    ("quarantined_at", "TIMESTAMP"),
+)
+
 
 @dataclass(frozen=True)
 class LoadReport:
@@ -62,6 +81,7 @@ class LoadReport:
     rows: dict[str, int] = field(default_factory=dict)
     job_ids: dict[str, str] = field(default_factory=dict)
     total_bytes: int = 0
+    schema_only_tables: tuple[str, ...] = ()
 
     def summary(self) -> str:
         lines = [
@@ -71,6 +91,8 @@ class LoadReport:
         ]
         for table, count in sorted(self.rows.items()):
             lines.append(f"  {table}: rows={count} job={self.job_ids.get(table, '?')}")
+        for table in self.schema_only_tables:
+            lines.append(f"  {table}: schema-only (0 rows)")
         return "\n".join(lines)
 
 
@@ -159,17 +181,18 @@ def build_raw_payloads(
 
 
 def bq_schema(table: str) -> list:
-    """BigQuery ``SchemaField`` list for one raw table (models + lineage)."""
+    """BigQuery ``SchemaField`` list for one raw table (models + lineage).
+
+    Decimals are declared as plain ``NUMERIC``: load jobs reject parameterized
+    ``NUMERIC(p,s)`` strings, and the Parquet payload carries the exact
+    decimal128(p,s) of the contract columns, so precision/scale survive the load.
+    """
     from google.cloud import bigquery
 
     spec = ingestion.RAW_SCHEMAS[table]
     fields: list = []
     for column in spec.columns:
-        if column.kind.startswith("decimal"):
-            precision, scale = column.kind[len("decimal(") : -1].split(",")
-            bq_type = f"NUMERIC({precision.strip()},{scale.strip()})"
-        else:
-            bq_type = _KIND_TO_BQ_TYPE[column.kind]
+        bq_type = "NUMERIC" if column.kind.startswith("decimal") else _KIND_TO_BQ_TYPE[column.kind]
         fields.append(bigquery.SchemaField(column.name, bq_type, mode="NULLABLE"))
     fields.extend(
         bigquery.SchemaField(name, bq_type, mode="NULLABLE") for name, bq_type in LINEAGE_BQ_COLUMNS
@@ -190,7 +213,7 @@ def load_raw_to_bigquery(
     """Upload the five locked raw sources into ``<project>.<dataset>`` idempotently.
 
     ``client`` is a ``google.cloud.bigquery.Client`` (or a test double providing
-    ``load_table_from_arrow`` and ``get_table``).
+    ``load_table_from_file`` and ``project``).
     """
     from google.cloud import bigquery
 
@@ -217,10 +240,52 @@ def load_raw_to_bigquery(
         job_config = bigquery.LoadJobConfig(
             write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
             schema=bq_schema(table_id),
+            source_format=bigquery.SourceFormat.PARQUET,
         )
         destination = f"{project}.{dataset}.{table_id}"
-        job = client.load_table_from_arrow(arrow_table, destination, job_config=job_config)
+        sink = io.BytesIO()
+        pyarrow.parquet.write_table(arrow_table, sink)
+        sink.seek(0)
+        job = client.load_table_from_file(sink, destination, job_config=job_config)
         job.result()
         report.rows[table_id] = arrow_table.num_rows
         report.job_ids[table_id] = getattr(job, "job_id", "unknown")
-    return report
+
+    created = _ensure_schema_only_tables(client, project, dataset)
+    return dataclasses.replace(report, schema_only_tables=created)
+
+
+def _ensure_schema_only_tables(client, project: str, dataset: str) -> tuple[str, ...]:
+    """Create the never-filled raw tables as empty, if missing (E05 boundary)."""
+    from google.cloud import bigquery
+    from google.cloud.exceptions import NotFound
+
+    created: list[str] = []
+    for table_id in SCHEMA_ONLY_TABLES:
+        destination = f"{project}.{dataset}.{table_id}"
+        try:
+            client.get_table(destination)
+        except NotFound:
+            client.create_table(
+                bigquery.Table(destination, schema=bq_schema_from_lineage(table_id))
+            )
+            created.append(table_id)
+    return tuple(created)
+
+
+def bq_schema_from_lineage(table_id: str) -> list:
+    """``SchemaField`` list for the schema-only tables (contract + lineage shape).
+
+    ``raw_roaming_settlements`` carries the full contract schema plus the
+    lineage columns (exactly as ``ingestion.ensure_schema`` creates it on
+    DuckDB); ``raw_quarantine`` keeps its quarantine payload columns.
+    """
+    from google.cloud import bigquery
+
+    if table_id == "raw_quarantine":
+        fields = [
+            bigquery.SchemaField(name, bq_type, mode="NULLABLE")
+            for name, bq_type in _QUARANTINE_BQ_COLUMNS
+        ]
+        return fields
+    return bq_schema(table_id)

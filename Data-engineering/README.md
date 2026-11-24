@@ -66,7 +66,7 @@ To combine real-world dirty data with deterministic end-to-end financial reconci
    [Design](04-incremental-backfill-scd2/docs/design.md) · [Implementation plan](04-incremental-backfill-scd2/docs/implementation.md)
 5. **E05** · [Macros, exposures and Slim CI](05-macros-exposures-slim-ci/README.md) — cross-database Jinja macros, `exposures.yml`, `dbt docs` lineage, and `state:modified+ --defer` Slim CI.
    [Design](05-macros-exposures-slim-ci/docs/design.md) · [Implementation plan](05-macros-exposures-slim-ci/docs/implementation.md)
-6. **E06** · [BigQuery warehouse and FinOps](06-bigquery-warehouse-finops/README.md) — `--target bq` live verification in `europe-west3`, daily partitioning (`require_partition_filter`), clustering, authorized view, and `INFORMATION_SCHEMA.JOBS` bytes-billed comparison.
+6. **E06** · [BigQuery warehouse and FinOps](06-bigquery-warehouse-finops/README.md) — `--target bq` live verification in `europe-west3`, daily partitioning + clustering, the 100 MiB per-query cap as the enforced guard, authorized view, and `INFORMATION_SCHEMA.JOBS` bytes-billed comparison.
    [Design](06-bigquery-warehouse-finops/docs/design.md) · [Implementation plan](06-bigquery-warehouse-finops/docs/implementation.md)
 7. **E07** · [Orchestration with Apache Airflow](07-orchestration-airflow/README.md) — layered Airflow DAG (`ingest -> snapshot -> build -> publish`), failure-stop + clear-node recovery, backfill, and Airflow vs Dagster ADR.
    [Design](07-orchestration-airflow/docs/design.md) · [Implementation plan](07-orchestration-airflow/docs/implementation.md)

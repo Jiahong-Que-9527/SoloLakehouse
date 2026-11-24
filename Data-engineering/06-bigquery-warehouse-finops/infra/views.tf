@@ -10,14 +10,14 @@
 #       docs/cloud-verification.md.
 
 resource "google_bigquery_table" "v_daily_revenue" {
-    dataset_id          = google_bigquery_dataset.de_consumer.dataset_id
-    table_id            = "v_daily_revenue"
-    friendly_name       = "daily revenue (authorized consumer view)"
-    description         = "Read-only consumer surface over de_mart.fct_daily_revenue_v2; the only table an analyst may query."
-    deletion_protection = false # the view is rebuilt with the dbt revision; the datasets are protected instead
+  dataset_id          = google_bigquery_dataset.de_consumer.dataset_id
+  table_id            = "v_daily_revenue"
+  friendly_name       = "daily revenue (authorized consumer view)"
+  description         = "Read-only consumer surface over de_mart.fct_daily_revenue_v2; the only table an analyst may query."
+  deletion_protection = false # the view is rebuilt with the dbt revision; the datasets are protected instead
 
-    view {
-        query = <<-SQL
+  view {
+    query          = <<-SQL
             SELECT
                 revenue_date,
                 country_code,
@@ -31,23 +31,23 @@ resource "google_bigquery_table" "v_daily_revenue" {
                 gross_margin_eur
             FROM de_mart.fct_daily_revenue_v2
         SQL
-        use_legacy_sql = false
-    }
+    use_legacy_sql = false
+  }
 
-    depends_on = [google_bigquery_dataset.de_consumer]
+  depends_on = [google_bigquery_dataset.de_consumer]
 }
 
 # Authorize the view in the SOURCE dataset (BigQuery authorized-view pattern):
 # queries through the view run with the view owner's access, so the analyst
 # never needs de_mart (or de_raw/de_stg/de_int) grants.
 resource "google_bigquery_dataset_access" "authorize_v_daily_revenue" {
-    dataset_id = google_bigquery_dataset.de_mart.dataset_id
+  dataset_id = google_bigquery_dataset.de_mart.dataset_id
 
-    view {
-        project_id = var.project_id
-        dataset_id = google_bigquery_dataset.de_consumer.dataset_id
-        table_id   = google_bigquery_table.v_daily_revenue.table_id
-    }
+  view {
+    project_id = var.project_id
+    dataset_id = google_bigquery_dataset.de_consumer.dataset_id
+    table_id   = google_bigquery_table.v_daily_revenue.table_id
+  }
 }
 
 # Analyst identity: read access ONLY on de_consumer; job-user so the analyst can
@@ -55,15 +55,16 @@ resource "google_bigquery_dataset_access" "authorize_v_daily_revenue" {
 # this stack — the acceptance drill (403 on de_raw.raw_charging_sessions) proves
 # the split. Skipped entirely while analyst_principal is empty (phase 1).
 resource "google_bigquery_dataset_iam_member" "analyst_consumer_reader" {
-    count       = var.analyst_principal == "" ? 0 : 1
-    dataset_id  = google_bigquery_dataset.de_consumer.dataset_id
-    role        = "roles/bigquery.dataViewer"
-    member      = var.analyst_principal
-    depends_on  = [google_bigquery_table.v_daily_revenue]
+  count      = var.analyst_principal == "" ? 0 : 1
+  dataset_id = google_bigquery_dataset.de_consumer.dataset_id
+  role       = "roles/bigquery.dataViewer"
+  member     = var.analyst_principal
+  depends_on = [google_bigquery_table.v_daily_revenue]
 }
 
 resource "google_project_iam_member" "analyst_job_user" {
-    count  = var.analyst_principal == "" ? 0 : 1
-    role   = "roles/bigquery.jobUser"
-    member = var.analyst_principal
+  count   = var.analyst_principal == "" ? 0 : 1
+  project = var.project_id
+  role    = "roles/bigquery.jobUser"
+  member  = var.analyst_principal
 }

@@ -33,12 +33,24 @@ class FakeBQClient:
     def __init__(self, project: str = "slh-gcp-test") -> None:
         self.project = project
         self.loads: dict[str, tuple] = {}
+        self.tables: dict[str, object] = {}
 
-    def load_table_from_arrow(self, arrow_table, destination, job_config=None):
-        assert destination not in self.loads or True  # overwrite is the point
-        self.loads[destination] = (arrow_table, job_config)
+    def load_table_from_file(self, file_obj, destination, job_config=None):
+        self.loads[destination] = job_config
         table = destination.rsplit(".", 1)[-1]
         return _FakeJob(f"fake-{self.project}-{table}")
+
+    def get_table(self, destination):
+        from google.cloud.exceptions import NotFound
+
+        if destination not in self.tables:
+            raise NotFound(f"{destination} not found")
+        return self.tables[destination]
+
+    def create_table(self, table):
+        key = f"{table.project}.{table.dataset_id}.{table.table_id}"
+        self.tables[key] = table
+        return table
 
 
 @pytest.fixture(scope="module")
@@ -82,7 +94,7 @@ def test_bq_schema_maps_contract_types():
     assert by_name["session_id"].field_type == "STRING"
     assert by_name["event_seq"].field_type == "INT64"
     assert by_name["settled_at"].field_type == "TIMESTAMP"
-    assert by_name["energy_kwh"].field_type == "NUMERIC(12,4)"
+    assert by_name["energy_kwh"].field_type == "NUMERIC"  # Parquet carries decimal(12,4)
     assert by_name["_ingested_at"].field_type == "TIMESTAMP"
     assert list(by_name)[-4:] == list(ingestion.LINEAGE_COLUMNS)
 
@@ -91,7 +103,7 @@ def test_load_is_idempotent_truncate(payloads):
     client = FakeBQClient()
     first = bq_loader.load_raw_to_bigquery(client, FIXTURES_DIR, dataset="de_raw", work_dir=None)
     rows_first = dict(first.rows)
-    truncating = [job_config.write_disposition for _, job_config in client.loads.values()]
+    truncating = [job_config.write_disposition for job_config in client.loads.values()]
     assert truncating and all(disposition == "WRITE_TRUNCATE" for disposition in truncating)
     assert set(rows_first) == {ingestion.SOURCE_TABLES[source] for source in bq_loader.FILE_SOURCES}
 
@@ -106,6 +118,23 @@ def test_size_guard_blocks_oversized_upload(payloads):
     with pytest.raises(ValueError, match="Free-Tier guard"):
         bq_loader.load_raw_to_bigquery(client, FIXTURES_DIR, dataset="de_raw", max_total_bytes=1)
     assert client.loads == {}
+    assert client.tables == {}
+
+
+def test_schema_only_tables_created_once():
+    client = FakeBQClient()
+    first = bq_loader.load_raw_to_bigquery(client, FIXTURES_DIR, dataset="de_raw")
+    assert first.schema_only_tables == tuple(bq_loader.SCHEMA_ONLY_TABLES)
+    created = [table.table_id.rsplit(".", 1)[-1] for table in client.tables.values()]
+    assert sorted(created) == sorted(bq_loader.SCHEMA_ONLY_TABLES)
+    # Schema matches the DuckDB ensure_schema shapes (contract + lineage).
+    for table_id in bq_loader.SCHEMA_ONLY_TABLES:
+        fields = client.tables[f"slh-gcp-test.de_raw.{table_id}"].schema
+        names = [field.name for field in fields]
+        assert names, table_id
+
+    second = bq_loader.load_raw_to_bigquery(client, FIXTURES_DIR, dataset="de_raw")
+    assert second.schema_only_tables == ()  # already present, no-op rerun
 
 
 def test_profiles_bq_target_has_cost_and_location_guards():

@@ -36,10 +36,10 @@ select
     a.energy_kwh,
     a.gross_amount_eur,
     a.roaming_fee_eur,
-    cast(a.gross_amount_eur + a.roaming_fee_eur as decimal(18, 2)) as net_amount_eur,
+    cast(a.gross_amount_eur + a.roaming_fee_eur as {{ decimal_type(18, 2) }}) as net_amount_eur,
     a.wholesale_cost_eur,
     cast(
-        a.gross_amount_eur + a.roaming_fee_eur - a.wholesale_cost_eur as decimal(18, 2)
+        a.gross_amount_eur + a.roaming_fee_eur - a.wholesale_cost_eur as {{ decimal_type(18, 2) }}
     ) as gross_margin_eur,
     a.event_type,
     a.settled_at
@@ -47,16 +47,16 @@ from sessions as a
 inner join {{ ref('dim_stations_scd2') }} as st
     on
         st.station_id = a.station_id
-        and a.session_started_at >= st.dbt_valid_from
+        and a.session_started_at >= {{ as_timestamp('st.dbt_valid_from') }}
         and (
             st.dbt_valid_to is null
-            or a.session_started_at < st.dbt_valid_to
+            or a.session_started_at < {{ as_timestamp('st.dbt_valid_to') }}
         )
 inner join {{ ref('dim_tariffs_scd2') }} as ta
     on
         ta.tariff_id = a.tariff_id
-        and a.session_started_at >= ta.dbt_valid_from
+        and a.session_started_at >= {{ as_timestamp('ta.dbt_valid_from') }}
         and (
             ta.dbt_valid_to is null
-            or a.session_started_at < ta.dbt_valid_to
+            or a.session_started_at < {{ as_timestamp('ta.dbt_valid_to') }}
         )

@@ -91,7 +91,9 @@ def test_contract_breach_fails_build_and_preserves_table(warehouse, tmp_path):
     fct_sql = project_copy / "models" / "marts" / "fct_charging_sessions.sql"
     # Valid SQL, wrong type: gross_amount_eur becomes DECIMAL(18,3) instead of the
     # contracted DECIMAL(18,2) — a pure contract breach, not a SQL error.
-    mutated = fct_sql.read_text().replace("decimal(18, 2)", "decimal(18, 3)", 1)
+    # (The cast target goes through the decimal_type() macro; mutating the
+    # macro argument changes the type on every engine, incl. DuckDB.)
+    mutated = fct_sql.read_text().replace("decimal_type(18, 2)", "decimal_type(18, 3)", 1)
     assert mutated != fct_sql.read_text(), "mutation must hit the gross_amount_eur cast"
     fct_sql.write_text(mutated)
 

@@ -21,6 +21,84 @@
     {%- endif -%}
 {%- endmacro %}
 
+{#- ---------------------------------------------------------------------
+    E06: BigQuery contract support.
+    The E03-frozen contract data_types are DuckDB-canonical (`varchar`,
+    `bigint`, `decimal(p,s)`). BigQuery rejects `varchar` outright
+    ("Type not found: varchar"), so the two contract-check macros that
+    execute SQL carrying those type names are dispatched per-adapter:
+
+    - bigquery__get_empty_schema_sql: the contract validation probe runs
+      `cast(null as <data_type>)` per column; translate varchar -> string.
+    - bigquery__get_table_columns_and_constraints: CREATE TABLE uses the
+      typed column list verbatim; same single translation.
+    - bigquery__format_column: normalizes both sides of the name/type
+      comparison (case, numeric parameterization) so the query-inferred
+      schema and the yaml schema compare equal on BigQuery. DuckDB keeps
+      the strict E03 path untouched.
+   --------------------------------------------------------------------- #}
+
+{% macro bq_contract_type(data_type) -%}
+    {%- set dt = data_type | string | lower | trim -%}
+    {%- if dt.startswith('varchar') -%}
+        string
+    {%- elif dt.startswith('bigint') or dt.startswith('integer') or dt == 'int' or dt.startswith('int64') -%}
+        int64
+    {%- elif dt.startswith('boolean') or dt == 'bool' -%}
+        bool
+    {%- elif dt.startswith('decimal') or dt.startswith('numeric') -%}
+        {#- BQ: parameterized NUMERIC is legal in typed column lists but NOT
+            inside CAST subqueries; the query-inferred side carries no params
+            either, so compare scale-free on BigQuery (DuckDB stays strict). -#}
+        numeric
+    {%- else -%}
+        {{ dt }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro bigquery__get_empty_schema_sql(columns) %}
+    {%- set col_err = [] -%}
+    {%- set col_naked_numeric = [] -%}
+    select
+    {% for i in columns %}
+      {%- set col = columns[i] -%}
+      {%- if col['data_type'] is not defined -%}
+        {%- do col_err.append(col['name']) -%}
+      {%- elif col['data_type'].strip().lower() in ('numeric', 'decimal', 'number') -%}
+        {%- do col_naked_numeric.append(col['name']) -%}
+      {%- endif -%}
+      {% set col_name = adapter.quote(col['name']) if col.get('quote') else col['name'] %}
+      {{ cast('null', bq_contract_type(col['data_type'])) }} as {{ col_name }}{{ ", " if not loop.last }}
+    {%- endfor -%}
+    {%- if (col_err | length) > 0 -%}
+      {{ exceptions.column_type_missing(column_names=col_err) }}
+    {%- elif (col_naked_numeric | length) > 0 -%}
+      {{ exceptions.warn("Detected columns with numeric type and unspecified precision/scale, this can lead to unintended rounding: " ~ col_naked_numeric ~ "`") }}
+    {%- endif -%}
+{% endmacro %}
+
+{% macro bigquery__get_table_columns_and_constraints() %}
+  {#- Same shape as the default: rendered column constraints + model-level
+      constraints, with BigQuery type names (only `varchar` is invalid on BQ). -#}
+    {%- set raw_column_constraints = adapter.render_raw_columns_constraints(raw_columns=model['columns']) -%}
+    {%- set raw_model_constraints = adapter.render_raw_model_constraints(raw_constraints=model['constraints']) -%}
+    (
+    {% for c in raw_column_constraints -%}
+      {{ c | replace(' varchar', ' string') | replace(' bigint', ' int64') | replace(' integer', ' int64') | replace(' boolean', ' bool') | replace(' decimal(', ' numeric(') }}{{ "," if not loop.last or raw_model_constraints }}
+    {% endfor -%}
+    {% for c in raw_model_constraints -%}
+      {{ c }}{{ "," if not loop.last }}
+    {% endfor -%}
+    )
+{% endmacro %}
+
+{% macro bigquery__format_column(column) -%}
+  {#- bq_contract_type already strips numeric parameterization; normalize case. -#}
+  {%- set dt = (bq_contract_type(column.dtype) | trim | lower) -%}
+  {%- set formatted = column.column.lower() ~ " " ~ dt -%}
+  {{ return({'name': column.name, 'data_type': dt, 'formatted': formatted}) }}
+{%- endmacro -%}
+
 
 {% macro to_berlin_date(column) -%}
     {#- Civil date of a naive-UTC timestamp in Europe/Berlin (contract §3.4). -#}
