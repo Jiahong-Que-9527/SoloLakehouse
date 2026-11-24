@@ -15,6 +15,17 @@ python3 scripts/verify_stack_contract.py /tmp/d06-tf-test.jsonl
 
 Terraform reads the real provider schema and uses Terraform's mock provider for the two plans. The verifier feeds their exact output values into Databricks CLI strict Bundle validation against a loopback Workspace stub. It checks schema names, grants, state paths, Bundle roots, task dependencies, service principal IDs and schedule settings. The `d06-stack-contract` CI artifact holds the resolved stack inventory.
 
+## Run the reference job on Free Edition
+
+From a checkout of the code to verify, use an existing CLI profile with Workspace and Jobs access. The smoke runner creates timestamped schemas and workspace notebooks for a single identity, then submits the resolved reference tasks as ad hoc jobs.
+
+```bash
+python3 scripts/run_free_edition_smoke.py \
+  --profile slh-free --evidence /tmp/d06-reference-smoke.json
+```
+
+The runner verifies one published Gold row, repeats the run and checks the same row, then feeds an empty value through Bronze and Silver. It expects the quality task to fail and checks that Gold still contains the original row. The evidence includes run IDs and task outcomes. This exercise uses single-identity Workspace and Jobs access. The Terraform apply, service-principal grant checks and retirement exercise use the multi-principal path below.
+
 ## Deploy when a multi-principal workspace is available
 
 Use a workspace operator profile with permission to create schemas, manage schema grants, deploy to its own Workspace folder and assign the runtime service principal to a job. The catalog, account identities and reader groups are operator-managed prerequisites. Give each runtime and Gold reader `USE CATALOG` on the existing catalog. Give the two runtime identities access to the workspace and compute. For SQL acceptance, grant the designated callers `CAN USE` on the chosen warehouse. Review inherited privileges before the isolation exercise.

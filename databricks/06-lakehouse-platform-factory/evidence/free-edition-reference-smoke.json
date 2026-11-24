@@ -1,0 +1,140 @@
+{
+  "final_rows": {
+    "bronze": [
+      {
+        "fixture_id": "d06_reference",
+        "fixture_value": " ",
+        "stack_id": "slh-d06smoke20261124225908-dev"
+      }
+    ],
+    "gold": [
+      {
+        "fixture_id": "d06_reference",
+        "fixture_value": "reference",
+        "stack_id": "slh-d06smoke20261124225908-dev"
+      }
+    ],
+    "silver": [
+      {
+        "fixture_id": "d06_reference",
+        "fixture_value": " ",
+        "stack_id": "slh-d06smoke20261124225908-dev"
+      }
+    ]
+  },
+  "first": {
+    "result_state": "SUCCESS",
+    "run_id": 866874741936474,
+    "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/477798188055407/run/866874741936474",
+    "tasks": {
+      "land": {
+        "result_state": "SUCCESS",
+        "task_run_id": 616450463847196
+      },
+      "prepare": {
+        "result_state": "SUCCESS",
+        "task_run_id": 119465403279314
+      },
+      "publish": {
+        "result_state": "SUCCESS",
+        "task_run_id": 41554282563015
+      },
+      "quality": {
+        "result_state": "SUCCESS",
+        "task_run_id": 66162887290308
+      },
+      "transform": {
+        "result_state": "SUCCESS",
+        "task_run_id": 79943198359450
+      }
+    }
+  },
+  "git_sha": "425dff7b71b71b3f276dc02544b91796b1fe15b5",
+  "initial_gold": {
+    "gold_table": "workspace.slh_d06smoke20261124225908_dev_gold.fixture",
+    "row": {
+      "fixture_id": "d06_reference",
+      "fixture_value": "reference",
+      "stack_id": "slh-d06smoke20261124225908-dev"
+    }
+  },
+  "inspect": {
+    "result_state": "SUCCESS",
+    "run_id": 611669695579474,
+    "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/920450290847937/run/611669695579474",
+    "tasks": {
+      "inspect": {
+        "result_state": "SUCCESS",
+        "task_run_id": 30169928667581
+      }
+    }
+  },
+  "reject": {
+    "expected_error": "Silver fixture_value must be non-empty",
+    "result_state": "FAILED",
+    "run_id": 585453248620303,
+    "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/736914621487227/run/585453248620303",
+    "tasks": {
+      "land": {
+        "attempt_number": 0,
+        "result_state": "SUCCESS",
+        "task_run_id": 321649334271626
+      },
+      "publish": {
+        "attempt_number": 0,
+        "result_state": "UPSTREAM_FAILED",
+        "task_run_id": 737068130138513
+      },
+      "quality": {
+        "attempt_number": 1,
+        "previous_attempts": [
+          {
+            "attempt_number": 0,
+            "result_state": "FAILED",
+            "task_run_id": 661217516382161
+          }
+        ],
+        "result_state": "FAILED",
+        "task_run_id": 13639335987071
+      },
+      "transform": {
+        "attempt_number": 0,
+        "result_state": "SUCCESS",
+        "task_run_id": 388292448000700
+      }
+    }
+  },
+  "replay": {
+    "result_state": "SUCCESS",
+    "run_id": 195085965315558,
+    "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/1030277639286389/run/195085965315558",
+    "tasks": {
+      "land": {
+        "result_state": "SUCCESS",
+        "task_run_id": 340619088272106
+      },
+      "publish": {
+        "result_state": "SUCCESS",
+        "task_run_id": 297834210295107
+      },
+      "quality": {
+        "result_state": "SUCCESS",
+        "task_run_id": 507089902023443
+      },
+      "transform": {
+        "result_state": "SUCCESS",
+        "task_run_id": 504374558588774
+      }
+    }
+  },
+  "runtime_identity_matches_authenticated_workspace_user": true,
+  "scope": "reference job on Free Edition with one workspace identity",
+  "stack": {
+    "schemas": {
+      "bronze": "workspace.slh_d06smoke20261124225908_dev_bronze",
+      "gold": "workspace.slh_d06smoke20261124225908_dev_gold",
+      "silver": "workspace.slh_d06smoke20261124225908_dev_silver"
+    },
+    "stack_id": "slh-d06smoke20261124225908-dev"
+  }
+}
