@@ -1,0 +1,17 @@
+[project]
+name = "charging-commerce-airflow"
+version = "0.1.0"
+description = "E07: isolated Apache Airflow environment orchestrating the charging-commerce warehouse pipeline (never shares packages with dbt-core)."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "apache-airflow>=2.10,<3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+]
+
+[tool.uv]
+package = false

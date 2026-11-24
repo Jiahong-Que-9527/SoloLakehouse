@@ -1,6 +1,6 @@
 # Implementation plan: E07 · Orchestration with Apache Airflow
 
-**Status:** planned. [Brief](../README.md) · [Design](design.md) · [Delivery plan](../../docs/delivery-plan.md)
+**Status:** accepted 2026-11-24 — local Airflow 2.11.2 standalone, 4/4 dag runs green (scheduled + clean + failure-recovery + bounded backfill); see [evidence](../../07-orchestration-airflow/evidence/e07-acceptance.md). [Brief](../README.md) · [Design](design.md) · [Delivery plan](../../docs/delivery-plan.md)
 
 ## First delivery
 
