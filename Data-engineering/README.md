@@ -5,7 +5,7 @@
 
 Deliver an end-to-end modern **Data Engineering** platform on **Python, SQL, dbt, DuckDB, Google BigQuery, and Apache Airflow** over a hybrid German EV charging and roaming commerce workload (`European EV Charging & Roaming Commerce`). Each stage builds verifiable capabilities expected of a mid-to-senior Data Engineer: resumable raw ingestion, Kimball dimensional modeling, dbt testing pyramids and data contracts, incremental merge with late-arriving settlements and SCD Type 2 snapshots, Slim CI, BigQuery partitioning and cost governance, Airflow orchestration with failure recovery, and run observability.
 
-**Status:** E01–E05 implemented (contract at v1.5; E05 evidence recorded, pending owner review); E06–E08 planned (architecture, stage designs, and implementation plans ready; **E06** next).
+**Status:** E01–E05 accepted with recorded evidence (contract at v1.5; full suite re-verified 2026-11-24, 36 passed); E06 implemented and live-verified on BigQuery 2026-11-24 (€0, 0 destroys); E07–E08 planned (**E07** next).
 
 ## Human quick start
 
@@ -66,7 +66,7 @@ To combine real-world dirty data with deterministic end-to-end financial reconci
    [Design](04-incremental-backfill-scd2/docs/design.md) · [Implementation plan](04-incremental-backfill-scd2/docs/implementation.md)
 5. **E05** · [Macros, exposures and Slim CI](05-macros-exposures-slim-ci/README.md) — cross-database Jinja macros, `exposures.yml`, `dbt docs` lineage, and `state:modified+ --defer` Slim CI.
    [Design](05-macros-exposures-slim-ci/docs/design.md) · [Implementation plan](05-macros-exposures-slim-ci/docs/implementation.md)
-6. **E06** · [BigQuery warehouse and FinOps](06-bigquery-warehouse-finops/README.md) — `--target bq` live verification in `europe-west3`, daily partitioning (`require_partition_filter`), clustering, authorized view, and `INFORMATION_SCHEMA.JOBS` bytes-billed comparison.
+6. **E06** · [BigQuery warehouse and FinOps](06-bigquery-warehouse-finops/README.md) — `--target bq` live verification in `europe-west3`, daily partitioning + clustering, the 100 MiB per-query cap as the enforced guard, authorized view, and `INFORMATION_SCHEMA.JOBS` bytes-billed comparison.
    [Design](06-bigquery-warehouse-finops/docs/design.md) · [Implementation plan](06-bigquery-warehouse-finops/docs/implementation.md)
 7. **E07** · [Orchestration with Apache Airflow](07-orchestration-airflow/README.md) — layered Airflow DAG (`ingest -> snapshot -> build -> publish`), failure-stop + clear-node recovery, backfill, and Airflow vs Dagster ADR.
    [Design](07-orchestration-airflow/docs/design.md) · [Implementation plan](07-orchestration-airflow/docs/implementation.md)
@@ -78,11 +78,11 @@ To combine real-world dirty data with deterministic end-to-end financial reconci
 | Stage | Status | Acceptance record |
 |---|---|---|
 | E01 · Ingestion and raw layer | accepted | [e01-acceptance.md](01-ingestion-raw-layer/evidence/e01-acceptance.md) |
-| E02 · Dimensional modeling with dbt | implemented | [e02-acceptance.md](02-dimensional-modeling-dbt/evidence/e02-acceptance.md) |
-| E03 · Testing, contracts and versioning | implemented | [e03-acceptance.md](03-testing-contracts-versioning/evidence/e03-acceptance.md) |
-| E04 · Incremental, backfill and SCD2 | implemented | [e04-acceptance.md](04-incremental-backfill-scd2/evidence/e04-acceptance.md) |
-| E05 · Macros, exposures and Slim CI | implemented | [e05-acceptance.md](05-macros-exposures-slim-ci/evidence/e05-acceptance.md) |
-| E06 · BigQuery warehouse and FinOps | planned | — |
+| E02 · Dimensional modeling with dbt | accepted | [e02-acceptance.md](02-dimensional-modeling-dbt/evidence/e02-acceptance.md) |
+| E03 · Testing, contracts and versioning | accepted | [e03-acceptance.md](03-testing-contracts-versioning/evidence/e03-acceptance.md) |
+| E04 · Incremental, backfill and SCD2 | accepted | [e04-acceptance.md](04-incremental-backfill-scd2/evidence/e04-acceptance.md) |
+| E05 · Macros, exposures and Slim CI | accepted | [e05-acceptance.md](05-macros-exposures-slim-ci/evidence/e05-acceptance.md) |
+| E06 · BigQuery warehouse and FinOps | implemented | [cloud-verification.md](06-bigquery-warehouse-finops/docs/cloud-verification.md) |
 | E07 · Orchestration with Airflow | planned | — |
 | E08 · Observability and template | planned | — |
 

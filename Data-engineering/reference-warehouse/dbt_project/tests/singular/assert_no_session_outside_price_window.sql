@@ -13,5 +13,5 @@ where not exists (
     where
         p.market_zone = 'DE-LU'
         and p.timestamp_utc <= s.session_started_at
-        and s.session_started_at < {{ dbt.dateadd('minute', 15, 'p.timestamp_utc') }}
+        and s.session_started_at < {{ as_timestamp(dbt.dateadd('minute', 15, 'p.timestamp_utc')) }}
 )

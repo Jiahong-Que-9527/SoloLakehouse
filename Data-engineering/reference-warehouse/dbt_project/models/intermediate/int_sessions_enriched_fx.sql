@@ -23,7 +23,7 @@ fx_lookup as (
     select
         s.session_id,
         s.revenue_date,
-        coalesce(f.rate, cast(1.0 as decimal(12, 6))) as fx_rate_to_eur,
+        coalesce(f.rate, cast(1.0 as {{ decimal_type(12, 6) }})) as fx_rate_to_eur,
         case
             when s.currency_code = 'EUR' then 'observed'
             when f.observation_date = s.revenue_date then 'observed'
@@ -55,7 +55,7 @@ select
     s.settled_at,
     s.energy_kwh,
     s.gross_amount_local,
-    coalesce(r.roaming_fee_local, cast(0.0 as decimal(12, 2))) as roaming_fee_local,
+    coalesce(r.roaming_fee_local, cast(0.0 as {{ decimal_type(12, 2) }})) as roaming_fee_local,
     s.event_type
 from sessions as s
 inner join fx_lookup as fx

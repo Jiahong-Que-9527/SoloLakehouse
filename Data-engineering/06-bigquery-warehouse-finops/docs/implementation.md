@@ -4,7 +4,7 @@
 
 ## First delivery
 
-Deploy the E02–E05 `dbt` models to live BigQuery (`slh-gcp-test`, `europe-west3`) with zero SQL forks, enforce daily partitioning + clustering + `require_partition_filter`, verify an Authorized View permission split, and record `INFORMATION_SCHEMA.JOBS` `bytes_billed` receipts.
+Deploy the E02–E05 `dbt` models to live BigQuery (`slh-gcp-test`, `europe-west3`) with zero SQL forks, enforce daily partitioning + clustering and the 100 MiB per-query cap, verify an Authorized View permission split, and record `INFORMATION_SCHEMA.JOBS` `bytes_billed` receipts.
 
 ## Files and modules to create or update
 
@@ -19,7 +19,7 @@ Deploy the E02–E05 `dbt` models to live BigQuery (`slh-gcp-test`, `europe-west
 1. **Cost & Terraform plan review:** Confirm [AGENTS.md](../../../AGENTS.md) compliance (BigQuery Free Tier datasets/IAM only, `0 destroys`, `europe-west3`) and apply datasets + Authorized View + analyst reader IAM.
 2. **Load Raw fixture to `de_raw`:** Load the locked E01 Raw batches into `slh-gcp-test.de_raw` idempotently (`WRITE_TRUNCATE` per batch staging or guarded merge, `< 10 MB`).
 3. **Run dbt against `--target bq`:** Execute `dbt deps`, `dbt snapshot --target bq`, and `dbt build --target bq` (both `--full-refresh` and incremental 48h late-arrival batch).
-4. **Verify guardrails & IAM isolation:** Test (a) an unfiltered query against `fct_charging_sessions` fails due to `require_partition_filter`, and (b) analyst identity succeeds on `de_consumer.v_daily_revenue` and fails with `403` on `de_raw`.
+4. **Verify guardrails & IAM isolation:** Test (a) a query capped below the billed minimum (e.g. `--maximum_bytes_billed=1024`) fails with BigQuery's "Query exceeded limit for bytes billed" error, and (b) analyst identity succeeds on `de_consumer.v_daily_revenue` and fails with `403` on `de_raw`.
 5. **Audit FinOps receipts:** Query `region-europe-west3.INFORMATION_SCHEMA.JOBS` for the run's job IDs and `total_bytes_billed`, documenting full-refresh vs incremental scan savings in `docs/cloud-verification.md`.
 
 ## Verification commands and negative drills

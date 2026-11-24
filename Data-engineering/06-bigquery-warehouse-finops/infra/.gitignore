@@ -1,0 +1,7 @@
+# Terraform state and local plans never enter Git.
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars

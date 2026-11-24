@@ -1,0 +1,401 @@
+=== deps
+[0m14:23:57  Running with dbt=1.12.7
+[0m14:23:57  Installing dbt-labs/dbt_utils
+[0m14:23:57  Installed from version 1.4.1
+[0m14:23:57  Up to date!
+--- exit 0
+=== run --select stg_bnetza_stations stg_tariff_plans
+[0m14:23:59  Running with dbt=1.12.7
+[0m14:24:00  Registered adapter: bigquery=1.12.4
+[0m14:24:00  Unable to do partial parsing because config vars, config profile, or config target have changed
+[0m14:24:00  Unable to do partial parsing because profile has changed
+[0m14:24:00  Unable to do partial parsing because a project dependency has been added
+[0m14:24:02  Found 15 models, 2 snapshots, 101 data tests, 7 sources, 2 exposures, 694 macros, 6 unit tests
+[0m14:24:02  
+[0m14:24:02  Concurrency: 4 threads (target='bq')
+[0m14:24:02  
+[0m14:24:03  1 of 2 START sql view model de_stg.stg_bnetza_stations ......................... [RUN]
+[0m14:24:03  2 of 2 START sql view model de_stg.stg_tariff_plans ............................ [RUN]
+[0m14:24:05  2 of 2 OK created sql view model de_stg.stg_tariff_plans ....................... [[32mCREATE VIEW (0 processed)[0m in 1.50s]
+[0m14:24:05  1 of 2 OK created sql view model de_stg.stg_bnetza_stations .................... [[32mCREATE VIEW (0 processed)[0m in 1.55s]
+[0m14:24:05  
+[0m14:24:05  Finished running 2 view models in 0 hours 0 minutes and 2.82 seconds (2.82s).
+[0m14:24:05  
+[0m14:24:05  [32mCompleted successfully[0m
+[0m14:24:05  
+[0m14:24:05  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2
+--- exit 0
+=== snapshot
+[0m14:24:07  Running with dbt=1.12.7
+[0m14:24:08  Registered adapter: bigquery=1.12.4
+[0m14:24:08  Unable to do partial parsing because config vars, config profile, or config target have changed
+[0m14:24:10  Found 15 models, 2 snapshots, 101 data tests, 7 sources, 2 exposures, 694 macros, 6 unit tests
+[0m14:24:10  
+[0m14:24:10  Concurrency: 4 threads (target='bq')
+[0m14:24:10  
+[0m14:24:11  1 of 2 START snapshot de_mart.dim_stations_scd2 ................................ [RUN]
+[0m14:24:11  2 of 2 START snapshot de_mart.dim_tariffs_scd2 ................................. [RUN]
+[0m14:24:15  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:24:15  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:24:17  2 of 2 OK snapshotted de_mart.dim_tariffs_scd2 ................................. [[32mMERGE (0.0 rows, 922.0 Bytes processed)[0m in 5.54s]
+[0m14:24:17  1 of 2 OK snapshotted de_mart.dim_stations_scd2 ................................ [[32mMERGE (0.0 rows, 546.1 KiB processed)[0m in 5.67s]
+[0m14:24:17  
+[0m14:24:17  Finished running 2 snapshots in 0 hours 0 minutes and 6.86 seconds (6.86s).
+[0m14:24:17  
+[0m14:24:17  [32mCompleted successfully[0m
+[0m14:24:17  
+[0m14:24:17  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2
+--- exit 0
+=== snapshot
+[0m14:24:19  Running with dbt=1.12.7
+[0m14:24:20  Registered adapter: bigquery=1.12.4
+[0m14:24:20  Unable to do partial parsing because config vars, config profile, or config target have changed
+[0m14:24:22  Found 15 models, 2 snapshots, 101 data tests, 7 sources, 2 exposures, 694 macros, 6 unit tests
+[0m14:24:22  
+[0m14:24:22  Concurrency: 4 threads (target='bq')
+[0m14:24:22  
+[0m14:24:23  1 of 2 START snapshot de_mart.dim_stations_scd2 ................................ [RUN]
+[0m14:24:23  2 of 2 START snapshot de_mart.dim_tariffs_scd2 ................................. [RUN]
+[0m14:24:27  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:24:27  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:24:28  1 of 2 OK snapshotted de_mart.dim_stations_scd2 ................................ [[32mMERGE (0.0 rows, 546.1 KiB processed)[0m in 5.37s]
+[0m14:24:28  2 of 2 OK snapshotted de_mart.dim_tariffs_scd2 ................................. [[32mMERGE (0.0 rows, 922.0 Bytes processed)[0m in 5.37s]
+[0m14:24:28  
+[0m14:24:28  Finished running 2 snapshots in 0 hours 0 minutes and 6.72 seconds (6.72s).
+[0m14:24:29  
+[0m14:24:29  [32mCompleted successfully[0m
+[0m14:24:29  
+[0m14:24:29  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2
+--- exit 0
+=== snapshot
+[0m14:24:31  Running with dbt=1.12.7
+[0m14:24:32  Registered adapter: bigquery=1.12.4
+[0m14:24:32  Unable to do partial parsing because config vars, config profile, or config target have changed
+[0m14:24:34  Found 15 models, 2 snapshots, 101 data tests, 7 sources, 2 exposures, 694 macros, 6 unit tests
+[0m14:24:34  
+[0m14:24:34  Concurrency: 4 threads (target='bq')
+[0m14:24:34  
+[0m14:24:35  1 of 2 START snapshot de_mart.dim_stations_scd2 ................................ [RUN]
+[0m14:24:35  2 of 2 START snapshot de_mart.dim_tariffs_scd2 ................................. [RUN]
+[0m14:24:38  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:24:39  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:24:40  1 of 2 OK snapshotted de_mart.dim_stations_scd2 ................................ [[32mMERGE (0.0 rows, 546.1 KiB processed)[0m in 5.16s]
+[0m14:24:40  2 of 2 OK snapshotted de_mart.dim_tariffs_scd2 ................................. [[32mMERGE (0.0 rows, 922.0 Bytes processed)[0m in 5.27s]
+[0m14:24:40  
+[0m14:24:40  Finished running 2 snapshots in 0 hours 0 minutes and 6.45 seconds (6.45s).
+[0m14:24:40  
+[0m14:24:40  [32mCompleted successfully[0m
+[0m14:24:40  
+[0m14:24:40  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=2
+--- exit 0
+=== run
+[0m14:24:42  Running with dbt=1.12.7
+[0m14:24:43  Registered adapter: bigquery=1.12.4
+[0m14:24:43  Unable to do partial parsing because config vars, config profile, or config target have changed
+[0m14:24:45  Found 15 models, 2 snapshots, 101 data tests, 7 sources, 2 exposures, 694 macros, 6 unit tests
+[0m14:24:45  
+[0m14:24:45  Concurrency: 4 threads (target='bq')
+[0m14:24:45  
+[0m14:24:46  1 of 15 START sql table model de_mart.dim_date ................................. [RUN]
+[0m14:24:46  2 of 15 START sql view model de_stg.stg_bnetza_stations ........................ [RUN]
+[0m14:24:46  3 of 15 START sql view model de_stg.stg_charging_sessions ...................... [RUN]
+[0m14:24:46  4 of 15 START sql view model de_stg.stg_ecb_fx ................................. [RUN]
+[0m14:24:48  4 of 15 OK created sql view model de_stg.stg_ecb_fx ............................ [[32mCREATE VIEW (0 processed)[0m in 1.27s]
+[0m14:24:48  5 of 15 START sql view model de_stg.stg_roaming_settlements .................... [RUN]
+[0m14:24:48  2 of 15 OK created sql view model de_stg.stg_bnetza_stations ................... [[32mCREATE VIEW (0 processed)[0m in 1.28s]
+[0m14:24:48  6 of 15 START sql view model de_stg.stg_smard_prices ........................... [RUN]
+[0m14:24:48  3 of 15 OK created sql view model de_stg.stg_charging_sessions ................. [[32mCREATE VIEW (0 processed)[0m in 1.48s]
+[0m14:24:48  7 of 15 START sql view model de_stg.stg_tariff_plans ........................... [RUN]
+[0m14:24:49  5 of 15 OK created sql view model de_stg.stg_roaming_settlements ............... [[32mCREATE VIEW (0 processed)[0m in 1.09s]
+[0m14:24:49  8 of 15 START sql view model de_mart.dim_stations .............................. [RUN]
+[0m14:24:49  6 of 15 OK created sql view model de_stg.stg_smard_prices ...................... [[32mCREATE VIEW (0 processed)[0m in 1.28s]
+[0m14:24:49  7 of 15 OK created sql view model de_stg.stg_tariff_plans ...................... [[32mCREATE VIEW (0 processed)[0m in 1.09s]
+[0m14:24:49  9 of 15 START sql view model de_int.int_sessions_latest ........................ [RUN]
+[0m14:24:49  10 of 15 START sql view model de_mart.dim_tariffs .............................. [RUN]
+[0m14:24:49  1 of 15 OK created sql table model de_mart.dim_date ............................ [[32mCREATE TABLE (243.0 rows, 0 processed)[0m in 2.89s]
+[0m14:24:50  9 of 15 OK created sql view model de_int.int_sessions_latest ................... [[32mCREATE VIEW (0 processed)[0m in 1.47s]
+[0m14:24:50  11 of 15 START sql view model de_int.int_sessions_enriched_fx .................. [RUN]
+[0m14:24:51  8 of 15 OK created sql view model de_mart.dim_stations ......................... [[32mCREATE VIEW (0 processed)[0m in 1.87s]
+[0m14:24:51  10 of 15 OK created sql view model de_mart.dim_tariffs ......................... [[32mCREATE VIEW (0 processed)[0m in 2.19s]
+[0m14:24:52  11 of 15 OK created sql view model de_int.int_sessions_enriched_fx ............. [[32mCREATE VIEW (0 processed)[0m in 1.41s]
+[0m14:24:52  12 of 15 START sql view model de_int.int_sessions_wholesale_cost ............... [RUN]
+[0m14:24:53  12 of 15 OK created sql view model de_int.int_sessions_wholesale_cost .......... [[32mCREATE VIEW (0 processed)[0m in 1.59s]
+[0m14:24:53  13 of 15 START sql incremental model de_mart.fct_charging_sessions ............. [RUN]
+[0m14:25:04  13 of 15 OK created sql incremental model de_mart.fct_charging_sessions ........ [[32mMERGE (54.0 rows, 210.1 KiB processed)[0m in 10.52s]
+[0m14:25:04  14 of 15 START sql table model de_mart.fct_daily_revenue_v1 .................... [RUN]
+[0m14:25:04  15 of 15 START sql table model de_mart.fct_daily_revenue_v2 .................... [RUN]
+[0m14:25:09  14 of 15 OK created sql table model de_mart.fct_daily_revenue_v1 ............... [[32mCREATE TABLE (7.7k rows, 1.5 MiB processed)[0m in 5.24s]
+[0m14:25:09  15 of 15 OK created sql table model de_mart.fct_daily_revenue_v2 ............... [[32mCREATE TABLE (7.7k rows, 1.8 MiB processed)[0m in 5.47s]
+[0m14:25:09  
+[0m14:25:09  Finished running 1 incremental model, 3 table models, 11 view models in 0 hours 0 minutes and 24.32 seconds (24.32s).
+[0m14:25:10  
+[0m14:25:10  [32mCompleted successfully[0m
+[0m14:25:10  
+[0m14:25:10  Done. PASS=15 WARN=0 ERROR=0 SKIP=0 NO-OP=0 REUSED=0 TOTAL=15
+--- exit 0
+=== build
+[0m14:25:12  Running with dbt=1.12.7
+[0m14:25:12  Registered adapter: bigquery=1.12.4
+[0m14:25:13  Found 15 models, 2 snapshots, 101 data tests, 7 sources, 2 exposures, 694 macros, 6 unit tests
+[0m14:25:13  
+[0m14:25:13  Concurrency: 4 threads (target='bq')
+[0m14:25:13  
+[0m14:25:14  1 of 126 START sql table model de_mart.dim_date ................................ [RUN]
+[0m14:25:14  2 of 126 START sql view model de_stg.stg_bnetza_stations ....................... [RUN]
+[0m14:25:14  3 of 126 START sql view model de_stg.stg_charging_sessions ..................... [RUN]
+[0m14:25:14  4 of 126 START sql view model de_stg.stg_ecb_fx ................................ [RUN]
+[0m14:25:15  4 of 126 OK created sql view model de_stg.stg_ecb_fx ........................... [[32mCREATE VIEW (0 processed)[0m in 1.32s]
+[0m14:25:15  5 of 126 START sql view model de_stg.stg_roaming_settlements ................... [RUN]
+[0m14:25:15  3 of 126 OK created sql view model de_stg.stg_charging_sessions ................ [[32mCREATE VIEW (0 processed)[0m in 1.36s]
+[0m14:25:15  6 of 126 START sql view model de_stg.stg_smard_prices .......................... [RUN]
+[0m14:25:16  2 of 126 OK created sql view model de_stg.stg_bnetza_stations .................. [[32mCREATE VIEW (0 processed)[0m in 1.57s]
+[0m14:25:16  7 of 126 START sql view model de_stg.stg_tariff_plans .......................... [RUN]
+[0m14:25:17  6 of 126 OK created sql view model de_stg.stg_smard_prices ..................... [[32mCREATE VIEW (0 processed)[0m in 1.02s]
+[0m14:25:17  8 of 126 START test accepted_values_stg_ecb_fx_currency_pair__EUR_CHF__EUR_PLN__EUR_USD  [RUN]
+[0m14:25:17  5 of 126 OK created sql view model de_stg.stg_roaming_settlements .............. [[32mCREATE VIEW (0 processed)[0m in 1.11s]
+[0m14:25:17  9 of 126 START test dbt_utils_unique_combination_of_columns_stg_ecb_fx_currency_pair__observation_date  [RUN]
+[0m14:25:17  7 of 126 OK created sql view model de_stg.stg_tariff_plans ..................... [[32mCREATE VIEW (0 processed)[0m in 1.17s]
+[0m14:25:17  10 of 126 START test not_null_stg_ecb_fx_currency_pair ......................... [RUN]
+[0m14:25:17  1 of 126 OK created sql table model de_mart.dim_date ........................... [[32mCREATE TABLE (243.0 rows, 0 processed)[0m in 2.91s]
+[0m14:25:17  11 of 126 START test not_null_stg_ecb_fx_observation_date ...................... [RUN]
+[0m14:25:17  8 of 126 PASS accepted_values_stg_ecb_fx_currency_pair__EUR_CHF__EUR_PLN__EUR_USD  [[32mPASS[0m in 0.86s]
+[0m14:25:17  12 of 126 START test not_null_stg_ecb_fx_rate .................................. [RUN]
+[0m14:25:17  9 of 126 PASS dbt_utils_unique_combination_of_columns_stg_ecb_fx_currency_pair__observation_date  [[32mPASS[0m in 0.84s]
+[0m14:25:17  13 of 126 START test accepted_values_stg_charging_sessions_country_code__DE__CH__PL  [RUN]
+[0m14:25:18  10 of 126 PASS not_null_stg_ecb_fx_currency_pair ............................... [[32mPASS[0m in 0.89s]
+[0m14:25:18  14 of 126 START test accepted_values_stg_charging_sessions_currency_code__EUR__CHF__PLN  [RUN]
+[0m14:25:18  11 of 126 PASS not_null_stg_ecb_fx_observation_date ............................ [[32mPASS[0m in 0.88s]
+[0m14:25:18  15 of 126 START test accepted_values_stg_charging_sessions_event_type__charge__late_adjustment__refund  [RUN]
+[0m14:25:18  12 of 126 PASS not_null_stg_ecb_fx_rate ........................................ [[32mPASS[0m in 0.87s]
+[0m14:25:18  16 of 126 START test dbt_utils_unique_combination_of_columns_stg_charging_sessions_session_id__event_seq  [RUN]
+[0m14:25:18  13 of 126 PASS accepted_values_stg_charging_sessions_country_code__DE__CH__PL .. [[32mPASS[0m in 0.85s]
+[0m14:25:18  17 of 126 START test non_negative_stg_charging_sessions_energy_kwh ............. [RUN]
+[0m14:25:19  14 of 126 PASS accepted_values_stg_charging_sessions_currency_code__EUR__CHF__PLN  [[32mPASS[0m in 0.90s]
+[0m14:25:19  18 of 126 START test not_null_stg_charging_sessions_country_code ............... [RUN]
+[0m14:25:19  15 of 126 PASS accepted_values_stg_charging_sessions_event_type__charge__late_adjustment__refund  [[32mPASS[0m in 0.88s]
+[0m14:25:19  19 of 126 START test not_null_stg_charging_sessions_currency_code .............. [RUN]
+[0m14:25:19  16 of 126 PASS dbt_utils_unique_combination_of_columns_stg_charging_sessions_session_id__event_seq  [[32mPASS[0m in 0.82s]
+[0m14:25:19  20 of 126 START test not_null_stg_charging_sessions_energy_kwh ................. [RUN]
+[0m14:25:19  17 of 126 PASS non_negative_stg_charging_sessions_energy_kwh ................... [[32mPASS[0m in 0.85s]
+[0m14:25:19  21 of 126 START test not_null_stg_charging_sessions_event_seq .................. [RUN]
+[0m14:25:20  18 of 126 PASS not_null_stg_charging_sessions_country_code ..................... [[32mPASS[0m in 0.85s]
+[0m14:25:20  22 of 126 START test not_null_stg_charging_sessions_event_type ................. [RUN]
+[0m14:25:20  19 of 126 PASS not_null_stg_charging_sessions_currency_code .................... [[32mPASS[0m in 0.85s]
+[0m14:25:20  23 of 126 START test not_null_stg_charging_sessions_gross_amount_local ......... [RUN]
+[0m14:25:20  21 of 126 PASS not_null_stg_charging_sessions_event_seq ........................ [[32mPASS[0m in 0.75s]
+[0m14:25:20  24 of 126 START test not_null_stg_charging_sessions_session_id ................. [RUN]
+[0m14:25:20  20 of 126 PASS not_null_stg_charging_sessions_energy_kwh ....................... [[32mPASS[0m in 0.87s]
+[0m14:25:20  25 of 126 START test not_null_stg_charging_sessions_station_id ................. [RUN]
+[0m14:25:20  22 of 126 PASS not_null_stg_charging_sessions_event_type ....................... [[32mPASS[0m in 0.73s]
+[0m14:25:20  26 of 126 START test not_null_stg_charging_sessions_tariff_id .................. [RUN]
+[0m14:25:21  23 of 126 PASS not_null_stg_charging_sessions_gross_amount_local ............... [[32mPASS[0m in 0.90s]
+[0m14:25:21  27 of 126 START test not_null_stg_bnetza_stations_nominal_power_kw ............. [RUN]
+[0m14:25:21  24 of 126 PASS not_null_stg_charging_sessions_session_id ....................... [[32mPASS[0m in 0.92s]
+[0m14:25:21  28 of 126 START test not_null_stg_bnetza_stations_operator_name ................ [RUN]
+[0m14:25:21  25 of 126 PASS not_null_stg_charging_sessions_station_id ....................... [[32mPASS[0m in 0.88s]
+[0m14:25:21  29 of 126 START test not_null_stg_bnetza_stations_snapshot_date ................ [RUN]
+[0m14:25:21  26 of 126 PASS not_null_stg_charging_sessions_tariff_id ........................ [[32mPASS[0m in 0.82s]
+[0m14:25:21  30 of 126 START test not_null_stg_bnetza_stations_station_id ................... [RUN]
+[0m14:25:21  27 of 126 PASS not_null_stg_bnetza_stations_nominal_power_kw ................... [[32mPASS[0m in 0.83s]
+[0m14:25:21  31 of 126 START test relationships_stg_charging_sessions_station_id__station_id__ref_stg_bnetza_stations_  [RUN]
+[0m14:25:22  29 of 126 PASS not_null_stg_bnetza_stations_snapshot_date ...................... [[32mPASS[0m in 0.73s]
+[0m14:25:22  28 of 126 PASS not_null_stg_bnetza_stations_operator_name ...................... [[32mPASS[0m in 0.76s]
+[0m14:25:22  32 of 126 START test accepted_values_stg_smard_prices_market_zone__DE_LU ....... [RUN]
+[0m14:25:22  33 of 126 START test not_null_stg_smard_prices_market_zone ..................... [RUN]
+[0m14:25:22  30 of 126 PASS not_null_stg_bnetza_stations_station_id ......................... [[32mPASS[0m in 0.78s]
+[0m14:25:22  34 of 126 START test not_null_stg_smard_prices_timestamp_utc ................... [RUN]
+[0m14:25:22  31 of 126 PASS relationships_stg_charging_sessions_station_id__station_id__ref_stg_bnetza_stations_  [[32mPASS[0m in 0.94s]
+[0m14:25:22  35 of 126 START test not_null_stg_smard_prices_wholesale_eur_mwh ............... [RUN]
+[0m14:25:22  33 of 126 PASS not_null_stg_smard_prices_market_zone ........................... [[32mPASS[0m in 0.77s]
+[0m14:25:22  32 of 126 PASS accepted_values_stg_smard_prices_market_zone__DE_LU ............. [[32mPASS[0m in 0.78s]
+[0m14:25:22  36 of 126 START test not_null_stg_roaming_settlements_roaming_fee_local ........ [RUN]
+[0m14:25:22  37 of 126 START test not_null_stg_roaming_settlements_session_id ............... [RUN]
+[0m14:25:23  34 of 126 PASS not_null_stg_smard_prices_timestamp_utc ......................... [[32mPASS[0m in 1.04s]
+[0m14:25:23  38 of 126 START test not_null_stg_roaming_settlements_settlement_id ............ [RUN]
+[0m14:25:23  35 of 126 PASS not_null_stg_smard_prices_wholesale_eur_mwh ..................... [[32mPASS[0m in 0.89s]
+[0m14:25:23  37 of 126 PASS not_null_stg_roaming_settlements_session_id ..................... [[32mPASS[0m in 0.86s]
+[0m14:25:23  39 of 126 START test unique_stg_roaming_settlements_settlement_id .............. [RUN]
+[0m14:25:23  40 of 126 START test accepted_values_stg_tariff_plans_plan_tier__standard__fast_dc__fleet  [RUN]
+[0m14:25:23  36 of 126 PASS not_null_stg_roaming_settlements_roaming_fee_local .............. [[32mPASS[0m in 0.99s]
+[0m14:25:23  41 of 126 START test dbt_utils_unique_combination_of_columns_stg_tariff_plans_tariff_id__snapshot_date  [RUN]
+[0m14:25:24  38 of 126 PASS not_null_stg_roaming_settlements_settlement_id .................. [[32mPASS[0m in 0.76s]
+[0m14:25:24  42 of 126 START test not_null_stg_tariff_plans_plan_tier ....................... [RUN]
+[0m14:25:24  40 of 126 PASS accepted_values_stg_tariff_plans_plan_tier__standard__fast_dc__fleet  [[32mPASS[0m in 0.87s]
+[0m14:25:24  43 of 126 START test not_null_stg_tariff_plans_snapshot_date ................... [RUN]
+[0m14:25:24  39 of 126 PASS unique_stg_roaming_settlements_settlement_id .................... [[32mPASS[0m in 0.91s]
+[0m14:25:24  44 of 126 START test not_null_stg_tariff_plans_tariff_id ....................... [RUN]
+[0m14:25:24  41 of 126 PASS dbt_utils_unique_combination_of_columns_stg_tariff_plans_tariff_id__snapshot_date  [[32mPASS[0m in 0.97s]
+[0m14:25:24  45 of 126 START test relationships_stg_charging_sessions_tariff_id__tariff_id__ref_stg_tariff_plans_  [RUN]
+[0m14:25:24  42 of 126 PASS not_null_stg_tariff_plans_plan_tier ............................. [[32mPASS[0m in 0.81s]
+[0m14:25:24  46 of 126 START test not_null_dim_date_date_day ................................ [RUN]
+[0m14:25:25  44 of 126 PASS not_null_stg_tariff_plans_tariff_id ............................. [[32mPASS[0m in 0.67s]
+[0m14:25:25  47 of 126 START test unique_dim_date_date_day .................................. [RUN]
+[0m14:25:25  43 of 126 PASS not_null_stg_tariff_plans_snapshot_date ......................... [[32mPASS[0m in 0.75s]
+[0m14:25:25  49 of 126 START unit_test int_sessions_latest::int_sessions_latest_reduces_to_highest_event_seq  [RUN]
+[0m14:25:25  46 of 126 PASS not_null_dim_date_date_day ...................................... [[32mPASS[0m in 0.57s]
+[0m14:25:25  48 of 126 START snapshot de_mart.dim_stations_scd2 ............................. [RUN]
+[0m14:25:25  45 of 126 PASS relationships_stg_charging_sessions_tariff_id__tariff_id__ref_stg_tariff_plans_  [[32mPASS[0m in 0.96s]
+[0m14:25:25  50 of 126 START snapshot de_mart.dim_tariffs_scd2 .............................. [RUN]
+[0m14:25:25  47 of 126 PASS unique_dim_date_date_day ........................................ [[32mPASS[0m in 0.65s]
+[0m14:25:27  49 of 126 PASS int_sessions_latest::int_sessions_latest_reduces_to_highest_event_seq  [[32mPASS[0m in 2.22s]
+[0m14:25:27  51 of 126 START unit_test int_sessions_latest::int_sessions_latest_tie_break_by_ingested_at  [RUN]
+[0m14:25:28  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:25:28  [[33mWARNING[0m]: Data type of snapshot table hard-delete timestamps (TIMESTAMP) does not match its 'updated_at'-derived timestamp columns (DATE). Values written when closing out deleted rows will be implicitly converted. Override the '<adapter>__snapshot_get_time' macro in your project to emit a matching type.
+[0m14:25:29  51 of 126 PASS int_sessions_latest::int_sessions_latest_tie_break_by_ingested_at  [[32mPASS[0m in 1.90s]
+[0m14:25:29  52 of 126 START sql view model de_int.int_sessions_latest ...................... [RUN]
+[0m14:25:30  48 of 126 OK snapshotted de_mart.dim_stations_scd2 ............................. [[32mMERGE (0.0 rows, 546.1 KiB processed)[0m in 4.63s]
+[0m14:25:30  50 of 126 OK snapshotted de_mart.dim_tariffs_scd2 .............................. [[32mMERGE (0.0 rows, 922.0 Bytes processed)[0m in 4.41s]
+[0m14:25:30  53 of 126 START test not_null_dim_stations_scd2_dbt_scd_id ..................... [RUN]
+[0m14:25:30  54 of 126 START test not_null_dim_stations_scd2_dbt_valid_from ................. [RUN]
+[0m14:25:30  55 of 126 START test not_null_dim_stations_scd2_operator_name .................. [RUN]
+[0m14:25:30  52 of 126 OK created sql view model de_int.int_sessions_latest ................. [[32mCREATE VIEW (0 processed)[0m in 1.02s]
+[0m14:25:30  56 of 126 START test not_null_dim_stations_scd2_station_id ..................... [RUN]
+[0m14:25:30  53 of 126 PASS not_null_dim_stations_scd2_dbt_scd_id ........................... [[32mPASS[0m in 0.53s]
+[0m14:25:30  57 of 126 START test unique_dim_stations_scd2_dbt_scd_id ....................... [RUN]
+[0m14:25:30  55 of 126 PASS not_null_dim_stations_scd2_operator_name ........................ [[32mPASS[0m in 0.55s]
+[0m14:25:30  58 of 126 START test assert_scd2_no_overlapping_intervals ...................... [RUN]
+[0m14:25:30  54 of 126 PASS not_null_dim_stations_scd2_dbt_valid_from ....................... [[32mPASS[0m in 0.60s]
+[0m14:25:30  59 of 126 START test not_null_dim_tariffs_scd2_dbt_scd_id ...................... [RUN]
+[0m14:25:30  56 of 126 PASS not_null_dim_stations_scd2_station_id ........................... [[32mPASS[0m in 0.50s]
+[0m14:25:30  60 of 126 START test not_null_dim_tariffs_scd2_dbt_valid_from .................. [RUN]
+[0m14:25:31  58 of 126 PASS assert_scd2_no_overlapping_intervals ............................ [[32mPASS[0m in 0.57s]
+[0m14:25:31  61 of 126 START test not_null_dim_tariffs_scd2_plan_tier ....................... [RUN]
+[0m14:25:31  57 of 126 PASS unique_dim_stations_scd2_dbt_scd_id ............................. [[32mPASS[0m in 0.60s]
+[0m14:25:31  62 of 126 START test not_null_dim_tariffs_scd2_tariff_id ....................... [RUN]
+[0m14:25:31  60 of 126 PASS not_null_dim_tariffs_scd2_dbt_valid_from ........................ [[32mPASS[0m in 0.54s]
+[0m14:25:31  63 of 126 START test unique_dim_tariffs_scd2_dbt_scd_id ........................ [RUN]
+[0m14:25:31  59 of 126 PASS not_null_dim_tariffs_scd2_dbt_scd_id ............................ [[32mPASS[0m in 0.77s]
+[0m14:25:31  64 of 126 START test not_null_int_sessions_latest_session_id ................... [RUN]
+[0m14:25:31  61 of 126 PASS not_null_dim_tariffs_scd2_plan_tier ............................. [[32mPASS[0m in 0.55s]
+[0m14:25:31  65 of 126 START test unique_int_sessions_latest_session_id ..................... [RUN]
+[0m14:25:31  62 of 126 PASS not_null_dim_tariffs_scd2_tariff_id ............................. [[32mPASS[0m in 0.60s]
+[0m14:25:31  66 of 126 START sql view model de_mart.dim_stations ............................ [RUN]
+[0m14:25:32  63 of 126 PASS unique_dim_tariffs_scd2_dbt_scd_id .............................. [[32mPASS[0m in 0.49s]
+[0m14:25:32  67 of 126 START sql view model de_mart.dim_tariffs ............................. [RUN]
+[0m14:25:32  64 of 126 PASS not_null_int_sessions_latest_session_id ......................... [[32mPASS[0m in 0.82s]
+[0m14:25:32  65 of 126 PASS unique_int_sessions_latest_session_id ........................... [[32mPASS[0m in 1.01s]
+[0m14:25:32  68 of 126 START unit_test int_sessions_enriched_fx::int_sessions_enriched_fx_dst_revenue_date  [RUN]
+[0m14:25:33  66 of 126 OK created sql view model de_mart.dim_stations ....................... [[32mCREATE VIEW (0 processed)[0m in 1.49s]
+[0m14:25:33  69 of 126 START test not_null_dim_stations_station_id .......................... [RUN]
+[0m14:25:33  70 of 126 START test not_null_dim_stations_station_sk .......................... [RUN]
+[0m14:25:33  67 of 126 OK created sql view model de_mart.dim_tariffs ........................ [[32mCREATE VIEW (0 processed)[0m in 1.50s]
+[0m14:25:33  71 of 126 START test unique_dim_stations_station_id ............................ [RUN]
+[0m14:25:34  69 of 126 PASS not_null_dim_stations_station_id ................................ [[32mPASS[0m in 0.89s]
+[0m14:25:34  72 of 126 START test unique_dim_stations_station_sk ............................ [RUN]
+[0m14:25:34  70 of 126 PASS not_null_dim_stations_station_sk ................................ [[32mPASS[0m in 0.92s]
+[0m14:25:34  73 of 126 START test not_null_dim_tariffs_tariff_id ............................ [RUN]
+[0m14:25:34  71 of 126 PASS unique_dim_stations_station_id .................................. [[32mPASS[0m in 0.84s]
+[0m14:25:34  74 of 126 START test not_null_dim_tariffs_tariff_sk ............................ [RUN]
+[0m14:25:34  68 of 126 PASS int_sessions_enriched_fx::int_sessions_enriched_fx_dst_revenue_date  [[32mPASS[0m in 2.13s]
+[0m14:25:34  77 of 126 START unit_test int_sessions_enriched_fx::int_sessions_enriched_fx_carries_forward_over_weekend  [RUN]
+[0m14:25:35  72 of 126 PASS unique_dim_stations_station_sk .................................. [[32mPASS[0m in 0.80s]
+[0m14:25:35  75 of 126 START test unique_dim_tariffs_tariff_id .............................. [RUN]
+[0m14:25:35  73 of 126 PASS not_null_dim_tariffs_tariff_id .................................. [[32mPASS[0m in 0.86s]
+[0m14:25:35  74 of 126 PASS not_null_dim_tariffs_tariff_sk .................................. [[32mPASS[0m in 0.83s]
+[0m14:25:35  76 of 126 START test unique_dim_tariffs_tariff_sk .............................. [RUN]
+[0m14:25:36  75 of 126 PASS unique_dim_tariffs_tariff_id .................................... [[32mPASS[0m in 1.06s]
+[0m14:25:36  76 of 126 PASS unique_dim_tariffs_tariff_sk .................................... [[32mPASS[0m in 1.22s]
+[0m14:25:37  77 of 126 PASS int_sessions_enriched_fx::int_sessions_enriched_fx_carries_forward_over_weekend  [[32mPASS[0m in 2.63s]
+[0m14:25:37  78 of 126 START sql view model de_int.int_sessions_enriched_fx ................. [RUN]
+[0m14:25:39  78 of 126 OK created sql view model de_int.int_sessions_enriched_fx ............ [[32mCREATE VIEW (0 processed)[0m in 1.38s]
+[0m14:25:39  79 of 126 START test accepted_values_int_sessions_enriched_fx_fx_rate_status__observed__carried_forward  [RUN]
+[0m14:25:39  80 of 126 START test assert_no_session_outside_price_window .................... [RUN]
+[0m14:25:39  81 of 126 START test not_null_int_sessions_enriched_fx_fx_rate_status .......... [RUN]
+[0m14:25:39  82 of 126 START test not_null_int_sessions_enriched_fx_fx_rate_to_eur .......... [RUN]
+[0m14:25:40  82 of 126 PASS not_null_int_sessions_enriched_fx_fx_rate_to_eur ................ [[32mPASS[0m in 1.14s]
+[0m14:25:40  83 of 126 START test not_null_int_sessions_enriched_fx_revenue_date ............ [RUN]
+[0m14:25:40  79 of 126 PASS accepted_values_int_sessions_enriched_fx_fx_rate_status__observed__carried_forward  [[32mPASS[0m in 1.16s]
+[0m14:25:40  84 of 126 START test not_null_int_sessions_enriched_fx_roaming_fee_local ....... [RUN]
+[0m14:25:40  81 of 126 PASS not_null_int_sessions_enriched_fx_fx_rate_status ................ [[32mPASS[0m in 1.22s]
+[0m14:25:40  80 of 126 PASS assert_no_session_outside_price_window .......................... [[32mPASS[0m in 1.68s]
+[0m14:25:41  83 of 126 PASS not_null_int_sessions_enriched_fx_revenue_date .................. [[32mPASS[0m in 1.06s]
+[0m14:25:41  84 of 126 PASS not_null_int_sessions_enriched_fx_roaming_fee_local ............. [[32mPASS[0m in 1.08s]
+[0m14:25:41  85 of 126 START unit_test int_sessions_wholesale_cost::int_sessions_wholesale_cost_golden_charge  [RUN]
+[0m14:25:43  85 of 126 PASS int_sessions_wholesale_cost::int_sessions_wholesale_cost_golden_charge  [[32mPASS[0m in 2.01s]
+[0m14:25:43  86 of 126 START sql view model de_int.int_sessions_wholesale_cost .............. [RUN]
+[0m14:25:44  86 of 126 OK created sql view model de_int.int_sessions_wholesale_cost ......... [[32mCREATE VIEW (0 processed)[0m in 1.57s]
+[0m14:25:44  87 of 126 START test not_null_int_sessions_wholesale_cost_wholesale_cost_eur ... [RUN]
+[0m14:25:44  88 of 126 START test not_null_int_sessions_wholesale_cost_wholesale_eur_mwh .... [RUN]
+[0m14:25:49  88 of 126 PASS not_null_int_sessions_wholesale_cost_wholesale_eur_mwh .......... [[32mPASS[0m in 4.91s]
+[0m14:25:49  87 of 126 PASS not_null_int_sessions_wholesale_cost_wholesale_cost_eur ......... [[32mPASS[0m in 5.04s]
+[0m14:25:49  89 of 126 START unit_test fct_charging_sessions::fct_charging_sessions_golden_refund_signs  [RUN]
+[0m14:25:52  89 of 126 PASS fct_charging_sessions::fct_charging_sessions_golden_refund_signs  [[32mPASS[0m in 2.34s]
+[0m14:25:52  90 of 126 START sql incremental model de_mart.fct_charging_sessions ............ [RUN]
+[0m14:26:02  90 of 126 OK created sql incremental model de_mart.fct_charging_sessions ....... [[32mMERGE (54.0 rows, 210.1 KiB processed)[0m in 10.28s]
+[0m14:26:02  92 of 126 START test accepted_values_fct_charging_sessions_event_type__charge__late_adjustment__refund  [RUN]
+[0m14:26:02  93 of 126 START test accepted_values_fct_charging_sessions_fx_rate_status__observed__carried_forward  [RUN]
+[0m14:26:02  94 of 126 START test assert_revenue_conservation ............................... [RUN]
+[0m14:26:02  91 of 126 NO-OP exposure ev_demand_ml_features ................................. [[33mNO-OP[0m in 0.00s]
+[0m14:26:02  95 of 126 START test non_negative_fct_charging_sessions_energy_kwh ............. [RUN]
+[0m14:26:03  95 of 126 PASS non_negative_fct_charging_sessions_energy_kwh ................... [[32mPASS[0m in 0.73s]
+[0m14:26:03  96 of 126 START test non_negative_unless_refund_fct_charging_sessions_gross_amount_eur  [RUN]
+[0m14:26:03  93 of 126 PASS accepted_values_fct_charging_sessions_fx_rate_status__observed__carried_forward  [[32mPASS[0m in 0.89s]
+[0m14:26:03  97 of 126 START test non_negative_unless_refund_fct_charging_sessions_net_amount_eur  [RUN]
+[0m14:26:03  92 of 126 PASS accepted_values_fct_charging_sessions_event_type__charge__late_adjustment__refund  [[32mPASS[0m in 0.95s]
+[0m14:26:03  98 of 126 START test non_negative_unless_refund_fct_charging_sessions_roaming_fee_eur  [RUN]
+[0m14:26:04  97 of 126 PASS non_negative_unless_refund_fct_charging_sessions_net_amount_eur . [[32mPASS[0m in 0.65s]
+[0m14:26:04  99 of 126 START test not_null_fct_charging_sessions_energy_kwh ................. [RUN]
+[0m14:26:04  94 of 126 PASS assert_revenue_conservation ..................................... [[32mPASS[0m in 1.56s]
+[0m14:26:04  100 of 126 START test not_null_fct_charging_sessions_event_type ................ [RUN]
+[0m14:26:04  98 of 126 PASS non_negative_unless_refund_fct_charging_sessions_roaming_fee_eur  [[32mPASS[0m in 0.65s]
+[0m14:26:04  101 of 126 START test not_null_fct_charging_sessions_gross_amount_eur .......... [RUN]
+[0m14:26:04  96 of 126 PASS non_negative_unless_refund_fct_charging_sessions_gross_amount_eur  [[32mPASS[0m in 0.87s]
+[0m14:26:04  102 of 126 START test not_null_fct_charging_sessions_gross_margin_eur .......... [RUN]
+[0m14:26:04  99 of 126 PASS not_null_fct_charging_sessions_energy_kwh ....................... [[32mPASS[0m in 0.63s]
+[0m14:26:04  103 of 126 START test not_null_fct_charging_sessions_net_amount_eur ............ [RUN]
+[0m14:26:04  100 of 126 PASS not_null_fct_charging_sessions_event_type ...................... [[32mPASS[0m in 0.66s]
+[0m14:26:04  104 of 126 START test not_null_fct_charging_sessions_roaming_fee_eur ........... [RUN]
+[0m14:26:04  102 of 126 PASS not_null_fct_charging_sessions_gross_margin_eur ................ [[32mPASS[0m in 0.64s]
+[0m14:26:04  105 of 126 START test not_null_fct_charging_sessions_session_id ................ [RUN]
+[0m14:26:04  101 of 126 PASS not_null_fct_charging_sessions_gross_amount_eur ................ [[32mPASS[0m in 0.70s]
+[0m14:26:04  106 of 126 START test not_null_fct_charging_sessions_station_sk ................ [RUN]
+[0m14:26:05  103 of 126 PASS not_null_fct_charging_sessions_net_amount_eur .................. [[32mPASS[0m in 0.66s]
+[0m14:26:05  107 of 126 START test not_null_fct_charging_sessions_tariff_sk ................. [RUN]
+[0m14:26:05  105 of 126 PASS not_null_fct_charging_sessions_session_id ...................... [[32mPASS[0m in 0.66s]
+[0m14:26:05  108 of 126 START test not_null_fct_charging_sessions_wholesale_cost_eur ........ [RUN]
+[0m14:26:05  106 of 126 PASS not_null_fct_charging_sessions_station_sk ...................... [[32mPASS[0m in 0.71s]
+[0m14:26:05  109 of 126 START test relationships_fct_charging_sessions_station_sk__dbt_scd_id__ref_dim_stations_scd2_  [RUN]
+[0m14:26:05  104 of 126 PASS not_null_fct_charging_sessions_roaming_fee_eur ................. [[32mPASS[0m in 0.85s]
+[0m14:26:05  110 of 126 START test relationships_fct_charging_sessions_tariff_sk__dbt_scd_id__ref_dim_tariffs_scd2_  [RUN]
+[0m14:26:05  107 of 126 PASS not_null_fct_charging_sessions_tariff_sk ....................... [[32mPASS[0m in 0.60s]
+[0m14:26:05  111 of 126 START test unique_fct_charging_sessions_session_id .................. [RUN]
+[0m14:26:06  109 of 126 PASS relationships_fct_charging_sessions_station_sk__dbt_scd_id__ref_dim_stations_scd2_  [[32mPASS[0m in 0.67s]
+[0m14:26:06  108 of 126 PASS not_null_fct_charging_sessions_wholesale_cost_eur .............. [[32mPASS[0m in 0.84s]
+[0m14:26:06  110 of 126 PASS relationships_fct_charging_sessions_tariff_sk__dbt_scd_id__ref_dim_tariffs_scd2_  [[32mPASS[0m in 0.81s]
+[0m14:26:06  111 of 126 PASS unique_fct_charging_sessions_session_id ........................ [[32mPASS[0m in 0.79s]
+[0m14:26:06  112 of 126 START sql table model de_mart.fct_daily_revenue_v1 .................. [RUN]
+[0m14:26:06  113 of 126 START sql table model de_mart.fct_daily_revenue_v2 .................. [RUN]
+[0m14:26:12  113 of 126 OK created sql table model de_mart.fct_daily_revenue_v2 ............. [[32mCREATE TABLE (7.7k rows, 1.8 MiB processed)[0m in 5.40s]
+[0m14:26:12  114 of 126 NO-OP exposure charging_revenue_dashboard ........................... [[33mNO-OP[0m in 0.00s]
+[0m14:26:12  115 of 126 START test accepted_values_fct_daily_revenue_v2_country_code__DE__CH__PL  [RUN]
+[0m14:26:12  116 of 126 START test dbt_utils_unique_combination_of_columns_fct_daily_revenue_v2_revenue_date__country_code__operator_name  [RUN]
+[0m14:26:12  117 of 126 START test not_null_fct_daily_revenue_v2_country_code ............... [RUN]
+[0m14:26:12  112 of 126 OK created sql table model de_mart.fct_daily_revenue_v1 ............. [[32mCREATE TABLE (7.7k rows, 1.5 MiB processed)[0m in 5.98s]
+[0m14:26:12  118 of 126 START test not_null_fct_daily_revenue_v2_operator_name .............. [RUN]
+[0m14:26:12  117 of 126 PASS not_null_fct_daily_revenue_v2_country_code ..................... [[32mPASS[0m in 0.73s]
+[0m14:26:12  119 of 126 START test not_null_fct_daily_revenue_v2_revenue_date ............... [RUN]
+[0m14:26:12  115 of 126 PASS accepted_values_fct_daily_revenue_v2_country_code__DE__CH__PL .. [[32mPASS[0m in 0.75s]
+[0m14:26:12  120 of 126 START test not_null_fct_daily_revenue_v2_session_count .............. [RUN]
+[0m14:26:12  116 of 126 PASS dbt_utils_unique_combination_of_columns_fct_daily_revenue_v2_revenue_date__country_code__operator_name  [[32mPASS[0m in 0.76s]
+[0m14:26:12  121 of 126 START test accepted_values_fct_daily_revenue_v1_country_code__DE__CH__PL  [RUN]
+[0m14:26:13  119 of 126 PASS not_null_fct_daily_revenue_v2_revenue_date ..................... [[32mPASS[0m in 0.52s]
+[0m14:26:13  122 of 126 START test dbt_utils_unique_combination_of_columns_fct_daily_revenue_v1_revenue_date__country_code__operator_name  [RUN]
+[0m14:26:13  118 of 126 PASS not_null_fct_daily_revenue_v2_operator_name .................... [[32mPASS[0m in 0.74s]
+[0m14:26:13  123 of 126 START test not_null_fct_daily_revenue_v1_country_code ............... [RUN]
+[0m14:26:13  121 of 126 PASS accepted_values_fct_daily_revenue_v1_country_code__DE__CH__PL .. [[32mPASS[0m in 0.69s]
+[0m14:26:13  124 of 126 START test not_null_fct_daily_revenue_v1_operator_name .............. [RUN]
+[0m14:26:13  120 of 126 PASS not_null_fct_daily_revenue_v2_session_count .................... [[32mPASS[0m in 0.73s]
+[0m14:26:13  125 of 126 START test not_null_fct_daily_revenue_v1_revenue_date ............... [RUN]
+[0m14:26:14  122 of 126 PASS dbt_utils_unique_combination_of_columns_fct_daily_revenue_v1_revenue_date__country_code__operator_name  [[32mPASS[0m in 0.67s]
+[0m14:26:14  126 of 126 START test not_null_fct_daily_revenue_v1_session_count .............. [RUN]
+[0m14:26:14  125 of 126 PASS not_null_fct_daily_revenue_v1_revenue_date ..................... [[32mPASS[0m in 0.65s]
+[0m14:26:14  124 of 126 PASS not_null_fct_daily_revenue_v1_operator_name .................... [[32mPASS[0m in 0.83s]
+[0m14:26:14  123 of 126 PASS not_null_fct_daily_revenue_v1_country_code ..................... [[32mPASS[0m in 0.99s]
+[0m14:26:14  126 of 126 PASS not_null_fct_daily_revenue_v1_session_count .................... [[32mPASS[0m in 0.75s]
+[0m14:26:14  
+[0m14:26:14  Finished running 2 exposures, 1 incremental model, 2 snapshots, 3 table models, 101 data tests, 6 unit tests, 11 view models in 0 hours 1 minutes and 1.41 seconds (61.41s).
+[0m14:26:14  
+[0m14:26:14  [32mCompleted successfully[0m
+[0m14:26:14  
+[0m14:26:14  Done. PASS=124 WARN=0 ERROR=0 SKIP=0 NO-OP=2 REUSED=0 TOTAL=126
+--- exit 0

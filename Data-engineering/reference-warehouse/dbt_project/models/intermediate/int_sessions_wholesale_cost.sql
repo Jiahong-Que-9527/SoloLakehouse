@@ -47,7 +47,7 @@ select
     cast(
         round(s.energy_kwh * coalesce(p.slot_price, b.earliest_price) / 1000, 2)
         * case when s.event_type = 'refund' then -1 else 1 end
-        as decimal(18, 2)
+        as {{ decimal_type(18, 2) }}
     ) as wholesale_cost_eur
 from {{ ref('int_sessions_enriched_fx') }} as s
 inner join priced as p

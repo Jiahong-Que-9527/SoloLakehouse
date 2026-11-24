@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-from charging_commerce import ingestion
+from charging_commerce import bq_loader, ingestion
 from charging_commerce.generator import generate
 from charging_commerce.open_data import refresh_open_data, verify_fixtures
 
@@ -121,6 +121,23 @@ def cmd_refresh_open_data(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_load_bq(args: argparse.Namespace) -> int:
+    # Explicit operator action: requires ADC credentials and touches live BigQuery.
+    from google.cloud import bigquery
+
+    client = bigquery.Client(project=args.project)
+    report = bq_loader.load_raw_to_bigquery(
+        client,
+        Path(args.fixtures_dir),
+        dataset=args.dataset,
+        seed=args.seed,
+        max_total_bytes=args.max_bytes,
+        batch_prefix=args.batch_prefix,
+    )
+    print(report.summary())
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="charging-commerce", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -166,6 +183,23 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--fixtures-dir", default=str(DEFAULT_FIXTURES))
     p.add_argument("--work-dir", default="data/live_refresh")
     p.set_defaults(func=cmd_refresh_open_data)
+
+    p = sub.add_parser(
+        "load-bq",
+        help="idempotently load the locked raw layer into BigQuery de_raw (E06; needs ADC)",
+    )
+    p.add_argument("--project", default="slh-gcp-test")
+    p.add_argument("--dataset", default="de_raw")
+    p.add_argument("--fixtures-dir", default=str(DEFAULT_FIXTURES))
+    p.add_argument("--seed", type=int, default=42)
+    p.add_argument(
+        "--max-bytes",
+        type=int,
+        default=bq_loader.DEFAULT_MAX_TOTAL_BYTES,
+        help="upload size guard in bytes (design §2: < 10 MB)",
+    )
+    p.add_argument("--batch-prefix", default="e06-raw-load")
+    p.set_defaults(func=cmd_load_bq)
     return parser
 
 

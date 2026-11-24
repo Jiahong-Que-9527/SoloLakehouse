@@ -25,7 +25,7 @@ fees as (
 fx as (
     select
         s.session_id,
-        coalesce(f.rate, cast(1.0 as decimal(12, 6))) as fx_rate_to_eur
+        coalesce(f.rate, cast(1.0 as {{ decimal_type(12, 6) }})) as fx_rate_to_eur
     from reduced as s
     left join {{ ref('stg_ecb_fx') }} as f
         on
@@ -40,13 +40,13 @@ fx as (
 recomputed as (
     select
         sum(
-            cast(round(x.gross_amount_local / x2.fx_rate_to_eur, 2) as decimal(18, 2))
+            cast(round(x.gross_amount_local / x2.fx_rate_to_eur, 2) as {{ decimal_type(18, 2) }})
             + cast(
                 round(
-                    coalesce(fe.roaming_fee_local, cast(0.0 as decimal(12, 2)))
+                    coalesce(fe.roaming_fee_local, cast(0.0 as {{ decimal_type(12, 2) }}))
                     / x2.fx_rate_to_eur,
                     2
-                ) as decimal(18, 2)
+                ) as {{ decimal_type(18, 2) }}
             )
         ) as net_total
     from reduced as x
