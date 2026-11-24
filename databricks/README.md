@@ -14,7 +14,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 |---|---|---|---|---|
 | **D01** · ECB Delta | **Accepted** | Full | `databricks bundle deploy/run` + `jobs get-run-output` | — |
 | **D02** · ETL Automation | **Accepted** | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
-| **D03** · CDC Lakehouse | Planned | Full (managed UC Volume) | `databricks fs cp` + `bundle run` (`availableNow` or batch fallback) | External cloud bucket |
+| **D03** · CDC Lakehouse | **Accepted** | Full (managed UC Volume) | `bundle run` with Auto Loader and `availableNow`, plus independent batch replay | External cloud bucket |
 | **D04** · UC Governance | Planned | Partial subset | CLI + `sql/statements` API on 2X-Small warehouse | 5-role denials, masking, audit tables |
 | **D05** · Forecasting MLOps | Planned | Full (CPU Serverless + MLflow) | Parameterized `bundle run` for scoring & rollback | Enterprise multi-env registry |
 | **D06** · Platform Factory | **Deferred** | Not supported | — | Terraform account API + 2 Service Principals |
@@ -27,7 +27,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 2. **D02** · [Financial ETL Automation](02-financial-etl-automation/README.md) — **Accepted** (GitHub Actions deploy, scheduled run, quality gate, retry and bounded replay)
    Deploy scheduled tasks and verify retries, recovery and publication.
    [Design](02-financial-etl-automation/docs/design.md) · [Implementation plan](02-financial-etl-automation/docs/implementation.md)
-3. **D03** · [Financial CDC Lakehouse](03-financial-cdc-lakehouse/README.md)
+3. **D03** · [Financial CDC Lakehouse](03-financial-cdc-lakehouse/README.md) — **Accepted** (streaming restart, delete and replay verified)
    Apply incremental updates and withdrawals and reconcile after a checkpoint restart.
    [Design](03-financial-cdc-lakehouse/docs/design.md) · [Implementation plan](03-financial-cdc-lakehouse/docs/implementation.md)
 4. **D04** · [Unity Catalog Governance](04-unity-catalog-governance/README.md)
@@ -43,7 +43,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 ## Project handoffs and independent delivery
 
 The verified D01 release identifies a versioned financial data product. D02 packages its
-transformations. D03 can reuse its key conventions in correction fixtures,
+transformations. D03 reuses its key convention in the correction fixture,
 and D04 can apply governance to its Gold schema. D05 selects a pinned Gold
 snapshot. D06 combines delivery and governance patterns exercised by the
 earlier projects.
