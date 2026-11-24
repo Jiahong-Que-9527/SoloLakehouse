@@ -2,8 +2,7 @@
 
 **Run date (UTC):** 2026-11-24 · **Project:** `slh-gcp-test` (`europe-west3`) ·
 **Outcome:** datasets + raw load + full `dbt build --target bq` green; guardrail
-drills recorded; net cost **€0** · **Pending:** analyst IAM drill (needs the
-analyst principal from the owner, see Phase 4).
+and IAM drills all recorded; net cost **€0**.
 
 > **GCP cost gate (AGENTS.md):** the owner approved this live run on 2026-11-24
 > after the €0 cost plan (Free-Tier SKUs only, 0 destroys). Executed scope stayed
@@ -76,24 +75,24 @@ partition-elimination predicate (see macro note in `cross_db_helpers.sql`).
 | Per-query byte cap enforced | `bq query --maximum_bytes_billed=1024 'select * from de_mart.fct_charging_sessions limit 1000'` | rejected | ✅ `Query exceeded limit for bytes billed: 1024. 10485760 or higher required.` |
 | Partition pruning real | filtered vs unfiltered scan, `INFORMATION_SCHEMA.JOBS_BY_PROJECT` | fewer bytes processed when filtered | ✅ filtered: **54,568 B processed** / unfiltered dbt scans: **1,529,719–1,913,719 B processed** (≈28× pruned); `total_bytes_billed` floors at the 10 MiB minimum-billing unit |
 | Load-job receipts | `INFORMATION_SCHEMA.JOBS_BY_PROJECT` `job_type='LOAD'` | all DONE | ✅ 10/10 load jobs `DONE` (two idempotent runs × five tables) |
-| Analyst allowed on consumer view | analyst principal queries `de_consumer.v_daily_revenue` | rows returned | ⏳ pending analyst principal (Phase 4) |
-| Analyst denied raw | analyst principal queries `de_raw.raw_charging_sessions` | `403 Access Denied` | ⏳ pending analyst principal (Phase 4) |
+| Analyst allowed on consumer view | analyst (`de-analyst@` SA) queries `de_consumer.v_daily_revenue` | rows returned | ✅ **7,732 rows** via impersonation |
+| Analyst denied raw | analyst queries `de_raw.raw_charging_sessions` | `403 Access Denied` | ✅ `Forbidden: 403 Access Denied: Table slh-gcp-test:de_raw.raw_charging_sessions` |
+| Analyst denied mart (bonus) | analyst queries `de_mart.fct_charging_sessions` directly | `403 Access Denied` | ✅ the Authorized View is the *only* read surface — direct mart access is denied too |
 
-## Phase 4 · Remaining: Authorized View + analyst IAM (Terraform phase 2)
+## Phase 4 · Authorized View + analyst IAM (Terraform phase 2)
 
-Blocked on one input: the **analyst principal** (user or service account email)
-to receive the `roles/bigquery.dataViewer` grant on `de_consumer` and
-`roles/bigquery.jobUser` project-wide. Once provided:
+The analyst identity is a dedicated service account,
+`de-analyst@slh-gcp-test.iam.gserviceaccount.com` (created key-free; drills run
+through credential impersonation with the owner as
+`roles/iam.serviceAccountTokenCreator`). Terraform plan: `4 to add, 0 to
+change, 0 to destroy` → `Apply complete! Resources: 4 added, 0 changed,
+0 destroyed` (view + authorized-view binding in `de_mart` +
+`dataViewer` on `de_consumer` + `jobUser` project-wide).
 
 ```bash
-cd 06-bigquery-warehouse-finops/infra   # set analyst_principal in terraform.tfvars
-terraform apply                          # expect: 4 to add (view + 2 IAM + 1 IAM), 0 to destroy
-bq query --use_legacy_sql=false 'select * from de_consumer.v_daily_revenue limit 5'  # as analyst
+cd 06-bigquery-warehouse-finops/infra   # analyst_principal = serviceAccount:de-analyst@...
+terraform plan && terraform apply       # 4 added / 0 destroyed
 ```
-
-The view (`de_consumer.v_daily_revenue` over `de_mart.fct_daily_revenue_v2`)
-must be created after the dbt build because BigQuery validates the view query
-against existing tables at CREATE time — documented in `infra/README.md`.
 
 ## FinOps receipts
 

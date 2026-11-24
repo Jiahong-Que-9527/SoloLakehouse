@@ -1,6 +1,6 @@
 # E06 · BigQuery warehouse and FinOps
 
-**Status:** implemented — datasets, raw load and full `dbt build --target bq` verified live on 2026-11-24 (€0, 0 destroys); Authorized View + analyst IAM drill pending the analyst principal · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [GCP cost gate](../../AGENTS.md) · [Cloud verification](docs/cloud-verification.md)
+**Status:** implemented — live run accepted 2026-11-24: datasets, raw load, green `dbt build --target bq`, Authorized View + analyst IAM split, all guardrail drills recorded, €0 net cost, 0 destroys · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [GCP cost gate](../../AGENTS.md) · [Cloud verification](docs/cloud-verification.md)
 
 Run the exact same `dbt` project against live **GCP BigQuery** (`slh-gcp-test`, `europe-west3`) using `--target bq`, apply BigQuery partitioning and clustering, publish an authorized consumer view, and measure query scan cost.
 

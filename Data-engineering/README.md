@@ -5,7 +5,7 @@
 
 Deliver an end-to-end modern **Data Engineering** platform on **Python, SQL, dbt, DuckDB, Google BigQuery, and Apache Airflow** over a hybrid German EV charging and roaming commerce workload (`European EV Charging & Roaming Commerce`). Each stage builds verifiable capabilities expected of a mid-to-senior Data Engineer: resumable raw ingestion, Kimball dimensional modeling, dbt testing pyramids and data contracts, incremental merge with late-arriving settlements and SCD Type 2 snapshots, Slim CI, BigQuery partitioning and cost governance, Airflow orchestration with failure recovery, and run observability.
 
-**Status:** E01–E05 accepted with recorded evidence (contract at v1.5; full suite re-verified 2026-11-24, 36 passed); E06 implemented locally (cost-gate approval pending); E07–E08 planned (architecture, stage designs, and implementation plans ready; **E06 live acceptance** next).
+**Status:** E01–E05 accepted with recorded evidence (contract at v1.5; full suite re-verified 2026-11-24, 36 passed); E06 implemented and live-verified on BigQuery 2026-11-24 (€0, 0 destroys); E07–E08 planned (**E07** next).
 
 ## Human quick start
 
