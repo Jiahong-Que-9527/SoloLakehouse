@@ -1,0 +1,115 @@
+bundle:
+  name: financial-etl-d02
+
+workspace:
+  root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}/${var.schema}
+
+sync:
+  include:
+    - fixtures/fx_conflict.csv
+  paths:
+    - notebooks
+    - src
+    - fixtures
+    - ../01-ecb-delta-lakehouse/src
+    - ../01-ecb-delta-lakehouse/fixtures
+
+variables:
+  catalog:
+    default: workspace
+  schema:
+    description: Dedicated D02 Unity Catalog schema
+  git_sha:
+    description: Full Git revision of the deployed repository
+  failure_email:
+    description: Workspace user to notify when the job fails
+  prod_workspace_user:
+    description: Workspace owner for the fixed production bundle path
+    default: ""
+  cron:
+    default: "0 0 6 * * ?"
+  pause_status:
+    default: PAUSED
+
+resources:
+  jobs:
+    d02_financial_etl:
+      name: d02-financial-etl-${var.schema}
+      max_concurrent_runs: 1
+      schedule:
+        quartz_cron_expression: ${var.cron}
+        timezone_id: UTC
+        pause_status: ${var.pause_status}
+      email_notifications:
+        on_failure:
+          - ${var.failure_email}
+      parameters:
+        - name: window_start
+          default: "2025-01-01"
+        - name: window_end
+          default: "2025-03-31"
+        - name: source_batch_id
+          default: q1-seed
+        - name: fixture_variant
+          default: initial
+        - name: retry_once
+          default: "false"
+      tasks:
+        - task_key: ingest
+          max_retries: 2
+          disable_auto_optimization: true
+          min_retry_interval_millis: 5000
+          timeout_seconds: 300
+          notebook_task: &notebook_task
+            notebook_path: ./notebooks/run_task.py
+            base_parameters: &task_parameters
+              task: ingest
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              target: ${bundle.target}
+              git_sha: ${var.git_sha}
+              job_run_id: "{{job.run_id}}"
+        - task_key: transform
+          depends_on:
+            - task_key: ingest
+          max_retries: 2
+          disable_auto_optimization: true
+          min_retry_interval_millis: 5000
+          timeout_seconds: 300
+          notebook_task:
+            <<: *notebook_task
+            base_parameters:
+              <<: *task_parameters
+              task: transform
+        - task_key: quality
+          depends_on:
+            - task_key: transform
+          max_retries: 0
+          disable_auto_optimization: true
+          timeout_seconds: 300
+          notebook_task:
+            <<: *notebook_task
+            base_parameters:
+              <<: *task_parameters
+              task: quality
+        - task_key: publish
+          depends_on:
+            - task_key: quality
+          max_retries: 1
+          disable_auto_optimization: true
+          min_retry_interval_millis: 5000
+          timeout_seconds: 300
+          notebook_task:
+            <<: *notebook_task
+            base_parameters:
+              <<: *task_parameters
+              task: publish
+
+targets:
+  dev:
+    default: true
+    mode: development
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${var.prod_workspace_user}/.bundle/${bundle.name}/${bundle.target}/${var.schema}

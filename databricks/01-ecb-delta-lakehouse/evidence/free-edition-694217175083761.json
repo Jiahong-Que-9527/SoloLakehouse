@@ -1,0 +1,90 @@
+{
+  "catalog": "workspace",
+  "monthly_summary_after_revision": [
+    {
+      "avg_usd_per_eur": "1.032950",
+      "last_fx_date": "2025-01-31",
+      "last_policy_rate": "3.000000",
+      "last_usd_per_eur": "1.039300",
+      "month_utc": "2025-01",
+      "observation_days": 4
+    },
+    {
+      "avg_usd_per_eur": "1.040533",
+      "last_fx_date": "2025-02-28",
+      "last_policy_rate": "2.750000",
+      "last_usd_per_eur": "1.041100",
+      "month_utc": "2025-02",
+      "observation_days": 3
+    },
+    {
+      "avg_usd_per_eur": "1.085667",
+      "last_fx_date": "2025-03-31",
+      "last_policy_rate": "2.500000",
+      "last_usd_per_eur": "1.081500",
+      "month_utc": "2025-03",
+      "observation_days": 3
+    }
+  ],
+  "release_v1": {
+    "git_sha": "91cdf683cbf7305dcc012aeb2958533be45f7398",
+    "gold_row_count": 10,
+    "gold_table": "workspace.ecb_d01_20261124_193217_siqzzu.gold_daily_euro_indicators",
+    "quality_status": "passed",
+    "reject_count": 5,
+    "release_id": "d01-2025q1-v1",
+    "silver_fx_table": "workspace.ecb_d01_20261124_193217_siqzzu.silver_clean_fx_rates",
+    "silver_fx_version": 2,
+    "silver_rate_table": "workspace.ecb_d01_20261124_193217_siqzzu.silver_clean_interest_rates",
+    "silver_rate_version": 1,
+    "source_batch_id": "batch-2025q1-init",
+    "source_hashes": {
+      "ecb_fx_2025q1.csv": "c5da7596b001af7e3b8d8b792022c059c8bd5d5ad82f70e57151b3ce9297f7d7",
+      "ecb_policy_rates_2025q1.csv": "155a0be81ba0622310fa0e717de37df6b643980471d7d267a3cb5d489fdf6e00"
+    }
+  },
+  "release_v2": {
+    "git_sha": "91cdf683cbf7305dcc012aeb2958533be45f7398",
+    "gold_row_count": 10,
+    "gold_table": "workspace.ecb_d01_20261124_193217_siqzzu.gold_daily_euro_indicators",
+    "quality_status": "passed",
+    "reject_count": 5,
+    "release_id": "d01-2025q1-v2",
+    "silver_fx_table": "workspace.ecb_d01_20261124_193217_siqzzu.silver_clean_fx_rates",
+    "silver_fx_version": 3,
+    "silver_rate_table": "workspace.ecb_d01_20261124_193217_siqzzu.silver_clean_interest_rates",
+    "silver_rate_version": 1,
+    "source_batch_id": "batch-2025q1-rev1",
+    "source_hashes": {
+      "ecb_fx_2025q1.csv": "c5da7596b001af7e3b8d8b792022c059c8bd5d5ad82f70e57151b3ce9297f7d7",
+      "ecb_fx_2025q1_revision.csv": "faa7ce9ebe4ac4c18bdfa03b60f922f240d71638f74a241fe99202e82d53a908",
+      "ecb_policy_rates_2025q1.csv": "155a0be81ba0622310fa0e717de37df6b643980471d7d267a3cb5d489fdf6e00"
+    }
+  },
+  "schema": "ecb_d01_20261124_193217_siqzzu",
+  "silver_fx_count_after_init": 10,
+  "silver_fx_count_after_replay": 10,
+  "silver_fx_version_after_revision": 3,
+  "silver_fx_version_before_revision": 2,
+  "time_travel_2025_02_05_after": {
+    "observation_date": "2025-02-05",
+    "series_key": "EXR.D.USD.EUR.SP00.A",
+    "source_batch_id": "batch-2025q1-rev1",
+    "unit": "USD_PER_EUR",
+    "value": "1.042500"
+  },
+  "time_travel_2025_02_05_before": {
+    "observation_date": "2025-02-05",
+    "series_key": "EXR.D.USD.EUR.SP00.A",
+    "source_batch_id": "batch-2025q1-init",
+    "unit": "USD_PER_EUR",
+    "value": "1.041200"
+  },
+  "untouched_2025_02_06": {
+    "observation_date": "2025-02-06",
+    "series_key": "EXR.D.USD.EUR.SP00.A",
+    "source_batch_id": "batch-2025q1-init",
+    "unit": "USD_PER_EUR",
+    "value": "1.038000"
+  }
+}

@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** in progress — local fixtures, contracts, transforms, unit tests, Serverless notebook and `databricks.yml` bundle are implemented; live Databricks Free Edition MERGE & Time Travel run pending. [Brief](../README.md) · [Design](design.md)
+**Status:** accepted on Databricks Free Edition on 2026-11-24. [Brief](../README.md) · [Design](design.md)
 
 ## First delivery
 
@@ -23,3 +23,20 @@ Produce one versioned quarterly dataset that a reviewer can reconstruct before a
 ## Portfolio evidence
 
 Evidence: before/after SQL results for one corrected key, a replay comparison and one release record. Explain where original observations, derived values and published versions are distinguished. Link measured results from the brief after execution.
+
+## Free Edition verification
+
+The CLI deployed the D01 bundle with Git commit
+`91cdf683cbf7305dcc012aeb2958533be45f7398`. The Serverless run succeeded in
+`workspace.ecb_d01_20261124_193217_siqzzu`. It used a fresh schema with
+table reset disabled.
+
+- The initial FX batch and its replay both left 10 Silver observations.
+- The revision moved FX Silver from Delta version 2 to 3. Time Travel
+  returned `1.041200` before and `1.042500` after for 2025-02-05.
+  The 2025-02-06 observation retained its original batch ID.
+- Both Gold releases passed quality checks with 10 rows. Their fixture
+  hashes and commit were checked against the repository. The revised
+  February average was `1.040533`.
+
+[Databricks run](https://dbc-7395c3c6-fdc9.cloud.databricks.com/jobs/221643365548620/runs/694217175083761?o=7474653372862099) · [Verified output](../evidence/free-edition-694217175083761.json)
