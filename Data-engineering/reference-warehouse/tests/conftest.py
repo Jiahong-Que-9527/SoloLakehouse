@@ -12,11 +12,21 @@ import shutil
 import subprocess
 from pathlib import Path
 
-import duckdb
-import pytest
+# The isolated Airflow environment (../airflow) runs only the DAG-structure
+# tests (test_airflow_dag.py) against this directory; it does not install the
+# warehouse dependencies, so degrade gracefully instead of failing conftest.
+try:
+    import duckdb
 
-from charging_commerce import ingestion
-from charging_commerce.generator import MockRoamingServer, generate
+    from charging_commerce import ingestion
+    from charging_commerce.generator import MockRoamingServer, generate
+except ImportError:  # pragma: no cover - exercised only in the airflow env
+    duckdb = None
+    ingestion = None
+    MockRoamingServer = None
+    generate = None
+
+import pytest
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURES_DIR = REPO / "fixtures"

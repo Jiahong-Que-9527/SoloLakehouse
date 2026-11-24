@@ -1,0 +1,60 @@
+=== versions
+/home/bill/src/SoloLakehouse-e07/Data-engineering/reference-warehouse/airflow/.venv/lib/python3.12/site-packages/airflow/metrics/base_stats_logger.py:22 RemovedInAirflow3Warning: Timer and timing metrics publish in seconds were deprecated. It is enabled by default from Airflow 3 onwards. Enable timer_unit_consistency to publish all the timer and timing metrics in milliseconds.
+/home/bill/src/SoloLakehouse-e07/Data-engineering/reference-warehouse/airflow/.venv/lib/python3.12/site-packages/airflow/triggers/base.py:27 RemovedInAirflow3Warning: Timer and timing metrics publish in seconds were deprecated. It is enabled by default from Airflow 3 onwards. Enable timer_unit_consistency to publish all the timer and timing metrics in milliseconds.
+2.11.2
+Core:
+  - installed: 1.12.7
+=== metadata db (disposable AIRFLOW_HOME=/tmp/slh-airflow-e07)
+Database migrating done!
+journal_mode: wal
+=== start airflow standalone (loopback)
+standalone ready: yes (waited ~5s)
+No paused DAGs were found
+dag_id                          | charging_commerce_daily                                                                                                                                             
+root_dag_id                     | None                                                                                                                                                                
+=== RUN 1 (clean scheduled-style run)
+raw rows before: 12728
+run_id=manual__2026-11-24T20:03:29+00:00
+RUN 1 state: success
+--- RUN 1 task instances (run_id=manual__2026-11-24T20:03:29+00:00)
+  ingest_raw                   state=success          try=1 start=2026-11-24 20:03:59.562144 end=2026-11-24 20:04:00.563637 dur=1.001493
+  dbt_source_freshness         state=success          try=1 start=2026-11-24 20:04:01.919388 end=2026-11-24 20:04:04.661511 dur=2.742123
+  dbt_snapshot                 state=success          try=1 start=2026-11-24 20:04:05.969760 end=2026-11-24 20:04:21.599205 dur=15.629445
+  dbt_build_marts              state=success          try=1 start=2026-11-24 20:04:23.068483 end=2026-11-24 20:04:35.680580 dur=12.612097
+  verify_revenue_conservation  state=success          try=1 start=2026-11-24 20:04:37.171186 end=2026-11-24 20:04:39.944363 dur=2.773177
+raw rows after RUN 1: 12728
+=== RUN 2 (drill: corrupted country_code on one raw session row)
+corrupted session_id=S-CH-000004 (country_code -> 'XX')
+run_id=manual__2026-11-24T20:04:41+00:00
+RUN 2 state: failed (expected failed)
+--- RUN 2 task instances (halted) (run_id=manual__2026-11-24T20:04:41+00:00)
+  ingest_raw                   state=success          try=1 start=2026-11-24 20:04:43.072599 end=2026-11-24 20:04:44.113591 dur=1.040992
+  dbt_source_freshness         state=success          try=1 start=2026-11-24 20:04:45.420278 end=2026-11-24 20:04:48.113213 dur=2.692935
+  dbt_snapshot                 state=success          try=1 start=2026-11-24 20:04:49.512222 end=2026-11-24 20:05:05.346774 dur=15.834552
+  dbt_build_marts              state=failed           try=1 start=2026-11-24 20:05:06.728789 end=2026-11-24 20:05:16.851298 dur=10.122509
+  verify_revenue_conservation  state=upstream_failed  try=0 start=2026-11-24 20:05:16.873104 end=2026-11-24 20:05:16.873104 dur=0.0
+=== recovery: fix input, clear ONLY the halted build stage (and its downstream verify; upstream producers are never re-run), let scheduler resume
+input restored: country_code back to 'DE' for S-CH-000004; raw rows still 12728
+/home/bill/src/SoloLakehouse-e07/Data-engineering/reference-warehouse/airflow/.venv/lib/python3.12/site-packages/airflow/triggers/base.py:27 RemovedInAirflow3Warning: Timer and timing metrics publish in seconds were deprecated. It is enabled by default from Airflow 3 onwards. Enable timer_unit_consistency to publish all the timer and timing metrics in milliseconds.
+[2026-11-24T21:05:23.660+0100] {dagbag.py:588} INFO - Filling up the DagBag from /home/bill/src/SoloLakehouse-e07/Data-engineering/reference-warehouse/airflow/dags
+RUN 2 state after clear+rerun: success (expected success)
+--- RUN 2 task instances (recovered) (run_id=manual__2026-11-24T20:04:41+00:00)
+  ingest_raw                   state=success          try=1 start=2026-11-24 20:04:43.072599 end=2026-11-24 20:04:44.113591 dur=1.040992
+  dbt_source_freshness         state=success          try=1 start=2026-11-24 20:04:45.420278 end=2026-11-24 20:04:48.113213 dur=2.692935
+  dbt_snapshot                 state=success          try=1 start=2026-11-24 20:04:49.512222 end=2026-11-24 20:05:05.346774 dur=15.834552
+  dbt_build_marts              state=success          try=2 start=2026-11-24 20:05:25.216909 end=2026-11-24 20:05:36.361073 dur=11.144164
+  verify_revenue_conservation  state=success          try=1 start=2026-11-24 20:05:37.738349 end=2026-11-24 20:05:40.481172 dur=2.742823
+=== RUN 3 (bounded backfill window via dag_run.conf)
+run_id=manual__2026-11-24T20:05:45+00:00
+RUN 3 state: success
+--- RUN 3 task instances (run_id=manual__2026-11-24T20:05:45+00:00)
+  ingest_raw                   state=success          try=1 start=2026-11-24 20:05:47.738839 end=2026-11-24 20:05:48.805035 dur=1.066196
+  dbt_source_freshness         state=success          try=1 start=2026-11-24 20:05:50.250287 end=2026-11-24 20:05:52.990509 dur=2.740222
+  dbt_snapshot                 state=success          try=1 start=2026-11-24 20:05:54.377020 end=2026-11-24 20:06:15.229161 dur=20.852141
+  dbt_build_marts              state=success          try=1 start=2026-11-24 20:06:16.577691 end=2026-11-24 20:06:29.296938 dur=12.719247
+  verify_revenue_conservation  state=success          try=1 start=2026-11-24 20:06:30.822838 end=2026-11-24 20:06:35.118346 dur=4.295508
+raw rows after RUN 3: 12728 (same-ds re-ingest skips, no duplication)
+=== stop standalone
+=== summary
+RUN1=success RUN2=failed -> success (recovered) RUN3=success
+DONE

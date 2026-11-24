@@ -337,6 +337,13 @@ unit_tests:
       overrides:
           macros:
               is_incremental: true  # exercise the incremental path; `this` is mocked below so the 48h lookback filter sees a watermark
+              # Pin the default 48-hour watermark filter: operator-supplied
+              # bounded-backfill vars (Airflow dag_run.conf -> dbt --vars)
+              # switch the real filter to window semantics, which would
+              # exclude this golden fixture (settled outside the window)
+              # and fail the test for the wrong reason. The golden example
+              # asserts contract §3.5's default watermark behavior only.
+              incremental_lookback_filter: "where settled_at >= cast('2026-03-03 20:00:00' as timestamp)"
       given:
           - input: this
             rows:

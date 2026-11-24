@@ -1,6 +1,6 @@
 # Design: E07 · Orchestration with Apache Airflow
 
-**E07 · Design specification (planned).** [Brief](../README.md) · [Implementation plan](implementation.md)
+**E07 · Design specification — accepted 2026-11-24** (evidence: [e07-acceptance.md](../evidence/e07-acceptance.md); as-built deltas in §6). [Brief](../README.md) · [Implementation plan](implementation.md)
 
 Orchestrate the end-to-end warehouse lifecycle (`ingest -> source freshness -> dbt snapshot -> dbt build -> revenue audit`) in **Apache Airflow** running locally in an isolated Python 3.12 `uv` environment (with an optional Docker Compose setup), passing Airflow logical dates (`{{ ds }}`) for idempotent backfills, and recording an ADR comparing **Airflow** against **Dagster**.
 
@@ -64,3 +64,35 @@ Airflow DAG: charging_commerce_daily (catchup=False, default_args retries)
 ## 8. Handoff
 
 `E08` adds a final DAG step parsing `dbt` `run_results.json` and `sources.json` into operational observability tables.
+
+## 9. As-built deltas (recorded at acceptance, 2026-11-24)
+
+The accepted implementation follows this design with four recorded deviations —
+each is visible in the DAG source and exercised by the acceptance drill:
+
+1. **Ingest batch id is a per-source constant (`e06-raw-load-<source>`), not
+   `{{ ds }}`.** The generated payloads are a date-locked snapshot of the whole
+   window (regeneration is not byte-stable), so a per-logical-date batch id
+   appended the same rows again on every run whose `ds` differed and broke the
+   raw-layer unique tests. E01 keys its idempotency state file by batch id
+   alone, hence the source suffix (same convention as the E06
+   `bq_loader.DEFAULT_BATCH_PREFIX`). Idempotency is stronger, not weaker:
+   every run after the first skips ingestion entirely (acceptance log: ingest
+   durations ~1 s with 0 rows added across four consecutive runs).
+2. **Backfill is passed via `dags trigger --conf`, not `dags backfill`.** The
+   bounded window (`backfill_start`/`backfill_end`) reaches dbt through
+   `--vars`; `dags trigger` keeps the run inside normal scheduler semantics
+   (clear/retry included in the drill).
+3. **Recovery clears the failed task with `--downstream --only-failed`.**
+   Airflow 2.11 clears do not cascade: leaving `verify_revenue_conservation`
+   upstream_failed unless it is cleared too, and a date-range clear without
+   `--only-failed` would reset already-succeeded builds in other runs.
+   Blast radius stays minimal: upstream producers are never re-run.
+4. **`dbt source freshness` excludes `source:raw.raw_roaming_settlements`.**
+   The E05 boundary keeps roaming out of this DAG (its collector needs the
+   mock API server), so a fresh warehouse has no roaming relation and dbt
+   reports the source as an error; roaming freshness is exercised by the E05
+   drills. Additionally, the golden unit test
+   `fct_charging_sessions_golden_refund_signs` pins the default 48-hour
+   watermark filter via a macro override so operator-supplied backfill vars
+   cannot change what it asserts.

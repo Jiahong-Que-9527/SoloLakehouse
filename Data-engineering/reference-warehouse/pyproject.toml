@@ -33,6 +33,9 @@ packages = ["src/charging_commerce"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+# Only src/ hosts first-party packages; the airflow/ env dir must not make
+# `import airflow` classify as first-party (E07).
+src = ["src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
