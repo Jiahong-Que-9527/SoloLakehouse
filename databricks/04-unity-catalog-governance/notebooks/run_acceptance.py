@@ -157,7 +157,9 @@ def publish(spark, schemas, release_id, job_run_id):
             WHERE release_id = :release_id
         ) source
         ON target.release_id = source.release_id
-        WHEN NOT MATCHED THEN INSERT VALUES (
+        WHEN NOT MATCHED THEN INSERT (
+            release_id, source_batch, bronze_version, gold_version, job_run_id, published_at
+        ) VALUES (
             source.release_id, source.source_batch, :bronze_version, :gold_version,
             :job_run_id, current_timestamp()
         )
