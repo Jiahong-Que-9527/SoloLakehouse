@@ -13,7 +13,7 @@ SoloLakehouse is a personal portfolio of independent **Data and AI platform engi
 | [**ML Engineering**](Mlops-engineering/README.md) | Can one ML system be **closed end to end**, from features to **drift-triggered retraining**? | **Point-in-time features**, rolling backtests, **MLflow** lineage, release gate, batch and online serving, drift monitoring, **Dagster** | **100%** · **M01–M09 accepted**. Model rollback and Dagster retraining verified. The template onboarded a second workload. |
 | [**DevOps Engineering**](Devops-engineering/README.md) | How does a service travel from a **source change** to a **verified deployment**, and recover from a bad release? | **Seven stages:** reproducible dev, containers, **CI** with supply-chain checks, **digest rollback**, **Kubernetes GitOps** drills, incident recovery, reusable template | **100%** · **D01–D07 accepted**. Delivery and rollback drills passed. The template onboarded a second service. |
 | [**Google Cloud**](gcp/README.md) | How are **data products** delivered and governed on managed cloud services? | Scheduled **Cloud Run** batch job to **Cloud Storage and BigQuery**; authenticated **API** over an authorized view; **Pub/Sub** event processing with dedup and replay; governed release with contracts | **100%** · **G01–G06 delivered**. G05 verified batch scoring and rollback in BigQuery. G06 deployed and smoke-tested two isolated stacks, verified cross-stack read denial, and tore down both stacks with zero residual resources. |
-| [**Databricks**](databricks/README.md) | How does a **governed lakehouse** product run on Databricks? | **Delta** tables, scheduled jobs, **CDC** with corrections, **Unity Catalog**, MLflow forecasting, workspace provisioning | **33%** · **D01–D02 accepted** on Free Edition (Delta delivery path and the GitHub Actions ETL automation verified). D03–D05 are planned and D06 is deferred. |
+| [**Databricks**](databricks/README.md) | How does a **governed lakehouse** product run on Databricks? | **Delta** tables, scheduled jobs, **CDC** with corrections, **Unity Catalog**, MLflow forecasting, workspace provisioning | **100% of Free Edition scope** · **D01–D06 complete in scope**. D06 verified the template, CI, and the reference job with one workspace identity. Multi-principal checks are excluded from this completion figure. |
 
 ## Delivery progress
 
@@ -32,7 +32,7 @@ The earlier self-hosted lakehouse (Compose, Dagster, Iceberg, Trino) is preserve
 | Google Cloud | **Cloud Run**, **BigQuery**, **Pub/Sub**, **Terraform**, **Workload Identity Federation**, authorized views, **idempotent event processing**, governed data products | **Cloud Data Engineer** · **Backend Engineer (data)** |
 | Data Engineering *(in progress)* | **dbt**, **DuckDB**, **BigQuery**, **Airflow**, data contracts, incremental SCD | **Data Engineer** |
 | ML Engineering | **Point-in-time features**, evaluation, **model registry**, **drift monitoring**, orchestration | **MLOps Engineer** · **ML Engineer** |
-| Databricks *(in progress)* | **Delta**, **Jobs**, **CDC**, **Unity Catalog**, workspace provisioning | **Lakehouse Engineer** |
+| Databricks *(Free Edition scope complete)* | **Delta**, **Jobs**, **CDC**, **Unity Catalog**, workspace provisioning | **Lakehouse Engineer** |
 
 A capability counts as demonstrated only where the repository holds code, tests and recorded evidence.
 
