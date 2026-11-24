@@ -1,0 +1,37 @@
+bundle:
+  name: unity-catalog-d04
+
+workspace:
+  root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}/${var.namespace}
+
+sync:
+  paths:
+    - notebooks
+
+variables:
+  namespace:
+    description: Unique ecb_d04_* prefix for the isolated demonstration schemas
+
+  git_sha:
+    description: Commit of the deployed code
+
+resources:
+  jobs:
+    d04_governance:
+      name: d04-governance-${var.namespace}
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: acceptance
+          max_retries: 0
+          timeout_seconds: 900
+          notebook_task:
+            notebook_path: ./notebooks/run_acceptance.py
+            base_parameters:
+              namespace: ${var.namespace}
+              git_sha: ${var.git_sha}
+              job_run_id: "{{job.run_id}}"
+
+targets:
+  dev:
+    default: true
+    mode: development
