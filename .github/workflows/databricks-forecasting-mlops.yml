@@ -1,0 +1,37 @@
+name: Databricks D05 Forecasting MLOps
+
+on:
+  pull_request:
+    paths:
+      - 'databricks/05-financial-forecasting-mlops/**'
+      - '.github/workflows/databricks-forecasting-mlops.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'databricks/05-financial-forecasting-mlops/**'
+      - '.github/workflows/databricks-forecasting-mlops.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: databricks/01-ecb-delta-lakehouse
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: '3.12'
+      - name: Check forecast cutoffs, feature dates and promotion rules
+        env:
+          PYTHONPATH: ../05-financial-forecasting-mlops/src
+        run: |
+          uv sync --locked
+          uv run --locked ruff check --config pyproject.toml ../05-financial-forecasting-mlops
+          uv run --locked ruff format --config pyproject.toml --check ../05-financial-forecasting-mlops
+          uv run --locked pytest ../05-financial-forecasting-mlops/tests

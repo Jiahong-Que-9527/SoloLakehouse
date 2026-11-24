@@ -11,12 +11,6 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 import sklearn
-from mlflow.exceptions import MlflowException
-from mlflow.models import infer_signature
-from mlflow.tracking import MlflowClient
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.linear_model import LinearRegression
-
 from forecast_core import (
     CANDIDATE_PARAMS,
     FEATURE_VERSION,
@@ -28,6 +22,11 @@ from forecast_core import (
     qualifies,
     synthetic_observations,
 )
+from mlflow.exceptions import MlflowException
+from mlflow.models import infer_signature
+from mlflow.tracking import MlflowClient
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
 
 SYNTHETIC = {
     "rollback_a": ("d05-rollback-a-v1", 1.2),

@@ -3,7 +3,6 @@ from datetime import date
 from pathlib import Path
 
 import pytest
-
 from forecast_core import Example, Observation, build_examples, evaluation_folds, qualifies
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
