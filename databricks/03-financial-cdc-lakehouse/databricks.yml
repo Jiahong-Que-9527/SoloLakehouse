@@ -22,6 +22,11 @@ resources:
     d03_financial_cdc:
       name: d03-financial-cdc-${var.schema}
       max_concurrent_runs: 1
+      parameters:
+        - name: phase
+          default: prepare_failure
+        - name: mode
+          default: stream
       tasks:
         - task_key: acceptance
           max_retries: 0
@@ -33,7 +38,7 @@ resources:
               catalog: ${var.catalog}
               schema: ${var.schema}
               git_sha: ${var.git_sha}
-              mode: stream
+              job_run_id: "{{job.run_id}}"
 
 targets:
   dev:

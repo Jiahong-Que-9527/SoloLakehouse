@@ -11,13 +11,21 @@ def main(db):
     project = cwd.parent if cwd.name == "notebooks" else cwd
     sys.path.insert(0, str(project / "src"))
 
-    from cdc_acceptance import run_acceptance
+    from cdc_acceptance import prepare_failure, resume_and_verify
 
     param = db.widgets.get
-    result = run_acceptance(
-        SparkSession.builder.getOrCreate(), param("catalog"), param("schema"), param("mode")
+    execute = {
+        "prepare_failure": prepare_failure,
+        "resume_verify": resume_and_verify,
+    }[param("phase")]
+    result = execute(
+        SparkSession.builder.getOrCreate(),
+        param("catalog"),
+        param("schema"),
+        param("mode"),
+        param("git_sha"),
+        param("job_run_id"),
     )
-    result["git_sha"] = param("git_sha")
     db.notebook.exit(json.dumps(result, sort_keys=True))
 
 
