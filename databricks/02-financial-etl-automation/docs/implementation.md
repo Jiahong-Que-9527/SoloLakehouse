@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** implemented. See the brief for CLI and GitHub Actions deployment. [Brief](../README.md) · [Design](design.md)
+**Status:** Free Edition runtime drills verified. GitHub Actions deployment awaits workspace credentials. [Brief](../README.md) · [Design](design.md)
 
 ## First delivery
 
@@ -23,3 +23,33 @@ Turn a pinned D01 transformation into a scheduled, repairable workspace job. Sta
 ## Portfolio evidence
 
 Evidence: link a successful schedule, a failed quality task and a repaired release. Explain why a transient retry is safe and why retrying invalid input alone cannot repair it. Link measured results from the brief after execution.
+
+## Free Edition verification
+
+The CLI deployed the job to `workspace.ecb_d02_dev_20261124_194938` using
+revision `1f45f7911df6af272b81152ef10344ee59e0f841`. The schema and bundle
+state were isolated from D01. The scheduler was restored to `PAUSED` as
+soon as the acceptance tick created a run.
+
+| Scenario | Observed outcome | Run |
+|---|---|---|
+| Scheduled seed | The platform triggered the job. All four tasks succeeded and the initial Gold release has 10 rows. | [641014598139084](https://dbc-7395c3c6-fdc9.cloud.databricks.com/jobs/482115501940431/runs/641014598139084?o=7474653372862099) |
+| Faulty correction | A conflicting FX key failed quality. Publish was skipped with `UPSTREAM_FAILED`. | [953398818471373](https://dbc-7395c3c6-fdc9.cloud.databricks.com/jobs/482115501940431/runs/953398818471373?o=7474653372862099) |
+| Corrected backfill | Ingest failed once after the Bronze commit and then succeeded without repeating the write. Exactly one further Gold release was written. The Silver fingerprint outside 2025-02-05 stayed identical. | [437122716618586](https://dbc-7395c3c6-fdc9.cloud.databricks.com/jobs/482115501940431/runs/437122716618586?o=7474653372862099) |
+| Replay | An initial replay timed out in ingest. The subsequent run succeeded, reused the corrected release and left the ledger at two entries. | [509417873317060](https://dbc-7395c3c6-fdc9.cloud.databricks.com/jobs/482115501940431/runs/509417873317060?o=7474653372862099) |
+
+The original Serverless defaults added an extra quality attempt to the first
+faulty correction. With auto-optimization disabled, the
+[permanent-error rerun](https://dbc-7395c3c6-fdc9.cloud.databricks.com/jobs/482115501940431/runs/735224049897185?o=7474653372862099)
+made exactly one quality attempt and again skipped publication. A separate
+read-only run, `1074522381717023`, checked the ledger and both Gold Delta
+tables directly. Silver had 10 rows and 10 distinct business keys. Each Gold
+table had 10 rows and one Delta version. The original release remained
+visible during the first failure, and the post-fix failure left the corrected
+release current. The [structured evidence](../evidence/free-edition-acceptance.json)
+records task IDs, attempts, timings, window boundaries, source batch and
+Git revision.
+
+The GitHub Actions test jobs passed. Running the manual GitHub Actions
+deployment requires the repository Databricks credential and workspace
+variables listed in the brief.

@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D02 · Implemented (Databricks Free Edition · Serverless + bundle CLI)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**D02 · Free Edition runtime verified (GitHub Actions deployment pending)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Package the financial transforms as a deployable Databricks workflow with explicit dependencies, retries and observable runs.
 
@@ -40,7 +40,10 @@ deployment’s local state.
 GitHub Actions runs the D01/D02 test suites. The manual deploy workflow on
 `main` also validates the target and pushes it with the schedule paused.
 Configure the repository secret `DATABRICKS_TOKEN` and variables
-`DATABRICKS_HOST` and `DATABRICKS_FAILURE_EMAIL` for that deployment.
+`DATABRICKS_HOST` and `DATABRICKS_FAILURE_EMAIL` for that deployment. The `prod` dispatch
+also requires `DATABRICKS_PROD_WORKSPACE_USER` for its fixed private workspace path.
+
+[Live acceptance runs](docs/implementation.md#free-edition-verification) · [Structured evidence](evidence/free-edition-acceptance.json)
 
 ## Acceptance
 

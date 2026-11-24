@@ -1,0 +1,580 @@
+{
+  "deployment": "Databricks CLI",
+  "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+  "job_id": 482115501940431,
+  "platform": "Databricks Free Edition Serverless",
+  "replay_recovered_after_timeout": 967310351547485,
+  "results": {
+    "corrected_release": {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "gold_rows": 10,
+      "gold_table": "workspace.ecb_d02_dev_20261124_194938.gold_8a67729a5fcc49e08d085b4c",
+      "job_run_id": "437122716618586",
+      "published_at": "2026-11-24 19:55:45.817805",
+      "release_id": "d02-8a67729a5fcc49e08d085b4c",
+      "silver_fx_version": 3,
+      "silver_rate_version": 3,
+      "source_batch_id": "feb5-correction",
+      "source_hashes": "{\"ecb_fx_2025q1_revision.csv\": \"faa7ce9ebe4ac4c18bdfa03b60f922f240d71638f74a241fe99202e82d53a908\", \"ecb_policy_rates_2025q1.csv\": \"155a0be81ba0622310fa0e717de37df6b643980471d7d267a3cb5d489fdf6e00\"}",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    "gold": {
+      "d02-3819307e889d1a1a8be5b670": {
+        "delta_version": 0,
+        "sample": {
+          "2025-02-05": "1.041200",
+          "2025-02-06": "1.038000"
+        }
+      },
+      "d02-8a67729a5fcc49e08d085b4c": {
+        "delta_version": 0,
+        "sample": {
+          "2025-02-05": "1.042500",
+          "2025-02-06": "1.038000"
+        }
+      }
+    },
+    "initial_release": {
+      "batch_key": "7c3073685f31d70ee0624d96",
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "gold_rows": 10,
+      "gold_table": "workspace.ecb_d02_dev_20261124_194938.gold_3819307e889d1a1a8be5b670",
+      "job_run_id": "641014598139084",
+      "published_at": "2026-11-24 19:52:29.360012",
+      "release_id": "d02-3819307e889d1a1a8be5b670",
+      "silver_fx_version": 1,
+      "silver_rate_version": 1,
+      "source_batch_id": "q1-seed",
+      "source_hashes": "{\"ecb_fx_2025q1.csv\": \"c5da7596b001af7e3b8d8b792022c059c8bd5d5ad82f70e57151b3ce9297f7d7\", \"ecb_policy_rates_2025q1.csv\": \"155a0be81ba0622310fa0e717de37df6b643980471d7d267a3cb5d489fdf6e00\"}",
+      "window_end": "2025-03-31",
+      "window_start": "2025-01-01"
+    },
+    "outside_window_digest": "954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3",
+    "quality_failure_current_release": {
+      "current": {
+        "gold_table": "workspace.ecb_d02_dev_20261124_194938.gold_3819307e889d1a1a8be5b670",
+        "release_id": "d02-3819307e889d1a1a8be5b670"
+      },
+      "reason": "fx quality rejected input: conflicting_duplicate_in_batch",
+      "release_count": 1
+    },
+    "replay": {
+      "current": {
+        "gold_table": "workspace.ecb_d02_dev_20261124_194938.gold_8a67729a5fcc49e08d085b4c",
+        "release_id": "d02-8a67729a5fcc49e08d085b4c"
+      },
+      "release_count": 2,
+      "reused": true
+    },
+    "retry": {
+      "first_attempt": {
+        "bronze_appended": {
+          "fx": true,
+          "rate": true
+        }
+      },
+      "second_attempt": {
+        "bronze_appended": {
+          "fx": false,
+          "rate": false
+        },
+        "recovered_retry": true
+      }
+    },
+    "silver_keys": {
+      "keys": 10,
+      "n": 10
+    },
+    "single_attempt_quality_failure": {
+      "current": {
+        "gold_table": "workspace.ecb_d02_dev_20261124_194938.gold_8a67729a5fcc49e08d085b4c",
+        "release_id": "d02-8a67729a5fcc49e08d085b4c"
+      },
+      "reason": "fx quality rejected input: conflicting_duplicate_in_batch",
+      "release_count": 2
+    }
+  },
+  "retry_policy": {
+    "bundle_revision": "50435d772d45f36fc6fe6b306d52562c2c873ddb",
+    "configured_max_retries": {
+      "ingest": 2,
+      "publish": 1,
+      "quality": 0,
+      "transform": 2
+    },
+    "disable_auto_optimization": true
+  },
+  "runs": {
+    "corrected": {
+      "duration_ms": 101556,
+      "result": "SUCCESS",
+      "run_id": 437122716618586,
+      "tasks": [
+        {
+          "attempt": 0,
+          "execution_duration_ms": 19000,
+          "result": "SUCCESS",
+          "run_id": 251491014665744,
+          "task": "transform"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 13000,
+          "result": "SUCCESS",
+          "run_id": 256622829105947,
+          "task": "quality"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 23000,
+          "result": "FAILED",
+          "run_id": 835031965795587,
+          "task": "ingest"
+        },
+        {
+          "attempt": 1,
+          "execution_duration_ms": 12000,
+          "result": "SUCCESS",
+          "run_id": 805287374089148,
+          "task": "ingest"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 18000,
+          "result": "SUCCESS",
+          "run_id": 1034810113365103,
+          "task": "publish"
+        }
+      ],
+      "trigger": "ONE_TIME"
+    },
+    "faulty": {
+      "duration_ms": 77380,
+      "result": "FAILED",
+      "run_id": 953398818471373,
+      "tasks": [
+        {
+          "attempt": 0,
+          "execution_duration_ms": 18000,
+          "result": "SUCCESS",
+          "run_id": 553504276722893,
+          "task": "transform"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 16000,
+          "result": "FAILED",
+          "run_id": 1125155537306217,
+          "task": "quality"
+        },
+        {
+          "attempt": 1,
+          "execution_duration_ms": 13000,
+          "result": "FAILED",
+          "run_id": 190159103096373,
+          "task": "quality"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 16000,
+          "result": "SUCCESS",
+          "run_id": 151664752836614,
+          "task": "ingest"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 0,
+          "result": "UPSTREAM_FAILED",
+          "run_id": 683520377629464,
+          "task": "publish"
+        }
+      ],
+      "trigger": "ONE_TIME"
+    },
+    "inspect": {
+      "duration_ms": 24688,
+      "result": "SUCCESS",
+      "run_id": 1074522381717023,
+      "tasks": [
+        {
+          "attempt": 0,
+          "execution_duration_ms": 21000,
+          "result": "SUCCESS",
+          "run_id": 933165992209052,
+          "task": "verify"
+        }
+      ],
+      "trigger": null
+    },
+    "permanent-failure-policy": {
+      "duration_ms": 57416,
+      "result": "FAILED",
+      "run_id": 735224049897185,
+      "tasks": [
+        {
+          "attempt": 0,
+          "execution_duration_ms": 16000,
+          "result": "SUCCESS",
+          "run_id": 963531234171370,
+          "task": "transform"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 19000,
+          "result": "FAILED",
+          "run_id": 100418989517359,
+          "task": "quality"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 13000,
+          "result": "SUCCESS",
+          "run_id": 374268343210516,
+          "task": "ingest"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 0,
+          "result": "UPSTREAM_FAILED",
+          "run_id": 188077581035787,
+          "task": "publish"
+        }
+      ],
+      "trigger": "ONE_TIME"
+    },
+    "replayed": {
+      "duration_ms": 57427,
+      "result": "SUCCESS",
+      "run_id": 509417873317060,
+      "tasks": [
+        {
+          "attempt": 0,
+          "execution_duration_ms": 9000,
+          "result": "SUCCESS",
+          "run_id": 488186252112930,
+          "task": "transform"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 12000,
+          "result": "SUCCESS",
+          "run_id": 408966145720249,
+          "task": "quality"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 13000,
+          "result": "SUCCESS",
+          "run_id": 182369950146853,
+          "task": "ingest"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 11000,
+          "result": "SUCCESS",
+          "run_id": 85271423796110,
+          "task": "publish"
+        }
+      ],
+      "trigger": "ONE_TIME"
+    },
+    "scheduled": {
+      "duration_ms": 90965,
+      "result": "SUCCESS",
+      "run_id": 641014598139084,
+      "tasks": [
+        {
+          "attempt": 0,
+          "execution_duration_ms": 21000,
+          "result": "SUCCESS",
+          "run_id": 773718693048869,
+          "task": "transform"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 13000,
+          "result": "SUCCESS",
+          "run_id": 276242800655932,
+          "task": "quality"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 27000,
+          "result": "SUCCESS",
+          "run_id": 1105982135005470,
+          "task": "ingest"
+        },
+        {
+          "attempt": 0,
+          "execution_duration_ms": 19000,
+          "result": "SUCCESS",
+          "run_id": 969024666532356,
+          "task": "publish"
+        }
+      ],
+      "trigger": "PERIODIC"
+    }
+  },
+  "schedule_after_acceptance": {
+    "pause_status": "PAUSED",
+    "quartz_cron_expression": "0 0 6 * * ?",
+    "timezone_id": "UTC"
+  },
+  "schema": "workspace.ecb_d02_dev_20261124_194938",
+  "task_events": [
+    {
+      "batch_key": "7c3073685f31d70ee0624d96",
+      "detail": "{\"bronze_appended\": {\"fx\": true, \"rate\": true}, \"recovered_retry\": false}",
+      "duration_ms": 5170,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "641014598139084",
+      "source_batch_id": "q1-seed",
+      "status": "success",
+      "task": "ingest",
+      "window_end": "2025-03-31",
+      "window_start": "2025-01-01"
+    },
+    {
+      "batch_key": "7c3073685f31d70ee0624d96",
+      "detail": "{\"outside_before\": \"1d6c7f426c0334905af1232ad85d7a79ef0041df8d78f9e413efbd898f4c126f\", \"outside_after\": \"1d6c7f426c0334905af1232ad85d7a79ef0041df8d78f9e413efbd898f4c126f\", \"reject_count\": 5}",
+      "duration_ms": 13469,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "641014598139084",
+      "source_batch_id": "q1-seed",
+      "status": "success",
+      "task": "transform",
+      "window_end": "2025-03-31",
+      "window_start": "2025-01-01"
+    },
+    {
+      "batch_key": "7c3073685f31d70ee0624d96",
+      "detail": "{\"outside_before\": \"1d6c7f426c0334905af1232ad85d7a79ef0041df8d78f9e413efbd898f4c126f\", \"outside_after\": \"1d6c7f426c0334905af1232ad85d7a79ef0041df8d78f9e413efbd898f4c126f\", \"reject_count\": 5, \"silver_versions\": {\"fx\": 1, \"rate\": 1}}",
+      "duration_ms": 5458,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "641014598139084",
+      "source_batch_id": "q1-seed",
+      "status": "success",
+      "task": "quality",
+      "window_end": "2025-03-31",
+      "window_start": "2025-01-01"
+    },
+    {
+      "batch_key": "7c3073685f31d70ee0624d96",
+      "detail": "{\"reused\": false, \"current\": {\"release_id\": \"d02-3819307e889d1a1a8be5b670\", \"gold_table\": \"workspace.ecb_d02_dev_20261124_194938.gold_3819307e889d1a1a8be5b670\"}, \"release_count\": 1, \"gold_rows\": 10, \"silver_versions\": {\"fx\": 1, \"rate\": 1}}",
+      "duration_ms": 10659,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "641014598139084",
+      "source_batch_id": "q1-seed",
+      "status": "success",
+      "task": "publish",
+      "window_end": "2025-03-31",
+      "window_start": "2025-01-01"
+    },
+    {
+      "batch_key": "839381b9d2984b4349d8a189",
+      "detail": "{\"bronze_appended\": {\"fx\": true, \"rate\": true}, \"recovered_retry\": false}",
+      "duration_ms": 5506,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "953398818471373",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "ingest",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "839381b9d2984b4349d8a189",
+      "detail": "{\"outside_before\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"outside_after\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"reject_count\": 2}",
+      "duration_ms": 10519,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "953398818471373",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "transform",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "839381b9d2984b4349d8a189",
+      "detail": "{\"reason\": \"fx quality rejected input: conflicting_duplicate_in_batch\", \"current\": {\"release_id\": \"d02-3819307e889d1a1a8be5b670\", \"gold_table\": \"workspace.ecb_d02_dev_20261124_194938.gold_3819307e889d1a1a8be5b670\"}, \"release_count\": 1}",
+      "duration_ms": 3756,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "953398818471373",
+      "source_batch_id": "feb5-correction",
+      "status": "failed",
+      "task": "quality",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "839381b9d2984b4349d8a189",
+      "detail": "{\"reason\": \"fx quality rejected input: conflicting_duplicate_in_batch\", \"current\": {\"release_id\": \"d02-3819307e889d1a1a8be5b670\", \"gold_table\": \"workspace.ecb_d02_dev_20261124_194938.gold_3819307e889d1a1a8be5b670\"}, \"release_count\": 1}",
+      "duration_ms": 3557,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "953398818471373",
+      "source_batch_id": "feb5-correction",
+      "status": "failed",
+      "task": "quality",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"bronze_appended\": {\"fx\": true, \"rate\": true}}",
+      "duration_ms": 4635,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "437122716618586",
+      "source_batch_id": "feb5-correction",
+      "status": "retry_injected",
+      "task": "ingest",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"reason\": \"ingest: injected transient failure after Bronze commit\", \"current\": {\"release_id\": \"d02-3819307e889d1a1a8be5b670\", \"gold_table\": \"workspace.ecb_d02_dev_20261124_194938.gold_3819307e889d1a1a8be5b670\"}, \"release_count\": 1}",
+      "duration_ms": 6950,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "437122716618586",
+      "source_batch_id": "feb5-correction",
+      "status": "failed",
+      "task": "ingest",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"bronze_appended\": {\"fx\": false, \"rate\": false}, \"recovered_retry\": true}",
+      "duration_ms": 2391,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "437122716618586",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "ingest",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"outside_before\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"outside_after\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"reject_count\": 0}",
+      "duration_ms": 11304,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "437122716618586",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "transform",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"outside_before\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"outside_after\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"reject_count\": 0, \"silver_versions\": {\"fx\": 3, \"rate\": 3}}",
+      "duration_ms": 5073,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "437122716618586",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "quality",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"reused\": false, \"current\": {\"release_id\": \"d02-8a67729a5fcc49e08d085b4c\", \"gold_table\": \"workspace.ecb_d02_dev_20261124_194938.gold_8a67729a5fcc49e08d085b4c\"}, \"release_count\": 2, \"gold_rows\": 10, \"silver_versions\": {\"fx\": 3, \"rate\": 3}}",
+      "duration_ms": 10405,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "437122716618586",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "publish",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"bronze_appended\": {\"fx\": false, \"rate\": false}, \"recovered_retry\": false}",
+      "duration_ms": 1911,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "509417873317060",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "ingest",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"already_published\": true}",
+      "duration_ms": 813,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "509417873317060",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "transform",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"already_published\": true}",
+      "duration_ms": 807,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "509417873317060",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "quality",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "8fa53d14a930b0286b09f20b",
+      "detail": "{\"reused\": true, \"current\": {\"release_id\": \"d02-8a67729a5fcc49e08d085b4c\", \"gold_table\": \"workspace.ecb_d02_dev_20261124_194938.gold_8a67729a5fcc49e08d085b4c\"}, \"release_count\": 2}",
+      "duration_ms": 2739,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "509417873317060",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "publish",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "839381b9d2984b4349d8a189",
+      "detail": "{\"bronze_appended\": {\"fx\": false, \"rate\": false}, \"recovered_retry\": false}",
+      "duration_ms": 1891,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "735224049897185",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "ingest",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "839381b9d2984b4349d8a189",
+      "detail": "{\"outside_before\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"outside_after\": \"954420c038b97039fad84f1daff8cb61a96d6b17e7a175a88db6934d9b2bf3b3\", \"reject_count\": 2}",
+      "duration_ms": 8163,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "735224049897185",
+      "source_batch_id": "feb5-correction",
+      "status": "success",
+      "task": "transform",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    },
+    {
+      "batch_key": "839381b9d2984b4349d8a189",
+      "detail": "{\"reason\": \"fx quality rejected input: conflicting_duplicate_in_batch\", \"current\": {\"release_id\": \"d02-8a67729a5fcc49e08d085b4c\", \"gold_table\": \"workspace.ecb_d02_dev_20261124_194938.gold_8a67729a5fcc49e08d085b4c\"}, \"release_count\": 2}",
+      "duration_ms": 3629,
+      "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+      "run_id": "735224049897185",
+      "source_batch_id": "feb5-correction",
+      "status": "failed",
+      "task": "quality",
+      "window_end": "2025-02-05",
+      "window_start": "2025-02-05"
+    }
+  ]
+}

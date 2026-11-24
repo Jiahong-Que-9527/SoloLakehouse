@@ -23,6 +23,9 @@ variables:
     description: Full Git revision of the deployed repository
   failure_email:
     description: Workspace user to notify when the job fails
+  prod_workspace_user:
+    description: Workspace owner for the fixed production bundle path
+    default: ""
   cron:
     default: "0 0 6 * * ?"
   pause_status:
@@ -108,3 +111,5 @@ targets:
     mode: development
   prod:
     mode: production
+    workspace:
+      root_path: /Workspace/Users/${var.prod_workspace_user}/.bundle/${bundle.name}/${bundle.target}/${var.schema}
