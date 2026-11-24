@@ -204,7 +204,11 @@ def record_grant_change(spark, consumer, git_sha):
 
     def explicit_select():
         grants = spark.sql(f"SHOW GRANTS {principal} ON TABLE {view}").collect()
-        return any(row.actionType == "SELECT" and row.objectKey == view for row in grants)
+        for row in grants:
+            grant = {key.casefold(): value for key, value in row.asDict().items()}
+            if grant["actiontype"] == "SELECT" and grant["objectkey"] == view:
+                return True
+        return False
 
     before = explicit_select()
     if before:
