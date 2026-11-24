@@ -57,7 +57,7 @@ def _dbt(command: str, extra: str = "") -> str:
     """Render the isolated `uv run` invocation for a dbt command."""
     return (
         f'cd "{REPO}" && '
-        f'uv run --locked dbt {command} '
+        f"uv run --locked dbt {command} "
         f'--project-dir "{DBT_DIR}" --profiles-dir "{DBT_DIR}" '
         f"--target {{{{ params.target }}}} {extra}"
     ).strip()
@@ -99,7 +99,7 @@ with DAG(
             f'cd "{REPO}" && '
             "if [ ! -f data/generated/charging_sessions.jsonl ]; then "
             "uv run --locked charging-commerce generate --out-dir data/generated; fi && "
-            'for src in bnetza tariffs sessions smard ecb; do '
+            "for src in bnetza tariffs sessions smard ecb; do "
             'uv run --locked charging-commerce ingest "$src" '
             f'--batch-id e06-raw-load-$src --db "{WAREHOUSE}" || exit 1; done'
         ),
