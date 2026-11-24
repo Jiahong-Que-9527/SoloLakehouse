@@ -1,0 +1,125 @@
+{
+  "drills": [
+    {
+      "alert": {
+        "error_type": "IsADirectoryError",
+        "job": "verify_month",
+        "partition": "2024-11",
+        "recovery_job": "resume_local_handoff",
+        "release_id": "geometry-v2-2024-11",
+        "run_id": "f8ccd429-f258-412a-b99a-74f3a15fa28f",
+        "schema_version": "frankfurt-airport-stage-alert-v1",
+        "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349",
+        "stage": "local_handoff",
+        "status": "failed"
+      },
+      "executed_recovery_stages": [
+        "local_handoff"
+      ],
+      "materialization": {
+        "created": true,
+        "manifest_sha256": "2da7fef3e6b65e20945f5246fbda8519c2f668d4566323d4c0c92dcca1cab624",
+        "release_id": "geometry-v2-2024-11",
+        "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349"
+      },
+      "recovery_run_id": "6d0f6f2d-ca32-462a-952b-9bf93732ce8e",
+      "retry_count": 1
+    },
+    {
+      "alert": {
+        "error_type": "FileNotFoundError",
+        "job": "resume_month_features",
+        "partition": "2024-11",
+        "recovery_job": "resume_month_features",
+        "release_id": "geometry-v2-2024-11",
+        "run_id": "ac37792e-6043-4c07-9d2a-0eda3418ee58",
+        "schema_version": "frankfurt-airport-stage-alert-v1",
+        "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349",
+        "stage": "monthly_features",
+        "status": "failed"
+      },
+      "executed_recovery_stages": [
+        "monthly_features"
+      ],
+      "materialization": {
+        "feature_dataset_id": "features-2024-11-947edc9a58661dcd",
+        "manifest_sha256": "aa17f00aae7bc699787ea55610b4b0d77f0084691801cd2a361c403411f4ca13",
+        "predictions": 8570,
+        "reused": false
+      },
+      "recovery_run_id": "4f32942a-7298-4244-afac-d39e7fcceab3",
+      "retry_count": 0
+    },
+    {
+      "alert": {
+        "error_type": "IOException",
+        "job": "resume_local_analytics",
+        "partition": "2024-11",
+        "recovery_job": "resume_local_analytics",
+        "release_id": "geometry-v2-2024-11",
+        "run_id": "c2fcbe71-23fe-40b0-9ded-b1ecb293d4c1",
+        "schema_version": "frankfurt-airport-stage-alert-v1",
+        "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349",
+        "stage": "local_analytics",
+        "status": "failed"
+      },
+      "executed_recovery_stages": [
+        "local_analytics"
+      ],
+      "materialization": {
+        "duplicate_keys": 0,
+        "handoff_sha256": "f6830a65f7783fa92459161baf71fec8cc11f0f223cee4efd62738a3c759c395",
+        "labeled_rows": 13413,
+        "manifest_sha256": "2da7fef3e6b65e20945f5246fbda8519c2f668d4566323d4c0c92dcca1cab624",
+        "release_id": "geometry-v2-2024-11",
+        "rows": 17051,
+        "rows_added": 17051,
+        "status": "ingested"
+      },
+      "recovery_run_id": "2f4ced93-9cd3-4a82-b986-e91be03648da",
+      "retry_count": 0
+    },
+    {
+      "alert": {
+        "error_type": "CalledProcessError",
+        "job": "replay_model_month",
+        "partition": "2024-11",
+        "recovery_job": "replay_model_month",
+        "release_id": "geometry-v2-2024-11",
+        "run_id": "51042910-6dd0-458f-b23f-fbb76f27c9d4",
+        "schema_version": "frankfurt-airport-stage-alert-v1",
+        "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349",
+        "stage": "container_training",
+        "status": "failed"
+      },
+      "executed_recovery_stages": [
+        "container_training"
+      ],
+      "materialization": {
+        "evaluation_manifest_sha256": "1510b900adf4f24ab8e6ff379834768434975bbbe27de767880c1f3aa5c1ad1a",
+        "image_id": "sha256:9c5ae0ab186e5a070dea58aa73b49c08974cbb29f02daf8eb6d59218791e91b9",
+        "model_release_id": "frankfurt-airport-taxi-in-ca2c8f9b21863f18",
+        "model_sha256": "2138c1e388931c14ed7dbe1b3e1a87e189f6e2abb383d9151ce50b6d33e6c388",
+        "reused": false,
+        "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349",
+        "training_manifest_sha256": "aa17f00aae7bc699787ea55610b4b0d77f0084691801cd2a361c403411f4ca13"
+      },
+      "recovery_run_id": "6799558c-dc70-4d46-9ea4-6e83fea772eb",
+      "retry_count": 0
+    }
+  ],
+  "materializations": {
+    "approved_gold": 2,
+    "container_training": 2,
+    "local_analytics": 1,
+    "local_handoff": 2,
+    "monthly_features": 2
+  },
+  "source_commit": "cee6c4b369290cf649687273a43b1cb6c8cb0349",
+  "training_artifact_sha256": {
+    "candidate/candidate-report.json": "f30aece8743aa265288e1e82079683996bddbe9c2a6768cd0cbbf25876ef48be",
+    "candidate/model.pkl": "2138c1e388931c14ed7dbe1b3e1a87e189f6e2abb383d9151ce50b6d33e6c388",
+    "evaluation/evaluation-report.json": "458addcb9d12be3f1c4df9c7565995a25f8a5c762ada6794d734434d1e4bfb17"
+  },
+  "training_reuse_run_id": "7d0ebe03-4369-48a8-8f5f-256a85ef10b9"
+}

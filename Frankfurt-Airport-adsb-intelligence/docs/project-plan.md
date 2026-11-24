@@ -1,0 +1,287 @@
+# Project plan
+
+Plan for the Frankfurt Airport ADS-B Intelligence programme. Durations are rough
+estimates for one person working part-time. Replace them with measured
+values after the first phase.
+
+The governed Gold Parquet release is the shared boundary. DuckDB and local
+Parquet serve feature engineering and training. BigQuery, GCS and managed
+Iceberg serve cloud analytics. See
+[ADR-003](adr/ADR-003-local-bronze-silver-published-gold.md) and
+[ADR-004](adr/ADR-004-gold-table-format-and-catalog.md).
+
+## Overview
+
+```mermaid
+flowchart LR
+    p0["Phase 0<br/>Preparation"] --> p1["Phase 1<br/>01 Acquisition"]
+    p1 --> p2["Phase 2<br/>02 Transformation"]
+    p2 --> p3["Phase 3<br/>03 Cloud Gold + Analytics"]
+    p2 --> p4["Phase 4<br/>04 Point-in-time features"]
+    p4 --> p5["Phase 5<br/>05 Prediction"]
+    p5 --> p6["Phase 6<br/>06 Serving"]
+    p6 --> p7["Phase 7<br/>07 Orchestration"]
+    p3 --> p7
+```
+
+| Phase | Subproject | Runtime | Estimate |
+|-------|------------|---------|----------|
+| 0 | Preparation | Local | 1 week |
+| 1 | 01 OpenSky Acquisition | Local | 4 to 6 weeks |
+| 2 | 02 Aviation Transformation | Local | 4 to 5 weeks |
+| 3 | 03 Airport Analytics | GCP | 4 to 5 weeks |
+| 4 | 04 Point-in-Time Feature Dataset | Local DuckDB + Parquet | Estimate after the one-month replay |
+| 5 | 05 Taxi-in Prediction | Local + MLflow | 4 to 5 weeks |
+| 6 | 06 Model Serving | Cloud Run | 2 to 3 weeks |
+| 7 | 07 Orchestration | Local Dagster | 3 to 4 weeks |
+
+Phase 04 takes approved local releases and feeds phase 05. Cloud analytics
+in phase 03 runs independently after the same Release Gate.
+
+## Vertical slice V0
+
+Do not wait for the full backfill before the layers meet. Once the pilot week
+of phase 1 is accepted, push that week through every layer. It runs in
+parallel with the monthly batches, which are mostly waiting time.
+
+```text
+pilot week -> Silver -> Gold -> release v001 -> cloud ingestion -> BigQuery query
+```
+
+| Step | Subproject | Exit criterion |
+|------|------------|----------------|
+| Silver and Gold for the pilot week | 02 M1, M2 | Tests pass, coverage report written |
+| Data contract and Release Gate | 02 M3 | `v001` released, a failing fixture blocked |
+| Table-format spike | 03 M1 | Result recorded in ADR-004 |
+| Cloud foundation | 03 M2 | Terraform applies, CI runs plan |
+| Ingest synthetic release, then `v001` | 03 M3 | Repeat ingestion adds no rows |
+
+**Exit:** the first real release is ingested in the cloud, the idempotence
+check passes, and a first query reconciles with the release manifest. Only
+after this do phases 2 to 3 scale up to the full dataset.
+
+**Status:** the pilot week (2026-10-12 to 2026-10-18) ran through Silver v2,
+the `gold/ground_ops` market and the Release Gate. Phase 03 ingested release
+`v002` and a replay added zero rows. See the
+[ingestion record](../03-airport-analytics/README.md#release-ingestion-m3).
+
+## Phase 0: Preparation
+
+- Confirm OpenSky account, Trino access and query limits.
+- Decide the geographic bounds and fields for dataset `v1`.
+- Accept ADR-001 to ADR-003.
+- Create the data root outside the repository and check free disk space.
+- Add the `.gitignore` rules that keep data and credentials out of Git.
+
+**Exit:** access confirmed, ADRs accepted.
+
+## Phase 1: 01 OpenSky Acquisition
+
+Scope: dataset `eddf_r75km` v1, 75 km region, `[2024-11-01, 2026-11-01)`,
+24 monthly batches. See the [design](../01-opensky-acquisition/docs/design.md)
+and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
+
+| Milestone | Content | Exit criterion |
+|-----------|---------|----------------|
+| M0 | Skeleton: config, schema, manifest, state, fake client, CLI shell | Unit tests pass |
+| M1 | Collect and commit protocol against the fake client | Crash-injection and repeat-run tests pass |
+| M2 | Live pilot: one hour, one day, one week | Gate G0: reconciled, cross-checked, measured, recovery tested |
+| M3 | Monthly batches with reports, acceptance and backup | Each batch accepted and backed up |
+| M4 | Manifest export and DuckDB catalog | Accepted hours readable through the catalog |
+| M5 | Dataset sign-off | Full verify, dataset summary, backup restore tested |
+
+**Status:** the initial two-year window completed at batch b24. The
+[acquisition README](../01-opensky-acquisition/README.md) records the current
+checkpoint for the independent five-year extension.
+
+CI: tests and lint on pull requests that touch this directory.
+Bronze is not uploaded to the cloud.
+
+## Phase 2: 02 Aviation Transformation
+
+Local Silver, Gold and Release Gate with Python and DuckDB.
+
+1. Silver for one day, with tests (pilot week).
+2. Gold outcome labels and descriptive fields with a label coverage report.
+3. Data contract, field policy and Release Gate. Release `v001` and a blocked
+   failing fixture.
+4. Synthetic data generator in the same schema.
+5. Full dataset run with run ID, quality report and repeat-run result.
+6. Container image and CI.
+
+**Exit:** reproducible Silver and Gold output and an immutable, verified
+release.
+
+**Status (2026-11-23):** Silver v2 (M1'), the `gold/ground_ops` market (M2),
+the Release Gate (M3) and the container image with CI (M5) are implemented
+and recorded. `v001` is released from the 2026-07-01 gold output, `v002`
+from the pilot week, and a failing fixture is blocked. The two-year
+Geometry v2 backfill (M4) verified 730 Silver dates and 24 monthly packages.
+The [handoff](../02-aviation-transformation/README.md#backfill-status-and-handoff)
+describes monthly release verification.
+
+## Phase 3: 03 Airport Analytics and cloud Gold
+
+1. Spike for the table format and catalog (ADR-004).
+2. Terraform for Landing, Gold storage, identities and budget alerts, with CI.
+3. Release ingestion, idempotent, tables carrying the release ID.
+4. Analytics model and core queries with expected results.
+5. Full dataset release, cost record and findings.
+
+**Exit:** reconciled tables, documented grain, idempotent ingestion and a
+findings report.
+
+**Status (2026-11-23):** M1 (ADR-004 spike, managed Iceberg accepted),
+M2 (Terraform foundation applied via CI), M3 (idempotent ingestion of the
+synthetic and `v002` releases) and M4 (analytics views verified on the
+fixed sample) are done. M5 is accepted. BigQuery reconciled 24 monthly
+Geometry v2 releases covering November 2024 through October 2026 with
+433,694 candidates and 400,942 labels. The November and December pilot
+replays added zero rows. The remaining 22 releases and report billed
+1,116 MiB combined. See the [M5 workflow](../03-airport-analytics/README.md#geometry-v2-handoff-m5).
+
+## Phase 4: 04 Point-in-Time Feature Dataset
+
+1. Define an observable prediction cutoff and the evidence for event and
+   availability timestamps. Pin local observation partitions and accepted
+   Geometry v2 label releases by manifest hash.
+2. Build the feature replay in DuckDB. Prove cutoff behavior with synthetic
+   late arrivals, then replay one approved month.
+3. Emit versioned training Parquet and a manifest with input lineage,
+   label-match coverage, feature checks, and a reproducible replay result.
+
+**Exit:** project 05 can reproduce the pinned training input and verify
+that the feature build applied the cutoff using the recorded availability
+model. When using a simulated replay, document the assumption and keep
+serving acceptance pending verified availability.
+
+**Status:** the November 2024 simulated replay is reproducible. The output
+contains 8,570 predictions and 7,607 usable labels. Project 05 can start the
+chronological median baseline using the pinned artifact. Actual observation
+availability remains open for serving. [Phase 04 evidence](../04-aviation-lakehouse/README.md#first-delivery)
+
+## Phase 5: 05 Taxi-in Prediction
+
+1. Pin the phase 04 training manifest and define chronological folds.
+2. Run a historical-median baseline and report error and label coverage.
+3. Gradient-boosted model with experiment tracking.
+4. Containerized training job with MLflow tracking and model registration (ADR-005).
+5. Evaluation report.
+
+**Exit:** versioned model, traceable to a release ID, and an honest comparison
+against the baseline.
+
+**Status:** the boosted candidate reduced MAE from 140.3 to 129.3 seconds
+on 2,527 November holdout labels. The frozen model reduced MAE from 148.6
+to 137.5 seconds on 7,182 independently replayed December labels. Offline
+Docker reproduced the model and both reports byte for byte. Local MLflow
+has candidate version 1 and the release manifest pins its evidence. M5
+evaluated four held-out months across seasons, local hours and traffic levels.
+The candidate lowered pooled MAE from 180.2 to 171.3 seconds across 51,319
+usable labels (77.8% of predictions). This release supplies the local model
+pin for phase 06.
+[M5 report](../05-taxi-in-prediction/reports/seasonal-evaluation.md)
+
+## Phase 6: 06 Model Serving
+
+1. Contract tests with synthetic requests.
+2. Local container with a pinned model version.
+3. Cloud Run deployment through CI/CD.
+4. Monitoring and a tested rollback.
+
+**Exit:** deployed endpoint traceable to a model version and commit.
+
+**Status:** M1 and M2 are verified. The local container scored 14 fixed
+features from the four M5 months and matched the offline model exactly.
+The full archive HTTP replay subsequently matched all 65,981 predictions
+and reproduced MAE on 51,319 usable proxy labels. The prepared Cloud Run
+candidate image also passed a local startup and pinned-model rehearsal.
+The manual deployment and authenticated probe workflow has local test
+coverage. The target inventory and measured availability remain prerequisites
+for launching the live revision.
+An incorrect release pin prevented startup. The availability audit found no
+receipt-time column in 731 archive partitions. M3 awaits a measured sample
+at the feature input. M4 metrics and version rollback are verified locally.
+Cloud monitoring and revision rollback remain to be exercised after M3.
+[Local serving evidence](../06-model-serving/README.md#m1m2-verification) ·
+[M4 runbook and local drill](../06-model-serving/runbook.md#local-verification)
+
+## Phase 7: 07 Platform Orchestration
+
+1. Model local partitions, dependencies, and retries in Dagster.
+2. Track the approved release into cloud ingestion and analysis.
+3. Add local feature and training runs keyed by their input manifests.
+4. Failure injection and recovery runbook.
+
+**Exit:** a failed stage reruns without redoing earlier stages.
+
+**Status:** M1 is verified. The local Dagster graph validated the November
+2024 Geometry v2 release and recovered its handoff after a bounded retry.
+The recovery reused the upstream asset, and a repeat produced the same
+checkpoint. M2 detected approved releases and rehearsed phase 03 ingestion
+locally for December and January. Both months matched the recorded BigQuery
+receipts with zero duplicate keys and zero new rows on replay. Dagster then
+verified the existing 2024-12 release against the live BigQuery ledger and
+table twice. Both checks returned zero additions. The phase 03 operator
+workflow continues to handle first-time cloud ingestion.
+M3 reproduced the November and December feature manifests and all three
+M4 model artifacts in Dagster. The training rerun recovered independently
+after a Docker startup failure, and a repeat reused the verified outputs.
+M4 verifies local failure alerts and targeted recovery from four injected
+faults. Each recovery ran the failed stage alone and reused upstream evidence.
+A real daemon tick submitted one local ingestion and the next tick skipped
+the duplicate. The runbook documents the commands and the cloud ledger boundary.
+M1–M4 are verified.
+[M1 run evidence](../07-platform-orchestration/README.md#m1-verification) ·
+[M2 local evidence](../07-platform-orchestration/README.md#m2-release-detection-and-local-analytics) ·
+[M2 BigQuery evidence](../07-platform-orchestration/README.md#m2-read-only-bigquery-reconciliation) ·
+[M3 run evidence](../07-platform-orchestration/README.md#m3-verification) ·
+[M4 recovery evidence](../07-platform-orchestration/README.md#m4-recovery-verification)
+
+## Programme acceptance
+
+| Capability | Criterion |
+|------------|-----------|
+| Reliability | Repeating a run or a release ingestion creates no duplicates |
+| Data quality | Schema, row counts, checksums and business rules pass checks |
+| Governance | A release that fails its contract is blocked from upload |
+| Reproducibility | Pinned release and training manifest hashes plus the code revision reproduce a model input |
+| Portability | A fork runs the full flow with synthetic data in its own GCP project |
+| Security | The cloud cannot read local Bronze or Silver. Upload and runtime identities are separate |
+| Observability | Failed jobs, durations, data volume and cost are visible |
+| Cost control | Budget alerts exist and compute runs on demand |
+
+## Cross-cutting work
+
+- **CI.** Each subproject has its own path-scoped checks.
+- **Infrastructure as code.** Terraform for every cloud resource, created in
+  phase 3 and reused later. No state files or secrets in Git.
+- **Documentation.** Each subproject keeps its README current, adds
+  architecture and runbook pages when needed and records decisions as ADRs.
+- **Evidence.** Record commit, run ID, data version, release ID and quality
+  results for each milestone.
+- **Cost.** Track observed cloud cost from phase 3 onward.
+- **Data governance.** Keep raw data out of Git and out of public storage.
+  Only Gold releases go to the cloud.
+
+## Risks
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| OpenSky Trino limits or downtime | Slow or incomplete backfill | Hourly batches, retries, resumable checkpoint |
+| Collection is interrupted | Incomplete dataset | Run the most valuable months first, back up each batch when accepted |
+| Data volume above estimate | Disk shortage | Seven-day size test before the full backfill |
+| Proxy labels are noisy | Weak model or overclaimed results | Report coverage, validate a sample independently |
+| Vertex AI is unavailable on the trial account | Training and registry milestones cannot run as designed | Cloud-neutral MLflow path (ADR-005); training stays local and cloud runs are small and cost-recorded |
+| Feature availability is unknown | Historical evaluation may leak future observations | Define an observable cutoff, document availability evidence, and test late-arriving inputs |
+| Table format unverified | Rework of cloud tables | ~~Time-boxed spike and ADR-004 before cloud table code~~ Resolved 2026-11-21: managed Iceberg tables, ADR-004 Accepted |
+| Layers meet late | Integration surprises after weeks of work | Vertical slice V0 on the pilot week |
+| Scope growth | Programme stalls | Finish each phase exit criterion before starting the next |
+| Overlap between local and cloud processing | Duplicate data products | Share the accepted Gold release. Build the training dataset locally and serve cloud analytics from phase 03 |
+
+## Open decisions
+
+- Final geographic bounds and the field list for `v1`.
+- Prediction trigger and evidence for historical observation availability in phase 04.
+- Cloud region for the bucket and BigQuery: the ADR-004 spike confirmed
+  `europe-west3` for managed Iceberg tables (2026-11-21).

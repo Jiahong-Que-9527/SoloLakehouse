@@ -9,7 +9,7 @@ Train the supervised model under full lineage: every run traceable to a data rel
 ## Deliverables
 
 - The `training` package (implemented as `charging_forecast.training`): a sklearn `HistGradientBoostingRegressor` behind a ColumnTransformer pipeline — decided in the [delivery plan](../docs/delivery-plan.md) over LightGBM for bit-reproducible fits — with the fixed seeded grid search and the internal selection split chosen at this stage.
-- MLflow tracking per [ADR-005](../../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md): params, metrics, artifacts and the tag schema (data_release_id, feature_release_id, git_sha, fold plan) on every run, in a local sqlite store (gitignored).
+- MLflow tracking per [ADR-005](../../Frankfurt-Airport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md): params, metrics, artifacts and the tag schema (data_release_id, feature_release_id, git_sha, fold plan) on every run, in a local sqlite store (gitignored).
 - Residual analysis and feature-importance review committed as a report, including per-segment error against the M03 baseline.
 - The model card draft for the candidate, from the [template](../docs/model-card-template.md).
 

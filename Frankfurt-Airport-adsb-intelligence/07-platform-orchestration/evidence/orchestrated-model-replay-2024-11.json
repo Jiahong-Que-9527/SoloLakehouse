@@ -1,0 +1,45 @@
+{
+  "feature_runs": [
+    {
+      "build_run_id": "5649ae10-4013-43a7-9d96-56b58f2b7f74",
+      "feature_dataset_id": "features-2024-11-947edc9a58661dcd",
+      "manifest_sha256": "aa17f00aae7bc699787ea55610b4b0d77f0084691801cd2a361c403411f4ca13",
+      "month": "2024-11",
+      "predictions": 8570,
+      "reuse_run_id": "8a0b2cc0-892e-4dac-b7d6-4977d7a8f0da"
+    },
+    {
+      "build_run_id": "6f5fb173-3099-46c9-b073-b0f25a9ac9a6",
+      "feature_dataset_id": "features-2024-12-cc0d68f941eb2b79",
+      "manifest_sha256": "1510b900adf4f24ab8e6ff379834768434975bbbe27de767880c1f3aa5c1ad1a",
+      "month": "2024-12",
+      "predictions": 8249,
+      "reuse_run_id": "5bf78b93-81b3-4d2a-9a26-d2af5638ba15"
+    }
+  ],
+  "materializations": {
+    "approved_gold": 2,
+    "container_training": 2,
+    "monthly_features": 4
+  },
+  "source_commit": "fafc195cc20b7f184d3ab9468ea3eaf1545a9bc3",
+  "training": {
+    "artifacts": {
+      "candidate/candidate-report.json": "f30aece8743aa265288e1e82079683996bddbe9c2a6768cd0cbbf25876ef48be",
+      "candidate/model.pkl": "2138c1e388931c14ed7dbe1b3e1a87e189f6e2abb383d9151ce50b6d33e6c388",
+      "evaluation/evaluation-report.json": "458addcb9d12be3f1c4df9c7565995a25f8a5c762ada6794d734434d1e4bfb17"
+    },
+    "baseline_sha256": "5dce30972b5e032ec2cdfd15f7a68e19e85bf5aa1c04540bc6b90e626dae4319",
+    "evaluation_manifest_sha256": "1510b900adf4f24ab8e6ff379834768434975bbbe27de767880c1f3aa5c1ad1a",
+    "image_id": "sha256:9c5ae0ab186e5a070dea58aa73b49c08974cbb29f02daf8eb6d59218791e91b9",
+    "model_release_id": "frankfurt-airport-taxi-in-ca2c8f9b21863f18",
+    "model_release_sha256": "e2d04bb637306d231702971d95a35567c8f70282715baf04254d8f7aabcee3a6",
+    "training_manifest_sha256": "aa17f00aae7bc699787ea55610b4b0d77f0084691801cd2a361c403411f4ca13",
+    "validation_from": "2024-11-16"
+  },
+  "training_run_ids": {
+    "failure": "ffd04066-2dce-4770-ba9a-90ce7046a68d",
+    "recovery": "76c4ac8e-a17a-4dde-bd40-433c098064cd",
+    "reuse": "a4228dc9-be46-4961-945c-1b7e122af474"
+  }
+}

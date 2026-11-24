@@ -21,7 +21,7 @@
 <rect x="750" y="52" width="14" height="8" rx="4" fill="#e2e8f0" fill-opacity="1"/>
 <text x="770" y="60" fill="#475569" font-size="12">Planned</text>
 <rect x="40" y="120" width="6" height="34" rx="3" fill="url(#g2)"/>
-<text x="60" y="135" fill="#0f172a" font-size="15" font-weight="650">Fraport ADS-B Intelligence</text>
+<text x="60" y="135" fill="#0f172a" font-size="15" font-weight="650">Frankfurt Airport ADS-B Intelligence</text>
 <text x="60" y="154" fill="#64748b" font-size="12">02–05, 07 verified · 06 cloud pending</text>
 <rect x="330.0" y="126" width="53.7" height="20" rx="6" fill="#10b981" fill-opacity="0.35"/>
 <rect x="387.7" y="126" width="53.7" height="20" rx="6" fill="url(#g2)"/>

@@ -779,129 +779,129 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1041593,Mainzer Stadtwerke AG,In Betrieb,2,44,2021-10-18,65479,Raunheim,Landkreis Groß-Gerau,Hessen,50.009781,8.454312
 1041594,Mainzer Stadtwerke AG,In Betrieb,2,44,2021-10-18,65479,Raunheim,Landkreis Groß-Gerau,Hessen,50.009849,8.454422
 1041595,Mainzer Stadtwerke AG,In Betrieb,2,44,2021-10-18,65479,Raunheim,Landkreis Groß-Gerau,Hessen,50.009816,8.454368
-1041948,Fraport AG,In Betrieb,2,44,2023-07-11,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
-1041949,Fraport AG,In Betrieb,2,44,2023-07-11,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
-1041958,Fraport AG,In Betrieb,1,22,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
-1041959,Fraport AG,In Betrieb,1,22,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
-1041960,Fraport AG,In Betrieb,1,22,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
-1041963,Fraport AG,In Betrieb,2,22,2023-07-11,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
-1041964,Fraport AG,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.0393,8.595561
-1041965,Fraport AG,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.03926,8.595523
-1041966,Fraport AG,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.03922,8.595483
-1041967,Fraport AG,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.03918,8.595443
-1041968,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041969,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041970,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041971,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041972,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041973,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041974,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041975,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041976,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041977,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041978,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041979,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041980,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041981,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041982,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041983,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041984,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041985,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041986,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041987,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041988,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041989,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041990,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041991,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041992,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041993,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041994,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041995,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041996,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041997,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041998,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1041999,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042000,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042001,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042002,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042003,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042004,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042005,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042006,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042007,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042008,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042009,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042010,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042011,Fraport AG,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042012,Fraport AG,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042013,Fraport AG,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042014,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042015,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042016,Fraport AG,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042017,Fraport AG,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042018,Fraport AG,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042019,Fraport AG,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1042020,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042030,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042031,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042032,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042033,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042034,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042035,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042036,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042037,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042038,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042039,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042040,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042041,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042042,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042043,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042044,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042045,Fraport AG,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1042046,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042047,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042048,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042049,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042050,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042051,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042052,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042053,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042054,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042055,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042056,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042057,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042058,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042059,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042060,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042061,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042062,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042063,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042064,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042065,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042066,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042067,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042068,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042069,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042070,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042071,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042072,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042073,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042074,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042075,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042076,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042077,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042078,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042079,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042080,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042081,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042082,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042083,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042084,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042085,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042086,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042087,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042088,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
-1042089,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1041948,Frankfurt Airport,In Betrieb,2,44,2023-07-11,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
+1041949,Frankfurt Airport,In Betrieb,2,44,2023-07-11,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
+1041958,Frankfurt Airport,In Betrieb,1,22,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
+1041959,Frankfurt Airport,In Betrieb,1,22,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
+1041960,Frankfurt Airport,In Betrieb,1,22,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
+1041963,Frankfurt Airport,In Betrieb,2,22,2023-07-11,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049549,8.56687
+1041964,Frankfurt Airport,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.0393,8.595561
+1041965,Frankfurt Airport,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.03926,8.595523
+1041966,Frankfurt Airport,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.03922,8.595483
+1041967,Frankfurt Airport,In Betrieb,2,44,2023-11-30,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.03918,8.595443
+1041968,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041969,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041970,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041971,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041972,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041973,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041974,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041975,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041976,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041977,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041978,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041979,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041980,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041981,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041982,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041983,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041984,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041985,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041986,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041987,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041988,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041989,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041990,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041991,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041992,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041993,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041994,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041995,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041996,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041997,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041998,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1041999,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042000,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042001,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042002,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042003,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042004,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042005,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042006,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042007,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042008,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042009,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042010,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042011,Frankfurt Airport,In Betrieb,1,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042012,Frankfurt Airport,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042013,Frankfurt Airport,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042014,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042015,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042016,Frankfurt Airport,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042017,Frankfurt Airport,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042018,Frankfurt Airport,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042019,Frankfurt Airport,In Betrieb,2,22,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1042020,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042030,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042031,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042032,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042033,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042034,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042035,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042036,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042037,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042038,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042039,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042040,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042041,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042042,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042043,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042044,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042045,Frankfurt Airport,In Betrieb,1,3.7,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1042046,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042047,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042048,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042049,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042050,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042051,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042052,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042053,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042054,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042055,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042056,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042057,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042058,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042059,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042060,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042061,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042062,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042063,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042064,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042065,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042066,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042067,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042068,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042069,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042070,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042071,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042072,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042073,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042074,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042075,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042076,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042077,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042078,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042079,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042080,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042081,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042082,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042083,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042084,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042085,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042086,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042087,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042088,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
+1042089,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.051201,8.583857
 1042886,Oberhessische Versorgungsbetriebe AG,In Betrieb,2,44,2018-10-15,61130,Nidderau,Landkreis Main-Kinzig-Kreis,Hessen,50.241811,8.858599
 1042944,Allego GmbH,In Betrieb,2,93,2016-12-14,63526,Erlensee,Landkreis Main-Kinzig-Kreis,Hessen,50.182562,9.006933
 1042945,Allego GmbH,In Betrieb,2,93,2016-12-27,55252,Mainz-Kastel,Kreisfreie Stadt Wiesbaden,Hessen,50.02203,8.28969
@@ -1630,13 +1630,13 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1072464,GETEC mobility solutions GmbH,In Betrieb,2,11,2023-09-07,60327,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.10985,8.65322
 1072587,Raiffeisen Waren GmbH,In Betrieb,2,150,2024-05-07,63589,Linsengericht,Landkreis Main-Kinzig-Kreis,Hessen,50.19517,9.18753
 1072588,Raiffeisen Waren GmbH,In Betrieb,2,150,2024-05-07,63589,Linsengericht,Landkreis Main-Kinzig-Kreis,Hessen,50.19514,9.18736
-1073015,Fraport AG,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
-1073016,Fraport AG,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
-1073019,Fraport AG,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
-1073020,Fraport AG,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
-1073022,Fraport AG,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
-1073023,Fraport AG,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
-1073025,Fraport AG,In Betrieb,1,300,2024-08-21,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023677,8.552993
+1073015,Frankfurt Airport,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
+1073016,Frankfurt Airport,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
+1073019,Frankfurt Airport,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
+1073020,Frankfurt Airport,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
+1073022,Frankfurt Airport,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
+1073023,Frankfurt Airport,In Betrieb,1,22,2024-06-28,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.052158,8.573222
+1073025,Frankfurt Airport,In Betrieb,1,300,2024-08-21,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023677,8.552993
 1074171,Naturfreunde in Wiesbaden e.V.,In Betrieb,2,22,2018-09-30,65201,Wiesbaden,Kreisfreie Stadt Wiesbaden,Hessen,50.0671,8.1812
 1074552,Höll Immo & Gastro Gmbh,In Betrieb,1,11,2020-02-29,65428,Rüsselsheim,Landkreis Groß-Gerau,Hessen,49.996474,8.411488
 1074947,Stadt Langenselbold,In Betrieb,2,22,2023-10-06,63505,Langenselbold,Landkreis Main-Kinzig-Kreis,Hessen,50.17283,9.03747
@@ -2275,12 +2275,12 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1127094,Mainova AG,In Betrieb,2,22,2025-04-28,60311,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.111882,8.678199
 1127095,Mainova AG,In Betrieb,2,22,2025-04-28,60311,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.111882,8.678199
 1127096,Mainova AG,In Betrieb,2,22,2025-04-28,60311,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.111882,8.678199
-1127666,Fraport AG,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049979,8.561457
-1127789,Fraport AG,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049885,8.561672
-1127791,Fraport AG,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049782,8.561742
-1127793,Fraport AG,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049784,8.561742
-1127794,Fraport AG,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049745,8.561773
-1127795,Fraport AG,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049774,8.561572
+1127666,Frankfurt Airport,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049979,8.561457
+1127789,Frankfurt Airport,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049885,8.561672
+1127791,Frankfurt Airport,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049782,8.561742
+1127793,Frankfurt Airport,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049784,8.561742
+1127794,Frankfurt Airport,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049745,8.561773
+1127795,Frankfurt Airport,In Betrieb,2,400,2025-05-09,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049774,8.561572
 1128185,Wattif Europe GmbH,In Betrieb,1,22,2025-06-10,65451,Kelsterbach,Landkreis Groß-Gerau,Hessen,50.053409,8.52275
 1128187,Wattif Europe GmbH,In Betrieb,1,22,2025-06-10,65451,Kelsterbach,Landkreis Groß-Gerau,Hessen,50.053409,8.52275
 1128188,Wattif Europe GmbH,In Betrieb,1,22,2025-06-10,65451,Kelsterbach,Landkreis Groß-Gerau,Hessen,50.053409,8.52275
@@ -2328,8 +2328,8 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1130148,BP Europa SE,In Betrieb,2,300,2025-04-14,63584,Gründau,Landkreis Main-Kinzig-Kreis,Hessen,50.20527,9.13545
 1130149,BP Europa SE,In Betrieb,2,300,2025-04-14,63584,Gründau,Landkreis Main-Kinzig-Kreis,Hessen,50.20527,9.13545
 1130519,EnBW mobility+ AG und Co.KG,In Betrieb,2,300,2025-07-18,63505,Langenselbold,Landkreis Main-Kinzig-Kreis,Hessen,50.175101,9.044212
-1130676,Fraport AG,In Betrieb,2,400,2025-07-07,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049621,8.561718
-1130677,Fraport AG,In Betrieb,2,400,2025-07-07,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049606,8.561653
+1130676,Frankfurt Airport,In Betrieb,2,400,2025-07-07,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049621,8.561718
+1130677,Frankfurt Airport,In Betrieb,2,400,2025-07-07,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.049606,8.561653
 1130824,ESWE Versorgungs AG,In Betrieb,2,35,2025-07-24,65207,Wiesbaden,Kreisfreie Stadt Wiesbaden,Hessen,50.11073,8.29514
 1130825,ESWE Versorgungs AG,In Betrieb,2,35,2025-07-04,65195,Wiesbaden,Kreisfreie Stadt Wiesbaden,Hessen,50.084208,8.224646
 1130826,ESWE Versorgungs AG,In Betrieb,2,35,2025-07-23,65197,Wiesbaden,Kreisfreie Stadt Wiesbaden,Hessen,50.068888,8.224218
@@ -2696,8 +2696,8 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1144491,Oberhessische Versorgungsbetriebe AG,In Betrieb,2,44,2025-12-15,61130,Nidderau,Landkreis Main-Kinzig-Kreis,Hessen,50.22974,8.86242
 1144494,Oberhessische Versorgungsbetriebe AG,In Betrieb,2,44,2025-12-15,61130,Nidderau,Landkreis Main-Kinzig-Kreis,Hessen,50.22974,8.86242
 1144526,EnBW mobility+ AG und Co.KG,In Betrieb,2,400,2025-12-30,63526,Erlensee,Landkreis Main-Kinzig-Kreis,Hessen,50.182407,9.007563
-1144992,Fraport AG,In Betrieb,2,400,2025-08-19,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023792,8.556866
-1144993,Fraport AG,In Betrieb,2,400,2025-08-19,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023833,8.556709
+1144992,Frankfurt Airport,In Betrieb,2,400,2025-08-19,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023792,8.556866
+1144993,Frankfurt Airport,In Betrieb,2,400,2025-08-19,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023833,8.556709
 1145045,Maintal-Werke GmbH,In Betrieb,2,300,2026-02-09,63477,Maintal,Landkreis Main-Kinzig-Kreis,Hessen,50.14433,8.82967
 1145079,Maintal-Werke GmbH,In Betrieb,2,30,2025-12-01,63477,Maintal,Landkreis Main-Kinzig-Kreis,Hessen,50.137569,8.843262
 1145206,Edeka Helfrich Johann Georg Helfrich e.K.,In Betrieb,2,44,2023-08-24,65451,Kelsterbach,Landkreis Groß-Gerau,Hessen,50.05398,8.52669
@@ -2764,8 +2764,8 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1150171,Mainova AG,In Betrieb,2,300,2025-12-11,60594,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.105453,8.721622
 1150558,Robert Bosch GmbH,In Betrieb,1,22,2026-02-28,60326,Frankfurt,Kreisfreie Stadt Frankfurt am Main,Hessen,50.105081,8.650588
 1150559,Robert Bosch GmbH,In Betrieb,1,22,2026-02-28,60326,Frankfurt,Kreisfreie Stadt Frankfurt am Main,Hessen,50.105081,8.650588
-1150951,Fraport AG,In Betrieb,2,100,2025-12-15,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023914,8.556665
-1150953,Fraport AG,In Betrieb,2,100,2025-12-15,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023915,8.556474
+1150951,Frankfurt Airport,In Betrieb,2,100,2025-12-15,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023914,8.556665
+1150953,Frankfurt Airport,In Betrieb,2,100,2025-12-15,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.023915,8.556474
 1151160,Wirelane Public 1 GmbH,In Betrieb,2,44,2023-10-03,60326,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.099761,8.639581
 1151162,Wirelane Public 1 GmbH,In Betrieb,2,44,2023-08-29,60236,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.102014,8.617028
 1151165,Wirelane Public 1 GmbH,In Betrieb,2,44,2023-08-29,60389,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.126604,8.698234
@@ -2819,13 +2819,13 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1152110,Wirelane Public 1 GmbH,In Betrieb,2,22,2025-12-08,65428,Rüsselsheim am Main,Landkreis Groß-Gerau,Hessen,49.977069,8.436039
 1152111,Wirelane Public 1 GmbH,In Betrieb,2,22,2025-12-08,65428,Rüsselsheim am Main,Landkreis Groß-Gerau,Hessen,49.977069,8.436039
 1152118,Wirelane Public 1 GmbH,In Betrieb,2,44,2025-12-30,60316,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.1215,8.691806
-1152292,Fraport AG,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.0504,8.5667
-1152411,Fraport AG,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1152417,Fraport AG,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1152418,Fraport AG,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1152419,Fraport AG,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1152420,Fraport AG,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
-1152421,Fraport AG,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1152292,Frankfurt Airport,In Betrieb,1,11,2024-04-01,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.0504,8.5667
+1152411,Frankfurt Airport,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1152417,Frankfurt Airport,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1152418,Frankfurt Airport,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1152419,Frankfurt Airport,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1152420,Frankfurt Airport,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
+1152421,Frankfurt Airport,In Betrieb,1,11,2026-03-02,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.050433,8.566756
 1152469,IONITY GmbH,In Betrieb,1,350,2026-02-24,63526,Erlensee,Landkreis Main-Kinzig-Kreis,Hessen,50.18227,9.008168
 1152470,IONITY GmbH,In Betrieb,1,350,2026-02-24,63526,Erlensee,Landkreis Main-Kinzig-Kreis,Hessen,50.18227,9.008168
 1152476,IONITY GmbH,In Betrieb,2,350,2026-02-24,63526,Erlensee,Landkreis Main-Kinzig-Kreis,Hessen,50.18227,9.008168
@@ -2975,7 +2975,7 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1157540,EnBW mobility+ AG und Co.KG,In Betrieb,2,400,2026-05-28,64546,Mörfelden-Walldorf,Landkreis Groß-Gerau,Hessen,50.0113,8.585
 1157640,Autohaus Schmitt GmbH,In Betrieb,1,11,2026-05-08,63579,Freigericht,Landkreis Main-Kinzig-Kreis,Hessen,50.14752,9.11154
 1157641,Autohaus Schmitt GmbH,In Betrieb,2,50,2026-05-08,63579,Freigericht,Landkreis Main-Kinzig-Kreis,Hessen,50.14693,9.11175
-1158420,Fraport AG,In Betrieb,2,250,2026-04-15,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.040907,8.534052
+1158420,Frankfurt Airport,In Betrieb,2,250,2026-04-15,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.040907,8.534052
 1158919,Jolt Energy GmbH,In Betrieb,2,300,2026-05-27,65189,Wiesbaden,Kreisfreie Stadt Wiesbaden,Hessen,50.07226,8.25419
 1159063,Robert Bosch GmbH,In Betrieb,1,22,2026-06-19,60326,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.105081,8.650588
 1159068,Robert Bosch GmbH,In Betrieb,1,22,2026-06-19,60326,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.105081,8.650588
@@ -3180,24 +3180,24 @@ station_id,operator_name,status,connector_count,nominal_power_kw,commissioned_da
 1168328,FES Frankfurter Entsorgungs- und Service GmbH,In Betrieb,1,22,2025-11-28,60386,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.119949,8.760397
 1168329,FES Frankfurter Entsorgungs- und Service GmbH,In Betrieb,1,22,2025-11-28,60386,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.119949,8.760397
 1168330,FES Frankfurter Entsorgungs- und Service GmbH,In Betrieb,1,22,2025-11-28,60386,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.119949,8.760397
-1168358,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168359,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168360,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168369,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168370,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168371,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168373,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168374,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168375,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168376,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168377,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168378,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168358,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168359,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168360,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168369,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168370,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168371,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168373,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168374,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168375,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168376,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168377,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168378,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
 1168379,St. Josefs Hospital Wiesbaden GmbH,In Betrieb,2,22,2026-10-21,65189,Wiesbaden,Kreisfreie Stadt Wiesbaden,Hessen,50.04311,8.15176
-1168380,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168381,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168382,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168383,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
-1168384,Fraport AG,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168380,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168381,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168382,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168383,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
+1168384,Frankfurt Airport,In Betrieb,2,22,2026-04-20,60549,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.028606,8.584431
 1168493,FES Frankfurter Entsorgungs- und Service GmbH,In Betrieb,1,22,2026-01-07,60314,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.114467,8.728682
 1168494,FES Frankfurter Entsorgungs- und Service GmbH,In Betrieb,1,22,2026-01-07,60314,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.114467,8.728682
 1168756,ENERANDO Technologies GmbH,In Betrieb,1,22,2025-06-04,60599,Frankfurt am Main,Kreisfreie Stadt Frankfurt am Main,Hessen,50.097537,8.693173

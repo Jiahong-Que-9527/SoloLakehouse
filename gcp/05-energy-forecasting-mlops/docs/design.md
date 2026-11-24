@@ -26,7 +26,7 @@ In scope: dataset build, baseline, one candidate, a containerized training
 pipeline, MLflow tracking and registry, the promotion gate, batch prediction,
 and a rollback to the previous registered version. The trial account cannot
 use Vertex AI; the substitution and its migration path are recorded in
-[ADR-005](../../Fraport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md).
+[ADR-005](../../Frankfurt-Airport-adsb-intelligence/docs/adr/ADR-005-cloud-neutral-training-and-model-registry.md).
 
 Out of scope: weather ingestion, hyperparameter search, feature store, online A/B traffic, and any claim that the model should be used operationally. The aviation serving project keeps its own contract. It may copy this promotion rule. It does not call this pipeline.
 

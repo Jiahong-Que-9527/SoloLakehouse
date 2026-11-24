@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'Fraport-adsb-intelligence/01-opensky-acquisition/**'
+      - 'Frankfurt-Airport-adsb-intelligence/01-opensky-acquisition/**'
       - '.github/workflows/opensky-acquisition.yml'
   pull_request:
     paths:
-      - 'Fraport-adsb-intelligence/01-opensky-acquisition/**'
+      - 'Frankfurt-Airport-adsb-intelligence/01-opensky-acquisition/**'
       - '.github/workflows/opensky-acquisition.yml'
   workflow_dispatch:
 
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: Fraport-adsb-intelligence/01-opensky-acquisition
+        working-directory: Frankfurt-Airport-adsb-intelligence/01-opensky-acquisition
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3

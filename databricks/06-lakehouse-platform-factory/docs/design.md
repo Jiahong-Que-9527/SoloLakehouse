@@ -89,7 +89,7 @@ Both stacks use the smallest warehouse and a handful of fixture rows. No schedul
 
 ## 9. Handoff
 
-G06 is the GCP counterpart and is not a dependency. A team that needs both clouds uses both templates and keeps separate identities. Aviation lakehouse work stays in the Fraport programme. It may copy this bundle layout. It does not deploy through this factory's state.
+G06 is the GCP counterpart and is not a dependency. A team that needs both clouds uses both templates and keeps separate identities. Aviation lakehouse work stays in the Frankfurt Airport programme. It may copy this bundle layout. It does not deploy through this factory's state.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 

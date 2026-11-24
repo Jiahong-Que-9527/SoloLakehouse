@@ -36,11 +36,11 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
 
 ## Project portfolio
 
-- **Aviation.** [Fraport ADS-B Intelligence](../Fraport-adsb-intelligence/README.md)
+- **Aviation.** [Frankfurt Airport ADS-B Intelligence](../Frankfurt-Airport-adsb-intelligence/README.md)
   collects the Frankfurt historical ADS-B record locally. The two-year
   Geometry v2 series (2024-11 → 2026-10) reconciled all 24 Gold releases
   in BigQuery managed Iceberg on 2026-11-23. The same local Gold releases supply
-  labels for the [DuckDB feature dataset](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md)
+  labels for the [DuckDB feature dataset](../Frankfurt-Airport-adsb-intelligence/04-aviation-lakehouse/README.md)
   and local taxi-in training.
 - **European energy.** The [GCP European Energy
   Pipeline](../gcp/01-european-energy-pipeline/README.md) starts with one German
@@ -101,7 +101,7 @@ self-hosted implementation and its evidence are available in a pinned snapshot.
    observations at a fixed prediction cutoff, join the Geometry v2 labels,
    and pin the training artifact by manifest hash. Verify late arrival,
    label-match coverage and reproducibility before training the baseline.
-   [Fraport 04 plan](../Fraport-adsb-intelligence/04-aviation-lakehouse/README.md#first-delivery)
+   [Frankfurt Airport 04 plan](../Frankfurt-Airport-adsb-intelligence/04-aviation-lakehouse/README.md#first-delivery)
 4. **Aviation model serving.** Version the API contract and model artifact.
    Validate the synthetic request first. A later deployment milestone
    records the served model version, predictions, logs and recovery steps.
