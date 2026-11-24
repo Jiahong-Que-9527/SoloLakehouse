@@ -1,0 +1,219 @@
+{
+  "audit_system_table": {
+    "status": "visible",
+    "workspace_event_check": {
+      "action_name": "updatePermissions",
+      "event_window_utc": [
+        "2026-11-24T21:36:28Z",
+        "2026-11-24T21:38:07Z"
+      ],
+      "object_name": "workspace.ecb_d04_governance_762027328508237_prod_consumer.fx_indicator_current",
+      "run_id": 729925319778120,
+      "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/310879136429389/run/729925319778120",
+      "service_name": "unityCatalog",
+      "status": "no_matching_event"
+    }
+  },
+  "d05_handoff": {
+    "columns": [
+      "release_id",
+      "series_key",
+      "observation_date",
+      "fx_rate"
+    ],
+    "gold_delta_version": 2,
+    "gold_table": "workspace.ecb_d04_governance_762027328508237_prod_gold.observations",
+    "release_id": "corrected",
+    "view": "workspace.ecb_d04_governance_762027328508237_prod_consumer.forecast_feature"
+  },
+  "deferred": {
+    "account_audit_log_delivery": {
+      "reason": "The Free Edition tenant has no account-console access. The D04 Delta grant ledger records the scoped change.",
+      "status": "not_available"
+    },
+    "column_masking": {
+      "reason": "The Free Edition exercise uses explicit view projections and defers identity-dependent column masking.",
+      "status": "not_available"
+    },
+    "live_role_enforcement": {
+      "reason": "The exercise has one workspace identity. Five role-specific allow/deny pairs, dev-to-prod write denial, and a consumer denial after revoke require separate principals.",
+      "status": "not_available"
+    }
+  },
+  "execution": {
+    "compute": "Databricks Free Edition serverless notebook task",
+    "finished_at": "2026-11-24T21:38:06.577000+00:00",
+    "job_id": 641968805272549,
+    "result_state": "SUCCESS",
+    "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/641968805272549/run/762027328508237",
+    "started_at": "2026-11-24T21:36:28.914000+00:00",
+    "task_run_id": 527677322559961
+  },
+  "execution_identity": "workspace user running the job",
+  "grant_change": {
+    "explicit_select": {
+      "after": false,
+      "before": false,
+      "granted": true
+    },
+    "ledger_entry": {
+      "action": "REVOKE SELECT",
+      "changed_at": "2026-11-24 21:37:49.069537",
+      "git_sha": "d16b303d8180ae43910e8abf47c36715f88bc792",
+      "object_name": "workspace.ecb_d04_governance_762027328508237_prod_consumer.fx_indicator_current"
+    },
+    "owner_read_after_revoke": true,
+    "principal": "owner of the demonstration view"
+  },
+  "job_run_id": "762027328508237",
+  "lineage_system_table": {
+    "matching_row": false,
+    "status": "visible"
+  },
+  "quality": {
+    "after": {
+      "columns": [
+        "release_id",
+        "series_key",
+        "observation_date",
+        "observation_value"
+      ],
+      "rows": [
+        {
+          "observation_date": "2025-01-02",
+          "observation_value": "1.0750",
+          "release_id": "initial",
+          "series_key": "EXR.D.USD.EUR.SP00.A"
+        }
+      ]
+    },
+    "before": {
+      "columns": [
+        "release_id",
+        "series_key",
+        "observation_date",
+        "observation_value"
+      ],
+      "rows": [
+        {
+          "observation_date": "2025-01-02",
+          "observation_value": "1.0750",
+          "release_id": "initial",
+          "series_key": "EXR.D.USD.EUR.SP00.A"
+        }
+      ]
+    },
+    "dev": "Quality check failed for invalid: {'row_count': 2, 'non_null_count': 2, 'distinct_key_count': 1}",
+    "prod": "Quality check failed for invalid: {'row_count': 2, 'non_null_count': 2, 'distinct_key_count': 1}"
+  },
+  "schemas": {
+    "dev": {
+      "bronze": "workspace.ecb_d04_governance_762027328508237_dev_bronze",
+      "consumer": "workspace.ecb_d04_governance_762027328508237_dev_consumer",
+      "gold": "workspace.ecb_d04_governance_762027328508237_dev_gold",
+      "silver": "workspace.ecb_d04_governance_762027328508237_dev_silver"
+    },
+    "prod": {
+      "bronze": "workspace.ecb_d04_governance_762027328508237_prod_bronze",
+      "consumer": "workspace.ecb_d04_governance_762027328508237_prod_consumer",
+      "gold": "workspace.ecb_d04_governance_762027328508237_prod_gold",
+      "silver": "workspace.ecb_d04_governance_762027328508237_prod_silver"
+    }
+  },
+  "sql_warehouse_statement_api": {
+    "reason": "The configured Jobs PAT was rejected by the Warehouses API because it lacked the sql scope.",
+    "status": "pending"
+  },
+  "trace": {
+    "bronze_version": 3,
+    "gold_version": 2,
+    "job_run_id": "762027328508237",
+    "published_at": "2026-11-24 21:37:34.744849",
+    "release_id": "corrected",
+    "source_batch": "batch-corrected",
+    "versioned_observations": {
+      "bronze": {
+        "observation_date": "2025-01-02",
+        "observation_value": "1.0825",
+        "series_key": "EXR.D.USD.EUR.SP00.A",
+        "source_batch": "batch-corrected"
+      },
+      "gold": {
+        "observation_date": "2025-01-02",
+        "observation_value": "1.0825",
+        "series_key": "EXR.D.USD.EUR.SP00.A",
+        "source_batch": "batch-corrected"
+      }
+    }
+  },
+  "unity_catalog_lineage": {
+    "edges": [
+      {
+        "lineage_timestamp": "2026-11-24 21:37:30.0",
+        "source_table": "workspace.ecb_d04_governance_762027328508237_prod_bronze.observations",
+        "target_table": "workspace.ecb_d04_governance_762027328508237_prod_silver.observations"
+      },
+      {
+        "lineage_timestamp": "2026-11-24 21:37:08.0",
+        "source_table": "workspace.ecb_d04_governance_762027328508237_prod_silver.observations",
+        "target_table": "workspace.ecb_d04_governance_762027328508237_prod_gold.observations"
+      }
+    ],
+    "path": "/api/2.0/lineage-tracking/table-lineage",
+    "status": "passed"
+  },
+  "views": {
+    "forecast_feature": {
+      "columns": [
+        "release_id",
+        "series_key",
+        "observation_date",
+        "fx_rate"
+      ],
+      "rows": [
+        {
+          "fx_rate": "1.0825",
+          "observation_date": "2025-01-02",
+          "release_id": "corrected",
+          "series_key": "EXR.D.USD.EUR.SP00.A"
+        }
+      ]
+    },
+    "fx_indicator_current": {
+      "columns": [
+        "release_id",
+        "series_key",
+        "observation_date",
+        "observation_value"
+      ],
+      "rows": [
+        {
+          "observation_date": "2025-01-02",
+          "observation_value": "1.0825",
+          "release_id": "corrected",
+          "series_key": "EXR.D.USD.EUR.SP00.A"
+        }
+      ]
+    },
+    "transaction_risk_detail": {
+      "columns": [
+        "release_id",
+        "series_key",
+        "observation_date",
+        "observation_value",
+        "account_token",
+        "counterparty"
+      ],
+      "rows": [
+        {
+          "account_token": "synthetic-001",
+          "counterparty": "fixture-counterparty",
+          "observation_date": "2025-01-02",
+          "observation_value": "1.0825",
+          "release_id": "corrected",
+          "series_key": "EXR.D.USD.EUR.SP00.A"
+        }
+      ]
+    }
+  }
+}

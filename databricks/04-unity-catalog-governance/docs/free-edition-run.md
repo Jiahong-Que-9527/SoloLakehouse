@@ -27,14 +27,14 @@ The Free Edition job runs as a single workspace user. This matrix documents the 
 
 ## Warehouse verification
 
-With a CLI profile that has the `sql` API scope, list warehouses with `databricks warehouses list`. Use the workspace's 2X-Small warehouse ID to execute the following query with the observed prod consumer schema from the evidence. Replace both placeholders before running.
+Use a separate CLI profile, `slh-d04-sql`, with scope `sql:read:restricted-query`. List warehouses with `databricks warehouses list -p slh-d04-sql`. Use the workspace's 2X-Small warehouse ID to execute the following query with the observed prod consumer schema from the evidence. Replace both placeholders before running.
 
 ```sh
-databricks api post /api/2.0/sql/statements -p slh-free --json '{
+databricks api post /api/2.0/sql/statements -p slh-d04-sql --json '{
   "warehouse_id": "<warehouse-id>",
   "statement": "SELECT release_id, series_key, observation_date, fx_rate FROM <prod-consumer-schema>.forecast_feature WHERE release_id = '\''corrected'\''",
   "wait_timeout": "30s"
 }'
 ```
 
-If the response is pending, retrieve the result with `databricks api get /api/2.0/sql/statements/<statement-id> -p slh-free`. Check the statement status, the projected columns, and the row's release ID.
+If the response is pending, retrieve the result with `databricks api get /api/2.0/sql/statements/<statement-id> -p slh-d04-sql`. Check the statement status, the projected columns, and the row's release ID.

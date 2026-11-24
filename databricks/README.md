@@ -15,7 +15,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 | **D01** · ECB Delta | **Accepted** | Full | `databricks bundle deploy/run` + `jobs get-run-output` | — |
 | **D02** · ETL Automation | **Accepted** | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
 | **D03** · CDC Lakehouse | **Accepted** | Full (managed UC Volume) | `bundle run` with Auto Loader and `availableNow`, plus independent batch replay | External cloud bucket |
-| **D04** · UC Governance | Planned | Partial subset | CLI + `sql/statements` API on 2X-Small warehouse | 5-role denials, masking, audit tables |
+| **D04** · UC Governance | **Governance verified** · warehouse check pending | Partial subset | CLI serverless job + Unity Catalog lineage API; 2X-Small warehouse check pending | 5-role denials, masking, account-level audit delivery |
 | **D05** · Forecasting MLOps | Planned | Full (CPU Serverless + MLflow) | Parameterized `bundle run` for scoring & rollback | Enterprise multi-env registry |
 | **D06** · Platform Factory | **Deferred** | Not supported | — | Terraform account API + 2 Service Principals |
 
@@ -30,7 +30,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 3. **D03** · [Financial CDC Lakehouse](03-financial-cdc-lakehouse/README.md) — **Accepted** (streaming restart, delete and replay verified)
    Apply incremental updates and withdrawals and reconcile after a checkpoint restart.
    [Design](03-financial-cdc-lakehouse/docs/design.md) · [Implementation plan](03-financial-cdc-lakehouse/docs/implementation.md)
-4. **D04** · [Unity Catalog Governance](04-unity-catalog-governance/README.md)
+4. **D04** · [Unity Catalog Governance](04-unity-catalog-governance/README.md) — controlled views, quality gate, lineage and grant ledger verified
    Verify permissions, lineage and the evidence behind a governed data release.
    [Design](04-unity-catalog-governance/docs/design.md) · [Implementation plan](04-unity-catalog-governance/docs/implementation.md)
 5. **D05** · [Financial Forecasting MLOps](05-financial-forecasting-mlops/README.md)
@@ -44,8 +44,8 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 
 The verified D01 release identifies a versioned financial data product. D02 packages its
 transformations. D03 reuses its key convention in the correction fixture,
-and D04 can apply governance to its Gold schema. D05 selects a pinned Gold
-snapshot. D06 combines delivery and governance patterns exercised by the
+and D04 provides a governed fixture with a pinned Gold version and an approved
+feature projection for a D05 smoke test. D06 combines delivery and governance patterns exercised by the
 earlier projects.
 
 Each project can validate against a local or workspace fixture with its
@@ -60,9 +60,7 @@ workloads described above.
 
 ## Delivery priorities
 
-Start with D01, then demonstrate scheduled delivery and failure recovery
-in D02. D03 and D04's Free Edition governance subset are the next data platform
-demonstrations, followed by D05 model delivery. D06 (and D04's multi-principal
+D01–D03 and the D04 serverless governance exercise have workspace evidence. Finish the D04 warehouse check, then move on to D05 model delivery. D06 (and D04's multi-principal
 enterprise checks) remain deferred until a multi-principal workspace with
 Account Console / Terraform permissions is approved. Always record the scope of
 actual workspace evidence and any `not_available` checks.
