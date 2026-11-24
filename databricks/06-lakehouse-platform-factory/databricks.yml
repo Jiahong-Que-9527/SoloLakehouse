@@ -31,6 +31,8 @@ permissions:
     service_principal_name: ${var.runtime_service_principal}
 
 sync:
+  exclude:
+    - notebooks/free_edition_smoke_setup.py
   paths:
     - notebooks
 
