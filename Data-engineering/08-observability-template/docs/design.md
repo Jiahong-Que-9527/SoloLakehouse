@@ -1,6 +1,6 @@
 # Design: E08 · Observability and DE platform template
 
-**E08 · Design specification (planned).** [Brief](../README.md) · [Implementation plan](implementation.md)
+**E08 · Design specification — accepted 2026-11-24** (evidence: [e08-acceptance.md](../evidence/e08-acceptance.md)). [Brief](../README.md) · [Implementation plan](implementation.md)
 
 Close the DataOps loop by ingesting dbt's `run_results.json` and `sources.json` artifacts into operational audit tables (`ops_dbt_run_audit`, `ops_freshness_slo`), exercising a freshness SLO breach drill, and extracting a reusable Data Engineering starter template verified by onboarding a second lightweight workload.
 

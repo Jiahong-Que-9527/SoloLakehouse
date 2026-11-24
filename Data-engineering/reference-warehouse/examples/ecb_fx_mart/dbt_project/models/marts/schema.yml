@@ -1,0 +1,28 @@
+version: 2
+
+models:
+    - name: fct_fx_rates_daily
+      description: "Daily ECB reference rates at grain (rate_date, currency_pair); the second workload's contract anchor."
+      config:
+          contract:
+              enforced: true
+      columns:
+          - name: rate_date
+            description: "ECB observation date."
+            data_type: date
+            constraints: [{type: not_null, warn_unsupported: false}]
+          - name: currency_pair
+            description: "EUR-quoted pair label."
+            data_type: varchar
+            constraints: [{type: not_null, warn_unsupported: false}]
+          - name: rate
+            description: "ECB reference rate, 6 decimals."
+            data_type: decimal(18, 6)
+            constraints: [{type: not_null, warn_unsupported: false}]
+            data_tests: [non_negative]
+          - name: prev_rate
+            description: "Previous observation day's rate for the pair; null on the pair's first day."
+            data_type: decimal(18, 6)
+          - name: day_over_day_change
+            description: "rate - prev_rate; null on the pair's first day (no prior observation, not a data defect)."
+            data_type: decimal(18, 6)

@@ -1,0 +1,29 @@
+name: de_starter
+version: 0.1.0
+config-version: 2
+profile: de_starter
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: target
+clean-targets:
+    - target
+    - dbt_packages
+
+models:
+    de_starter:
+        +persist_docs:
+            relation: true
+            columns: true
+        staging:
+            +materialized: view
+            +schema: stg
+        marts:
+            +materialized: table
+            +schema: mart
+
+seeds:
+    de_starter:
+        +schema: raw

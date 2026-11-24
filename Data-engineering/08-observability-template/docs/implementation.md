@@ -1,6 +1,6 @@
 # Implementation plan: E08 · Observability and DE platform template
 
-**Status:** planned. [Brief](../README.md) · [Design](design.md) · [Delivery plan](../../docs/delivery-plan.md)
+**Status:** accepted 2026-11-24 — `audit-dbt` parses real dbt artifacts into `ops_dbt_run_audit` / `ops_freshness_slo` idempotently; +71h injected staleness recorded a BREACH row and alert JSON (exit 2); template extracted and proven on the `ecb_fx_mart` second workload (dbt build PASS=9/ERROR=0, sqlfluff clean, zero primary edits). See [evidence](../../08-observability-template/evidence/e08-acceptance.md). [Brief](../README.md) · [Design](design.md) · [Delivery plan](../../docs/delivery-plan.md)
 
 ## First delivery
 

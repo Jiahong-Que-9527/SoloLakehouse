@@ -5,7 +5,7 @@
 
 Deliver an end-to-end modern **Data Engineering** platform on **Python, SQL, dbt, DuckDB, Google BigQuery, and Apache Airflow** over a hybrid German EV charging and roaming commerce workload (`European EV Charging & Roaming Commerce`). Each stage builds verifiable capabilities expected of a mid-to-senior Data Engineer: resumable raw ingestion, Kimball dimensional modeling, dbt testing pyramids and data contracts, incremental merge with late-arriving settlements and SCD Type 2 snapshots, Slim CI, BigQuery partitioning and cost governance, Airflow orchestration with failure recovery, and run observability.
 
-**Status:** E01–E06 accepted with recorded evidence (contract at v1.5; full suite re-verified 2026-11-24); E06 live-verified on BigQuery 2026-11-24 (€0, 0 destroys); **E07 accepted 2026-11-24** (local Airflow 2.11.2, failure-halt + clear-only recovery + bounded backfill, 4/4 runs green); E08 planned (**E08** next).
+**Status:** E01–E08 **accepted with recorded evidence** — the Data Engineering track is **complete** (contract at v1.5; full suite re-verified 2026-11-24, 56 passed / 2 skipped). E06 live-verified on BigQuery 2026-11-24 (€0, 0 destroys); E07 accepted 2026-11-24 (local Airflow 2.11.2, failure-halt + clear-only recovery + bounded backfill, 4/4 runs green); E08 accepted 2026-11-24 (dbt artifact observability into `ops_*` tables, freshness SLO breach drill, DE template proven on a second workload).
 
 ## Human quick start
 
@@ -84,7 +84,7 @@ To combine real-world dirty data with deterministic end-to-end financial reconci
 | E05 · Macros, exposures and Slim CI | accepted | [e05-acceptance.md](05-macros-exposures-slim-ci/evidence/e05-acceptance.md) |
 | E06 · BigQuery warehouse and FinOps | implemented | [cloud-verification.md](06-bigquery-warehouse-finops/docs/cloud-verification.md) |
 | E07 · Orchestration with Airflow | accepted | [e07-acceptance.md](07-orchestration-airflow/evidence/e07-acceptance.md) |
-| E08 · Observability and template | planned | — |
+| E08 · Observability and template | accepted | [e08-acceptance.md](08-observability-template/evidence/e08-acceptance.md) |
 
 Status moves `planned → accepted` only when the stage's checks in the [evidence guide](docs/evidence-guide.md) have run after the final edit and the acceptance record is committed under `<stage>/evidence/`; the table row then links to it.
 

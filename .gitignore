@@ -103,3 +103,8 @@ Thumbs.db
 Data-engineering/reference-warehouse/dbt_project/.user.yml
 Data-engineering/reference-warehouse/dbt_project/logs/
 Data-engineering/reference-warehouse/airflow/.airflow-local/
+
+# template/example domains (E08): local warehouses and dbt build artifacts
+Data-engineering/reference-warehouse/examples/**/*.duckdb
+Data-engineering/reference-warehouse/examples/**/target/
+Data-engineering/reference-warehouse/examples/**/logs/

@@ -32,6 +32,7 @@ EXPECTED_CHAIN = [
     "dbt_snapshot",
     "dbt_build_marts",
     "verify_revenue_conservation",
+    "audit_dbt_artifacts",
 ]
 
 
@@ -56,11 +57,17 @@ def test_dag_scheduling_config(dagbag: DagBag) -> None:
 
 
 def test_task_chain_matches_design(dagbag: DagBag) -> None:
-    """ingest -> freshness -> snapshot -> build -> verify (design §3)."""
+    """ingest -> freshness -> snapshot -> build -> verify -> artifact audit."""
     dag = dagbag.dags[DAG_ID]
     assert set(dag.task_ids) == set(EXPECTED_CHAIN)
     for upstream, downstream in zip(EXPECTED_CHAIN, EXPECTED_CHAIN[1:], strict=False):
         assert downstream in dag.get_task(upstream).downstream_task_ids
+
+
+def test_audit_task_records_failed_runs(dagbag: DagBag) -> None:
+    """The E08 audit task must run even when upstream fails (telemetry matters most then)."""
+    dag = dagbag.dags[DAG_ID]
+    assert dag.get_task("audit_dbt_artifacts").trigger_rule == "all_done"
 
 
 def test_retry_policy_matches_design(dagbag: DagBag) -> None:

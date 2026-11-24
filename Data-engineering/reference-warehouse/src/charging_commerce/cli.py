@@ -1,7 +1,8 @@
 """Command-line entrypoint: generate, ingest, verify, report (E01).
 
 ``refresh-open-data --live`` is an explicit operator action (network + source
-websites); everything else runs fully offline.
+websites); ``load-bq`` needs ADC credentials (E06); everything else runs fully
+offline. ``audit-dbt`` (E08) parses dbt artifacts into the ops_* tables.
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ import json
 import sys
 from pathlib import Path
 
-from charging_commerce import bq_loader, ingestion
+from charging_commerce import bq_loader, ingestion, observability
 from charging_commerce.generator import generate
 from charging_commerce.open_data import refresh_open_data, verify_fixtures
 
@@ -138,6 +139,26 @@ def cmd_load_bq(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_audit_dbt(args: argparse.Namespace) -> int:
+    """Parse dbt artifacts into the ops_* audit tables (E08) and alert on SLO verdicts."""
+    exit_code, alerts = observability.audit_dbt_artifacts(
+        Path(args.db),
+        run_results_path=Path(args.run_results) if args.run_results else None,
+        sources_path=Path(args.sources) if args.sources else None,
+        warn_hours=args.warn_hours,
+        error_hours=args.error_hours,
+        git_sha=observability.git_sha_from_env(),
+    )
+    for alert in alerts:
+        print(json.dumps(alert, sort_keys=True))
+    summary = (
+        f"audit-dbt: exit={exit_code} alerts={len(alerts)} "
+        f"(slo warn>{args.warn_hours:g}h error>{args.error_hours:g}h)"
+    )
+    print(summary)
+    return exit_code
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="charging-commerce", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -200,6 +221,35 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--batch-prefix", default="e06-raw-load")
     p.set_defaults(func=cmd_load_bq)
+
+    p = sub.add_parser(
+        "audit-dbt",
+        help="parse dbt run_results.json / sources.json into the ops_* audit tables (E08)",
+    )
+    p.add_argument(
+        "--run-results",
+        default="dbt_project/target/run_results.json",
+        help="dbt run_results.json path (skipped if missing)",
+    )
+    p.add_argument(
+        "--sources",
+        default="dbt_project/target/sources.json",
+        help="dbt sources.json path (skipped if missing)",
+    )
+    p.add_argument("--db", default="data/warehouse.duckdb")
+    p.add_argument(
+        "--warn-hours",
+        type=float,
+        default=observability.DEFAULT_WARN_HOURS,
+        help="freshness SLO warn threshold in hours (contract §1: 24)",
+    )
+    p.add_argument(
+        "--error-hours",
+        type=float,
+        default=observability.DEFAULT_ERROR_HOURS,
+        help="freshness SLO breach threshold in hours (contract §1: 48)",
+    )
+    p.set_defaults(func=cmd_audit_dbt)
     return parser
 
 
