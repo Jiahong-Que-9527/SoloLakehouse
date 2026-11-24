@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D06 · Template and CI available · Live acceptance deferred** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Runbook](docs/runbook.md)
+**D06 · Template, CI and Free Edition reference run verified · Multi-principal acceptance deferred** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Runbook](docs/runbook.md)
 
 Turn recurring Databricks environment and delivery work into a reusable setup for a second data team.
 
@@ -30,6 +30,8 @@ The template and CI validate two stack definitions using mocked Terraform plans 
 | Alpha | `slh-alpha-dev/terraform.tfstate` | `dev` | `slh-alpha-dev-batch` |
 | Bravo | `slh-bravo-prod/terraform.tfstate` | `prod` | `slh-bravo-prod-batch` |
 
-Live acceptance requires an approved multi-principal workspace for two successful deployments, access checks as distinct identities and the retirement drill. The [runbook](docs/runbook.md) records how to perform those checks. See the [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md) for platform constraints.
+The reference job completed its first publish and replay on Free Edition with one workspace identity. A blank Silver value caused both quality attempts to fail and blocked the publish task. A separate inspection found the original single Gold row. The [workspace evidence](evidence/free-edition-reference-smoke.json) records the four runs and outcomes.
+
+Live multi-principal acceptance requires an approved workspace for two successful deployments, access checks as distinct identities and the retirement drill. The [runbook](docs/runbook.md) records how to perform those checks. See the [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md) for platform constraints.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->

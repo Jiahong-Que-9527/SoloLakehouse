@@ -14,6 +14,25 @@ REFERENCE = "reference"
 INVALID = " "
 
 
+def task_results(tasks):
+    attempts_by_task = {}
+    for task in tasks:
+        attempts_by_task.setdefault(task["task_key"], []).append(
+            {
+                "attempt_number": task.get("attempt_number", 0),
+                "task_run_id": task["run_id"],
+                "result_state": task["state"].get("result_state"),
+            }
+        )
+    results = {}
+    for name, attempts in attempts_by_task.items():
+        ordered = sorted(attempts, key=lambda attempt: attempt["attempt_number"])
+        results[name] = ordered[-1]
+        if len(ordered) > 1:
+            results[name]["previous_attempts"] = ordered[:-1]
+    return results
+
+
 def smoke(cli, profile, git_sha):
     def db(*args):
         output = subprocess.check_output([cli, *args, "-p", profile, "-o", "json"], text=True)
@@ -38,18 +57,11 @@ def smoke(cli, profile, git_sha):
             if time.monotonic() > deadline:
                 raise TimeoutError(f"{label} run {run_id} remained {state}")
             time.sleep(6)
-        results = {
-            task["task_key"]: {
-                "task_run_id": task["run_id"],
-                "result_state": task["state"].get("result_state"),
-            }
-            for task in run["tasks"]
-        }
         return {
             "run_id": run["run_id"],
             "run_url": run["run_page_url"],
             "result_state": run["state"]["result_state"],
-            "tasks": results,
+            "tasks": task_results(run["tasks"]),
         }
 
     def task_output(report, name):

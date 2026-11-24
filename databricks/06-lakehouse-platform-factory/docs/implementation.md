@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status** Template and CI validation implemented. Live deployment, isolation and retirement checks remain pending. [Brief](../README.md) · [Design](design.md) · [Runbook](runbook.md)
+**Status** Template, CI and a single-identity workspace reference run verified. Multi-principal deployment, isolation and retirement checks remain pending. [Brief](../README.md) · [Design](design.md) · [Runbook](runbook.md)
 
 ## First delivery
 
