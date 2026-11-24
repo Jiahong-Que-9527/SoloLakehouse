@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status** Template, CI and a single-identity workspace reference run verified. Multi-principal deployment, isolation and retirement checks remain pending. [Brief](../README.md) · [Design](design.md) · [Runbook](runbook.md)
+**Status** Complete within Free Edition scope. Dual-stack deployment under separate service principals, cross-team denial and retirement are skipped and excluded from completion. See the brief for the reason and evidence. [Brief](../README.md) · [Design](design.md) · [Runbook](runbook.md)
 
 ## First delivery
 

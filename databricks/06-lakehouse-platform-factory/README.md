@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D06 · Template, CI and Free Edition reference run verified · Multi-principal acceptance deferred** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Runbook](docs/runbook.md)
+**D06 · Complete within Databricks Free Edition scope** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Runbook](docs/runbook.md)
 
 Turn recurring Databricks environment and delivery work into a reusable setup for a second data team.
 
@@ -32,6 +32,14 @@ The template and CI validate two stack definitions using mocked Terraform plans 
 
 The reference job completed its first publish and replay on Free Edition with one workspace identity. A blank Silver value caused both quality attempts to fail and blocked the publish task. A separate inspection found the original single Gold row. The [workspace evidence](evidence/free-edition-reference-smoke.json) records the four runs and outcomes.
 
-Live multi-principal acceptance requires an approved workspace for two successful deployments, access checks as distinct identities and the retirement drill. The [runbook](docs/runbook.md) records how to perform those checks. See the [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md) for platform constraints.
+The following checks are **skipped in Free Edition and excluded from project completion**.
+
+| Skipped check | Reason |
+|---|---|
+| Deploy and verify both Terraform stacks with separate runtime service principals | The current workspace has one usable execution identity. Free Edition excludes the account console and account-level APIs. The D06 live deployment requires a workspace that permits both service principals and their workspace entitlements. |
+| Confirm Alpha can read Alpha Gold and is denied on Bravo Gold | The test requires two independently runnable principals and positive controls against both live Gold tables. |
+| Retire one stack and verify the survivor | The retirement drill depends on two live stacks with separate state and a verified surviving workload. |
+
+The runbook retains the procedures for an approved multi-principal workspace. [Operator runbook](docs/runbook.md) · [Databricks Free Edition limitations](https://docs.databricks.com/aws/en/getting-started/free-edition-limitations)
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
