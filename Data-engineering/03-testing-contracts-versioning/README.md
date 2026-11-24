@@ -1,6 +1,6 @@
 # E03 · Testing, data contracts and versioning
 
-**Status:** implemented (acceptance evidence recorded, pending owner review) · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [Data contract](../docs/data-contract.md) · [Evidence](evidence/e03-acceptance.md)
+**Status:** accepted 2026-11-24 · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [Data contract](../docs/data-contract.md) · [Evidence](evidence/e03-acceptance.md)
 
 Implement a complete `dbt` testing pyramid and enforced data contracts so breaking schema changes and subtle SQL regressions are caught at build time before downstream consumers see them.
 

@@ -1,6 +1,6 @@
 # E02 · Dimensional modeling with dbt
 
-**Status:** implemented (acceptance evidence recorded, pending owner review) · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [Data contract](../docs/data-contract.md) · [Evidence](evidence/e02-acceptance.md)
+**Status:** accepted 2026-11-24 · [Roadmap](../README.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md) · [Delivery plan](../docs/delivery-plan.md) · [Data contract](../docs/data-contract.md) · [Evidence](evidence/e02-acceptance.md)
 
 Establish the `dbt` project over the Raw layer using `dbt-duckdb`: source freshness definitions, clean `staging` (`stg_*`), reusable `intermediate` (`int_*`), and a Kimball star schema in `marts` (`fct_charging_sessions`, `fct_daily_revenue`, `dim_stations`, `dim_tariffs`, `dim_date`), enforced by SQLFluff and path-scoped GitHub Actions CI.
 

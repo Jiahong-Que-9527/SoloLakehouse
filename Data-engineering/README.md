@@ -5,7 +5,7 @@
 
 Deliver an end-to-end modern **Data Engineering** platform on **Python, SQL, dbt, DuckDB, Google BigQuery, and Apache Airflow** over a hybrid German EV charging and roaming commerce workload (`European EV Charging & Roaming Commerce`). Each stage builds verifiable capabilities expected of a mid-to-senior Data Engineer: resumable raw ingestion, Kimball dimensional modeling, dbt testing pyramids and data contracts, incremental merge with late-arriving settlements and SCD Type 2 snapshots, Slim CI, BigQuery partitioning and cost governance, Airflow orchestration with failure recovery, and run observability.
 
-**Status:** E01–E05 implemented (contract at v1.5; E05 evidence recorded, pending owner review); E06–E08 planned (architecture, stage designs, and implementation plans ready; **E06** next).
+**Status:** E01–E05 accepted with recorded evidence (contract at v1.5; full suite re-verified 2026-11-24, 36 passed); E06 implemented locally (cost-gate approval pending); E07–E08 planned (architecture, stage designs, and implementation plans ready; **E06 live acceptance** next).
 
 ## Human quick start
 
@@ -78,11 +78,11 @@ To combine real-world dirty data with deterministic end-to-end financial reconci
 | Stage | Status | Acceptance record |
 |---|---|---|
 | E01 · Ingestion and raw layer | accepted | [e01-acceptance.md](01-ingestion-raw-layer/evidence/e01-acceptance.md) |
-| E02 · Dimensional modeling with dbt | implemented | [e02-acceptance.md](02-dimensional-modeling-dbt/evidence/e02-acceptance.md) |
-| E03 · Testing, contracts and versioning | implemented | [e03-acceptance.md](03-testing-contracts-versioning/evidence/e03-acceptance.md) |
-| E04 · Incremental, backfill and SCD2 | implemented | [e04-acceptance.md](04-incremental-backfill-scd2/evidence/e04-acceptance.md) |
-| E05 · Macros, exposures and Slim CI | implemented | [e05-acceptance.md](05-macros-exposures-slim-ci/evidence/e05-acceptance.md) |
-| E06 · BigQuery warehouse and FinOps | planned | — |
+| E02 · Dimensional modeling with dbt | accepted | [e02-acceptance.md](02-dimensional-modeling-dbt/evidence/e02-acceptance.md) |
+| E03 · Testing, contracts and versioning | accepted | [e03-acceptance.md](03-testing-contracts-versioning/evidence/e03-acceptance.md) |
+| E04 · Incremental, backfill and SCD2 | accepted | [e04-acceptance.md](04-incremental-backfill-scd2/evidence/e04-acceptance.md) |
+| E05 · Macros, exposures and Slim CI | accepted | [e05-acceptance.md](05-macros-exposures-slim-ci/evidence/e05-acceptance.md) |
+| E06 · BigQuery warehouse and FinOps | implemented | [cloud-verification.md](06-bigquery-warehouse-finops/docs/cloud-verification.md) |
 | E07 · Orchestration with Airflow | planned | — |
 | E08 · Observability and template | planned | — |
 
