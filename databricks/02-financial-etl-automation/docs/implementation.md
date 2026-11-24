@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** Free Edition runtime drills verified. GitHub Actions deployment awaits workspace credentials. [Brief](../README.md) · [Design](design.md)
+**Status:** Accepted on Databricks Free Edition (2026-11-24). [Brief](../README.md) · [Design](design.md)
 
 ## First delivery
 
@@ -50,6 +50,12 @@ release current. The [structured evidence](../evidence/free-edition-acceptance.j
 records task IDs, attempts, timings, window boundaries, source batch and
 Git revision.
 
-The GitHub Actions test jobs passed. Running the manual GitHub Actions
-deployment requires the repository Databricks credential and workspace
-variables listed in the brief.
+### GitHub Actions deployment
+
+The manual [GitHub Actions run](https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/45484497624) passed both
+test and deploy from `main` at `18df3c35ab13bd92d0659274d8cb12616fe37871`. It created
+job `919065967479203` for `workspace.ecb_d02_dev_ci_20261124_204744`.
+Databricks confirmed all four task dependencies and retry settings.
+The [manual smoke run](https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/919065967479203/run/96282487473973) then ran all four tasks
+successfully and published `d02-d48114bd9734a2fa5a45cf2b` with 10 Gold rows.
+The job schedule stayed `PAUSED` through both deployment and the smoke run.

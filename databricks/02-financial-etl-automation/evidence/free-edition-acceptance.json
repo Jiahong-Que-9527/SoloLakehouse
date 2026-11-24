@@ -1,6 +1,64 @@
 {
   "deployment": "Databricks CLI",
   "git_sha": "1f45f7911df6af272b81152ef10344ee59e0f841",
+  "github_actions_deployment": {
+    "databricks_job_id": 919065967479203,
+    "deployed_git_sha": "18df3c35ab13bd92d0659274d8cb12616fe37871",
+    "github_actions_run_id": 45484497624,
+    "github_actions_url": "https://github.com/Jiahong-Que-9527/SoloLakehouse/actions/runs/45484497624",
+    "max_concurrent_runs": 1,
+    "schedule": {
+      "pause_status": "PAUSED",
+      "quartz_cron_expression": "0 0 6 * * ?",
+      "timezone_id": "UTC"
+    },
+    "schema": "workspace.ecb_d02_dev_ci_20261124_204744",
+    "smoke_run": {
+      "gold_rows": 10,
+      "release_id": "d02-d48114bd9734a2fa5a45cf2b",
+      "run_id": 96282487473973,
+      "run_url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/919065967479203/run/96282487473973",
+      "schedule_after_run": "PAUSED",
+      "tasks": {
+        "ingest": {
+          "result": "SUCCESS",
+          "run_id": 405714445846256
+        },
+        "publish": {
+          "result": "SUCCESS",
+          "run_id": 291293556851273
+        },
+        "quality": {
+          "result": "SUCCESS",
+          "run_id": 250242161656640
+        },
+        "transform": {
+          "result": "SUCCESS",
+          "run_id": 995694130531556
+        }
+      },
+      "trigger": "ONE_TIME"
+    },
+    "target": "dev",
+    "tasks": {
+      "ingest": {
+        "depends_on": null,
+        "max_retries": 2
+      },
+      "publish": {
+        "depends_on": "quality",
+        "max_retries": 1
+      },
+      "quality": {
+        "depends_on": "transform",
+        "max_retries": 0
+      },
+      "transform": {
+        "depends_on": "ingest",
+        "max_retries": 2
+      }
+    }
+  },
   "job_id": 482115501940431,
   "platform": "Databricks Free Edition Serverless",
   "replay_recovered_after_timeout": 967310351547485,

@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D02 · Free Edition runtime verified (GitHub Actions deployment pending)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**D02 · Accepted on Databricks Free Edition (2026-11-24)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 Package the financial transforms as a deployable Databricks workflow with explicit dependencies, retries and observable runs.
 

@@ -13,7 +13,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 | Project | Status | Free Edition support | CLI delivery path | Deferred items |
 |---|---|---|---|---|
 | **D01** · ECB Delta | **Accepted** | Full | `databricks bundle deploy/run` + `jobs get-run-output` | — |
-| **D02** · ETL Automation | Runtime verified · GitHub deploy pending | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
+| **D02** · ETL Automation | **Accepted** | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
 | **D03** · CDC Lakehouse | Planned | Full (managed UC Volume) | `databricks fs cp` + `bundle run` (`availableNow` or batch fallback) | External cloud bucket |
 | **D04** · UC Governance | Planned | Partial subset | CLI + `sql/statements` API on 2X-Small warehouse | 5-role denials, masking, audit tables |
 | **D05** · Forecasting MLOps | Planned | Full (CPU Serverless + MLflow) | Parameterized `bundle run` for scoring & rollback | Enterprise multi-env registry |
@@ -24,7 +24,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 1. **D01** · [ECB Delta Lakehouse](01-ecb-delta-lakehouse/README.md) — **Accepted on Free Edition** (Delta MERGE, Time Travel and replay verified)
    Model ECB rates with Delta and verify versioned Bronze, Silver and Gold outputs.
    [Design](01-ecb-delta-lakehouse/docs/design.md) · [Implementation plan](01-ecb-delta-lakehouse/docs/implementation.md)
-2. **D02** · [Financial ETL Automation](02-financial-etl-automation/README.md) — **Free Edition runtime verified** (scheduled run, quality gate, retry and bounded replay)
+2. **D02** · [Financial ETL Automation](02-financial-etl-automation/README.md) — **Accepted** (GitHub Actions deploy, scheduled run, quality gate, retry and bounded replay)
    Deploy scheduled tasks and verify retries, recovery and publication.
    [Design](02-financial-etl-automation/docs/design.md) · [Implementation plan](02-financial-etl-automation/docs/implementation.md)
 3. **D03** · [Financial CDC Lakehouse](03-financial-cdc-lakehouse/README.md)
