@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** planned. [Brief](../README.md) · [Design](design.md)
+**Status:** accepted on Databricks Free Edition. [Brief](../README.md) · [Design](design.md) · [Runbook](free-edition-run.md) · [Workspace evidence](../evidence/free-edition-acceptance.json)
 
 ## First delivery
 

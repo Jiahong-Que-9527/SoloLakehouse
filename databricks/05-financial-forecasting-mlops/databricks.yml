@@ -1,0 +1,43 @@
+bundle:
+  name: forecasting-mlops-d05
+
+workspace:
+  root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}/${var.schema}
+
+sync:
+  paths:
+    - src
+    - fixtures
+    - notebooks
+
+variables:
+  schema:
+    description: Fresh ecb_d05_* schema in the workspace catalog
+  git_sha:
+    description: Commit of the deployed code
+
+resources:
+  jobs:
+    d05_forecasting:
+      name: d05-forecasting-${var.schema}
+      max_concurrent_runs: 1
+      parameters:
+        - name: phase
+          default: train
+        - name: model_version
+          default: ""
+      tasks:
+        - task_key: forecast
+          max_retries: 0
+          timeout_seconds: 900
+          notebook_task:
+            notebook_path: ./notebooks/run_d05.py
+            base_parameters:
+              schema: ${var.schema}
+              git_sha: ${var.git_sha}
+              job_run_id: "{{job.run_id}}"
+
+targets:
+  dev:
+    default: true
+    mode: development

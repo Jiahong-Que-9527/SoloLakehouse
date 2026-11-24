@@ -16,7 +16,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 | **D02** · ETL Automation | **Accepted** | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
 | **D03** · CDC Lakehouse | **Accepted** | Full (managed UC Volume) | `bundle run` with Auto Loader and `availableNow`, plus independent batch replay | External cloud bucket |
 | **D04** · UC Governance | **Accepted on Free Edition** | Partial subset | CLI serverless job, Unity Catalog lineage API, and 2X-Small SQL Warehouse Statement API | 5-role denials, masking, account-level audit delivery |
-| **D05** · Forecasting MLOps | Planned | Full (CPU Serverless + MLflow) | Parameterized `bundle run` for scoring & rollback | Enterprise multi-env registry |
+| **D05** · Forecasting MLOps | **Accepted** | CPU Serverless, MLflow and Unity Catalog Model Registry verified | Parameterized `bundle run` for scoring, replay, rollback and monitoring | Enterprise multi-env registry |
 | **D06** · Platform Factory | **Deferred** | Not supported | — | Terraform account API + 2 Service Principals |
 
 ## Projects in learning order
@@ -33,7 +33,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 4. **D04** · [Unity Catalog Governance](04-unity-catalog-governance/README.md) — controlled views, quality gate, lineage and grant ledger verified
    Verify permissions, lineage and the evidence behind a governed data release.
    [Design](04-unity-catalog-governance/docs/design.md) · [Implementation plan](04-unity-catalog-governance/docs/implementation.md)
-5. **D05** · [Financial Forecasting MLOps](05-financial-forecasting-mlops/README.md)
+5. **D05** · [Financial Forecasting MLOps](05-financial-forecasting-mlops/README.md) — **Accepted** (chronological evaluation, registration, batch replay and rollback verified)
    Track time-series training, register a model and validate batch predictions.
    [Design](05-financial-forecasting-mlops/docs/design.md) · [Implementation plan](05-financial-forecasting-mlops/docs/implementation.md)
 6. **D06** · [Lakehouse Platform Factory](06-lakehouse-platform-factory/README.md) — **Deferred on Free Edition** (multi-principal workspace required)
@@ -60,7 +60,7 @@ workloads described above.
 
 ## Delivery priorities
 
-D01–D04 have workspace acceptance evidence. D05 model delivery is next. D06 (and D04's multi-principal
+D01–D05 have workspace acceptance evidence. D06 (and D04's multi-principal
 enterprise checks) remain deferred until a multi-principal workspace with
 Account Console / Terraform permissions is approved. Always record the scope of
 actual workspace evidence and any `not_available` checks.

@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D05 · Planned (Databricks Free Edition · Serverless + MLflow + DABs CLI)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**D05 · Accepted on Databricks Free Edition** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation](docs/implementation.md) · [Runbook](docs/free-edition-run.md) · [Workspace evidence](evidence/free-edition-acceptance.json)
 
 Train and evaluate a reproducible time-series baseline, register a model version and validate a batch inference workflow.
 
@@ -23,7 +23,8 @@ MLflow, feature engineering, Model Registry and Lakeflow Jobs.
 
 ## Free Edition execution scope
 
-- Runs as a CPU Serverless job via **Databricks CLI** (`databricks bundle run`) reading a pinned D01 Delta version, tracking naive, linear, and gradient-boosted runs in MLflow, and recording which registry (Unity Catalog or workspace registry) Free Edition supports.
-- Batch scoring and `model_version` rollback are triggered via parameterized bundle runs without online serving endpoints. See [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md).
+- The CPU Serverless job evaluated a pinned Delta snapshot of 62 public ECB daily USD-per-EUR quotes from 2025 Q2 and tracked each model in MLflow.
+- The 15-label final window spans 2025-06-10 through 2025-06-30. MAE in USD per EUR was **0.00513** for last value, **0.00700** for linear regression, and **0.01595** for gradient boosting. The historical candidate stayed in MLflow after missing the promotion gate.
+- Two independent synthetic candidates cleared the same gate and registered as Unity Catalog model versions 1 and 2. Real job runs scored version 2, repeated it with one row per key, and rolled back to version 1 on the same Delta snapshot. A later actual produced one residual for version 1.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->

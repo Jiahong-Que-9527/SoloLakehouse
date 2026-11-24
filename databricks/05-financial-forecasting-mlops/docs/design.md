@@ -1,6 +1,6 @@
 # Design: Financial Forecasting MLOps
 
-**D05 · Design only.** No application code in this directory yet.
+**D05 · Forecasting design.** See the [Free Edition delivery](../README.md#free-edition-execution-scope) for observed results.
 
 Forecast the next published USD-per-EUR level and keep the run, the model, and the batch scores tied to a table version and a commit. The result is a research record. It is not a trading signal.
 
