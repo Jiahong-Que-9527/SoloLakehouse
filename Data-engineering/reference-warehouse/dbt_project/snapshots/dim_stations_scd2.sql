@@ -2,7 +2,7 @@
 
 {{
     config(
-        target_schema=('de_mart' if target.type == 'bigquery' else 'mart'),
+        target_schema=snapshot_target_schema(),
         unique_key='station_id',
         strategy='timestamp',
         updated_at='updated_at',

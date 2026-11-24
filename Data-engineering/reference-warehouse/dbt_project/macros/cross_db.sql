@@ -22,6 +22,15 @@
 {%- endmacro %}
 
 {#- ---------------------------------------------------------------------
+    E06: snapshot target schema. dbt snapshot `target_schema` is used
+    directly (not routed through generate_schema_name), so on BigQuery it
+    must name the Terraform-managed de_mart dataset; DuckDB keeps the
+    E02-frozen name. -#}
+{% macro snapshot_target_schema() -%}
+    {%- if target.type == 'bigquery' -%}de_mart{%- else -%}mart{%- endif -%}
+{%- endmacro %}
+
+{#- ---------------------------------------------------------------------
     E06: BigQuery contract support.
     The E03-frozen contract data_types are DuckDB-canonical (`varchar`,
     `bigint`, `decimal(p,s)`). BigQuery rejects `varchar` outright

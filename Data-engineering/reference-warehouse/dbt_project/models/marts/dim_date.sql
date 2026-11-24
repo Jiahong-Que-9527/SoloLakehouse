@@ -14,14 +14,22 @@ holidays as (
     -- Union-all form keeps this portable: BigQuery rejects both the
     -- `cte (colname) as` column list and the standalone VALUES clause.
     select date '2025-10-03' as date_day  -- Tag der Deutschen Einheit
-    union all select date '2025-12-25'    -- 1. Weihnachtstag
-    union all select date '2025-12-26'    -- 2. Weihnachtstag
-    union all select date '2026-01-01'    -- Neujahr
-    union all select date '2026-04-03'    -- Karfreitag
-    union all select date '2026-04-06'    -- Ostermontag
-    union all select date '2026-05-01'    -- Tag der Arbeit
-    union all select date '2026-05-14'    -- Christi Himmelfahrt
-    union all select date '2026-05-25'    -- Pfingstmontag
+    union all
+    select date '2025-12-25'    -- 1. Weihnachtstag
+    union all
+    select date '2025-12-26'    -- 2. Weihnachtstag
+    union all
+    select date '2026-01-01'    -- Neujahr
+    union all
+    select date '2026-04-03'    -- Karfreitag
+    union all
+    select date '2026-04-06'    -- Ostermontag
+    union all
+    select date '2026-05-01'    -- Tag der Arbeit
+    union all
+    select date '2026-05-14'    -- Christi Himmelfahrt
+    union all
+    select date '2026-05-25'    -- Pfingstmontag
 )
 
 select
