@@ -121,8 +121,26 @@
     }
   },
   "sql_warehouse_statement_api": {
-    "reason": "The configured Jobs PAT was rejected by the Warehouses API because it lacked the sql scope.",
-    "status": "pending"
+    "columns": [
+      "release_id",
+      "series_key",
+      "observation_date",
+      "fx_rate"
+    ],
+    "rows": [
+      [
+        "corrected",
+        "EXR.D.USD.EUR.SP00.A",
+        "2025-01-02",
+        "1.0825"
+      ]
+    ],
+    "serverless": true,
+    "statement_id": "01f1e851-c9ef-1776-94e2-4685a2580b8c",
+    "statement_status": "SUCCEEDED",
+    "status": "passed",
+    "view": "workspace.ecb_d04_governance_762027328508237_prod_consumer.forecast_feature",
+    "warehouse_size": "2X-Small"
   },
   "trace": {
     "bronze_version": 3,

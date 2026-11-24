@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** Free Edition governance run passed. The SQL Warehouse check is pending. [Brief](../README.md) · [Design](design.md) · [Runbook](free-edition-run.md) · [Observed evidence](../evidence/free-edition-acceptance.json)
+**Status:** Free Edition governance and 2X-Small SQL Warehouse verification passed. [Brief](../README.md) · [Design](design.md) · [Runbook](free-edition-run.md) · [Observed evidence](../evidence/free-edition-acceptance.json)
 
 ## First delivery
 

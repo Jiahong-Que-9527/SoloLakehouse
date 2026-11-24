@@ -15,7 +15,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 | **D01** · ECB Delta | **Accepted** | Full | `databricks bundle deploy/run` + `jobs get-run-output` | — |
 | **D02** · ETL Automation | **Accepted** | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
 | **D03** · CDC Lakehouse | **Accepted** | Full (managed UC Volume) | `bundle run` with Auto Loader and `availableNow`, plus independent batch replay | External cloud bucket |
-| **D04** · UC Governance | **Governance verified** · warehouse check pending | Partial subset | CLI serverless job + Unity Catalog lineage API; 2X-Small warehouse check pending | 5-role denials, masking, account-level audit delivery |
+| **D04** · UC Governance | **Accepted on Free Edition** | Partial subset | CLI serverless job, Unity Catalog lineage API, and 2X-Small SQL Warehouse Statement API | 5-role denials, masking, account-level audit delivery |
 | **D05** · Forecasting MLOps | Planned | Full (CPU Serverless + MLflow) | Parameterized `bundle run` for scoring & rollback | Enterprise multi-env registry |
 | **D06** · Platform Factory | **Deferred** | Not supported | — | Terraform account API + 2 Service Principals |
 
@@ -60,7 +60,7 @@ workloads described above.
 
 ## Delivery priorities
 
-D01–D03 and the D04 serverless governance exercise have workspace evidence. Finish the D04 warehouse check, then move on to D05 model delivery. D06 (and D04's multi-principal
+D01–D04 have workspace acceptance evidence. D05 model delivery is next. D06 (and D04's multi-principal
 enterprise checks) remain deferred until a multi-principal workspace with
 Account Console / Terraform permissions is approved. Always record the scope of
 actual workspace evidence and any `not_available` checks.
