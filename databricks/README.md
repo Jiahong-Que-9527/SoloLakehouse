@@ -4,7 +4,7 @@
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
 Start with Spark and Delta Lake, then progress through job deployment, incremental state, Unity Catalog, MLflow and reusable lakehouse environments. Financial
-data and versioned releases connect the projects. Each numbered directory is a standalone project. `docs/design.md` is the design and the README is the short brief. **D01** is implemented locally and ready for Databricks Free Edition verification; **D02–D06** remain planned designs.
+data and versioned releases connect the projects. Each numbered directory is a standalone project. `docs/design.md` is the design and the README is the short brief. **D01** passed Databricks Free Edition verification. The roadmap below records the remaining stages.
 
 ## Execution environment: Databricks Free Edition (2026-11-23)
 
@@ -12,7 +12,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 
 | Project | Status | Free Edition support | CLI delivery path | Deferred items |
 |---|---|---|---|---|
-| **D01** · ECB Delta | **In progress** | Full | `databricks bundle deploy/run` + `jobs get-run-output` | — |
+| **D01** · ECB Delta | **Accepted** | Full | `databricks bundle deploy/run` + `jobs get-run-output` | — |
 | **D02** · ETL Automation | Planned | Full (4 sequential tasks ≤ 5 limit) | `databricks bundle` + GitHub Actions `bundle validate` | Keep schedules paused |
 | **D03** · CDC Lakehouse | Planned | Full (managed UC Volume) | `databricks fs cp` + `bundle run` (`availableNow` or batch fallback) | External cloud bucket |
 | **D04** · UC Governance | Planned | Partial subset | CLI + `sql/statements` API on 2X-Small warehouse | 5-role denials, masking, audit tables |
@@ -21,7 +21,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 
 ## Projects in learning order
 
-1. **D01** · [ECB Delta Lakehouse](01-ecb-delta-lakehouse/README.md) — **In progress** (local package, fixtures and unit tests complete; Databricks Free Edition workspace run next)
+1. **D01** · [ECB Delta Lakehouse](01-ecb-delta-lakehouse/README.md) — **Accepted on Free Edition** (Delta MERGE, Time Travel and replay verified)
    Model ECB rates with Delta and verify versioned Bronze, Silver and Gold outputs.
    [Design](01-ecb-delta-lakehouse/docs/design.md) · [Implementation plan](01-ecb-delta-lakehouse/docs/implementation.md)
 2. **D02** · [Financial ETL Automation](02-financial-etl-automation/README.md)

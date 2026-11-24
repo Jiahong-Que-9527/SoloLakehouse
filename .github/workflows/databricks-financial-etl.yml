@@ -1,0 +1,87 @@
+name: Databricks D02 Financial ETL
+
+on:
+  pull_request:
+    paths:
+      - 'databricks/01-ecb-delta-lakehouse/**'
+      - 'databricks/02-financial-etl-automation/**'
+      - '.github/workflows/databricks-financial-etl.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'databricks/01-ecb-delta-lakehouse/**'
+      - 'databricks/02-financial-etl-automation/**'
+      - '.github/workflows/databricks-financial-etl.yml'
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Databricks bundle target
+        type: choice
+        options: [dev, prod]
+        default: dev
+      schema:
+        description: Dedicated ecb_d02_* schema for this deployment
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          python-version: '3.12'
+      - name: Verify D01 and D02 locally
+        working-directory: databricks/01-ecb-delta-lakehouse
+        env:
+          PYTHONPATH: ../02-financial-etl-automation/src
+        run: |
+          uv sync --locked
+          uv run --locked ruff check ../02-financial-etl-automation
+          uv run --locked ruff format --check ../02-financial-etl-automation
+          uv run --locked pytest tests ../02-financial-etl-automation/tests
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    concurrency:
+      group: databricks-d02-${{ inputs.target }}
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: databricks/02-financial-etl-automation
+    env:
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      DATABRICKS_AUTH_TYPE: pat
+      DEPLOY_TARGET: ${{ inputs.target }}
+      DEPLOY_SCHEMA: ${{ inputs.schema }}
+      NOTIFY_EMAIL: ${{ vars.DATABRICKS_FAILURE_EMAIL }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Install pinned Databricks CLI
+        run: |
+          asset=databricks_cli_1.27.0_linux_amd64.tar.gz
+          curl --fail --silent --show-error --location --output "$RUNNER_TEMP/$asset" \
+            "https://github.com/databricks/cli/releases/download/v1.27.0/$asset"
+          cd "$RUNNER_TEMP"
+          printf '%s  %s\n' 9e80f9de62c38b29c128ef47a44a1d890cd3a9091407fdc5b10406133f0f15c5 "$asset" | sha256sum --check
+          tar -xzf "$asset" databricks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Validate and deploy with the schedule paused
+        run: |
+          test -n "$DATABRICKS_HOST" && test -n "$DATABRICKS_TOKEN" && test -n "$NOTIFY_EMAIL"
+          [[ "$DEPLOY_SCHEMA" =~ ^ecb_d02_${DEPLOY_TARGET}_[a-z0-9_]+$ ]]
+          args=(--target "$DEPLOY_TARGET" --var "schema=$DEPLOY_SCHEMA" --var "git_sha=$GITHUB_SHA" --var "failure_email=$NOTIFY_EMAIL")
+          databricks bundle validate "${args[@]}"
+          databricks bundle deploy "${args[@]}"
+          databricks bundle summary "${args[@]}"

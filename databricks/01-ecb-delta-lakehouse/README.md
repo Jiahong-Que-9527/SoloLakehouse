@@ -3,7 +3,7 @@
 <!-- [房玄龄·2026-11-15] Define the D01 to D04 project brief. -->
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D01 · In progress (local package & tests complete; Databricks Free Edition run next)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**D01 · Accepted on Databricks Free Edition (2026-11-24)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
 
 **Environment:** Databricks Free Edition (Serverless compute + Databricks CLI with PAT auth).
 
@@ -26,6 +26,8 @@ PySpark, Delta Lake, SQL and Bronze, Silver and Gold models.
 3. Trace a Gold release to the input batch, table version, quality-check result and source commit.
 
 [ECB daily reference exchange-rate series](https://data.ecb.europa.eu/data/datasets/EXR/EXR.D.USD.EUR.SP00.A)
+
+See the [live verification](docs/implementation.md#free-edition-verification) and [recorded Delta evidence](evidence/free-edition-694217175083761.json).
 
 ## Local checks (no Java / PySpark needed)
 
