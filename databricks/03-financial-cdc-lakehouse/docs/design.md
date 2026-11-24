@@ -25,7 +25,7 @@ The project [brief](../README.md) adds the observation-key fixture.
 
 In scope: the generator, file landing, Bronze append, current state, history, checkpoint restart, and a full-replay comparison.
 
-Out of scope: a real core-banking feed, Auto Loader as the state engine, and Unity Catalog roles. The job runs in a schema this project owns.
+Out of scope: a real core-banking feed, Auto Loader as the state engine, and Unity Catalog roles. Each acceptance run uses one dedicated schema and three separate paths for inputs and checkpoints.
 
 ## 3. Architecture
 
@@ -53,7 +53,9 @@ gold.transaction_metrics   counts and amounts from current rows only
 
 ```json
 {
-  "transaction_id": "tx-10001",
+  "kind": "transaction",
+  "key": "tx-10001",
+  "ordinal": 1,
   "operation": "UPDATE",
   "sequence_number": 3,
   "status": "COMPLETED",
@@ -88,12 +90,14 @@ For each business key:
 Checkpoint restart: stop the query after a committed micro-batch and start
 it again from the same checkpoint. The acceptance also raises an intentional
 error immediately after the next Delta MERGE, before the streaming checkpoint
-can record the commit. On restart, already recorded deliveries produce no
+can record the commit. The first job deliberately terminates with that
+error after persisting the checkpoint receipt. A new job starts the same
+query from the existing checkpoint. Already recorded deliveries produce no
 additional Delta write. Each winning sequence has one applied history record.
 Identical business duplicates from a different file have a separate delivery
 outcome, while a replay of the same file and ordinal does not add one.
 
-Full replay: run the same files through a batch MERGE with the same rule. Current keys, sequences, and amounts must match the streaming result. Gold metrics are computed only from `primary_current_transaction`, so a deleted transaction drops out of the amount.
+Full replay: run the same files through a batch MERGE with the same rule. Current keys, sequences, tombstones and amounts must match the recovered stream and an independent uninterrupted stream. Gold metrics are computed only from `primary_current_transaction`, so a deleted transaction drops out of the amount.
 
 ## 6. Why Auto Loader is not the CDC engine
 

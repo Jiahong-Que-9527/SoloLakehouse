@@ -1,0 +1,465 @@
+{
+  "committed_restart": {
+    "after_first_commit": {
+      "commits": [
+        0
+      ],
+      "offsets": [
+        0
+      ],
+      "path": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/primary/apply"
+    },
+    "apply_first": {
+      "batch_id": 0,
+      "input_rows": null,
+      "query_id": "00271a10-4dbb-407a-bf8d-f623c1652379",
+      "run_id": "aea4ce3d-db55-48f4-bacb-308f72165091",
+      "sources": [
+        {
+          "endOffset": "{\"sourceVersion\":1,\"reservoirId\":\"74564609-ba82-44fe-9a66-772af6e20aa2\",\"reservoirVersion\":2,\"index\":-1,\"isStartingVersion\":false}",
+          "startOffset": "null"
+        }
+      ]
+    },
+    "bronze_first": {
+      "batch_id": 0,
+      "input_rows": null,
+      "query_id": "787ed3f8-42ec-4516-8a05-3655470328d5",
+      "run_id": "1ec99907-267f-492b-b7f8-c0bcca95dd82",
+      "sources": [
+        {
+          "endOffset": "{\"seqNum\":3,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555043904,\"lastBackfillFinishTimeMs\":1795555045249,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/primary\",\"timelineVersion\":0}",
+          "startOffset": "null"
+        }
+      ]
+    },
+    "bronze_second": {
+      "batch_id": 1,
+      "input_rows": null,
+      "query_id": "787ed3f8-42ec-4516-8a05-3655470328d5",
+      "run_id": "c84ce804-6f69-4ada-b623-2247c01d3608",
+      "sources": [
+        {
+          "endOffset": "{\"seqNum\":7,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555043904,\"lastBackfillFinishTimeMs\":1795555045249,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/primary\",\"timelineVersion\":0}",
+          "startOffset": "{\"seqNum\":3,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555043904,\"lastBackfillFinishTimeMs\":1795555045249,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/primary\",\"timelineVersion\":0}"
+        }
+      ]
+    }
+  },
+  "comparisons": {
+    "replay": {
+      "apply": {
+        "checkpoint": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/replay/batch_apply",
+        "file_offsets": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "bronze": {
+        "checkpoint": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/replay/batch_bronze",
+        "file_offsets": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "checkpoint": {
+        "commits": [
+          "01.json",
+          "02.json",
+          "03.json",
+          "04.json"
+        ],
+        "path": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/replay/batch_apply"
+      },
+      "mode": "batch",
+      "result": {
+        "counts": {
+          "bronze": 190,
+          "current": 145,
+          "history": 188,
+          "rejects": 2
+        },
+        "gold": {
+          "EUR": {
+            "amount": "36071.900000",
+            "transactions": 145
+          }
+        },
+        "history_sha256": "0236fa748c5b275be910fa6e018a40cda4812e82b408745d4c5e314f7713cea8",
+        "outcomes": {
+          "applied": 184,
+          "conflict": 2,
+          "duplicate": 2,
+          "ignored": 2
+        },
+        "state_sha256": "9816d827c5e73f77a602f027443e8aa3f4ac104a9e0cb91fa346bc0b47a7fe4d",
+        "transactions": {
+          "EXR.D.USD.EUR.SP00.A/2025-02-05": {
+            "amount": "1.042500",
+            "deleted": false,
+            "sequence": 2
+          },
+          "tx-focus": {
+            "amount": "17.000000",
+            "deleted": false,
+            "sequence": 5
+          },
+          "tx-withdrawn": {
+            "amount": null,
+            "deleted": true,
+            "sequence": 3
+          }
+        }
+      },
+      "versions": {
+        "bronze": 4,
+        "journal": 5
+      }
+    },
+    "uninterrupted": {
+      "apply": {
+        "batch_id": 0,
+        "input_rows": null,
+        "query_id": "06421e2f-fee8-412f-b00c-e75bdf2f3a99",
+        "run_id": "6767d221-c1b4-494f-9958-f305f2a01903",
+        "sources": [
+          {
+            "endOffset": "{\"sourceVersion\":1,\"reservoirId\":\"470785b5-f688-464a-bc4d-4d50e11d1546\",\"reservoirVersion\":2,\"index\":-1,\"isStartingVersion\":false}",
+            "startOffset": "null"
+          }
+        ]
+      },
+      "bronze": {
+        "batch_id": 0,
+        "input_rows": null,
+        "query_id": "a2e00a35-4822-4e59-a751-dcb3ddc79650",
+        "run_id": "e108d5df-2afd-461d-9d76-14870248e9a1",
+        "sources": [
+          {
+            "endOffset": "{\"seqNum\":6,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555170371,\"lastBackfillFinishTimeMs\":1795555171708,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/uninterrupted\",\"timelineVersion\":0}",
+            "startOffset": "null"
+          }
+        ]
+      },
+      "checkpoint": {
+        "commits": [
+          0
+        ],
+        "offsets": [
+          0
+        ],
+        "path": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/uninterrupted/apply"
+      },
+      "mode": "stream",
+      "result": {
+        "counts": {
+          "bronze": 190,
+          "current": 145,
+          "history": 188,
+          "rejects": 2
+        },
+        "gold": {
+          "EUR": {
+            "amount": "36071.900000",
+            "transactions": 145
+          }
+        },
+        "history_sha256": "0236fa748c5b275be910fa6e018a40cda4812e82b408745d4c5e314f7713cea8",
+        "outcomes": {
+          "applied": 184,
+          "conflict": 2,
+          "duplicate": 2,
+          "ignored": 2
+        },
+        "state_sha256": "9816d827c5e73f77a602f027443e8aa3f4ac104a9e0cb91fa346bc0b47a7fe4d",
+        "transactions": {
+          "EXR.D.USD.EUR.SP00.A/2025-02-05": {
+            "amount": "1.042500",
+            "deleted": false,
+            "sequence": 2
+          },
+          "tx-focus": {
+            "amount": "17.000000",
+            "deleted": false,
+            "sequence": 5
+          },
+          "tx-withdrawn": {
+            "amount": null,
+            "deleted": true,
+            "sequence": 3
+          }
+        }
+      },
+      "versions": {
+        "bronze": 1,
+        "journal": 1
+      }
+    }
+  },
+  "delete_and_late_change": {
+    "apply": {
+      "batch_id": 2,
+      "input_rows": null,
+      "query_id": "00271a10-4dbb-407a-bf8d-f623c1652379",
+      "run_id": "df227327-0a24-40b1-ac02-3f5c4dd34732",
+      "sources": [
+        {
+          "endOffset": "{\"sourceVersion\":1,\"reservoirId\":\"74564609-ba82-44fe-9a66-772af6e20aa2\",\"reservoirVersion\":4,\"index\":-1,\"isStartingVersion\":false}",
+          "startOffset": "{\"sourceVersion\":1,\"reservoirId\":\"74564609-ba82-44fe-9a66-772af6e20aa2\",\"reservoirVersion\":3,\"index\":-1,\"isStartingVersion\":false}"
+        }
+      ]
+    },
+    "bronze": {
+      "batch_id": 2,
+      "input_rows": null,
+      "query_id": "787ed3f8-42ec-4516-8a05-3655470328d5",
+      "run_id": "4c40f9b6-5250-48e3-a529-92feda4d7949",
+      "sources": [
+        {
+          "endOffset": "{\"seqNum\":12,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555043904,\"lastBackfillFinishTimeMs\":1795555045249,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/primary\",\"timelineVersion\":0}",
+          "startOffset": "{\"seqNum\":7,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555043904,\"lastBackfillFinishTimeMs\":1795555045249,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/primary\",\"timelineVersion\":0}"
+        }
+      ]
+    },
+    "snapshot": {
+      "counts": {
+        "bronze": 172,
+        "current": 160,
+        "history": 171,
+        "rejects": 1
+      },
+      "gold": {
+        "EUR": {
+          "amount": "39321.160000",
+          "transactions": 160
+        }
+      },
+      "history_sha256": "bed5ebcd4c20d8dffee610cff6b06f06230bcf9024af2ea9e3229312c73aa70b",
+      "outcomes": {
+        "applied": 167,
+        "conflict": 1,
+        "duplicate": 2,
+        "ignored": 2
+      },
+      "state_sha256": "1378aa64759750f0c215b8a99ef5549eaf1ae0387f180bcb0011d59b56ffd9db",
+      "transactions": {
+        "EXR.D.USD.EUR.SP00.A/2025-02-05": {
+          "amount": "1.042500",
+          "deleted": false,
+          "sequence": 2
+        },
+        "tx-focus": {
+          "amount": null,
+          "deleted": true,
+          "sequence": 4
+        },
+        "tx-withdrawn": {
+          "amount": null,
+          "deleted": true,
+          "sequence": 3
+        }
+      }
+    }
+  },
+  "final_apply": {
+    "batch_id": 3,
+    "input_rows": null,
+    "query_id": "00271a10-4dbb-407a-bf8d-f623c1652379",
+    "run_id": "91d1e216-a7fc-400d-a263-e5485b4e831d",
+    "sources": [
+      {
+        "endOffset": "{\"sourceVersion\":1,\"reservoirId\":\"74564609-ba82-44fe-9a66-772af6e20aa2\",\"reservoirVersion\":5,\"index\":-1,\"isStartingVersion\":false}",
+        "startOffset": "{\"sourceVersion\":1,\"reservoirId\":\"74564609-ba82-44fe-9a66-772af6e20aa2\",\"reservoirVersion\":4,\"index\":-1,\"isStartingVersion\":false}"
+      }
+    ]
+  },
+  "final_bronze": {
+    "batch_id": 3,
+    "input_rows": null,
+    "query_id": "787ed3f8-42ec-4516-8a05-3655470328d5",
+    "run_id": "2d2ab67b-bd57-4f08-8e74-8b946b4da069",
+    "sources": [
+      {
+        "endOffset": "{\"seqNum\":17,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555043904,\"lastBackfillFinishTimeMs\":1795555045249,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/primary\",\"timelineVersion\":0}",
+        "startOffset": "{\"seqNum\":12,\"sourceVersion\":3,\"lastBackfillStartTimeMs\":1795555043904,\"lastBackfillFinishTimeMs\":1795555045249,\"lastInputPath\":\"/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/input/primary\",\"timelineVersion\":0}"
+      }
+    ]
+  },
+  "final_checkpoint": {
+    "commits": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "offsets": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "path": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/primary/apply"
+  },
+  "git_sha": "9cae23a53b1156005e91edc89549a8a562ff81cb",
+  "job_run_ids": {
+    "failed": "1062713573466551",
+    "resumed": "531861986471703"
+  },
+  "mode": "stream",
+  "pre_ack_fault": {
+    "after_resume": {
+      "batch_id": 1,
+      "input_rows": null,
+      "query_id": "00271a10-4dbb-407a-bf8d-f623c1652379",
+      "run_id": "defb2d2d-171d-40e1-b1af-30d486e5054c",
+      "sources": [
+        {
+          "endOffset": "{\"sourceVersion\":1,\"reservoirId\":\"74564609-ba82-44fe-9a66-772af6e20aa2\",\"reservoirVersion\":3,\"index\":-1,\"isStartingVersion\":false}",
+          "startOffset": "{\"sourceVersion\":1,\"reservoirId\":\"74564609-ba82-44fe-9a66-772af6e20aa2\",\"reservoirVersion\":2,\"index\":-1,\"isStartingVersion\":false}"
+        }
+      ]
+    },
+    "failed_checkpoint": {
+      "commits": [
+        0
+      ],
+      "offsets": [
+        0,
+        1
+      ],
+      "path": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/primary/apply"
+    },
+    "injected": {
+      "batch_id": null,
+      "failure": "D03_INJECTED_AFTER_DELTA_COMMIT_BEFORE_CHECKPOINT",
+      "input_rows": null,
+      "query_id": "00271a10-4dbb-407a-bf8d-f623c1652379",
+      "run_id": "4ca53573-7162-471c-aed1-b7857920e8a0",
+      "sources": []
+    },
+    "resumed_checkpoint": {
+      "commits": [
+        0,
+        1
+      ],
+      "offsets": [
+        0,
+        1
+      ],
+      "path": "/Volumes/workspace/ecb_d03_20261124_211650/cdc_events/checkpoints/primary/apply"
+    },
+    "snapshot_preserved_at_resume": {
+      "counts": {
+        "bronze": 167,
+        "current": 161,
+        "history": 166,
+        "rejects": 1
+      },
+      "gold": {
+        "EUR": {
+          "amount": "39341.160000",
+          "transactions": 161
+        }
+      },
+      "history_sha256": "7d0eda1c0cb9847ee570a25405f2b182baf5826dfecfeb52eb8f8bb375e40e34",
+      "outcomes": {
+        "applied": 165,
+        "conflict": 1,
+        "duplicate": 1,
+        "ignored": 0
+      },
+      "state_sha256": "532b4b77fb7ec4fd793d65029486b2e582d9e839de0bf50b05992e1764655b4d",
+      "transactions": {
+        "EXR.D.USD.EUR.SP00.A/2025-02-05": {
+          "amount": "1.041200",
+          "deleted": false,
+          "sequence": 1
+        },
+        "tx-focus": {
+          "amount": null,
+          "deleted": true,
+          "sequence": 4
+        },
+        "tx-withdrawn": {
+          "amount": "20.000000",
+          "deleted": false,
+          "sequence": 1
+        }
+      }
+    },
+    "versions_preserved_at_resume": {
+      "bronze": 2,
+      "journal": 2
+    }
+  },
+  "result": {
+    "counts": {
+      "bronze": 190,
+      "current": 145,
+      "history": 188,
+      "rejects": 2
+    },
+    "gold": {
+      "EUR": {
+        "amount": "36071.900000",
+        "transactions": 145
+      }
+    },
+    "history_sha256": "0236fa748c5b275be910fa6e018a40cda4812e82b408745d4c5e314f7713cea8",
+    "outcomes": {
+      "applied": 184,
+      "conflict": 2,
+      "duplicate": 2,
+      "ignored": 2
+    },
+    "state_sha256": "9816d827c5e73f77a602f027443e8aa3f4ac104a9e0cb91fa346bc0b47a7fe4d",
+    "transactions": {
+      "EXR.D.USD.EUR.SP00.A/2025-02-05": {
+        "amount": "1.042500",
+        "deleted": false,
+        "sequence": 2
+      },
+      "tx-focus": {
+        "amount": "17.000000",
+        "deleted": false,
+        "sequence": 5
+      },
+      "tx-withdrawn": {
+        "amount": null,
+        "deleted": true,
+        "sequence": 3
+      }
+    }
+  },
+  "schema": "workspace.ecb_d03_20261124_211650",
+  "seed": 20261124,
+  "source_files": {
+    "01.json": "22adc477031ee200b4e026d529e29c91257a75abb33e82bcf56de7d5af54d5d0",
+    "02.json": "cde33a9cef6eca78ef681c55bd3aab62c0ea8f99e8cb63c8189ab73289aa1052",
+    "03.json": "ae30c450159d53146b23bcfbdeae518bec823fc53ac060b022bc0a2acd4b737f",
+    "04.json": "7802dcaadb98ae5bc269cfbedfeb458589ca3ccdd99af952c792befd8b26886e"
+  },
+  "versions": {
+    "bronze": 4,
+    "journal": 5
+  },
+  "workspace_job_id": 369469967455087,
+  "workspace_runs": {
+    "prepare_failure": {
+      "duration_ms": 66251,
+      "result": "FAILED",
+      "task_run_id": 333933861874178,
+      "url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/369469967455087/run/1062713573466551"
+    },
+    "resume_verify": {
+      "duration_ms": 135934,
+      "result": "SUCCESS",
+      "task_run_id": 954895043272618,
+      "url": "https://dbc-7395c3c6-fdc9.cloud.databricks.com/?o=7474653372862099#job/369469967455087/run/531861986471703"
+    }
+  }
+}
