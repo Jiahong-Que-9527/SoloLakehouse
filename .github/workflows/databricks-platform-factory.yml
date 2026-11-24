@@ -1,0 +1,59 @@
+name: Databricks D06 Platform Factory
+
+on:
+  pull_request:
+    paths:
+      - 'databricks/06-lakehouse-platform-factory/**'
+      - '.github/workflows/databricks-platform-factory.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'databricks/06-lakehouse-platform-factory/**'
+      - '.github/workflows/databricks-platform-factory.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: databricks/06-lakehouse-platform-factory
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '1.17.2'
+          terraform_wrapper: false
+      - name: Install pinned Databricks CLI
+        run: |
+          asset=databricks_cli_1.27.0_linux_amd64.tar.gz
+          curl --fail --silent --show-error --location --output "$RUNNER_TEMP/$asset" \
+            "https://github.com/databricks/cli/releases/download/v1.27.0/$asset"
+          cd "$RUNNER_TEMP"
+          printf '%s  %s\n' 9e80f9de62c38b29c128ef47a44a1d890cd3a9091407fdc5b10406133f0f15c5 "$asset" | sha256sum --check
+          tar -xzf "$asset" databricks
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Validate the reference job contract
+        env:
+          PYTHONPATH: notebooks
+        run: python3 -m unittest discover -s tests -v
+      - name: Validate Terraform and plan Alpha and Bravo with the mock provider
+        run: |
+          terraform -chdir=terraform fmt -check -recursive
+          terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
+          terraform -chdir=terraform validate
+          terraform -chdir=terraform test -verbose -json > "$RUNNER_TEMP/d06-tf-test.jsonl"
+      - name: Resolve both Bundles from the Terraform plan outputs
+        run: |
+          python3 scripts/verify_stack_contract.py "$RUNNER_TEMP/d06-tf-test.jsonl" |
+            tee "$RUNNER_TEMP/d06-stack-contract.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: d06-stack-contract
+          path: ${{ runner.temp }}/d06-stack-contract.json

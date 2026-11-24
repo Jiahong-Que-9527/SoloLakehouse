@@ -17,7 +17,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 | **D03** · CDC Lakehouse | **Accepted** | Full (managed UC Volume) | `bundle run` with Auto Loader and `availableNow`, plus independent batch replay | External cloud bucket |
 | **D04** · UC Governance | **Accepted on Free Edition** | Partial subset | CLI serverless job, Unity Catalog lineage API, and 2X-Small SQL Warehouse Statement API | 5-role denials, masking, account-level audit delivery |
 | **D05** · Forecasting MLOps | **Accepted** | CPU Serverless, MLflow and Unity Catalog Model Registry verified | Parameterized `bundle run` for scoring, replay, rollback and monitoring | Enterprise multi-env registry |
-| **D06** · Platform Factory | **Deferred** | Not supported | — | Terraform account API + 2 Service Principals |
+| **D06** · Platform Factory | **Template and CI validated** · live acceptance deferred | Mocked Terraform plans and strict Bundle validation | Two stack configurations and an operator runbook | Live deployment, two service principals and retirement drill |
 
 ## Projects in learning order
 
@@ -36,7 +36,7 @@ Owner decision: run the Databricks track on **Databricks Free Edition** (€0, S
 5. **D05** · [Financial Forecasting MLOps](05-financial-forecasting-mlops/README.md) — **Accepted** (chronological evaluation, registration, batch replay and rollback verified)
    Track time-series training, register a model and validate batch predictions.
    [Design](05-financial-forecasting-mlops/docs/design.md) · [Implementation plan](05-financial-forecasting-mlops/docs/implementation.md)
-6. **D06** · [Lakehouse Platform Factory](06-lakehouse-platform-factory/README.md) — **Deferred on Free Edition** (multi-principal workspace required)
+6. **D06** · [Lakehouse Platform Factory](06-lakehouse-platform-factory/README.md) — **Template and CI validated** (live acceptance requires a multi-principal workspace)
    Provision a repeatable catalog, permissions and job environment for another team.
    [Design](06-lakehouse-platform-factory/docs/design.md) · [Implementation plan](06-lakehouse-platform-factory/docs/implementation.md)
 
@@ -60,9 +60,9 @@ workloads described above.
 
 ## Delivery priorities
 
-D01–D05 have workspace acceptance evidence. D06 (and D04's multi-principal
-enterprise checks) remain deferred until a multi-principal workspace with
-Account Console / Terraform permissions is approved. Always record the scope of
+D01–D05 have workspace acceptance evidence. D06 template validation runs in CI.
+D06 live acceptance and D04's multi-principal checks require an approved workspace
+with Account Console and Terraform permissions. Always record the scope of
 actual workspace evidence and any `not_available` checks.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->

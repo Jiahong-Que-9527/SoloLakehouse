@@ -1,0 +1,98 @@
+bundle:
+  name: d06-batch-lakehouse
+  databricks_cli_version: ">= 1.27.0"
+
+workspace:
+  root_path: /Workspace/Users/${var.owner}/.bundle/${bundle.name}/${var.stack_id}
+
+variables:
+  stack_id:
+    description: Stack ID from Terraform
+  catalog:
+    description: Existing Unity Catalog catalog
+  bronze_schema:
+    description: Terraform-managed Bronze schema
+  silver_schema:
+    description: Terraform-managed Silver schema
+  gold_schema:
+    description: Terraform-managed Gold schema
+  owner:
+    description: Workspace deployment user
+  runtime_service_principal:
+    description: Application ID of this stack's runtime service principal
+
+run_as:
+  service_principal_name: ${var.runtime_service_principal}
+
+permissions:
+  - level: CAN_MANAGE
+    user_name: ${var.owner}
+  - level: CAN_RUN
+    service_principal_name: ${var.runtime_service_principal}
+
+sync:
+  paths:
+    - notebooks
+
+resources:
+  jobs:
+    batch_lakehouse:
+      name: ${var.stack_id}-batch
+      max_concurrent_runs: 1
+      parameters:
+        - name: fixture_value
+          default: reference
+      tasks:
+        - task_key: land
+          max_retries: 0
+          timeout_seconds: 300
+          notebook_task: &reference
+            notebook_path: ./notebooks/reference_batch.py
+            base_parameters: &task_params
+              phase: land
+              stack_id: ${var.stack_id}
+              catalog: ${var.catalog}
+              bronze_schema: ${var.bronze_schema}
+              silver_schema: ${var.silver_schema}
+              gold_schema: ${var.gold_schema}
+        - task_key: transform
+          depends_on:
+            - task_key: land
+          max_retries: 0
+          timeout_seconds: 300
+          notebook_task:
+            <<: *reference
+            base_parameters:
+              <<: *task_params
+              phase: transform
+        - task_key: quality
+          depends_on:
+            - task_key: transform
+          max_retries: 0
+          timeout_seconds: 300
+          notebook_task:
+            <<: *reference
+            base_parameters:
+              <<: *task_params
+              phase: quality
+        - task_key: publish
+          depends_on:
+            - task_key: quality
+          max_retries: 0
+          timeout_seconds: 300
+          notebook_task:
+            <<: *reference
+            base_parameters:
+              <<: *task_params
+              phase: publish
+
+targets:
+  dev: {}
+  prod:
+    resources:
+      jobs:
+        batch_lakehouse:
+          schedule:
+            quartz_cron_expression: "0 0 8 * * ?"
+            timezone_id: UTC
+            pause_status: PAUSED

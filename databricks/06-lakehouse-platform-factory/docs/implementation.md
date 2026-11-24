@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** planned. [Brief](../README.md) · [Design](design.md)
+**Status** Template and CI validation implemented. Live deployment, isolation and retirement checks remain pending. [Brief](../README.md) · [Design](design.md) · [Runbook](runbook.md)
 
 ## First delivery
 
