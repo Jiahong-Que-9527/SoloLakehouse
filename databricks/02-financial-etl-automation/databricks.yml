@@ -54,6 +54,7 @@ resources:
       tasks:
         - task_key: ingest
           max_retries: 2
+          disable_auto_optimization: true
           min_retry_interval_millis: 5000
           timeout_seconds: 300
           notebook_task: &notebook_task
@@ -69,6 +70,7 @@ resources:
           depends_on:
             - task_key: ingest
           max_retries: 2
+          disable_auto_optimization: true
           min_retry_interval_millis: 5000
           timeout_seconds: 300
           notebook_task:
@@ -80,6 +82,7 @@ resources:
           depends_on:
             - task_key: transform
           max_retries: 0
+          disable_auto_optimization: true
           timeout_seconds: 300
           notebook_task:
             <<: *notebook_task
@@ -90,6 +93,7 @@ resources:
           depends_on:
             - task_key: quality
           max_retries: 1
+          disable_auto_optimization: true
           min_retry_interval_millis: 5000
           timeout_seconds: 300
           notebook_task:

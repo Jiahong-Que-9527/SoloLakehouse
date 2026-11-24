@@ -23,7 +23,8 @@ with the Free Edition CLI profile configured, run:
 ```bash
 rev=$(git rev-parse HEAD)
 schema=ecb_d02_dev_my_check
-args=(--target dev --profile slh-free --var "schema=$schema"   --var "git_sha=$rev" --var "failure_email=$DATABRICKS_FAILURE_EMAIL")
+args=(--target dev --profile slh-free --var "schema=$schema"
+  --var "git_sha=$rev" --var "failure_email=$DATABRICKS_FAILURE_EMAIL")
 databricks bundle validate "${args[@]}"
 databricks bundle deploy "${args[@]}"
 databricks bundle run "${args[@]}" d02_financial_etl
@@ -32,7 +33,9 @@ databricks bundle run "${args[@]}" d02_financial_etl
 Set `DATABRICKS_FAILURE_EMAIL` to the intended notification address. Each
 deployment target has its own namespace. A working schema name begins with
 `ecb_d02_dev_` or `ecb_d02_prod_` for the corresponding target. The job deploys
-with its schedule paused and runs at most one window at a time.
+with its schedule paused and runs at most one window at a time. Use a separate
+checkout for a second schema on the same target so the CLI does not reuse the first
+deployment’s local state.
 
 GitHub Actions runs the D01/D02 test suites. The manual deploy workflow on
 `main` also validates the target and pushes it with the schedule paused.
@@ -48,6 +51,6 @@ Configure the repository secret `DATABRICKS_TOKEN` and variables
 ## Free Edition execution scope
 
 - Runs on **Databricks Free Edition** Serverless compute with 4 sequential tasks (`ingest -> transform -> quality -> publish`), staying within the 5-concurrent-task limit.
-- Validated in CI (`pytest` + `databricks bundle validate`) and deployed/triggered via **Databricks CLI** with PAT authentication (`databricks bundle deploy` / `run`, see [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md)). Keep job schedules paused after verification.
+- Tested in CI and validated at deployment. The **Databricks CLI** uses PAT authentication (`databricks bundle deploy` / `run`, see [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md)). Keep job schedules paused after verification.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->

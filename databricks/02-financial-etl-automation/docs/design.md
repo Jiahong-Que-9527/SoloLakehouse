@@ -69,7 +69,7 @@ Shared parameters: `window_start`, `window_end`, `git_sha`, `source_batch_id`.
 
 Retries: `ingest` and `transform` retry twice on a task error. `quality` does not retry a failed check. A failed check is a data result, not an infrastructure error. `publish` retries once and remains idempotent on `source_batch_id`.
 
-Timeouts are set per task. A stuck task fails the run rather than holding a warehouse open.
+Serverless auto-optimization is disabled on these four tasks so Databricks applies only the specified retry counts. Timeouts are set per task. A stuck task fails the run rather than holding a warehouse open.
 
 ## 5. Behaviour
 
