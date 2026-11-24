@@ -1,10 +1,23 @@
 {# Cross-warehouse helpers (contract §3.9): every dialect branch lives here, models stay engine-agnostic. #}
 
 {% macro generate_schema_name(custom_schema_name, node) -%}
-    {%- if custom_schema_name is none -%}
-        {{ target.schema }}
+    {#- E06: on BigQuery, custom schemas land in the Terraform-managed de_* datasets
+        (de_raw/de_stg/de_int/de_mart, design §4); models without a custom schema
+        (the E04 snapshots) stay in the profile's target dataset (de_mart).
+        DuckDB keeps the E02-frozen schema names verbatim. Naming config only —
+        zero business-SQL change (contract §3.9). -#}
+    {%- if target.type == 'bigquery' -%}
+        {%- if custom_schema_name is none -%}
+            {{ target.schema }}
+        {%- else -%}
+            de_{{ custom_schema_name | trim }}
+        {%- endif -%}
     {%- else -%}
-        {{ custom_schema_name | trim }}
+        {%- if custom_schema_name is none -%}
+            {{ target.schema }}
+        {%- else -%}
+            {{ custom_schema_name | trim }}
+        {%- endif -%}
     {%- endif -%}
 {%- endmacro %}
 

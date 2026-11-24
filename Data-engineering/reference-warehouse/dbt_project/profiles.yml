@@ -7,10 +7,13 @@ charging_commerce:
             threads: 4
         bq:
             type: bigquery
-            method: service-account
-            keyfile: "{{ env_var('BQ_KEYFILE', 'data/bq-keyfile.json') }}"
+            method: oauth  # Application Default Credentials (design §4); WIF for CI
             project: "{{ env_var('BQ_PROJECT', 'slh-gcp-test') }}"
             dataset: de_mart
             location: europe-west3
+            # E06 cost guard: caps every query at 100 MiB scanned. Even ~10,000
+            # full-cap queries per month stay inside the 1 TB Free Tier scan
+            # allowance (design §1).
+            maximum_bytes_billed: 104857600
             threads: 4
             retries: 2

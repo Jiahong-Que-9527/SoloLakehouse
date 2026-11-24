@@ -1,4 +1,7 @@
-{{ config(materialized='table') }}
+{{ config(
+    materialized='table',
+    **target_partition_config('revenue_date', 'date', ['country_code'])
+) }}
 
 -- fct_daily_revenue v2 (latest): non-breaking additive change per contract §2 —
 -- adds wholesale_cost_eur and gross_margin_eur on top of the v1 column set.

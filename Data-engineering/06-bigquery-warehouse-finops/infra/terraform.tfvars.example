@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars (git-ignored) and fill in before applying.
+# Cost gate (AGENTS.md): present this plan to the owner before ANY apply.
+
+project_id        = "slh-gcp-test"
+region            = "europe-west3"
+
+# Phase 2 only (after `dbt build --target bq`): the analyst identity for the
+# Authorized View split. Use the exact principal you will impersonate in the
+# acceptance drill, e.g.:
+# analyst_principal = "serviceAccount:analyst@slh-gcp-test.iam.gserviceaccount.com"
+analyst_principal = ""

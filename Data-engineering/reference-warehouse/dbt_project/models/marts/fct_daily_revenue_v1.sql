@@ -1,4 +1,7 @@
-{{ config(materialized='table') }}
+{{ config(
+    materialized='table',
+    **target_partition_config('revenue_date', 'date', ['country_code'])
+) }}
 
 -- fct_daily_revenue v1 (deprecated; see versions in schema.yml): core revenue only.
 -- Grain (revenue_date, country_code, operator_name); operator resolves point-in-time
