@@ -76,9 +76,7 @@ def prepare(request, d01_fixtures, d02_fixtures):
     now = datetime.now(UTC).isoformat()
     rows = {}
     for kind, path in paths.items():
-        rows[kind] = [
-            row for row in load_bronze_csv(path, key, now) if in_window(request, row)
-        ]
+        rows[kind] = [row for row in load_bronze_csv(path, key, now) if in_window(request, row)]
     rate_context = normalize_silver(
         [
             row
@@ -101,9 +99,7 @@ def in_window(request, row):
 
 def outside_window_digest(request, silver):
     outside = {
-        kind: [
-            asdict(row) for row in rows if not request.contains(row.observation_date)
-        ]
+        kind: [asdict(row) for row in rows if not request.contains(row.observation_date)]
         for kind, rows in silver.items()
     }
     return sha256(json.dumps(outside, sort_keys=True, default=str).encode()).hexdigest()
@@ -111,9 +107,7 @@ def outside_window_digest(request, silver):
 
 def validate_quality(batch, silver, report):
     if report["outside_before"] != report["outside_after"]:
-        raise ValueError(
-            "transform changed Silver records outside the requested window"
-        )
+        raise ValueError("transform changed Silver records outside the requested window")
     for kind, frequency in (("fx", "daily"), ("rate", "irregular")):
         normalized = normalize_silver(batch.rows[kind], frequency)
         rows = silver[kind]
@@ -132,27 +126,20 @@ def validate_quality(batch, silver, report):
             else set()
         )
         if unexpected := reasons - allowed:
-            raise ValueError(
-                f"{kind} quality rejected input: {', '.join(sorted(unexpected))}"
-            )
+            raise ValueError(f"{kind} quality rejected input: {', '.join(sorted(unexpected))}")
         if kind == "fx" and not normalized.rows:
             raise ValueError("window has no valid FX observations")
         for row in normalized.rows:
             actual = keyed.get((row.series_key, row.observation_date))
             expected = (row.value, row.unit, row.frequency)
-            if (
-                actual is None
-                or (actual.value, actual.unit, actual.frequency) != expected
-            ):
+            if actual is None or (actual.value, actual.unit, actual.frequency) != expected:
                 raise ValueError(
                     f"Silver {kind} differs from the fixture at {row.observation_date}"
                 )
 
 
 class Tasks:
-    def __init__(
-        self, spark: Any, catalog: str, schema: str, run_id: str, batch: Batch
-    ):
+    def __init__(self, spark: Any, catalog: str, schema: str, run_id: str, batch: Batch):
         self.spark = spark
         self.catalog = _validate_identifier(catalog, "catalog")
         self.schema = _validate_identifier(schema, "schema")
@@ -164,9 +151,7 @@ class Tasks:
         self.batch = batch
         self.records = self.table("d02_task_events")
         self.ledger = self.table("d02_releases")
-        self.tables = _ensure_tables(
-            spark, self.catalog, self.schema, reset_tables=False
-        )
+        self.tables = _ensure_tables(spark, self.catalog, self.schema, reset_tables=False)
         self.sql(f"""
             CREATE TABLE IF NOT EXISTS {self.records} (
                 run_id STRING, task STRING, status STRING, recorded_at TIMESTAMP,
@@ -283,12 +268,8 @@ class Tasks:
                 key=self.batch.batch_key,
             ).collect()
             if len(rows) != len(self.batch.rows[kind]):
-                raise ValueError(
-                    f"Bronze {kind} row count differs from the pinned batch"
-                )
-            normalized = normalize_silver(
-                [BronzeRow(**row.asDict()) for row in rows], frequency
-            )
+                raise ValueError(f"Bronze {kind} row count differs from the pinned batch")
+            normalized = normalize_silver([BronzeRow(**row.asDict()) for row in rows], frequency)
             if normalized.rejects:
                 reject_count += len(normalized.rejects)
                 _append_rejects_if_absent(

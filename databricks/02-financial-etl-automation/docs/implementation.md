@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
 
-**Status:** planned. [Brief](../README.md) · [Design](design.md)
+**Status:** implemented. See the brief for CLI and GitHub Actions deployment. [Brief](../README.md) · [Design](design.md)
 
 ## First delivery
 

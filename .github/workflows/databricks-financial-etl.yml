@@ -43,8 +43,8 @@ jobs:
           PYTHONPATH: ../02-financial-etl-automation/src
         run: |
           uv sync --locked
-          uv run --locked ruff check ../02-financial-etl-automation
-          uv run --locked ruff format --check ../02-financial-etl-automation
+          uv run --locked ruff check --config pyproject.toml ../02-financial-etl-automation
+          uv run --locked ruff format --config pyproject.toml --check ../02-financial-etl-automation
           uv run --locked pytest tests ../02-financial-etl-automation/tests
 
   deploy:

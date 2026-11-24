@@ -2,8 +2,9 @@ from datetime import date
 from pathlib import Path
 
 import pytest
-from ecb_lakehouse.transforms import normalize_silver
 from financial_etl import Request, outside_window_digest, prepare, validate_quality
+
+from ecb_lakehouse.transforms import normalize_silver
 
 D02 = Path(__file__).resolve().parents[1]
 D01_FIXTURES = D02.parent / "01-ecb-delta-lakehouse" / "fixtures"
@@ -20,10 +21,7 @@ def test_input_identity_and_backfill_are_bounded():
     corrected = batch("corrected", "2025-02-05", "2025-02-05")
     assert faulty.request.batch == corrected.request.batch
     assert faulty.release_id != corrected.release_id
-    assert (
-        batch("corrected", "2025-02-05", "2025-02-05").release_id
-        == corrected.release_id
-    )
+    assert batch("corrected", "2025-02-05", "2025-02-05").release_id == corrected.release_id
     assert [row.observation_date for row in corrected.rows["fx"]] == ["2025-02-05"]
     assert corrected.rate_context[0].observation_date == date(2024, 12, 18)
     assert all(row.observation_date == "2025-02-05" for row in corrected.rows["rate"])

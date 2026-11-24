@@ -10,7 +10,7 @@ project = cwd.parent if cwd.name == "notebooks" else cwd
 d01 = project.parent / "01-ecb-delta-lakehouse"
 sys.path[:0] = [str(project / "src"), str(d01 / "src")]
 
-from financial_etl import Request, Tasks, prepare
+from financial_etl import Request, Tasks, prepare  # noqa: E402
 
 param = dbutils.widgets.get  # noqa: F821
 request = Request.parse(

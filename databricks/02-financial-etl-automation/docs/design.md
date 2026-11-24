@@ -1,8 +1,18 @@
 # Design: Financial ETL Automation
 
-**D02 · Design only.** No application code in this directory yet.
+**D02 · Implemented.** The bundle runs four tasks against a dedicated schema.
 
 Run the D01 transforms as a job with explicit task order, a failed-task stop, and a deployment that comes from Git. The project proves that a person does not have to start the notebook for a release to exist.
+
+The job uses D01's fixtures and transforms from the deployed Git revision.
+It stages immutable Bronze batches by input hash and merges Silver on
+`(series_key, observation_date)`. The task event table records each result
+with job run ID, window, batch, Git revision and elapsed time.
+Publication writes a versioned Gold table and then inserts the release row.
+The current release view selects the latest successful release row, so a
+failed write before ledger insertion leaves the prior release visible.
+A repeated publisher returns the existing release ID without creating
+another row or changing which release is current.
 
 The project [brief](../README.md) fixes the tasks.
 
@@ -14,8 +24,8 @@ The project [brief](../README.md) fixes the tasks.
 | Order | Each task depends on the previous one. `publish` does not start unless `quality` succeeds. |
 | Quality failure | `publish` is skipped. The existing Gold version stays the current release. |
 | Deploy | Declarative Automation Bundles, using the current CLI and bundle format. Old `dbx` examples are not a source. |
-| Targets | `dev` and `prod` in the same bundle, different schemas. CI deploys `dev`. `prod` is a separate manual dispatch. |
-| CI | GitHub Actions runs the local tests and `bundle validate`. A failed test does not deploy. |
+| Targets | `dev` and `prod` in the same bundle, different schemas. GitHub Actions dispatch selects `dev` or `prod` explicitly. Each target requires its own schema prefix. |
+| CI | GitHub Actions runs local tests. A manual deployment validates the authenticated target after tests pass. |
 | Backfill | Job parameters `window_start` and `window_end`. The tasks pass them through. A backfill uses the same MERGE rules as D01. |
 | Rerun | A retry or a manual rerun of a succeeded window does not add Silver keys. |
 | Evidence | Each run records run id, task states, window, `source_batch_id`, git sha, and duration. |
@@ -70,7 +80,7 @@ Timeouts are set per task. A stuck task fails the run rather than holding a ware
 
 ## 6. Delivery and cost
 
-The scheduled run, when enabled, uses the sample window and a small warehouse. The schedule starts paused. Acceptance uses one triggered run, not a week of schedules. The warehouse stops after the job.
+The scheduled run, when enabled, uses the sample window and Serverless compute. The schedule starts paused. For acceptance, enable a single scheduled tick and restore the paused setting once the run is queued.
 
 Free Edition limits on concurrent tasks are respected: four tasks in one job, one job at a time. If the workspace rejects a bundle feature, the evidence records the feature and the substitute. It does not claim the rejected feature ran.
 
