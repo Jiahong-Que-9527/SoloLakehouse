@@ -1,6 +1,6 @@
 # Design: Unity Catalog Governance
 
-**D04 · Design only.** No application code in this directory yet.
+**D04 · Governance design.** See the [Free Edition delivery](../README.md#free-edition-execution-scope) for observed results.
 
 Put the financial tables in Unity Catalog and show that an analyst, a risk reader, and a producer do not have the same access. The project proves grants, a controlled view, and a lineage record that matches a release. It does not claim account-level audit features the workspace does not offer.
 
@@ -74,7 +74,7 @@ Enterprise-only items, checked explicitly and left open when absent:
 
 - account-level audit log delivery
 - column masking policies
-- system tables for lineage beyond what the workspace shows
+- lineage system-table coverage beyond the observed Unity Catalog graph
 
 ## 7. Acceptance
 

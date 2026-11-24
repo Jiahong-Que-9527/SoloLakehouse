@@ -2,7 +2,7 @@
 
 <!-- [房玄龄·2026-11-15] Define independent platform projects and planned acceptance. -->
 
-**D04 · Planned (Databricks Free Edition subset · multi-principal checks deferred)** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation plan](docs/implementation.md)
+**D04 · Free Edition governance verified · SQL Warehouse check pending** · [Databricks roadmap](../README.md) · [Playbook](../docs/free-edition-cli-playbook.md) · [Design](docs/design.md) · [Implementation](docs/implementation.md) · [Runbook](docs/free-edition-run.md) · [Workspace evidence](evidence/free-edition-acceptance.json)
 
 Define and test data access, quality and provenance for producer, analyst and ML roles in a shared financial lakehouse.
 
@@ -23,7 +23,13 @@ Unity Catalog, permissions, lineage, quality checks and workspace audit evidence
 
 ## Free Edition execution scope
 
-- **In scope on Free Edition (CLI + 2X-Small SQL Warehouse):** dedicated schemas inside `workspace`, controlled consumer views (`fx_indicator_current`, `transaction_risk_detail`, `forecast_feature`), quality-gated `current_release` pointer, `grant_change` evidence ledger, and SQL verification via `databricks api post /api/2.0/sql/statements`.
-- **Deferred / `not_available` on Free Edition:** 5-role multi-principal live permission denials (no Service Principals / M2M OAuth), column masking policies, and account-level audit system tables — recorded explicitly as `not_available` until a multi-principal workspace is approved. See [Free Edition & CLI Playbook](../docs/free-edition-cli-playbook.md).
+- **Verified on Free Edition:** a CLI-deployed serverless job created isolated dev and prod schemas in `workspace`, queried the three controlled views, rejected duplicate-key candidates before moving the release pointer, and then published a corrected release. The release links matching observations in Bronze Delta version 3 and Gold Delta version 2 to the job run.
+- **Governance evidence:** Unity Catalog recorded the Bronze → Silver → Gold edges. The job temporarily granted and revoked an explicit `SELECT` for the view owner and recorded the revoke in `grant_change`. The owner's continued read was confirmed after the grant was removed. A separate system audit query returned zero matching events for the view during the job window.
+- **Pending:** the separate 2X-Small SQL Warehouse Statement API check needs a CLI profile with the `sql` scope.
+- **Deferred on Free Edition:** live five-role allow/deny checks, identity-dependent column masking and account-level audit delivery.
+
+### D05 handoff
+
+The approved feature projection is `release_id`, `series_key`, `observation_date` and `fx_rate`. Filter the evidence's `forecast_feature` view to release `corrected` for a deployment smoke test. The evidence also pins Gold Delta version 2 and its source batch. The single synthetic observation is sized for governance verification.
 
 <!-- [房玄龄·2026-11-17] Add implementation sequence and acceptance evidence. -->
