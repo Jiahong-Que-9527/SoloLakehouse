@@ -44,6 +44,7 @@ credentials*.json
 
 # Versioned ECB sample fixtures for Databricks D01 (small fixed synthetic/public slices).
 !databricks/01-ecb-delta-lakehouse/fixtures/*.csv
+!databricks/02-financial-etl-automation/fixtures/fx_conflict.csv
 
 # Local editor and agent state. The shared Cursor rule stays tracked.
 .cursor/*

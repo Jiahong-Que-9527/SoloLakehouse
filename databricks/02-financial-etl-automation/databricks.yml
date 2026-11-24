@@ -5,6 +5,8 @@ workspace:
   root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}/${var.schema}
 
 sync:
+  include:
+    - fixtures/fx_conflict.csv
   paths:
     - notebooks
     - src
