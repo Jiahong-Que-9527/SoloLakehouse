@@ -18,7 +18,7 @@
 
 ## 架构总览图（Executive Overview）
 
-![SoloLakehouse Serverless GitOps Data Pipeline Architecture](docs/images/serverless-gitops-cloud-architecture.png)
+![SoloLakehouse Serverless GitOps Data Pipeline Architecture](images/serverless-gitops-cloud-architecture.png)
 
 > **一图读懂**：本地仅做轻量开发与离线合成测试（Inner Loop）；推送 GitHub 后经由无密钥 WIF CI/CD 自动校验、构建并按需部署（Outer Loop）；云端所有项目按独立 Terraform State 与最小权限运行在 `europe-west3` Serverless 组件上，空闲归零、零常驻 VM。
 
