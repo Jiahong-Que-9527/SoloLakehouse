@@ -23,4 +23,18 @@ Terraform, Workload Identity Federation, GitHub Actions, IAM and cloud cost trac
 
 [Identity federation for deployment pipelines](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines)
 
+## Preview teardown
+
+From the repository root, run
+`bash gcp/06-cloud-platform-factory/infra/preview-teardown.sh alpha`
+(or `bravo`) with Terraform and Google Cloud credentials for the G06 state
+backend. The script reads the selected stack's state and prints a destroy plan;
+it does not apply it. Do not run it during another operation on the same stack.
+
+Review the plan before separately dispatching `destroy` for that same stack in
+the [G06 workflow](../../.github/workflows/g06-factory.yml). Destroying a G06
+stack removes its disposable data. The preview does not target legacy
+workloads, the shared state bucket, or the billing export dataset. Review the
+workflow's residual inventory after the approved teardown.
+
 <!-- [房玄龄·2026-11-17] Document implementation order and acceptance evidence. -->
