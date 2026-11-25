@@ -5,7 +5,9 @@
 # state_vectors_data4 partition: 2023-01-02T22 (T21 present; T23 already a
 # documented gap), 2023-01-11T23–12T15 (T22 and T15 present),
 # 2023-01-12T16–14T22 (T15 and T22 present), 2024-01-22T09 and the two
-# 2026-05 hours (both neighbours present). March through July 2022 were probed
+# 2026-05 hours (both neighbours present). November 2021 through February 2022
+# were probed hourly on 2026-11-25 and are empty throughout (island boundaries
+# unchanged at 2022-08-12T05 and 2022-11-04T22). March through July 2022 were probed
 # hourly and are empty throughout. August 2022 was probed hourly:
 # one island at 2022-08-12T05. September and October 2022 were probed
 # hourly and are empty throughout. November 2022 was probed hourly: one island at
@@ -13,7 +15,7 @@
 # has unpublished empty stretches with islands at 2022-12-12T10, 14T17,
 # 14T21, 20T00, and then 2022-12-20T16 through month end.
 gaps:
-  - { start: "2022-03-01T00:00:00Z", end: "2022-08-12T05:00:00Z" }
+  - { start: "2021-11-01T00:00:00Z", end: "2022-08-12T05:00:00Z" }
   - { start: "2022-08-12T06:00:00Z", end: "2022-11-04T22:00:00Z" }
   - { start: "2022-11-04T23:00:00Z", end: "2022-12-12T10:00:00Z" }
   - { start: "2022-12-12T11:00:00Z", end: "2022-12-14T17:00:00Z" }
