@@ -11,29 +11,33 @@ reads this file.
 ## GCP cost gate (mandatory, non-overridable)
 
 The GCP billing account `01FCE3-C90698-BFE584` is on a **Free Trial**
-(€269 credit, expires 2027-02-11). The owner's standing order:
+(€269 initial credit, expires 2027-02-11). The owner's standing order:
 
-**Before running any operation that may cost money beyond what the trial
-credits cover, the agent MUST present the expected cost and get the
-owner's explicit approval for that specific action. No approval, no
-execution.**
+**Use only the free tier and eligible, remaining Free Trial credits.
+No out-of-pocket charges. If the SKU coverage, remaining credits, or
+trial validity cannot be verified, do not run the billable operation.
+Approval under this gate does not allow charges beyond the trial.**
+
+### Do not execute
+
+- Operations with SKUs the trial credits do not cover (check the console's
+  “What your credits cover” list), or with expected costs beyond the
+  remaining credits.
+- Spend commitments, billing upgrades, auto-renewal, or quota changes
+  that move usage into paid territory.
+- Provisioning billable resources that could outlast the trial without
+  a teardown plan. Verify their removal before credits expire or run out.
 
 ### Always ask before
 
-- Creating or touching resources whose SKUs the credits do not cover
-  (check the console link "What your credits cover" for the exclusion
-  list)
-- Services that provision billable infrastructure even at small scale:
+- Services that provision billable infrastructure even at small scale,
+  **only if trial coverage is verified**:
   Cloud NAT, idle external static IPs, load balancers, VPN/Interconnect,
   GPU or TPU attachments, Cloud Composer, Vertex AI billable training or
   online prediction beyond its free tier
 - Bulk work that could burn credits quickly: large backfills, repeated
   large BigQuery scans, cross-region or intercontinental data transfer,
   long-running or high-concurrency compute
-- Any spend commitment: CUDs (resource- or spend-based), reservations,
-  support plans
-- Anything that moves the account out of Free Trial: billing upgrades,
-  enabling auto-renewal, or raising quotas/limits into paid territory
 
 ### No approval needed
 
