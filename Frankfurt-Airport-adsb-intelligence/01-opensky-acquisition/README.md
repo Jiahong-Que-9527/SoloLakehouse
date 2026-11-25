@@ -10,21 +10,21 @@ lakehouse ETL. It is not a cloud deployment.
 ## Status (2026-11-25)
 
 Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
-(pull requests #123 to #125). Batches **b01 (2026-10)** through **b56 (2022-03)**
+(pull requests #123 to #125). Batches **b01 (2026-10)** through **b58 (2022-01)**
 are accepted and backed up. b01 through b12 completed the twelve-month cut
 line from 2025-11 through 2026-10. b24 finishes the original two-year window.
 b25 through b36 finish the first-year cut of the five-year extension
 (three years on disk, Nov 2023 through Oct 2026). b37 through b48 finish
 the second cut (four years, Nov 2022 through Oct 2026). b49 starts the
-third cut. The next session collects batch **b57 (2022-02)**. Do not start
-b58 until b57 is published.
+third cut. The next session collects batch **b59 (2021-12)**. Do not start
+b60 until b59 is published.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
 
-- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2022-03.
+- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2022-01.
 - Flights, `eddf_flights` v1: 2026-10-01 through 2026-11-01, and all of
-  2026-09 through 2022-03.
+  2026-09 through 2022-01.
 - Batch b01: 109,641,931 state-vector rows, 2.13 GB, 40,844 flights. Validation
   outcome `review` for six early-morning hours after the 2026-10-25 clock
   change; every hour is complete. Accepted and published.
@@ -334,6 +334,18 @@ git.
   `source_gap`. Sample reconcile of 2022-03-15 matched 24/24. Accepted and
   published (`copied: 777`, `checked: 0`). Report:
   `reports/batches/b56/report.md`.
+- Batch b57: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 672 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes on 2026-11-25 found no
+  `state_vectors_data4` partition in February 2022. All 28 flight days are
+  `source_gap`. Accepted and published (`copied: 702`, `checked: 0`). Report:
+  `reports/batches/b57/report.md`.
+- Batch b58: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 744 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes on 2026-11-25 found no
+  `state_vectors_data4` partition in January 2022. All 31 flight days are
+  `source_gap`. Accepted and published (`copied: 777`, `checked: 0`). Report:
+  `reports/batches/b58/report.md`.
 - Hour reconciliation matched 168/168:
   `reports/reconcile/20261114T221544Z-3852.json`.
 - The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
@@ -355,18 +367,19 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Collect b57, February 2022. State vectors:
-   `run --from 2022-02-01T00:00:00Z --until 2022-03-01T00:00:00Z`.
-   Flights: `collect-flights --from 2022-02-01 --until 2022-03-01`.
+1. Collect b59, December 2021. State vectors:
+   `run --from 2021-12-01T00:00:00Z --until 2022-01-01T00:00:00Z`.
+   Flights: `collect-flights --from 2021-12-01 --until 2022-01-01`.
    Probe the month hourly and extend `known_gaps.yaml` before or as soon as
    `SOURCE_MISSING` stops the range. Add an hour only when the global
-   partition is empty.
-2. `validate --batch b57`, `report --batch b57`, then `accept` and `publish`.
+   partition is empty. November 2021 through February 2022 already probed
+   empty on 2026-11-25.
+2. `validate --batch b59`, `report --batch b59`, then `accept` and `publish`.
    A validation outcome of `review` needs `--notes`. A `failed` outcome stops
    the gate. Stop the backfill if a day exceeds 6 million rows, 100 MB of
-   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b58
-   until b57 is published.
-3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b56.
+   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b60
+   until b59 is published.
+3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b58.
    Commit only when asked.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run

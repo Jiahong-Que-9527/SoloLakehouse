@@ -13,11 +13,11 @@ MLflow. Approved Gold releases also go to GCS and BigQuery managed Iceberg
 for cloud analytics.
 
 **Status (2026-11-25):** acquisition gate G0 has passed. Batches b01 (2026-10)
-through b56 (2022-03) are validated, accepted and backed up to `E:`. b01
+through b58 (2022-01) are validated, accepted and backed up to `E:`. b01
 through b12 completed the twelve-month cut line. b24 finishes the two-year
 window. b25 through b36 finish the first-year cut of the five-year
 extension. b37 through b48 finish the second cut (four years on disk).
-b49 starts the third cut. The next work is batch b57 (2022-02). Details are
+b49 starts the third cut. The next work is batch b59 (2021-12). Details are
 in the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-25).
 
