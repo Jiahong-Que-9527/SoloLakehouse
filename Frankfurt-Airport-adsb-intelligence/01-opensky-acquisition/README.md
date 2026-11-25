@@ -7,23 +7,24 @@ vectors for a 75 km region around `EDDF` and keeps them as a traceable Parquet
 dataset. The deliverable is the tool plus the dataset, ready for later
 lakehouse ETL. It is not a cloud deployment.
 
-## Status (2026-11-23)
+## Status (2026-11-25)
 
 Gate G0 has passed. Milestones M0 to M2 are done and are on `main`
-(pull requests #123 to #125). Batches **b01 (2026-10)** through **b46 (2023-01)**
+(pull requests #123 to #125). Batches **b01 (2026-10)** through **b56 (2022-03)**
 are accepted and backed up. b01 through b12 completed the twelve-month cut
 line from 2025-11 through 2026-10. b24 finishes the original two-year window.
 b25 through b36 finish the first-year cut of the five-year extension
-(three years on disk, Nov 2023 through Oct 2026). The second cut is at b42.
-The next session collects batch **b47 (2022-12)**. Do not start b48 until
-b47 is published.
+(three years on disk, Nov 2023 through Oct 2026). b37 through b48 finish
+the second cut (four years, Nov 2022 through Oct 2026). b49 starts the
+third cut. The next session collects batch **b57 (2022-02)**. Do not start
+b58 until b57 is published.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
 
-- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2023-01.
+- State vectors, `eddf_r75km` v1: all hours of 2026-10 through 2022-03.
 - Flights, `eddf_flights` v1: 2026-10-01 through 2026-11-01, and all of
-  2026-09 through 2023-01.
+  2026-09 through 2022-03.
 - Batch b01: 109,641,931 state-vector rows, 2.13 GB, 40,844 flights. Validation
   outcome `review` for six early-morning hours after the 2026-10-25 clock
   change; every hour is complete. Accepted and published.
@@ -261,6 +262,78 @@ git.
   reconcile of 2023-01-10 matched 24/24; `2023-01-12T15`, `2023-01-18T11` and
   `2023-01-19T12` also matched. Accepted and published (`copied: 1470`,
   `checked: 693`). Report: `reports/batches/b46/report.md`.
+- Batch b47: 27,807,306 state-vector rows, 0.50 GB, 11,763 flights.
+  Validation outcome `passed` (276 complete hours, 468 `source_gap` hours,
+  0 problems, 0 anomalies). Unpublished empty stretches cover most of
+  1–19 December, with islands at `2022-12-12T10`, `14T17`, `14T21` and
+  `20T00`, then continuous data from `2022-12-20T16` through month end.
+  Sample reconcile of 2022-12-25 matched 24/24; `2022-12-12T10` also
+  matched. Accepted and published (`copied: 1071`, `checked: 294`).
+  Report: `reports/batches/b47/report.md`.
+- Batch b48: 36,372 state-vector rows, 0.0007 GB, 4,277 flights.
+  Validation outcome `passed` (1 complete hour, 719 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found one island at
+  `2022-11-04T22` (36,372 rows in the EDDF box); the rest of the month is
+  an empty `state_vectors_data4` partition. Eight flight days still have
+  EDDF rows (2, 3, 8, 9, 17, 18, 22, 23 November). Sample reconcile of
+  `2022-11-04T21–23` matched 3/3. Accepted and published (`copied: 761`,
+  `checked: 9`). Report: `reports/batches/b48/report.md`.
+- Batch b49: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 744 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found no
+  `state_vectors_data4` partition in October 2022. All 31 flight days are
+  `source_gap`. Sample reconcile of 2022-10-15 matched 24/24. Accepted and
+  published (`copied: 777`, `checked: 0`). Report:
+  `reports/batches/b49/report.md`.
+- Batch b50: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 720 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found no
+  `state_vectors_data4` partition in September 2022. All 30 flight days are
+  `source_gap`. Sample reconcile of 2022-09-15 matched 24/24. Accepted and
+  published (`copied: 752`, `checked: 0`). Report:
+  `reports/batches/b50/report.md`.
+- Batch b51: 188,924 state-vector rows, 0.0034 GB, 1,166 flights.
+  Validation outcome `passed` (1 complete hour, 743 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found one island at
+  `2022-08-12T05` (188,924 rows in the EDDF box). Two flight days still have
+  EDDF rows (30 and 31 August). Sample reconcile of `2022-08-12T04–06`
+  matched 3/3. Accepted and published (`copied: 780`, `checked: 3`). Report:
+  `reports/batches/b51/report.md`.
+- Batch b52: 0 state-vector rows, 0 GB, 1,155 flights.
+  Validation outcome `passed` (0 complete hours, 744 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found no
+  `state_vectors_data4` partition in July 2022. Two flight days still have
+  EDDF rows (6 and 7 July). Sample reconcile of 2022-07-15 matched 24/24.
+  Accepted and published (`copied: 779`, `checked: 2`). Report:
+  `reports/batches/b52/report.md`.
+- Batch b53: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 720 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found no
+  `state_vectors_data4` partition in June 2022. All 30 flight days are
+  `source_gap`. Sample reconcile of 2022-06-15 matched 24/24. Accepted and
+  published (`copied: 752`, `checked: 0`). Report:
+  `reports/batches/b53/report.md`.
+- Batch b54: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 744 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found no
+  `state_vectors_data4` partition in May 2022. All 31 flight days are
+  `source_gap`. Sample reconcile of 2022-05-15 matched 24/24. Accepted and
+  published (`copied: 777`, `checked: 0`). Report:
+  `reports/batches/b54/report.md`.
+- Batch b55: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 720 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found no
+  `state_vectors_data4` partition in April 2022. All 30 flight days are
+  `source_gap`. Sample reconcile of 2022-04-15 matched 24/24. Accepted and
+  published (`copied: 752`, `checked: 0`). Report:
+  `reports/batches/b55/report.md`.
+- Batch b56: 0 state-vector rows, 0 GB, 0 flights.
+  Validation outcome `passed` (0 complete hours, 744 `source_gap` hours,
+  0 problems, 0 anomalies). Hourly global probes found no
+  `state_vectors_data4` partition in March 2022. All 31 flight days are
+  `source_gap`. Sample reconcile of 2022-03-15 matched 24/24. Accepted and
+  published (`copied: 777`, `checked: 0`). Report:
+  `reports/batches/b56/report.md`.
 - Hour reconciliation matched 168/168:
   `reports/reconcile/20261114T221544Z-3852.json`.
 - The fin small-box cross-check matched 168/168 (latitude 49.98–50.07,
@@ -282,15 +355,18 @@ SHA256. There is no GitHub Actions workflow yet.
 
 Next session:
 
-1. Collect b47, December 2022. State vectors:
-   `run --from 2022-12-01T00:00:00Z --until 2023-01-01T00:00:00Z`.
-   Flights: `collect-flights --from 2022-12-01 --until 2023-01-01`.
-2. `validate --batch b47`, `report --batch b47`, then `accept` and `publish`.
+1. Collect b57, February 2022. State vectors:
+   `run --from 2022-02-01T00:00:00Z --until 2022-03-01T00:00:00Z`.
+   Flights: `collect-flights --from 2022-02-01 --until 2022-03-01`.
+   Probe the month hourly and extend `known_gaps.yaml` before or as soon as
+   `SOURCE_MISSING` stops the range. Add an hour only when the global
+   partition is empty.
+2. `validate --batch b57`, `report --batch b57`, then `accept` and `publish`.
    A validation outcome of `review` needs `--notes`. A `failed` outcome stops
    the gate. Stop the backfill if a day exceeds 6 million rows, 100 MB of
-   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b48
-   until b47 is published.
-3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b46.
+   Parquet, 60 seconds per hour, or 5 GB scanned per hour. Do not start b58
+   until b57 is published.
+3. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b56.
    Commit only when asked.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run

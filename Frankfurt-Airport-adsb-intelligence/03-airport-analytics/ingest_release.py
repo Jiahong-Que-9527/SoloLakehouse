@@ -94,10 +94,17 @@ class BigQueryOps:
         from google.cloud import bigquery
         self.project, self.dataset, self.region = project, dataset, region
         self.client = bigquery.Client(project=project)
+        self.max_bytes_billed = None
+        self.query_jobs = []
 
     def sql(self, statement: str) -> list[dict]:
-        return [dict(row) for row in
-                self.client.query(statement).result()]
+        from google.cloud import bigquery
+
+        config = bigquery.QueryJobConfig(maximum_bytes_billed=self.max_bytes_billed)
+        job = self.client.query(statement, job_config=config, location=self.region)
+        rows = [dict(row) for row in job.result()]
+        self.query_jobs.append({"job_id": job.job_id, "bytes_billed": job.total_bytes_billed})
+        return rows
 
     def qualified(self, table: str) -> str:
         return f"`{self.project}.{self.dataset}.{table}`"
@@ -136,12 +143,11 @@ class BigQueryOps:
                       expected_rows: int) -> int:
         """Insert once, guarded by the release_id column (ADR-004 check 4)."""
         self.sql(
-            f"DECLARE existing INT64;\n"
-            f"SET existing = (SELECT COUNT(DISTINCT release_id) FROM "
-            f"{self.qualified(table)} WHERE release_id = '{release_id}');\n"
             f"INSERT INTO {self.qualified(table)}\n"
             f"SELECT t.*, '{release_id}' AS release_id\n"
-            f"FROM {self.qualified(external)} t WHERE existing = 0")
+            f"FROM {self.qualified(external)} t\n"
+            f"WHERE NOT EXISTS (SELECT 1 FROM {self.qualified(table)} "
+            f"WHERE release_id = '{release_id}')")
         counted = self.sql(f"SELECT COUNT(*) AS n FROM {self.qualified(table)} "
                            f"WHERE release_id = '{release_id}'")[0]["n"]
         if counted != expected_rows:
@@ -149,6 +155,23 @@ class BigQueryOps:
                 f"row reconciliation failed: table has {counted} rows for "
                 f"{release_id}, manifest says {expected_rows}")
         return counted
+
+    def geometry_counts(self, release_id: str) -> dict:
+        counts = self.sql(f"""
+            WITH grain AS (
+                SELECT day_utc, flight_key, COUNT(*) AS n,
+                       COUNTIF(status = 'labeled') AS labeled
+                FROM {self.qualified(GEOMETRY_TABLE)}
+                WHERE release_id = '{release_id}'
+                GROUP BY day_utc, flight_key
+            )
+            SELECT COALESCE(SUM(n), 0) AS total_rows,
+                   COALESCE(SUM(labeled), 0) AS labeled_rows,
+                   COUNTIF(n > 1) AS duplicate_keys
+            FROM grain
+        """)[0]
+        return {"rows": counts["total_rows"], "labeled_rows": counts["labeled_rows"],
+                "duplicate_keys": counts["duplicate_keys"]}
 
 
 def download_release(landing: str, workspace: Path) -> Path:
@@ -159,7 +182,7 @@ def download_release(landing: str, workspace: Path) -> Path:
     client = storage.Client()
     parts = landing.removeprefix("gs://").split("/", 1)
     bucket_name, prefix = parts[0], parts[1].rstrip("/")
-    blobs = client.list_blobs(bucket_name, prefix=prefix)
+    blobs = client.list_blobs(bucket_name, prefix=f"{prefix}/")
     local_dir = workspace / "release"
     for blob in blobs:
         rel = Path(blob.name).relative_to(prefix)
@@ -198,7 +221,12 @@ def main():
     parser.add_argument("--gold-bucket", required=True)
     parser.add_argument("--connection", default="aviation-gold-conn")
     parser.add_argument("--table", help="target table, defaults to the label version's table")
+    parser.add_argument("--max-bytes-billed", type=int, help="per-query BigQuery billing cap")
+    parser.add_argument("--expect-geometry-labels", type=int,
+                        help="verify the Geometry v2 row count, label count and grain")
     args = parser.parse_args()
+    if args.max_bytes_billed is not None and args.max_bytes_billed <= 0:
+        parser.error("--max-bytes-billed must be positive")
 
     workspace = Path(tempfile.mkdtemp(prefix="aviation-ingest-"))
     try:
@@ -217,22 +245,38 @@ def main():
         data_product = manifest.get("data_product", "unknown")
         manifest_sha = digest(local_dir / "manifest.json")
         expected_rows = manifest["files"]["data/part-0001.parquet"]["rows"]
+        if args.expect_geometry_labels is not None and (
+            table != GEOMETRY_TABLE or not 0 <= args.expect_geometry_labels <= expected_rows
+        ):
+            parser.error("--expect-geometry-labels requires a valid count for a Geometry v2 release")
 
         ops = BigQueryOps(args.project, args.dataset, args.region)
+        ops.max_bytes_billed = args.max_bytes_billed
         ops.ensure_ledger()
-        if ops.already_ingested(release_id):
-            print(json.dumps({"status": "already_ingested",
-                              "release_id": release_id, "rows_added": 0}))
-            return
-        ops.ensure_table(table, args.gold_bucket, args.connection)
-        external = f"tmp_ingest_{table}"
-        parquet_uri = f"{args.landing.rstrip('/')}/data/part-0001.parquet"
-        ops.stage_external(external, parquet_uri)
-        rows = ops.apply_release(table, external, release_id, expected_rows)
-        ops.record(release_id, data_product, manifest_sha, rows,
-                   "ingested", "")
-        print(json.dumps({"status": "ingested", "release_id": release_id,
-                          "rows": rows}))
+        already_ingested = ops.already_ingested(release_id)
+        result = {"status": "already_ingested", "release_id": release_id, "rows_added": 0}
+        if not already_ingested:
+            ops.ensure_table(table, args.gold_bucket, args.connection)
+            external = f"tmp_ingest_{table}"
+            parquet_uri = f"{args.landing.rstrip('/')}/data/part-0001.parquet"
+            ops.stage_external(external, parquet_uri)
+            rows = ops.apply_release(table, external, release_id, expected_rows)
+            result = {"status": "ingested", "release_id": release_id, "rows": rows}
+        if args.expect_geometry_labels is not None:
+            actual = ops.geometry_counts(release_id)
+            expected = {"rows": expected_rows, "labeled_rows": args.expect_geometry_labels,
+                        "duplicate_keys": 0}
+            result["geometry_counts"] = actual
+            if actual != expected:
+                result.update(status="verification_failed", expected_geometry_counts=expected,
+                              query_jobs=ops.query_jobs)
+                print(json.dumps(result))
+                sys.exit(1)
+        if not already_ingested:
+            ops.record(release_id, data_product, manifest_sha, rows, "ingested", "")
+        if args.max_bytes_billed is not None or args.expect_geometry_labels is not None:
+            result["query_jobs"] = ops.query_jobs
+        print(json.dumps(result))
     finally:
         shutil.rmtree(workspace, ignore_errors=True)
 
