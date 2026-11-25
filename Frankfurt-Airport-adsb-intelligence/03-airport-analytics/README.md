@@ -114,31 +114,98 @@ passing (2026-11-21). Query cost for the three view queries on the sample:
   sample; runway-area activity is deliberately absent because the
   `ground_ops` market carries no runway evidence (ADR-006). Recorded run
   below.
-- **M5.** Full dataset release, cost record and findings report.
+- **M5.** Two-year Geometry v2 release, cost record and findings report.
+  Accepted 2026-11-23. All 24 releases reconciled in BigQuery.
 
 ### Geometry v2 handoff (M5)
 
-1. Confirm that `local-verification.json` in the
-   [active backfill directory](../02-aviation-transformation/README.md#backfill-status-and-handoff)
-   lists all 24 release IDs from `geometry-v2-2024-11` through
-   `geometry-v2-2026-10`. Check that every monthly date is either present
-   or recorded as missing.
-2. Check `logs/cloud-pilot.log` and `cloud-pilot-verification.json` in
-   that directory. The approved November 2024 pilot is queued behind
-   local verification. Its destination is the private Frankfurt dataset
-   `slh-gcp-test.aviation`, table `ground_ops_arrivals_geometry_v2`.
-   Expect **17,051 rows**, **13,413 labeled rows**, **0 duplicate
-   (day_utc, flight_key) keys**, and **0 rows added by a repeat import**.
-   Record the BigQuery job IDs and bytes billed.
-3. If the pilot stops, check the error before retrying. Reuse an existing
-   Landing object only if its checksum matches the local package. For a
-   retry, use the same release ID and geometry table, and keep the
-   pilot's 100 MiB per-query cap.
-4. After the pilot reconciles, size the remaining 23 packages and assess
-   their import under the repository's GCP cost rules. Then schedule
-   the remaining imports sequentially, reconcile each release, and
-   write the cost and findings report. Use the geometry table for the
-   series and report taxi-in as an ADS-B proxy.
+The [local backfill](../02-aviation-transformation/README.md#backfill-status-and-handoff)
+verified all 24 releases and 730 Silver dates on 2026-11-22. The first cloud
+attempt stopped at a `403` on `contract.yaml` because `gcloud storage cp`
+attempted a read with the create-only identity. `upload_release.py` uses a
+conditional create against Cloud Storage. When an object already exists, a
+reader checks its SHA-256 before reuse. `_SUCCESS` goes up last. A checksum
+mismatch stops the upload.
+
+**Pilot accepted 2026-11-23.** The upload rerun verified and reused all six
+objects. The first ingestion attempt inserted the release but its acceptance
+query failed on an SQL alias. Recovery kept the existing rows and recorded
+the ledger entry after the corrected query passed. Recovery and the ingestion
+rerun each verified 17,051 rows, 13,413 labeled rows and zero duplicate keys.
+The ingestion rerun added zero rows. The two successful ingestion runs billed
+50 MiB combined. The run directory holds `cloud-pilot-verification.json` with
+the job IDs, individual bytes billed and upload replay result.
+
+From this directory, use Application Default Credentials (ADC) with permission
+to impersonate `aviation-upload`. The upload command can use `--reader` to
+impersonate a separate reader if ADC itself lacks Landing read access and can
+impersonate the reader. The accepted pilot used ADC for reads.
+
+```bash
+run_dir=/home/bill/slh-data/full-20241101-20261031-geometry-v2
+uv run --locked python upload_release.py \
+  "$run_dir/releases-geometry-v2/geometry-v2-2024-11" \
+  --project slh-gcp-test --landing-bucket slh-gcp-test-aviation-landing \
+  --uploader aviation-upload@slh-gcp-test.iam.gserviceaccount.com
+```
+
+After upload succeeds, run ingestion with ADC for the ingestion identity or an
+operator with the equivalent storage and BigQuery permissions. Keep the
+100 MiB per-query cap and save each successful run's JSON under the run
+directory. The JSON includes BigQuery job IDs and bytes billed.
+
+```bash
+pilot_ingest() {
+  uv run --locked python ingest_release.py \
+    --landing gs://slh-gcp-test-aviation-landing/releases/geometry-v2-2024-11 \
+    --project slh-gcp-test --gold-bucket slh-gcp-test-aviation-gold \
+    --max-bytes-billed 104857600 --expect-geometry-labels 13413
+}
+pilot_ingest > "$run_dir/cloud-pilot-ingest.json" &&
+  pilot_ingest > "$run_dir/cloud-pilot-repeat.json"
+```
+
+Accept the pilot when both runs report **17,051 rows**, **13,413 labeled rows**
+and **0 duplicate `(day_utc, flight_key)` keys** in
+`ground_ops_arrivals_geometry_v2`, and the repeat reports `rows_added: 0`.
+If a run stopped, inspect its output before retrying with the same release ID
+and table.
+
+**December 2024 accepted.** The monthly runner reconciled 16,218 rows,
+13,079 labeled rows and zero duplicate keys. The repeat added zero rows.
+The import billed 50 MiB and the repeat billed 10 MiB. The evidence is
+`cloud-series/geometry-v2-2024-12.json` under the run directory.
+
+`geometry_series.py plan` verifies the checksums, label version and Parquet
+counts for a date range before any cloud operation. `import` walks the same
+range in month order and writes a JSON checkpoint after acceptance. Rerunning
+the same command skips verified months. `--replay` also verifies that a
+second ingest adds zero rows.
+
+**Full series accepted 2026-11-23.** The 22 releases from January 2025
+through October 2026 passed individual BigQuery checks for total rows,
+labeled rows and duplicate `(day_utc, flight_key)` keys. The series query
+reconciled all 24 releases from November 2024 through October 2026 against
+the local packages. There are 433,694 candidates and 400,942 labeled rows
+(92.4%). Monthly label coverage ranged from 67.0% in June 2025 to 99.1% in
+November 2025. The median taxi-in proxy among labeled candidates ranged
+from 198 to 489 seconds in those same months. Coverage varies enough that
+month-to-month comparisons should be interpreted together with those rates.
+
+The 22-release import billed 1,100 MiB across 176 BigQuery jobs and the
+report billed 16 MiB. The largest individual job billed 20 MiB against
+the 100 MiB per-query cap. These totals cover the final batch and report.
+The `cloud-series/` directory under the active run holds the month-level
+receipts and the report with BigQuery job IDs and billed bytes.
+
+After the cloud import, run `geometry_series.py report` for 2024-11 through
+2026-10. It checks the monthly counts against the local releases and writes
+`series-report.json` and `series-findings.md`. `local-report` writes the
+corresponding Parquet baseline without querying the cloud. All modes take
+`--release-dir`, `--first` and `--last`. The import and report commands use
+`--evidence-dir`, `--project`, and an optional `--max-bytes-billed` with a
+100 MiB default. Import also needs `--landing-bucket`, `--gold-bucket` and
+`--uploader`. The local-report command takes `--evidence-dir` for its output.
 
 ## Acceptance
 

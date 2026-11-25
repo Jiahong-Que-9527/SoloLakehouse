@@ -1,11 +1,12 @@
 """Synthetic release fixtures for the ingest job (03 M3)."""
 import hashlib
+import io
 import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import ingest_release
 
@@ -41,9 +42,11 @@ class FakeOps:
     # Class-level state simulates the real ledger table, which outlives
     # a single BigQueryOps instance.
     ledger = {}
+    counts = {}
 
     def __init__(self, project, dataset, region):
         self.calls = []
+        self.query_jobs = []
         FakeOps.instances.append(self)
 
     def ensure_ledger(self):
@@ -67,27 +70,35 @@ class FakeOps:
         self.calls.append(("record", status, reason))
         FakeOps.ledger[release_id] = status
 
+    def geometry_counts(self, release_id):
+        self.calls.append(("geometry_counts", release_id))
+        return self.counts
+
 
 class IngestTests(unittest.TestCase):
     def setUp(self):
         FakeOps.instances = []
         FakeOps.ledger = {}
+        FakeOps.counts = {"rows": 3, "labeled_rows": 2, "duplicate_keys": 0}
         self.workspace = Path(tempfile.mkdtemp(prefix="ingest-test-"))
         self.release = build_release(self.workspace / "release")
 
-    def run_main(self, expect_exit=None, table=None):
+    def run_main(self, expect_exit=None, table=None, extra_args=()):
         argv = ["ingest_release.py", "--landing", str(self.release),
                 "--project", "test-proj", "--gold-bucket", "test-gold"]
         if table:
             argv.extend(["--table", table])
+        argv.extend(extra_args)
         with patch.object(sys, "argv", argv), \
-             patch.object(ingest_release, "BigQueryOps", FakeOps):
+             patch.object(ingest_release, "BigQueryOps", FakeOps), \
+             patch.object(sys, "stdout", new_callable=io.StringIO) as stdout:
             if expect_exit is None:
                 ingest_release.main()
             else:
                 with self.assertRaises(SystemExit) as ctx:
                     ingest_release.main()
                 self.assertEqual(ctx.exception.code, expect_exit)
+            return json.loads(stdout.getvalue())
 
     def test_happy_path_ingests_once(self):
         self.run_main()
@@ -114,6 +125,29 @@ class IngestTests(unittest.TestCase):
         self.run_main()
         self.assertIn(("ensure_table", ingest_release.GEOMETRY_TABLE),
                       FakeOps.instances[0].calls)
+
+    def test_geometry_acceptance_on_first_ingest_and_repeat(self):
+        self.release = build_release(
+            self.workspace / "geometry", label_version=ingest_release.GEOMETRY_LABEL_VERSION,
+            contract_version="2")
+        args = ("--max-bytes-billed", "104857600", "--expect-geometry-labels", "2")
+        first = self.run_main(extra_args=args)
+        repeat = self.run_main(extra_args=args)
+        self.assertEqual(first["geometry_counts"], FakeOps.counts)
+        self.assertEqual(first["status"], "ingested")
+        self.assertEqual(repeat["geometry_counts"], FakeOps.counts)
+        self.assertEqual(repeat["rows_added"], 0)
+        self.assertEqual(FakeOps.instances[1].max_bytes_billed, 104857600)
+        self.assertEqual(FakeOps.instances[1].calls, ["ensure_ledger", ("geometry_counts", "v002")])
+
+    def test_geometry_acceptance_failure_does_not_publish_ledger_record(self):
+        self.release = build_release(
+            self.workspace / "geometry", label_version=ingest_release.GEOMETRY_LABEL_VERSION,
+            contract_version="2")
+        FakeOps.counts["duplicate_keys"] = 1
+        result = self.run_main(expect_exit=1, extra_args=("--expect-geometry-labels", "2"))
+        self.assertEqual(result["status"], "verification_failed")
+        self.assertEqual(FakeOps.ledger, {})
 
     def test_requested_table_cannot_mix_label_versions(self):
         self.run_main(expect_exit=1, table=ingest_release.GEOMETRY_TABLE)
@@ -145,6 +179,23 @@ class IngestTests(unittest.TestCase):
         (self.release / "contract.yaml").unlink()
         self.run_main(expect_exit=1)
         self.assertEqual(FakeOps.instances, [])
+
+
+class BigQueryOpsTests(unittest.TestCase):
+    def test_query_uses_billing_cap_and_records_job_evidence(self):
+        job = Mock(job_id="pilot-job", total_bytes_billed=10_485_760)
+        job.result.return_value = [{"total_rows": 3, "labeled_rows": 2, "duplicate_keys": 0}]
+        with patch("google.cloud.bigquery.Client") as client:
+            client.return_value.query.return_value = job
+            ops = ingest_release.BigQueryOps("test-proj", "aviation", "europe-west3")
+            ops.max_bytes_billed = 104_857_600
+            self.assertEqual(ops.geometry_counts("geometry-v2-2024-11"),
+                             {"rows": 3, "labeled_rows": 2, "duplicate_keys": 0})
+            self.assertIn("AS total_rows", client.return_value.query.call_args.args[0])
+            kwargs = client.return_value.query.call_args.kwargs
+            self.assertEqual(kwargs["job_config"].maximum_bytes_billed, 104_857_600)
+            self.assertEqual(kwargs["location"], "europe-west3")
+        self.assertEqual(ops.query_jobs, [{"job_id": "pilot-job", "bytes_billed": 10_485_760}])
 
 
 if __name__ == "__main__":
