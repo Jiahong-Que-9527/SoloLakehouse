@@ -13,6 +13,7 @@ from typing import Any
 
 from . import __version__, auth
 from .batch import get_batch, validate_batch
+from .catalog import build_catalog, dataset_summary, export_manifests
 from .config import Config, ConfigError, load_config
 from .crosscheck import cross_check_hours
 from .discover import discover, save_record, summarise
@@ -31,6 +32,7 @@ from .reconcile import reconcile_hours
 from .report import write_report
 from .run import collect_range, parse_duration
 from .util import parse_utc_day, parse_utc_hour
+from .verify import restore_check, verify_dataset
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -75,6 +77,20 @@ def build_parser() -> argparse.ArgumentParser:
     accept.add_argument("--notes", default="", help="required when validation listed anomalies")
     publish = sub.add_parser("publish", help="back up an accepted batch and verify checksums")
     publish.add_argument("--batch", required=True, help="batch id, for example b01")
+    verify = sub.add_parser("verify", help="re-hash every committed file and check all manifests")
+    verify.add_argument(
+        "--progress-every", type=int, default=2000, help="print progress every N files"
+    )
+    sub.add_parser("export-manifests", help="write manifest parquet files and the dataset contract")
+    sub.add_parser("catalog", help="build the DuckDB catalog with the lakehouse views")
+    sub.add_parser("summary", help="write the dataset summary, including distinct aircraft")
+    restore = sub.add_parser(
+        "restore-check", help="restore a batch from the backup and verify hashes"
+    )
+    restore.add_argument("--batch", required=True, help="batch id, for example b07")
+    restore.add_argument(
+        "--keep", action="store_true", help="keep the restored copy under staging/"
+    )
     return parser
 
 
@@ -365,6 +381,81 @@ def cmd_publish(cfg: Config, batch_id: str) -> int:
     return EXIT_OK if summary["outcome"] == "published" else EXIT_ERROR
 
 
+def cmd_verify(cfg: Config, progress_every: int) -> int:
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        record = verify_dataset(cfg, progress=print, every=max(progress_every, 1))
+    finally:
+        os.close(lock)
+    print(
+        f"verify outcome: {record['outcome']} files: {record['files_hashed']} "
+        f"problems: {record['problems_total']}"
+    )
+    print(f"report: {record['path']}")
+    return EXIT_OK if record["outcome"] == "passed" else EXIT_ERROR
+
+
+def cmd_export_manifests(cfg: Config) -> int:
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        record = export_manifests(cfg)
+    finally:
+        os.close(lock)
+    print(
+        f"export outcome: done hours: {record['hours']} flight_days: {record['flight_days']} "
+        f"batches: {record['batches']}"
+    )
+    print(f"contract: {record['contract']}")
+    return EXIT_OK
+
+
+def cmd_catalog(cfg: Config) -> int:
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        record = build_catalog(cfg)
+    finally:
+        os.close(lock)
+    print(
+        f"catalog outcome: done hour_files: {record['hour_files']} "
+        f"flight_files: {record['flight_files']} views: {len(record['views'])}"
+    )
+    print(f"catalog: {record['catalog']}")
+    return EXIT_OK
+
+
+def cmd_summary(cfg: Config) -> int:
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        record = dataset_summary(cfg)
+    finally:
+        os.close(lock)
+    print(
+        f"summary outcome: done state_vectors rows: {record['state_vectors']['rows']} "
+        f"aircraft: {record['state_vectors']['unique_aircraft']}"
+    )
+    print(
+        f"flights rows: {record['flights']['rows']} "
+        f"aircraft: {record['flights']['unique_aircraft']}"
+    )
+    print(f"summary: {cfg.paths.data_root / 'metadata' / 'datasets' / 'dataset_summary.json'}")
+    return EXIT_OK
+
+
+def cmd_restore_check(cfg: Config, batch_id: str, keep: bool) -> int:
+    batch = get_batch(batch_id)
+    lock = acquire_lock(cfg.paths.data_root)
+    try:
+        record = restore_check(cfg, batch, keep=keep)
+    finally:
+        os.close(lock)
+    print(
+        f"restore-check outcome: {record['outcome']} batch: {record['batch_id']} "
+        f"checked: {record['checked']} mismatches: {record['mismatches_total']}"
+    )
+    print(f"report: {record['path']}")
+    return EXIT_OK if record["outcome"] == "passed" else EXIT_ERROR
+
+
 def main(
     argv: Sequence[str] | None = None,
     connection_factory: Callable[..., Any] = auth.make_connection,
@@ -386,6 +477,16 @@ def main(
             return cmd_accept(cfg, args.batch, args.notes)
         if args.command == "publish":
             return cmd_publish(cfg, args.batch)
+        if args.command == "verify":
+            return cmd_verify(cfg, args.progress_every)
+        if args.command == "export-manifests":
+            return cmd_export_manifests(cfg)
+        if args.command == "catalog":
+            return cmd_catalog(cfg)
+        if args.command == "summary":
+            return cmd_summary(cfg)
+        if args.command == "restore-check":
+            return cmd_restore_check(cfg, args.batch, args.keep)
         _ = cfg.username  # fail early if OPENSKY_USERNAME is not set
         if args.command == "login":
             return cmd_login(cfg, connection_factory)

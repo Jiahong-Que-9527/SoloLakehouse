@@ -491,9 +491,12 @@ enters the repository.
    can start before the rest of the tool is finished.
 4. **M3, batches.** Reports, acceptance, backup and the monthly runs.
 5. **M4, lakehouse helpers.** Manifest export and the DuckDB catalog, so
-   later local subprojects can read accepted hours.
+   later local subprojects can read accepted hours. **Done 2026-11-25**
+   (`catalog.py`: `export-manifests`, `catalog`).
 6. **M5, dataset sign-off.** Full verify, dataset summary, restore test from
-   the `E:` backup.
+   the `E:` backup. **Done 2026-11-25** (`verify.py`: `verify`, `summary`,
+   `restore-check`; record in the
+   [dataset summary](dataset-summary.md)).
 
 ## 14. Open items
 
