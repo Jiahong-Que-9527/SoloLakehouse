@@ -212,6 +212,15 @@ After b24 and a final `verify`:
 - Restore test: recover a month from the `E:` backup and compare hashes.
 - Record the processing-epoch split and the known gaps in the summary.
 
+**Done 2026-11-25 (M5).** The full `verify` re-hashed all 35,086 committed
+files with 0 problems. The restore test recovered b07, b47 and b48 from
+`E:` with 0 mismatches. The dataset summary, the processing-epoch split
+(4,298.9 M rows in epoch A, 3.1 M in B, 299.0 M in C) and the 21 known gaps
+are recorded in the
+[dataset summary](../01-opensky-acquisition/docs/dataset-summary.md).
+The manifest export and the DuckDB catalog (M4) are under
+`metadata/datasets/` on the data root.
+
 ## Five-year extension
 
 Decided on 2026-11-20. **Collected 2026-11-25** (b25–b60 published). The

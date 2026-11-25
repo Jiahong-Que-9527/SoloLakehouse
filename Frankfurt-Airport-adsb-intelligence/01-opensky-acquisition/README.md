@@ -17,8 +17,20 @@ b25 through b36 finish the first-year cut of the five-year extension
 (three years on disk, Nov 2023 through Oct 2026). b37 through b48 finish
 the second cut (four years, Nov 2022 through Oct 2026). b49 through b60
 finish the third cut (five years on disk, Nov 2021 through Oct 2026).
-Monthly collection is complete. Next: full `verify`, dataset summary,
-manifest export and M5 sign-off.
+Monthly collection is complete.
+
+**M4 and M5 are done (2026-11-25).** The full-dataset `verify` re-hashed all
+35,086 committed files (96.8 GB) with 0 problems; the restore test recovered
+b07, b47 and b48 from `E:` with 0 mismatches; the dataset summary, the
+manifest Parquet export, the dataset contract and the DuckDB catalog are
+written under `metadata/datasets/`. The dataset is signed off — see the
+[dataset summary](docs/dataset-summary.md). The two-year window holds
+4.60 billion state-vector rows (88.3 GB) and 1.66 million flights
+(8.5 GB) across 28,842 and 9,476 unique aircraft. Every non-complete unit
+is a documented source gap; there are no pending and no failed hours or
+days. Remaining follow-ups are optional: incremental collection for hours
+older than 48 h (needs unattended login) and, if ever needed, the
+`rebuild-state` recovery helper.
 
 Collected data is local, under `/home/bill/slh-data/aviation`, and is not in
 git.
@@ -374,18 +386,27 @@ git.
   manifests unchanged.
 
 The CLI has `login`, `discover`, `collect-hour`, `run`, `collect-flights`,
-`reconcile`, `cross-check`, `validate`, `report`, `accept` and `publish`.
+`reconcile`, `cross-check`, `validate`, `report`, `accept`, `publish`,
+`verify`, `export-manifests`, `catalog`, `summary` and `restore-check`.
 `publish` copies an accepted batch to `/mnt/e/slh-backup/aviation` and checks
-SHA256. There is no GitHub Actions workflow yet.
+SHA256. `export-manifests` and `catalog` need DuckDB
+(`uv sync --locked --extra analysis`).
 
-Next session (M4 and M5):
+Next steps: none for collection — the dataset is signed off. Later,
+optional:
 
-1. Run full-dataset `verify` and publish the dataset summary (see
-   [batch plan](docs/batch-plan.md)).
-2. Manifest export and DuckDB catalog (M4).
-3. Backup restore spot-check against manifest hashes (M5).
-4. Leave `serials` out. Do not upload Bronze. Do not recollect b01–b60 unless
-   a gate fails. Commit only when asked.
+1. Incremental collection for hours older than 48 h, if unattended OpenSky
+   login is ever solved.
+2. `rebuild-state` (recreate the SQLite index from manifests), a listed
+   recovery helper that has not been needed.
+
+Finished sign-off (2026-11-25): full `verify` passed with 0 problems over
+35,086 files; restore tests from `E:` passed on b07, b47 and b48; dataset
+summary, manifest export, contract and DuckDB catalog are on disk (M4, M5).
+See the [dataset summary](docs/dataset-summary.md).
+
+Standing orders: leave `serials` out. Do not upload Bronze. Do not recollect
+b01–b60 unless a gate fails.
 
 `OPENSKY_USERNAME` must be set. If a run stops with `AUTH_REQUIRED`, run
 `opensky-ingest login` and resume the same range. Do not print the username,
@@ -401,6 +422,8 @@ still Proposed. ADR-004 stays blocked on its spike.
   validation, publishing and tool structure.
 - [Batch plan](docs/batch-plan.md): pilot, all 60 monthly batches collected,
   five-year extension complete, gates and the session routine.
+- [Dataset summary](docs/dataset-summary.md): the M5 sign-off record for both
+  datasets, with per-month coverage and the lakehouse artifacts.
 - [ADR-001](../docs/adr/ADR-001-local-execution-for-historical-acquisition.md):
   why acquisition runs locally.
 - [ADR-002](../docs/adr/ADR-002-regional-dataset-and-monthly-batches.md): why a
@@ -419,7 +442,7 @@ still Proposed. ADR-004 stays blocked on its spike.
 | `serials` column | Excluded from v1 after the 2026-07-15 A/B test |
 | Local root | `/home/bill/slh-data/aviation` (outside the repository) |
 | Backup | `/mnt/e/slh-backup/aviation` |
-| Size | State vectors: 75 MB on the busiest benchmark day (2026-07-15), about 55 GB for two years. Flights: about 7 MB a day, about 5.4 GB for 731 days |
+| Size | State vectors: 88.3 GB for the five years. Flights: 8.5 GB for 1,827 days |
 
 Bronze keeps source columns with their original meaning and units. It does not
 filter, clean, deduplicate or interpolate.
@@ -452,7 +475,7 @@ filter, clean, deduplicate or interpolate.
 | Validation, reconciliation and batch reports | Required |
 | pytest and GitHub Actions CI | Required |
 | Local backup and verification | Required |
-| DuckDB catalog and manifest export | Recommended |
+| DuckDB catalog and manifest export | Recommended (delivered, M4) |
 | Docker | Optional |
 | Cloud upload of Bronze, Cloud Run, Cloud Scheduler, Kubernetes | Out of scope |
 
@@ -480,6 +503,8 @@ filter, clean, deduplicate or interpolate.
 
 ## Outputs for later projects
 
-An accepted Bronze dataset, manifests, a dataset contract and a dataset
-summary. Project 02 reads the accepted hours through the manifests, on this
-machine.
+An accepted Bronze dataset, manifests, a dataset contract, a dataset summary
+and a DuckDB catalog (`metadata/datasets/catalog.duckdb`, views
+`state_vectors`, `flights`, `hour_manifest`, `flight_manifest`,
+`batch_manifest`, `known_gaps`, `processing_epochs`). Project 02 reads the
+accepted hours through the manifests, on this machine.
