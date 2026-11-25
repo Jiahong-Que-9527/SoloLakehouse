@@ -12,14 +12,15 @@ feeds two paths. DuckDB builds point-in-time features locally for Python and
 MLflow. Approved Gold releases also go to GCS and BigQuery managed Iceberg
 for cloud analytics.
 
-**Status (2026-11-25):** acquisition gate G0 has passed. Batches b01 (2026-10)
-through b60 (2021-11) are validated, accepted and backed up to `E:`. b01
-through b12 completed the twelve-month cut line. b24 finishes the two-year
-window. b25 through b36 finish the first-year cut of the five-year
-extension. b37 through b48 finish the second cut (four years on disk).
-b49 through b60 finish the third cut (five years on disk). Monthly
-collection is complete; next work is full `verify`, dataset summary and M5
-sign-off. Details are in the
+**Status (2026-11-25):** acquisition is complete and signed off. Gate G0
+passed; batches b01 (2026-10) through b60 (2021-11) are validated, accepted
+and backed up to `E:`. M4 delivered the manifest export and the DuckDB
+catalog; M5 closed with a full `verify` (35,086 files re-hashed, 0
+problems), restore tests from `E:` (b07, b47, b48, 0 mismatches) and the
+dataset summary: 4.60 billion state-vector rows (88.3 GB) and 1.66 million
+flights (8.5 GB), 28,842 and 9,476 unique aircraft, no pending and no
+failed units. See the
+[dataset summary](01-opensky-acquisition/docs/dataset-summary.md) and the
 [acquisition status](01-opensky-acquisition/README.md#status-2026-11-25).
 
 **Geometry v2 delivery (2026-11-23):** all 24 monthly packages in the
