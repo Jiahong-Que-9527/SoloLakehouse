@@ -214,8 +214,8 @@ After b24 and a final `verify`:
 
 ## Five-year extension
 
-Decided on 2026-11-20. Not started. The collected window stays
-`[2024-11-01, 2026-11-01)`. The extension moves the start to **2021-11-01**
+Decided on 2026-11-20. **Collected 2026-11-25** (b25–b60 published). The
+window on disk is `[2021-11-01, 2026-11-01)`. The extension moved the start to **2021-11-01**
 and leaves the end where it is. That is five years, 1,826 days, 43,824 state
 hours and 1,827 flight days (the existing extra flight day 2026-11-01 stays
 on b01). New work is 1,096 days: **26,304 hours** and **1,096 flight days**,

@@ -90,9 +90,10 @@ and the [batch plan](../01-opensky-acquisition/docs/batch-plan.md).
 | M4 | Manifest export and DuckDB catalog | Accepted hours readable through the catalog |
 | M5 | Dataset sign-off | Full verify, dataset summary, backup restore tested |
 
-**Status:** the initial two-year window completed at batch b24. The
-[acquisition README](../01-opensky-acquisition/README.md) records the current
-checkpoint for the independent five-year extension.
+**Status:** the initial two-year window completed at batch b24; the
+five-year extension finished at batch b60 on 2026-11-25. The
+[acquisition README](../01-opensky-acquisition/README.md) records acceptance
+and the M4/M5 checklist (verify, dataset summary, catalog).
 
 CI: tests and lint on pull requests that touch this directory.
 Bronze is not uploaded to the cloud.
